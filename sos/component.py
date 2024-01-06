@@ -69,6 +69,15 @@ class SoSComponent():
         "verbosity": 0
     }
 
+    # files in collected archive that might contain upload password
+    files_with_upload_passwd = [
+        "sos_logs/sos.log",
+        "sos_reports/manifest.json",
+        "sos_commands/process/ps_*",
+        "sos_commands/selinux/ps_*",
+        "sos_commands/systemd/systemctl_status_--all",
+    ]
+
     def __init__(self, parser, parsed_args, cmdline_args):
         self.parser = parser
         self.args = parsed_args
@@ -366,6 +375,22 @@ class SoSComponent():
                                           self.manifest)
 
         self.archive.set_debug(self.opts.verbosity > 2)
+
+    def _obfuscate_upload_passwords(self):
+        # obfuscate strings like:
+        # --upload-pass=PASSWORD
+        # --upload-pass PASSWORD
+        # --upload-url https://user:PASSWORD@some.url
+        # in both sos_logs/sos.log and in sos_reports/manifest.json
+        # and several sos_commands/* places from plugins's collected data
+        _arc_path = self.archive.get_archive_path()
+        for path in self.files_with_upload_passwd:
+            for f in Path(_arc_path).glob(path):
+                # get just the relative path that archive works with
+                f = os.path.relpath(f, _arc_path)
+                for re in [r"(--upload-pass[\s=]+)\S+",
+                           r"(--upload-url[\s=]+\S+://.*:)([^@]*)"]:
+                    self.archive.do_file_sub(f, re, r"\1********")
 
     def add_ui_log_to_stdout(self):
         ui_console = logging.StreamHandler(sys.stdout)

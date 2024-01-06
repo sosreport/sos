@@ -1360,6 +1360,7 @@ this utility or remote systems that it connects to.
                 self.archive.add_final_manifest_data(
                     self.opts.compression_type
                 )
+            self._obfuscate_upload_passwords()
             if do_clean:
                 _dir = os.path.join(self.tmpdir, self.archive._name)
                 cleaner.obfuscate_file(

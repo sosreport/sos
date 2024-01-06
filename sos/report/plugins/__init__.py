@@ -1279,28 +1279,15 @@ class Plugin():
         """
         try:
             path = self._get_dest_for_srcpath(srcpath)
-            common_flags = re.IGNORECASE | re.MULTILINE
-            if hasattr(regexp, "pattern"):
-                pattern = regexp.pattern
-                flags = regexp.flags | common_flags
-            else:
-                pattern = regexp
-                flags = common_flags
             self._log_debug("substituting scrpath '%s'" % srcpath)
             self._log_debug("substituting '%s' for '%s' in '%s'"
-                            % (subst, pattern, path))
+                            % (subst,
+                               regexp.pattern if hasattr(regexp, "pattern")
+                               else regexp,
+                               path))
             if not path:
                 return 0
-            readable = self.archive.open_file(path)
-            content = readable.read()
-            if not isinstance(content, str):
-                content = content.decode('utf8', 'ignore')
-            result, replacements = re.subn(pattern, subst, content,
-                                           flags=flags)
-            if replacements:
-                self.archive.add_string(result, self.strip_sysroot(srcpath))
-            else:
-                replacements = 0
+            replacements = self.archive.do_file_sub(path, regexp, subst)
         except (OSError, IOError) as e:
             # if trying to regexp a nonexisting file, dont log it as an
             # error to stdout
