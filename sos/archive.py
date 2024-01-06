@@ -559,6 +559,43 @@ class FileCacheArchive(Archive):
         self._archive_root = _new_root
         self._archive_name = os.path.join(self._tmp_dir, self.name())
 
+    def do_file_sub(self, path, regexp, subst):
+        """Apply a regexp substitution to a file in the archive.
+
+        :param path: Path in the archive where the file can be found
+        :type path: ``str``
+
+        :param regexp:  A regex to match the contents of the file
+        :type regexp: ``str`` or compiled ``re`` object
+
+        :param subst: The substitution string to be used to replace matches
+                      within the file
+        :type subst: ``str``
+
+        :returns: Number of replacements made
+        :rtype: ``int``
+        """
+        common_flags = re.IGNORECASE | re.MULTILINE
+        if hasattr(regexp, "pattern"):
+            pattern = regexp.pattern
+            flags = regexp.flags | common_flags
+        else:
+            pattern = regexp
+            flags = common_flags
+
+        content = ""
+        with self.open_file(path) as readable:
+            content = readable.read()
+        if not isinstance(content, str):
+            content = content.decode('utf8', 'ignore')
+        result, replacements = re.subn(pattern, subst, content,
+                                       flags=flags)
+        if replacements:
+            self.add_string(result, path)
+        else:
+            replacements = 0
+        return replacements
+
     def finalize(self, method):
         self.log_info("finalizing archive '%s' using method '%s'"
                       % (self._archive_root, method))

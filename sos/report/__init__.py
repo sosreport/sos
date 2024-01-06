@@ -1515,6 +1515,8 @@ class SoSReport(SoSComponent):
         self._add_sos_logs()
         if self.manifest is not None:
             self.archive.add_final_manifest_data(self.opts.compression_type)
+        # Hide upload passwords in the log files
+        self._obfuscate_upload_passwords()
         # Now, separately clean the log files that cleaner also wrote to
         if do_clean:
             _dir = os.path.join(self.tmpdir, self.archive._name)
