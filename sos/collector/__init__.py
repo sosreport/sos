@@ -1270,7 +1270,7 @@ this utility or remote systems that it connects to.
             msg = 'No sosreports were collected, nothing to archive...'
             self.exit(msg, 1)
 
-        if self.opts.upload and self.policy.get_upload_url():
+        if self.opts.upload or self.opts.upload_url:
             try:
                 self.policy.upload_archive(arc_name)
                 self.ui_log.info("Uploaded archive successfully")
