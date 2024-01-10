@@ -92,7 +92,7 @@ class TarFileArchiveTest(unittest.TestCase):
         self.tf.add_string('this is my content', 'tests/string_test.txt')
 
         afp = self.tf.open_file('tests/string_test.txt')
-        self.assertEquals('this is my content', afp.read())
+        self.assertEqual('this is my content', afp.read())
 
     def test_rewrite_file(self):
         """Test that re-writing a file with add_string() modifies the content.
@@ -101,7 +101,7 @@ class TarFileArchiveTest(unittest.TestCase):
         self.tf.add_string('this is my new content', 'tests/string_test.txt')
 
         afp = self.tf.open_file('tests/string_test.txt')
-        self.assertEquals('this is my new content', afp.read())
+        self.assertEqual('this is my new content', afp.read())
 
     def test_make_link(self):
         self.tf.add_file('tests/ziptest')

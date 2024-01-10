@@ -133,36 +133,36 @@ class PluginToolTests(unittest.TestCase):
             ['this is only a test', 'there are only two lines'])
         test_fo = StringIO(test_s)
         matches = regex_findall(r".*lines$", test_fo)
-        self.assertEquals(matches, ['there are only two lines'])
+        self.assertEqual(matches, ['there are only two lines'])
 
     def test_regex_findall_miss(self):
         test_s = u"\n".join(
             ['this is only a test', 'there are only two lines'])
         test_fo = StringIO(test_s)
         matches = regex_findall(r".*not_there$", test_fo)
-        self.assertEquals(matches, [])
+        self.assertEqual(matches, [])
 
     def test_regex_findall_bad_input(self):
         matches = regex_findall(r".*", None)
-        self.assertEquals(matches, [])
+        self.assertEqual(matches, [])
         matches = regex_findall(r".*", [])
-        self.assertEquals(matches, [])
+        self.assertEqual(matches, [])
         matches = regex_findall(r".*", 1)
-        self.assertEquals(matches, [])
+        self.assertEqual(matches, [])
 
     def test_mangle_command(self):
         name_max = 255
-        self.assertEquals("foo", _mangle_command("/usr/bin/foo", name_max))
-        self.assertEquals(
+        self.assertEqual("foo", _mangle_command("/usr/bin/foo", name_max))
+        self.assertEqual(
             "foo_-x", _mangle_command("/usr/bin/foo -x", name_max))
-        self.assertEquals(
+        self.assertEqual(
             "foo_--verbose", _mangle_command("/usr/bin/foo --verbose",
                                              name_max))
-        self.assertEquals("foo_.path.to.stuff", _mangle_command(
+        self.assertEqual("foo_.path.to.stuff", _mangle_command(
             "/usr/bin/foo /path/to/stuff", name_max))
         longcmd = "foo is " + "a" * 256 + " long_command"
         expected = longcmd[0:name_max].replace(' ', '_')
-        self.assertEquals(expected, _mangle_command(longcmd, name_max))
+        self.assertEqual(expected, _mangle_command(longcmd, name_max))
 
 
 class PluginTests(unittest.TestCase):
@@ -185,7 +185,7 @@ class PluginTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         })
-        self.assertEquals(p.name(), "mockplugin")
+        self.assertEqual(p.name(), "mockplugin")
 
     def test_plugin_set_name(self):
         p = NamedMockPlugin({
@@ -194,7 +194,7 @@ class PluginTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         })
-        self.assertEquals(p.name(), "testing")
+        self.assertEqual(p.name(), "testing")
 
     def test_plugin_no_descrip(self):
         p = MockPlugin({
@@ -203,7 +203,7 @@ class PluginTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         })
-        self.assertEquals(p.get_description(), "<no description available>")
+        self.assertEqual(p.get_description(), "<no description available>")
 
     def test_plugin_has_descrip(self):
         p = NamedMockPlugin({
@@ -212,7 +212,7 @@ class PluginTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         })
-        self.assertEquals(p.get_description(),
+        self.assertEqual(p.get_description(),
                           "This plugin has a description.")
 
     def test_set_plugin_option(self):
@@ -223,7 +223,7 @@ class PluginTests(unittest.TestCase):
             'devices': {}
         })
         p.set_option("opt", "testing")
-        self.assertEquals(p.get_option("opt"), "testing")
+        self.assertEqual(p.get_option("opt"), "testing")
 
     def test_set_nonexistant_plugin_option(self):
         p = MockPlugin({
@@ -241,7 +241,7 @@ class PluginTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         })
-        self.assertEquals(p.get_option("badopt"), 0)
+        self.assertEqual(p.get_option("badopt"), 0)
 
     def test_get_unset_plugin_option(self):
         p = MockPlugin({
@@ -250,7 +250,7 @@ class PluginTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         })
-        self.assertEquals(p.get_option("opt"), None)
+        self.assertEqual(p.get_option("opt"), None)
 
     def test_get_unset_plugin_option_with_default(self):
         # this shows that even when we pass in a default to get,
@@ -262,7 +262,7 @@ class PluginTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         })
-        self.assertEquals(p.get_option("opt", True), True)
+        self.assertEqual(p.get_option("opt", True), True)
 
     def test_get_unset_plugin_option_with_default_not_none(self):
         # this shows that even when we pass in a default to get,
@@ -275,17 +275,17 @@ class PluginTests(unittest.TestCase):
             'cmdlineopts': MockOptions(),
             'devices': {}
         })
-        self.assertEquals(p.get_option("opt2", True), False)
+        self.assertEqual(p.get_option("opt2", True), False)
 
     def test_copy_dir(self):
         self.mp._do_copy_path("tests")
-        self.assertEquals(
+        self.assertEqual(
             self.mp.archive.m["tests/unittests/plugin_tests.py"],
             'tests/unittests/plugin_tests.py')
 
     def test_copy_dir_bad_path(self):
         self.mp._do_copy_path("not_here_tests")
-        self.assertEquals(self.mp.archive.m, {})
+        self.assertEqual(self.mp.archive.m, {})
 
     def test_copy_dir_forbidden_path(self):
         p = ForbiddenMockPlugin({
@@ -297,7 +297,7 @@ class PluginTests(unittest.TestCase):
         p.archive = MockArchive()
         p.setup()
         p.collect_plugin()
-        self.assertEquals(p.archive.m, {})
+        self.assertEqual(p.archive.m, {})
 
     def test_postproc_default_on(self):
         p = PostprocMockPlugin({
@@ -318,11 +318,11 @@ class PluginTests(unittest.TestCase):
         })
         e = {'TORVALDS': 'Linus'}
         p.set_default_cmd_environment(e)
-        self.assertEquals(p.default_environment, e)
+        self.assertEqual(p.default_environment, e)
         add_e = {'GREATESTSPORT': 'hockey'}
         p.add_default_cmd_environment(add_e)
-        self.assertEquals(p.default_environment['GREATESTSPORT'], 'hockey')
-        self.assertEquals(p.default_environment['TORVALDS'], 'Linus')
+        self.assertEqual(p.default_environment['GREATESTSPORT'], 'hockey')
+        self.assertEqual(p.default_environment['TORVALDS'], 'Linus')
 
 
 class AddCopySpecTests(unittest.TestCase):
@@ -344,7 +344,7 @@ class AddCopySpecTests(unittest.TestCase):
                 path = path[1:]
             return os.path.join(self.mp.sysroot, path)
         expected_paths = set(map(pathmunge, self.expect_paths))
-        self.assertEquals(self.mp.copy_paths, expected_paths)
+        self.assertEqual(self.mp.copy_paths, expected_paths)
 
     def test_single_file_no_limit(self):
         self.mp.add_copy_spec("tests/unittests/tail_test.txt")
@@ -361,7 +361,7 @@ class AddCopySpecTests(unittest.TestCase):
         fname, _size = self.mp._tail_files_list[0]
         self.assertTrue(fname == fn)
         self.assertTrue("tmp" in fname)
-        self.assertEquals(1024 * 1024, _size)
+        self.assertEqual(1024 * 1024, _size)
         os.unlink(fn)
 
     def test_bad_filename(self):
@@ -379,7 +379,7 @@ class AddCopySpecTests(unittest.TestCase):
         create_file(2, dir=tmpdir)
         create_file(2, dir=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*")
-        self.assertEquals(len(self.mp.copy_paths), 2)
+        self.assertEqual(len(self.mp.copy_paths), 2)
         shutil.rmtree(tmpdir)
 
     def test_glob_file_over_limit(self):
@@ -388,18 +388,18 @@ class AddCopySpecTests(unittest.TestCase):
         create_file(2, dir=tmpdir)
         create_file(2, dir=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*", 1)
-        self.assertEquals(len(self.mp._tail_files_list), 1)
+        self.assertEqual(len(self.mp._tail_files_list), 1)
         fname, _size = self.mp._tail_files_list[0]
-        self.assertEquals(1024 * 1024, _size)
+        self.assertEqual(1024 * 1024, _size)
         shutil.rmtree(tmpdir)
 
     def test_multiple_files_no_limit(self):
         self.mp.add_copy_spec(['tests/unittests/tail_test.txt', 'tests/unittests/test.txt'])
-        self.assertEquals(len(self.mp.copy_paths), 2)
+        self.assertEqual(len(self.mp.copy_paths), 2)
 
     def test_multiple_files_under_limit(self):
         self.mp.add_copy_spec(['tests/unittests/tail_test.txt', 'tests/unittests/test.txt'], 1)
-        self.assertEquals(len(self.mp.copy_paths), 2)
+        self.assertEqual(len(self.mp.copy_paths), 2)
 
 
 class CheckEnabledTests(unittest.TestCase):
@@ -443,7 +443,7 @@ class RegexSubTests(unittest.TestCase):
         self.mp.archive = MockArchive()
 
     def test_file_never_copied(self):
-        self.assertEquals(0, self.mp.do_file_sub(
+        self.assertEqual(0, self.mp.do_file_sub(
             "never_copied", r"^(.*)$", "foobar"))
 
     def test_no_replacements(self):
@@ -452,7 +452,7 @@ class RegexSubTests(unittest.TestCase):
         self.mp.collect_plugin()
         replacements = self.mp.do_file_sub(
             j("tail_test.txt"), r"wont_match", "foobar")
-        self.assertEquals(0, replacements)
+        self.assertEqual(0, replacements)
 
     def test_replacements(self):
         # test uses absolute paths
@@ -461,7 +461,7 @@ class RegexSubTests(unittest.TestCase):
         self.mp.collect_plugin()
         replacements = self.mp.do_file_sub(
             j("tail_test.txt"), r"(tail)", "foobar")
-        self.assertEquals(1, replacements)
+        self.assertEqual(1, replacements)
         self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))
 
 

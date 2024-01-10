@@ -88,17 +88,17 @@ class PackageManagerTests(unittest.TestCase):
         self.pm = PackageManager()
 
     def test_default_all_pkgs(self):
-        self.assertEquals(self.pm.packages, {})
+        self.assertEqual(self.pm.packages, {})
 
     def test_default_all_pkgs_by_name(self):
-        self.assertEquals(self.pm.all_pkgs_by_name('doesntmatter'), [])
+        self.assertEqual(self.pm.all_pkgs_by_name('doesntmatter'), [])
 
     def test_default_all_pkgs_by_name_regex(self):
-        self.assertEquals(
+        self.assertEqual(
             self.pm.all_pkgs_by_name_regex('.*doesntmatter$'), [])
 
     def test_default_pkg_by_name(self):
-        self.assertEquals(self.pm.pkg_by_name('foo'), None)
+        self.assertEqual(self.pm.pkg_by_name('foo'), None)
 
 
 class RpmPackageManagerTests(unittest.TestCase):
@@ -115,7 +115,7 @@ class RpmPackageManagerTests(unittest.TestCase):
         kpkg = self.pm.pkg_by_name('coreutils')
         self.assertIsInstance(kpkg, dict)
         self.assertIsInstance(kpkg['version'], list)
-        self.assertEquals(kpkg['pkg_manager'], 'rpm')
+        self.assertEqual(kpkg['pkg_manager'], 'rpm')
 
 
 class DpkgPackageManagerTests(unittest.TestCase):
@@ -132,7 +132,7 @@ class DpkgPackageManagerTests(unittest.TestCase):
         kpkg = self.pm.pkg_by_name('coreutils')
         self.assertIsInstance(kpkg, dict)
         self.assertIsInstance(kpkg['version'], list)
-        self.assertEquals(kpkg['pkg_manager'], 'dpkg')
+        self.assertEqual(kpkg['pkg_manager'], 'dpkg')
 
 
 class MultiPackageManagerTests(unittest.TestCase):
@@ -150,9 +150,9 @@ class MultiPackageManagerTests(unittest.TestCase):
         self.assertIsInstance(kpkg['version'], list)
         _local = distro.detect().name
         if _local in ['Ubuntu', 'debian']:
-            self.assertEquals(kpkg['pkg_manager'], 'dpkg')
+            self.assertEqual(kpkg['pkg_manager'], 'dpkg')
         else:
-            self.assertEquals(kpkg['pkg_manager'], 'rpm')
+            self.assertEqual(kpkg['pkg_manager'], 'rpm')
 
 
 if __name__ == "__main__":

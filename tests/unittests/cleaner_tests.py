@@ -50,12 +50,12 @@ class CleanerMapTests(unittest.TestCase):
 
     def test_mac_map_skip_ignores(self):
         _test = self.mac_map.get('ff:ff:ff:ff:ff:ff')
-        self.assertEquals(_test, 'ff:ff:ff:ff:ff:ff')
+        self.assertEqual(_test, 'ff:ff:ff:ff:ff:ff')
 
     def test_mac_map_avoid_duplicate_obfuscation(self):
         _test = self.mac_map.get('ab:cd:ef:fe:dc:ba')
         _dup = self.mac_map.get(_test)
-        self.assertEquals(_test, _dup)
+        self.assertEqual(_test, _dup)
 
     def test_ip_map_obfuscate_v4_with_cidr(self):
         _test = self.ip_map.get('192.168.1.0/24')
@@ -77,7 +77,7 @@ class CleanerMapTests(unittest.TestCase):
 
     def test_ip_skip_ignores(self):
         _test = self.ip_map.get('127.0.0.1')
-        self.assertEquals(_test, '127.0.0.1')
+        self.assertEqual(_test, '127.0.0.1')
 
     def test_hostname_obfuscate_domain_options(self):
         _test = self.host_map.get('www.redhat.com')
