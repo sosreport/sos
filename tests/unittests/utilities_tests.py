@@ -24,32 +24,32 @@ class GrepTest(unittest.TestCase):
             ['this is only a test', 'there are only two lines'])
         test_fo = StringIO(test_s)
         matches = grep(".*test$", test_fo)
-        self.assertEquals(matches, ['this is only a test\n'])
+        self.assertEqual(matches, ['this is only a test\n'])
 
     def test_real_file(self):
         matches = grep(".*unittest$", __file__.replace(".pyc", ".py"))
-        self.assertEquals(matches, ['import unittest\n'])
+        self.assertEqual(matches, ['import unittest\n'])
 
     def test_open_file(self):
         matches = grep(".*unittest$", open(__file__.replace(".pyc", ".py")))
-        self.assertEquals(matches, ['import unittest\n'])
+        self.assertEqual(matches, ['import unittest\n'])
 
     def test_grep_multiple_files(self):
         matches = grep(".*unittest$",
                        __file__.replace(".pyc", ".py"), "does_not_exist.txt")
-        self.assertEquals(matches, ['import unittest\n'])
+        self.assertEqual(matches, ['import unittest\n'])
 
 
 class TailTest(unittest.TestCase):
 
     def test_tail(self):
         t = tail("tests/unittests/tail_test.txt", 10)
-        self.assertEquals(t, b"last line\n")
+        self.assertEqual(t, b"last line\n")
 
     def test_tail_too_many(self):
         t = tail("tests/unittests/tail_test.txt", 200)
         expected = open("tests/unittests/tail_test.txt", "r").read()
-        self.assertEquals(t, str.encode(expected))
+        self.assertEqual(t, str.encode(expected))
 
 
 class ExecutableTest(unittest.TestCase):
@@ -66,23 +66,23 @@ class ExecutableTest(unittest.TestCase):
 
     def test_output(self):
         result = sos_get_command_output("echo executed")
-        self.assertEquals(result['status'], 0)
-        self.assertEquals(result['output'], "executed\n")
+        self.assertEqual(result['status'], 0)
+        self.assertEqual(result['output'], "executed\n")
 
     def test_output_non_exe(self):
         path = os.path.join(TEST_DIR, 'utility_tests.py')
         result = sos_get_command_output(path)
-        self.assertEquals(result['status'], 127)
-        self.assertEquals(result['output'], b"")
+        self.assertEqual(result['status'], 127)
+        self.assertEqual(result['output'], b"")
 
     def test_output_chdir(self):
         cmd = "/bin/bash -c 'echo $PWD'"
         result = sos_get_command_output(cmd, chdir=TEST_DIR)
-        self.assertEquals(result['status'], 0)
+        self.assertEqual(result['status'], 0)
         self.assertTrue(result['output'].strip().endswith(TEST_DIR))
 
     def test_shell_out(self):
-        self.assertEquals("executed\n", shell_out('echo executed'))
+        self.assertEqual("executed\n", shell_out('echo executed'))
 
 
 class FindTest(unittest.TestCase):

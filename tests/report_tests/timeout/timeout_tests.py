@@ -20,7 +20,7 @@ class PluginTimeoutTest(StageTwoReportTest):
 
     def test_correct_plugin_timeout(self):
         man = self.get_plugin_manifest('timeout_test')
-        self.assertEquals(man['timeout'], 10)
+        self.assertEqual(man['timeout'], 10)
 
     def test_plugin_timed_out(self):
         self.assertSosLogNotContains('collected plugin \'timeout_test\' in')
@@ -41,9 +41,9 @@ class NativeCmdTimeoutTest(StageTwoReportTest):
 
     def test_correct_plugin_timeout(self):
         man = self.get_plugin_manifest('timeout_test')
-        self.assertEquals(man['timeout'], 100)
+        self.assertEqual(man['timeout'], 100)
         hman = self.get_plugin_manifest('host')
-        self.assertEquals(hman['timeout'], 300)
+        self.assertEqual(hman['timeout'], 300)
 
     def test_plugin_completed(self):
         self.assertSosLogContains('collected plugin \'timeout_test\' in')
@@ -64,6 +64,6 @@ class MultipleTimeoutValues(NativeCmdTimeoutTest):
 
     def test_correct_plugin_timeout(self):
         man = self.get_plugin_manifest('timeout_test')
-        self.assertEquals(man['timeout'], 60)
+        self.assertEqual(man['timeout'], 60)
         hman = self.get_plugin_manifest('host')
-        self.assertEquals(hman['timeout'], 30)
+        self.assertEqual(hman['timeout'], 30)

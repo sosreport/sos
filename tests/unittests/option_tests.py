@@ -45,10 +45,10 @@ class GlobalOptionTest(unittest.TestCase):
         self.plugin = MockPlugin(self.commons)
 
     def test_simple_lookup(self):
-        self.assertEquals(self.plugin.get_option('test_option'), 'foobar')
+        self.assertEqual(self.plugin.get_option('test_option'), 'foobar')
 
     def test_cascade(self):
-        self.assertEquals(self.plugin.get_option(('baz')), False)
+        self.assertEqual(self.plugin.get_option(('baz')), False)
 
 
 if __name__ == "__main__":
