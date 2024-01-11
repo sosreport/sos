@@ -23,6 +23,7 @@ class convert2rhel(Plugin, RedHatPlugin):
             "/var/log/convert2rhel/convert2rhel.log",
             "/var/log/convert2rhel/archive/convert2rhel-*.log",
             "/var/log/convert2rhel/rpm_va.log",
+            "/var/log/convert2rhel/convert2rhel-pre-conversion.*",
         ])
 
 
