@@ -61,4 +61,6 @@ class Rpm(Plugin, RedHatPlugin):
                                 suggest_filename='lsof_D_var_lib_rpm')
             self.add_copy_spec("/var/lib/rpm")
 
+        self.add_cmd_output("rpm --showrc")
+
 # vim: set et ts=4 sw=4 :
