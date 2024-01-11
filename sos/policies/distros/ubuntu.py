@@ -70,7 +70,7 @@ class UbuntuPolicy(DebianPolicy):
                 lines = fp.readlines()
                 for line in lines:
                     if "DISTRIB_RELEASE" in line:
-                        return int(line.split("=")[1].strip())
+                        return float(line.split("=")[1].strip())
             return False
         except (IOError, ValueError):
             return False
