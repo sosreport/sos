@@ -520,8 +520,7 @@ class SoSReport(SoSComponent):
                 'lin_tape'
             ]
             for devdir in devdirs:
-                if os.path.isdir(f"/sys/class/{devdir}"):
-                    devs.extend(glob.glob(f"/sys/class/{devdir}/*"))
+                devs.extend(glob.glob(f"/sys/class/{devdir}/*"))
             return devs
         except Exception as err:
             self.soslog.error(f"Could not get tape device list: {err}")
