@@ -389,7 +389,8 @@ class SoSComponent():
                 # get just the relative path that archive works with
                 f = os.path.relpath(f, _arc_path)
                 for re in [r"(--upload-pass[\s=]+)\S+",
-                           r"(--upload-url[\s=]+\S+://.*:)([^@]*)"]:
+                           r"(--upload-url[\s=]+\S+://.*:)([^@]*)",
+                           r"(--upload-s3-secret-key[\s=]+)\S+"]:
                     self.archive.do_file_sub(f, re, r"\1********")
 
     def add_ui_log_to_stdout(self):
