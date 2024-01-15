@@ -36,6 +36,10 @@ class Networking(Plugin):
     # switch to enable netstat "wide" (non-truncated) output mode
     ns_wide = "-W"
 
+    # list of kernel modules needed by ss_cmd, this may vary by distro version
+    ss_kmods = ['tcp_diag', 'udp_diag', 'inet_diag', 'unix_diag',
+                'netlink_diag', 'af_packet_diag', 'xsk_diag']
+
     # list of ethtool short options, used in add_copy_spec and add_cmd_tags
     # do NOT add there "e" (see eepromdump plugopt)
     ethtool_shortopts = "acdgiklmPST"
@@ -133,10 +137,8 @@ class Networking(Plugin):
         self.add_cmd_output(ip_macsec_show_cmd, pred=macsec_pred, changes=True)
 
         ss_cmd = "ss -peaonmi"
-        ss_pred = SoSPredicate(self, kmods=[
-            'tcp_diag', 'udp_diag', 'inet_diag', 'unix_diag', 'netlink_diag',
-            'af_packet_diag', 'xsk_diag'
-        ], required={'kmods': 'all'})
+        ss_pred = SoSPredicate(self, kmods=self.ss_kmods,
+                               required={'kmods': 'all'})
         self.add_cmd_output(ss_cmd, pred=ss_pred, changes=True)
 
         # Get ethtool output for every device that does not exist in a
@@ -282,6 +284,17 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
     trace_host = "archive.ubuntu.com"
 
     def setup(self):
+
+        ubuntu_ss_kmods = dict.fromkeys([22.04, 23.10],
+                                        ['tcp_diag', 'udp_diag',
+                                         'inet_diag', 'unix_diag',
+                                         'netlink_diag',
+                                         'af_packet_diag', 'xsk_diag',
+                                         'mptcp_diag', 'raw_diag'])
+
+        if self.policy.dist_version() in ubuntu_ss_kmods:
+            self.ss_kmods = ubuntu_ss_kmods[self.policy.dist_version()]
+
         super(UbuntuNetworking, self).setup()
 
         self.add_copy_spec([
