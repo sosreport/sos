@@ -306,10 +306,6 @@ class Foreman(Plugin):
 
     def postproc(self):
         self.do_path_regex_sub(
-            "/var/log/%s*/foreman-ssl_access_ssl.log*" % self.apachepkg,
-            r"(.*\?(passw|cred|token|secret|key).*=)(.*) (HTTP.*(.*))",
-            r"\1******** \4")
-        self.do_path_regex_sub(
             r"/etc/foreman/(.*)((conf)(.*)?)",
             r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
             r"\1********")
