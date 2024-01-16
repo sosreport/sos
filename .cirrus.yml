@@ -57,7 +57,10 @@ flake8_task:
     name: "Flake8 linting test"
     container:
         image: alpine/flake8:latest
-    flake_script: flake8 sos
+    setup_script: |
+        apk update
+        apk add --upgrade py3-tox
+    flake_script: tox -e pep8
 
 # Run a check on newer upstream python versions to check for possible
 # breaks/changes in common modules. This is not meant to check any of the actual
@@ -201,7 +204,7 @@ report_stageone_task:
         if [ $(command -v apt) ]; then
             apt -y purge sosreport
             apt update --allow-releaseinfo-change
-            apt -y install python3-pip snapd
+            apt -y install python3-pip snapd tox
             if [ ${PKG} == "snap" ] ; then
                 echo "$ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap"
                 $ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap
@@ -220,14 +223,14 @@ report_stageone_task:
             dnf -y remove sos
             dnf -y install python3-pip ethtool
             dnf -y install ./sos_${BUILD_NAME}.rpm
+            PIP_EXTRA=""
+            [[ $(pip3 install --help | grep break-system) ]] && PIP_EXTRA="--break-system-packages"
+            pip3 install tox ${PIP_EXTRA}
         fi
-        PIP_EXTRA=""
-        [[ $(pip3 install --help | grep break-system) ]] && PIP_EXTRA="--break-system-packages"
-        pip3 install avocado-framework==94.0 ${PIP_EXTRA}
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
-    unittest_script: PYTHONPATH=. avocado run tests/unittests/
-    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+    unittest_script: tox -e unit_tests
+    main_script: tox -e stageone_tests
     on_failure:
         fail_script: &faillogs |
             ls -d /var/tmp/avocado* /root/avocado* 2> /dev/null | xargs tar cf sos-fail-logs.tar
@@ -255,7 +258,7 @@ report_stagetwo_task:
         if [ $(command -v dnf) ]; then
             dnf -y install python3-pexpect
         fi
-    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+    main_script: tox -e stagetwo_tests
     on_failure:
         fail_script: *faillogs
         log_artifacts: *logs
@@ -286,7 +289,7 @@ report_foreman_task:
             FOREMAN_VER: "3.7"
     setup_script: *setup
     foreman_setup_script: ./tests/test_data/foreman_setup.sh
-    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t foreman tests/product_tests/foreman/
+    main_script: tox -e foreman_tests
     on_failure:
         fail_script: *faillogs
         log_artifacts: *logs
