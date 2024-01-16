@@ -10,6 +10,7 @@ from sos_tests import StageTwoReportTest
 
 MOCK_FILE = '/tmp/sos-test-ipv6.txt'
 
+
 class IPv6Test(StageTwoReportTest):
     """Place artificial plugin collecting crafted text file with ipv6 adresses
     to make sure ipv6 obfuscation works when calling 'sos clean' like a user
@@ -31,8 +32,14 @@ class IPv6Test(StageTwoReportTest):
     def test_valid_ipv6(self):
         self.assertFileCollected(MOCK_FILE)
         self.assertFileHasContent(MOCK_FILE, 'GOOD_IP=')
-        self.assertFileNotHasContent(MOCK_FILE, 'GOOD_IP=3000:505f:505f:505f:505f:505f:505f:505f')
+        self.assertFileNotHasContent(
+            MOCK_FILE,
+            'GOOD_IP=3000:505f:505f:505f:505f:505f:505f:505f'
+        )
 
     def test_bad_ipv6(self):
         self.assertFileHasContent(MOCK_FILE, 'BAD_IP=')
-        self.assertFileNotHasContent(MOCK_FILE, 'BAD_IP=505f:505f:505f:505f:505f:505f:505f:505f')
+        self.assertFileNotHasContent(
+            MOCK_FILE,
+            'BAD_IP=505f:505f:505f:505f:505f:505f:505f:505f'
+        )

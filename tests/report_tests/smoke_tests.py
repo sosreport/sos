@@ -52,9 +52,14 @@ class AllPluginSmokeTest(StageOneReportTest):
 
         Make sure our warnings are displayed
         """
-        self.assertOutputContains('Not logged in to OCP API, and no login token provided. Will not collect `oc` commands')
-        self.assertOutputContains('Source the environment file for the user intended to connect to the OpenStack environment.')
-        self.assertOutputContains('Some or all of the skydive params are not set properly.')
+        self.assertOutputContains('Not logged in to OCP API, and no login '
+                                  'token provided. Will not collect `oc` '
+                                  'commands')
+        self.assertOutputContains('Source the environment file for the user '
+                                  'intended to connect to the OpenStack '
+                                  'environment.')
+        self.assertOutputContains('Some or all of the skydive params are not '
+                                  'set properly.')
 
 
 class ExpectedDefaultPluginsTest(StageOneReportTest):
@@ -109,4 +114,3 @@ class ExpectedDefaultPluginsTest(StageOneReportTest):
             'apt',
             'ubuntu'
         ])
-

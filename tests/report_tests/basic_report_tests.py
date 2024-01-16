@@ -40,7 +40,10 @@ class NormalSoSReport(StageOneReportTest):
             "No tag summary generated in report"
         )
         self.assertTrue(
-            isinstance(self.manifest['components']['report']['tag_summary'], dict),
+            isinstance(
+                self.manifest['components']['report']['tag_summary'],
+                dict
+            ),
             "Tag summary malformed"
         )
 
@@ -73,7 +76,8 @@ class RestrictedSoSReport(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = '-o kernel,host,sudo,hardware,dbus,x11 --no-env-var --no-report -t1 --no-postproc'
+    sos_cmd = ('-o kernel,host,sudo,hardware,dbus,x11 --no-env-var '
+               '--no-report -t1 --no-postproc')
 
     def test_no_env_vars_collected(self):
         self.assertFileNotCollected('environment')
@@ -90,7 +94,8 @@ class RestrictedSoSReport(StageOneReportTest):
         self.assertOutputNotContains('substituting')
 
     def test_only_selected_plugins_run(self):
-        self.assertOnlyPluginsIncluded(['kernel', 'host', 'sudo', 'hardware', 'dbus', 'x11'])
+        self.assertOnlyPluginsIncluded(['kernel', 'host', 'sudo',
+                                        'hardware', 'dbus', 'x11'])
 
 
 class DisabledCollectionsReport(StageOneReportTest):
@@ -98,7 +103,8 @@ class DisabledCollectionsReport(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = "-n networking,system,logs --skip-files=/etc/fstab --skip-commands='journalctl*'"
+    sos_cmd = ("-n networking,system,logs --skip-files=/etc/fstab "
+               "--skip-commands='journalctl*'")
 
     def test_plugins_disabled(self):
         self.assertPluginNotIncluded('networking')
@@ -115,4 +121,3 @@ class DisabledCollectionsReport(StageOneReportTest):
 
     def test_skip_commands_working(self):
         self.assertFileGlobNotInArchive('sos_commands/*/journalctl*')
-

@@ -11,6 +11,7 @@ from sos_tests import StageOneReportTest, StageTwoReportTest
 
 ARCHIVE = 'sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz'
 
+
 class ReportDisabledParsersTest(StageOneReportTest):
     """Run report with selected disabled parsers and ensure those parsers are
     in fact disabled and unused.
@@ -21,14 +22,18 @@ class ReportDisabledParsersTest(StageOneReportTest):
     sos_cmd = '--clean -o host,kernel,networking --disable-parsers=ip'
 
     def test_local_ip_not_obfuscated(self):
-        self.assertFileHasContent('ip_addr', self.sysinfo['pre']['networking']['ip_addr'])
+        self.assertFileHasContent(
+            'ip_addr',
+            self.sysinfo['pre']['networking']['ip_addr']
+        )
 
     def test_disable_message_logged(self):
         self.assertSosLogContains('Disabling parser: ip')
 
     def test_ui_log_message_shown(self):
         self.assertSosUILogContains(
-            '.*Be aware that this may leave sensitive plain-text data in the archive.'
+            '.*Be aware that this may leave sensitive plain-text data in '
+            'the archive.'
         )
 
     # make sure that the other parsers remain functional
@@ -36,11 +41,15 @@ class ReportDisabledParsersTest(StageOneReportTest):
         self.assertFileHasContent('hostname', 'host0')
 
     def test_mac_addrs_were_obfuscated(self):
-        content = self.get_file_content('sos_commands/networking/ip_maddr_show')
+        content = self.get_file_content(
+            'sos_commands/networking/ip_maddr_show'
+        )
         for line in content.splitlines():
             if line.strip().startswith('link'):
                 mac = line.strip().split()[1]
-                assert mac.startswith('53:4f:53'), "Found unobfuscated mac addr %s" % mac
+                assert \
+                    mac.startswith('53:4f:53'), \
+                    f"Found unobfuscated mac addr {mac}"
 
 
 class NativeCleanDisabledParsersTest(StageTwoReportTest):
@@ -54,8 +63,17 @@ class NativeCleanDisabledParsersTest(StageTwoReportTest):
     sos_component = 'clean'
 
     def test_localhost_not_obfuscated(self):
-        self.assertFileNotHasContent('hostname', self.sysinfo['pre']['networking']['hostname'])
-        self.assertFileNotHasContent('uname', self.sysinfo['pre']['networking']['hostname'])
+        self.assertFileNotHasContent(
+            'hostname',
+            self.sysinfo['pre']['networking']['hostname']
+            )
+        self.assertFileNotHasContent(
+            'uname',
+            self.sysinfo['pre']['networking']['hostname']
+        )
 
     def test_local_ip_was_obfuscated(self):
-        self.assertFileNotHasContent('ip_addr', self.sysinfo['pre']['networking']['ip_addr'])
+        self.assertFileNotHasContent(
+            'ip_addr',
+            self.sysinfo['pre']['networking']['ip_addr']
+        )

@@ -25,8 +25,10 @@ class SosExtrasPluginTest(StageTwoReportTest):
         self.assertPluginIncluded('sos_extras')
 
     def test_setup_message_displayed(self):
-        self.assertOutputContains('Collecting data from extras file /etc/sos/extras.d/sos_testing.conf')
+        self.assertOutputContains('Collecting data from extras file '
+                                  '/etc/sos/extras.d/sos_testing.conf')
 
     def test_extras_config_parsed(self):
         self.assertFileCollected('/etc/fstab')
-        self.assertFileCollected('sos_commands/sos_extras/sos_testing.conf/echo_sos_test')
+        self.assertFileCollected('sos_commands/sos_extras/sos_testing.conf'
+                                 '/echo_sos_test')

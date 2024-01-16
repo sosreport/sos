@@ -41,11 +41,11 @@ class ReportListPluginsTest(StageOneOutputTest):
         self.assertOutputContains('Profiles:')
 
     def test_no_missing_plugin_descriptions(self):
-        _out = re.search("The following plugins are currently enabled:(.*?)The following plugins are currently disabled:",
+        _out = re.search("The following plugins are currently enabled:(.*?)"
+                         "The following plugins are currently disabled:",
                          self.cmd_output.stdout, re.S).group(1).splitlines()
         for ln in _out:
             # Ignore newlines
             if not ln:
                 continue
             assert len(ln) > 1, "Plugin '%s' missing description" % ln[0]
-

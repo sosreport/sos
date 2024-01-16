@@ -60,7 +60,21 @@ flake8_task:
     name: "Flake8 linting test"
     container:
         image: alpine/flake8:latest
-    flake_script: flake8 sos
+    setup_script: |
+        apk update
+        apk add --upgrade py3-tox
+    flake_script: tox -e flake8
+
+pylint_task:
+    alias: "pylint_test"
+    name: "pylint linting test"
+    allow_failures: true
+    container:
+        image: "python:latest"
+    setup_script: |
+        apt update
+        apt -y install tox
+    pylint_script: tox -e pylint
 
 # Run a check on newer upstream python versions to check for possible
 # breaks/changes in common modules. This is not meant to check any of the actual

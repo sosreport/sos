@@ -15,7 +15,6 @@ class TimeoutTest(Plugin, IndependentPlugin):
     short_desc = 'Tests timeout functionality in test suite'
     plugin_timeout = 100
 
-
     def setup(self):
         self.add_cmd_output('sleep 15')
         self.add_cmd_output('echo I slept great', suggest_filename='echo_good')

@@ -32,11 +32,15 @@ class TeamdPluginTest(StageTwoReportTest):
         # create the team device
         res = process.run('nmcli con add type team ifname sostesting',
                           timeout=30)
-        assert res.exit_status == 0, "Failed creating team device: %s" % res.stdout_text
+        assert \
+            res.exit_status == 0, \
+            f"Failed creating team device: {res.stdout_text}"
 
     def post_test_tear_down(self):
         res = process.run('nmcli con delete team-sostesting', timeout=30)
-        assert res.exit_status == 0, "Failed to delete temp team device: %s" % res.stdout_text
+        assert \
+            res.exit_status == 0, \
+            f"Failed to delete temp team device: {res.stdout_text}"
 
     def test_teamd_plugin_executed(self):
         self.assertPluginIncluded('teamd')

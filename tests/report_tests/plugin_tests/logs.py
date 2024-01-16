@@ -14,6 +14,7 @@ from sos_tests import StageOneReportTest, StageTwoReportTest
 from string import ascii_uppercase, digits
 from time import sleep
 
+
 class LogsPluginTest(StageOneReportTest):
     """Ensure common collections from the `logs` plugin are properly collected
 
@@ -24,7 +25,8 @@ class LogsPluginTest(StageOneReportTest):
 
     def test_journalctl_collections(self):
         self.assertFileCollected('sos_commands/logs/journalctl_--disk-usage')
-        self.assertFileCollected('sos_commands/logs/journalctl_--no-pager_--boot')
+        self.assertFileCollected('sos_commands/logs/journalctl_--no-pager_'
+                                 '--boot')
 
     def test_journal_runtime_collected(self):
         self.assertFileGlobInArchive('/var/log/journal/*')
@@ -63,7 +65,8 @@ class JournalSizeLimitTest(StageTwoReportTest):
         for i in range(2):
             # generate 10MB, write it, then write it in reverse.
             # Spend less time generating new strings
-            rand = ''.join(random.choice(ascii_uppercase + digits) for _ in range(rsize))
+            rand = ''.join(
+                random.choice(ascii_uppercase + digits) for _ in range(rsize))
             sosfd.write(rand + '\n')
             # sleep to avoid burst rate-limiting
             sleep(5)
@@ -73,10 +76,16 @@ class JournalSizeLimitTest(StageTwoReportTest):
         journ = 'sos_commands/logs/journalctl_--no-pager'
         self.assertFileCollected(journ)
         jsize = os.stat(self.get_name_in_archive(journ)).st_size
-        assert jsize <= 20971520, "Collected journal is larger than 20MB (size: %s)" % jsize
+        assert \
+            jsize <= 20971520, \
+            f"Collected journal is larger than 20MB (size: {jsize})"
 
     def test_journal_tailed_and_linked(self):
-        tailed = self.get_name_in_archive('sos_strings/logs/journalctl_--no-pager.tailed')
+        tailed = self.get_name_in_archive('sos_strings/logs/'
+                                          'journalctl_--no-pager.tailed')
         self.assertFileExists(tailed)
-        journ = self.get_name_in_archive('sos_commands/logs/journalctl_--no-pager')
-        assert os.path.islink(journ), "Journal in sos_commands/logs is not a symlink"
+        journ = self.get_name_in_archive('sos_commands/logs/'
+                                         'journalctl_--no-pager')
+        assert \
+            os.path.islink(journ), \
+            "Journal in sos_commands/logs is not a symlink"
