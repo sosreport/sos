@@ -44,9 +44,9 @@ def add_valid_item(dest, item):
 
 # method to find in `plugcontent` all items of given method (a_c_s/a_c_o/..)
 # split by comma; add each valid item to the `dest` list
-def add_all_items(method, dest, wrapopen='\(', wrapclose='\)'):
+def add_all_items(method, dest, wrapopen=r'\(', wrapclose=r'\)'):
     regexp = "%s%s(.*?)%s" % (method, wrapopen, wrapclose)
-    for match in re.findall(regexp, plugcontent, flags=re.MULTILINE|re.DOTALL):
+    for match in re.findall(regexp, plugcontent, flags=re.MULTILINE | re.DOTALL):
         # tuple of distros ended by either (class|from|import)
         if isinstance(match, tuple):
             for item in list(match):
@@ -89,7 +89,8 @@ for plugfile in sorted(os.listdir(PLUGDIR)):
             'journals': [],
             'env': [],
     }
-    plugcontent = open(os.path.join(PLUGDIR, plugfile)).read().replace('\n', '')
+    plugcontent = open(
+        os.path.join(PLUGDIR, plugfile)).read().replace('\n', '')
     add_all_items(
         "from sos.report.plugins import ",
         plugs_data[plugname]['distros'],
@@ -112,7 +113,8 @@ if (len(sys.argv) > 1) and (sys.argv[1] == "csv"):
           "service_status;journals;env_vars")
     for plugname in plugs_data.keys():
         plugin = plugs_data[plugname]
-        # determine max number of lines - usually "max(len(copyspec),len(commands))"
+        # determine max number of lines - usually
+        # "max(len(copyspec),len(commands))"
         # ignore 'sourcecode' key as it
         maxline = 1
         plugkeys = list(plugin.keys())

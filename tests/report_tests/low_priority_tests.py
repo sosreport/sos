@@ -30,4 +30,7 @@ class LowPrioTest(StageOneReportTest):
 
     def test_niceness_set(self):
         self.assertSosLogContains('Set niceness of report to 19')
-        self.assertEqual(self.manifest['components']['report']['priority']['niceness'], 19)
+        self.assertEqual(
+            self.manifest['components']['report']['priority']['niceness'],
+            19
+        )

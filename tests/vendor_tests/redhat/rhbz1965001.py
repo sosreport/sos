@@ -7,8 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-import tempfile
-import shutil
 from sos_tests import StageOneReportTest
 
 

@@ -27,10 +27,14 @@ class OptionsFromConfigTest(StageTwoReportTest):
 
     def test_plugopts_logged_from_config(self):
         self.assertSosLogContains(
-            r"Set kernel plugin option to \(name=with-timer, desc='gather /proc/timer\* statistics', value=True, default=False\)"
+            r"Set kernel plugin option to \(name=with-timer, "
+            r"desc='gather /proc/timer\* statistics', value=True, "
+            r"default=False\)"
         )
         self.assertSosLogContains(
-            r"Set kernel plugin option to \(name=trace, desc='gather /sys/kernel/debug/tracing/trace file', value=True, default=False\)"
+            r"Set kernel plugin option to \(name=trace, "
+            "desc='gather /sys/kernel/debug/tracing/trace file', "
+            r"value=True, default=False\)"
         )
 
     def test_disabled_plugopts_not_loaded(self):
@@ -41,5 +45,7 @@ class OptionsFromConfigTest(StageTwoReportTest):
 
     def test_effective_options_logged_correctly(self):
         self.assertSosLogContains(
-            "effective options now: --batch --case-id 8675309 --only-plugins host,kernel --plugopts kernel.with-timer=on,kernel.trace=yes"
+            "effective options now: --batch --case-id 8675309 "
+            "--only-plugins host,kernel "
+            "--plugopts kernel.with-timer=on,kernel.trace=yes"
         )

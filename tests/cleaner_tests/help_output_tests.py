@@ -21,7 +21,8 @@ class CleanHelpTest(StageOneOutputTest):
     def test_all_help_sections_present(self):
         self.assertOutputContains('Global Options:')
         self.assertOutputContains('Cleaner/Masking Options:')
-        self.assertOutputContains('TARGET                The directory or archive to obfuscate')
+        self.assertOutputContains('TARGET                The directory or '
+                                  'archive to obfuscate')
 
 
 class MaskHelpTest(CleanHelpTest):

@@ -26,13 +26,22 @@ class rhbz1950350(StageTwoReportTest):
     sos_cmd = '-v -o sos_extras --clean'
 
     def test_clean_config_loaded(self):
-        self.assertSosLogContains("effective options now: (.*)? --clean --domains (.*)? --keywords (.*)?")
+        self.assertSosLogContains(
+            "effective options now: (.*)? --clean --domains (.*)? "
+            "--keywords (.*)?"
+        )
 
     def test_clean_config_performed(self):
         self.assertFileCollected('var/log/clean_config_test.txt')
-        self.assertFileHasContent('var/log/clean_config_test.txt', 'The domain example.com should not be removed.')
+        self.assertFileHasContent(
+            'var/log/clean_config_test.txt',
+            'The domain example.com should not be removed.'
+        )
         self.assertFileNotHasContent(
             'var/log/clean_config_test.txt',
             "This line contains 'shibboleth' which should be scrubbed."
         )
-        self.assertFileNotHasContent('var/log/clean_config_test.txt', 'sosexample.com')
+        self.assertFileNotHasContent(
+            'var/log/clean_config_test.txt',
+            'sosexample.com'
+        )

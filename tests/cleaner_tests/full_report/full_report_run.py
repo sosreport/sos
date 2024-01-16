@@ -9,7 +9,6 @@
 import json
 import re
 
-from avocado.utils import process
 from sos_tests import StageTwoReportTest
 
 
@@ -46,8 +45,13 @@ class FullCleanTest(StageTwoReportTest):
         )
 
     def test_private_map_was_generated(self):
-        self.assertOutputContains('A mapping of obfuscated elements is available at')
-        map_file = re.findall('/.*sosreport-.*-private_map', self.cmd_output.stdout)[-1]
+        self.assertOutputContains(
+            'A mapping of obfuscated elements is available at'
+        )
+        map_file = re.findall(
+            '/.*sosreport-.*-private_map',
+            self.cmd_output.stdout
+        )[-1]
         self.assertFileExists(map_file)
 
     def test_tarball_named_obfuscated(self):
@@ -69,7 +73,10 @@ class FullCleanTest(StageTwoReportTest):
 
     def test_no_empty_obfuscations(self):
         # get the private map file name
-        map_file = re.findall('/.*sosreport-.*-private_map', self.cmd_output.stdout)[-1]
+        map_file = re.findall(
+            '/.*sosreport-.*-private_map',
+            self.cmd_output.stdout
+        )[-1]
         with open(map_file, 'r') as mf:
             map_json = json.load(mf)
         for mapping in map_json:
@@ -83,4 +90,5 @@ class FullCleanTest(StageTwoReportTest):
         if not content:
             assert True
         else:
-            self.fail("IP appears in files: %s" % "\n".join(f for f in content))
+            new_content = "\n".join(f for f in content)
+            self.fail(f'IP appears in files: {new_content}')

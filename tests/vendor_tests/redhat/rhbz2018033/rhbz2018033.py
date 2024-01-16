@@ -19,7 +19,8 @@ class rhbz2018033(StageTwoReportTest):
     """
 
     install_plugins = ['timeout_test']
-    sos_cmd = '-vvv -o timeout_test,networking -k timeout_test.timeout=1 --plugin-timeout=123'
+    sos_cmd = ('-vvv -o timeout_test,networking '
+               '-k timeout_test.timeout=1 --plugin-timeout=123')
 
     def test_timeouts_separate(self):
         self.assertSosUILogContains('Plugin timeout_test timed out')

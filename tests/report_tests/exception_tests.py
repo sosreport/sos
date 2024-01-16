@@ -28,7 +28,8 @@ class InvalidPluginOptionTest(StageOneReportExceptionTest):
     sos_cmd = '-o kernel -k kernel.colonel=on'
 
     def test_caught_invalid_plugin_option(self):
-        self.assertOutputContains(r'no such option "colonel" for plugin \(kernel\)')
+        self.assertOutputContains('no such option "colonel" for plugin '
+                                  r'\(kernel\)')
 
 
 class InvalidReportOptionTest(StageOneReportExceptionTest):
@@ -51,4 +52,5 @@ class InvalidPluginDisableTest(StageOneReportTest):
     sos_cmd = '-n logs,foobar,networking'
 
     def test_caught_invalid_plugin_name(self):
-        self.assertOutputContains("Requested to skip non-existing plugin 'foobar'")
+        self.assertOutputContains("Requested to skip non-existing plugin "
+                                  "'foobar'")
