@@ -19,6 +19,7 @@ class Containerd(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/containerd/",
+            "/etc/cni/net.d/",
         ])
 
         self.add_cmd_output('containerd config dump')
