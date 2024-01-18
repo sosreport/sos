@@ -9,7 +9,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 from fnmatch import translate
 import re
 
@@ -205,7 +206,7 @@ class RedHatKubernetes(Kubernetes, RedHatPlugin):
         super(RedHatKubernetes, self).setup()
 
 
-class UbuntuKubernetes(Kubernetes, UbuntuPlugin):
+class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
 
     packages = ('kubernetes',)
     files = (
