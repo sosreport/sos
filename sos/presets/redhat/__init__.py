@@ -53,6 +53,17 @@ RH_SATELLITE = "satellite"
 RH_SATELLITE_DESC = "Red Hat Satellite"
 SAT_OPTS = SoSOptions(log_size=100, plugopts=['apache.log=on'])
 
+AAPEDA = 'aap_eda'
+AAPEDA_DESC = 'Ansible Automation Platform Event Driven Controller'
+AAPEDA_OPTS = SoSOptions(
+    enable_plugins=['containers_common'],
+    plugopts=[
+        'containers_common.rootlessusers=eda'
+    ])
+AAPEDA_NOTE = ('Collects \'eda\' user output for the containers_common plugin.'
+               ' If you need more users, do not forget to add \'eda\' '
+               'to your own list for the \'rootlessusers\' option.')
+
 CB = "cantboot"
 CB_DESC = "For use when normal system startup fails"
 CB_OPTS = SoSOptions(
@@ -66,6 +77,8 @@ NOTE_TIME = "This preset may increase report run time"
 NOTE_SIZE_TIME = "This preset may increase report size and run time"
 
 RHEL_PRESETS = {
+    AAPEDA: PresetDefaults(name=AAPEDA, desc=AAPEDA_DESC, opts=AAPEDA_OPTS,
+                           note=AAPEDA_NOTE),
     RHV: PresetDefaults(name=RHV, desc=RHV_DESC, note=NOTE_TIME,
                         opts=_opts_verify),
     RHEL: PresetDefaults(name=RHEL, desc=RHEL_DESC),

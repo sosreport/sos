@@ -15,7 +15,7 @@ import re
 
 from sos.report.plugins import RedHatPlugin
 from sos.presets.redhat import (RHEL_PRESETS, RHV, RHEL, CB, RHOSP,
-                                RHOCP, RH_CFME, RH_SATELLITE)
+                                RHOCP, RH_CFME, RH_SATELLITE, AAPEDA)
 from sos.policies.distros import LinuxPolicy, ENV_HOST_SYSROOT
 from sos.policies.package_managers.rpm import RpmPackageManager
 from sos.policies.package_managers.flatpak import FlatpakPackageManager
@@ -421,6 +421,10 @@ support representative.
         if self.pkg_by_name("ovirt-engine") is not None or \
                 self.pkg_by_name("vdsm") is not None:
             return self.find_preset(RHV)
+        for pkg in ['automation-eda-controller',
+                    'automation-eda-controller-server']:
+            if self.pkg_by_name(pkg) is not None:
+                return self.find_preset(AAPEDA)
 
         # Vanilla RHEL is default
         return self.find_preset(RHEL)
