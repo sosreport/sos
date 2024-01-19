@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
+                                DebianPlugin)
 
 
 class Dhcp(Plugin):
@@ -30,7 +31,7 @@ class RedHatDhcp(Dhcp, RedHatPlugin):
         ])
 
 
-class UbuntuDhcp(Dhcp, UbuntuPlugin):
+class UbuntuDhcp(Dhcp, UbuntuPlugin, DebianPlugin):
 
     files = ('/etc/init.d/udhcpd',)
     packages = ('udhcpd',)

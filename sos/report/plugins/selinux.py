@@ -6,10 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt,
+                                DebianPlugin)
 
 
-class SELinux(Plugin, RedHatPlugin, UbuntuPlugin):
+class SELinux(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     short_desc = 'SELinux access control'
 

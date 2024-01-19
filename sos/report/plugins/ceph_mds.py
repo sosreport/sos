@@ -6,10 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
+                                DebianPlugin)
 
 
-class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
+class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     short_desc = 'CEPH mds'
     plugin_name = 'ceph_mds'
     profiles = ('storage', 'virt', 'container', 'ceph')

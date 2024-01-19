@@ -8,11 +8,12 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt,
+                                DebianPlugin)
 import os
 
 
-class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
+class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     short_desc = 'Common container configs under {/etc,/usr/share}/containers'
     plugin_name = 'containers_common'

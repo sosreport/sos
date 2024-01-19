@@ -10,10 +10,11 @@
 
 import os
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
+                                DebianPlugin)
 
 
-class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
+class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """
     This plugin is for capturing information from Ceph OSD nodes. While the
     majority of this plugin should be version agnotics, several collections are

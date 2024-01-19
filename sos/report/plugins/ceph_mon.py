@@ -8,10 +8,11 @@
 
 import re
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
+                                DebianPlugin)
 
 
-class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
+class CephMON(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """
     This plugin serves to collect information on monitor nodes within a Ceph
     or microceph cluster. It is designed to collect from several versions of

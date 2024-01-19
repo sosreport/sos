@@ -8,7 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
+                                DebianPlugin)
 
 
 class Alternatives(Plugin):
@@ -58,7 +59,7 @@ class RedHatAlternatives(Alternatives, RedHatPlugin):
         })
 
 
-class UbuntuAlternatives(Alternatives, UbuntuPlugin):
+class UbuntuAlternatives(Alternatives, UbuntuPlugin, DebianPlugin):
 
     packages = ('dpkg',)
     commands = ('update-alternatives',)

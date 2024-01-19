@@ -14,10 +14,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
+                                DebianPlugin)
 
 
-class OmnipathManager(Plugin, RedHatPlugin, UbuntuPlugin):
+class OmnipathManager(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     short_desc = 'OmniPath Fabric Manager'
 

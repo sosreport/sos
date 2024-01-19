@@ -8,11 +8,12 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, UbuntuPlugin, RedHatPlugin
+from sos.report.plugins import (Plugin, UbuntuPlugin, RedHatPlugin,
+                                DebianPlugin)
 import os
 
 
-class Azure(Plugin, UbuntuPlugin):
+class Azure(Plugin, UbuntuPlugin, DebianPlugin):
 
     short_desc = 'Microsoft Azure client'
 

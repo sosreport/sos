@@ -6,10 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin)
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin,
+                                DebianPlugin)
 
 
-class Containerd(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
+class Containerd(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin, DebianPlugin):
 
     short_desc = 'Containerd containers'
     plugin_name = 'containerd'

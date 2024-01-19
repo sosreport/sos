@@ -6,11 +6,12 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
+                                DebianPlugin)
 import os
 
 
-class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
+class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
 
     short_desc = 'NetworkManager service configuration'
 

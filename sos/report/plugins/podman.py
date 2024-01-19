@@ -8,10 +8,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt,
+                                DebianPlugin)
 
 
-class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
+class Podman(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """Podman is a daemonless container management engine, and this plugin is
     meant to provide diagnostic information for both the engine and the
     containers that podman is managing.

@@ -10,10 +10,11 @@
 
 import os
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
+                                DebianPlugin)
 
 
-class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
+class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin, DebianPlugin):
     """
     This plugin is for capturing information from Ceph mgr nodes. While the
     majority of this plugin should be version-agnostic, several collections are
