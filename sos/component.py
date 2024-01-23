@@ -402,15 +402,13 @@ class SoSComponent():
         self.ui_log.addHandler(ui_console)
 
     def set_loggers_verbosity(self, verbosity):
-        if verbosity:
-            if self.flog:
-                self.flog.setLevel(logging.DEBUG)
-            if self.opts.verbosity > 1:
+        if getattr(self, 'flog', None) and verbosity:
+            self.flog.setLevel(logging.DEBUG)
+        if getattr(self, 'console', None):
+            if verbosity and self.opts.verbosity > 1:
                 self.console.setLevel(logging.DEBUG)
             else:
                 self.console.setLevel(logging.WARNING)
-        else:
-            self.console.setLevel(logging.WARNING)
 
     def _setup_logging(self):
         """Creates the log handler that shall be used by all components and any
