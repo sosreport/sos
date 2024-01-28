@@ -20,6 +20,7 @@ class SoSUsernameMap(SoSMap):
     Note that this specifically obfuscates user_names_ and not UIDs.
     """
 
+    ignore_short_items = True
     name_count = 0
 
     def sanitize_item(self, username):
