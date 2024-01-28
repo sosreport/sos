@@ -25,6 +25,7 @@ class SoSMap():
     # used for filename obfuscations in parser.parse_string_for_keys()
     skip_keys = []
     compile_regexes = True
+    ignore_short_items = False
 
     def __init__(self):
         self.dataset = {}
@@ -36,7 +37,8 @@ class SoSMap():
         """Some items need to be completely ignored, for example link-local or
         loopback addresses should not be obfuscated
         """
-        if not item or item in self.skip_keys or item in self.dataset.values():
+        if not item or item in self.skip_keys or item in self.dataset.values()\
+                or (self.ignore_short_items and len(item) <= 3):
             return True
         for skip in self.ignore_matches:
             if re.match(skip, item, re.I):

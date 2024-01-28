@@ -43,6 +43,7 @@ class SoSHostnameMap(SoSMap):
     strip_exts = ('.yaml', '.yml', '.crt', '.key', '.pem', '.log', '.repo',
                   '.rules', '.conf', '.cfg')
 
+    ignore_short_items = True
     host_count = 0
     domain_count = 0
     _domains = {}
