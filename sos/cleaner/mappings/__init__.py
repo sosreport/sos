@@ -26,6 +26,7 @@ class SoSMap():
     skip_keys = []
     compile_regexes = True
     ignore_short_items = False
+    match_full_words_only = False
 
     def __init__(self):
         self.dataset = {}
@@ -97,7 +98,11 @@ class SoSMap():
         :returns:       A compiled regex pattern for the item
         :rtype:         ``re.Pattern``
         """
-        return re.compile(re.escape(item), re.I)
+        if self.match_full_words_only:
+            item = rf'(?=\b|_|-){re.escape(item)}(?=\b|_|-)'
+        else:
+            item = re.escape(item)
+        return re.compile(item, re.I)
 
     def sanitize_item(self, item):
         """Perform the obfuscation relevant to the item being added to the map.

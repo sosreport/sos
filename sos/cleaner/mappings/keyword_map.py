@@ -21,6 +21,7 @@ class SoSKeywordMap(SoSMap):
     is an incrementing integer.
     """
 
+    match_full_words_only = True
     word_count = 0
 
     def sanitize_item(self, item):

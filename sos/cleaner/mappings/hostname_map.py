@@ -44,6 +44,7 @@ class SoSHostnameMap(SoSMap):
                   '.rules', '.conf', '.cfg')
 
     ignore_short_items = True
+    match_full_words_only = True
     host_count = 0
     domain_count = 0
     _domains = {}
