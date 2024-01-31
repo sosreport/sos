@@ -44,7 +44,8 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             "/proc/self/mountstats",
             "/proc/[0-9]*/mountinfo",
             "/etc/mtab",
-            "/etc/fstab"
+            "/etc/fstab",
+            "/run/mount/utab",
         ])
         self.add_cmd_output("mount -l", root_symlink="mount",
                             tags="mount")
