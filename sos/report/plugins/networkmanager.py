@@ -31,6 +31,8 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.add_journal(units="NetworkManager")
 
+        self.add_cmd_output("NetworkManager --print-config")
+
         # There are some incompatible changes in nmcli since
         # the release of NetworkManager >= 0.9.9. In addition,
         # NetworkManager >= 0.9.9 will use the long names of
