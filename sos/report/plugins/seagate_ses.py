@@ -41,6 +41,7 @@ class SeagateSES(Plugin, IndependentPlugin):
             'ddump_canmgr',
             'ddump_cblmgr',
             'ddump_drvmgr',
+            'dumpdrives',
             'ddump_phycounters',
             'ddump_pwrmgr',
             'ddump_envctrl',
@@ -51,6 +52,9 @@ class SeagateSES(Plugin, IndependentPlugin):
             'getvpd',
             'report_faults',
             'ver',
+            'logdump',
+            'phydump',
+            'ses_reportpage 2',
           ]
 
         for devid in devices:
