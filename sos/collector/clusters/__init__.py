@@ -145,10 +145,11 @@ class Cluster():
                 "These options may be toggled or changed using '%s'"
                 % bold("-c %s.$option=$value" % cls.__name__)
             )
-            optsec.add_text(bold(
-                "\n{:<4}{:<20}{:<30}{:<20}\n".format(
-                    ' ', "Option Name", "Default", "Description")
-                ), newline=False
+            optsec.add_text(
+                bold(
+                    f"\n{' ':<4}{'Option Name':<20}{'Default':<30}"
+                    f"{'Description':<20}\n"),
+                newline=False
             )
             for opt in cls.option_list:
                 val = opt[1]
@@ -157,8 +158,7 @@ class Cluster():
                         val = 'True/On'
                     else:
                         val = 'False/Off'
-                _ln = "{:<4}{:<20}{:<30}{:<20}".format(' ', opt[0], val,
-                                                       opt[2])
+                _ln = f"{' ':<4}{opt[0]:<20}{val:<30}{opt[2]:<20}"
                 optsec.add_text(_ln, newline=False)
 
     @classmethod
@@ -185,13 +185,13 @@ class Cluster():
             'The following cluster profiles are locally available:\n'
         )
         section.add_text(
-            "{:>8}{:<40}{:<30}".format(' ', 'Name', 'Description'),
+            f"{' ':>8}{'Name':<40}{'Description':<30}",
             newline=False
         )
         for cluster in clusters:
             _sec = bold("collect.clusters.%s" % cluster[0])
             section.add_text(
-                "{:>8}{:<40}{:<30}".format(' ', _sec, cluster[1].cluster_name),
+                f"{' ':>8}{_sec:<40}{cluster[1].cluster_name:<30}",
                 newline=False
             )
 

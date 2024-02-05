@@ -134,7 +134,7 @@ class RemoteTransport():
             _sec = bold("collect.transports.%s" % transport)
             _desc = "The '%s' transport" % transport.lower()
             section.add_text(
-                "{:>8}{:<45}{:<30}".format(' ', _sec, _desc),
+                f"{' ':>8}{_sec:<45}{_desc:<30}",
                 newline=False
             )
 

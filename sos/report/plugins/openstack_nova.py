@@ -94,7 +94,7 @@ class OpenStackNova(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/nova/",
-                "/var/log/{}*/nova*".format(self.apachepkg),
+                f"/var/log/{self.apachepkg}*/nova*",
             ])
         else:
             novadir = '/var/log/nova/'
@@ -110,8 +110,8 @@ class OpenStackNova(Plugin):
             for novalog in novalogs:
                 self.add_copy_spec(self.path_join(novadir, novalog))
             self.add_copy_spec([
-                "/var/log/{}*/nova*.log".format(self.apachepkg),
-                "/var/log/{}*/placement*.log".format(self.apachepkg),
+                f"/var/log/{self.apachepkg}*/nova*.log",
+                f"/var/log/{self.apachepkg}*/placement*.log",
             ])
 
         pp = ['', '_libvirt', '_metadata', '_placement']

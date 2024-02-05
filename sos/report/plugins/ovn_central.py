@@ -115,19 +115,14 @@ class OVNCentral(Plugin):
                                            self.ovn_northd_sock_regex)
 
         # ovsdb nb/sb cluster status commands
-        self.add_cmd_output(
-            [
-                'ovs-appctl -t {} cluster/status OVN_Northbound'.format(
-                    self.ovn_nbdb_sock_path),
-                'ovs-appctl -t {} cluster/status OVN_Southbound'.format(
-                    self.ovn_sbdb_sock_path),
-                'ovn-appctl -t {} status'.format(northd_sock_path),
-                'ovn-appctl -t {} debug/chassis-features-list'.format(
-                    northd_sock_path),
-                'ovn-appctl -t {} connection-status'.format(
-                    ovn_controller_sock_path),
-            ],
-            foreground=True, container=self._container_name, timeout=30
+        cstat = "cluster/status"
+        self.add_cmd_output([
+            f"ovs-appctl -t {self.ovn_nbdb_sock_path} {cstat} OVN_Northbound",
+            f"ovs-appctl -t {self.ovn_sbdb_sock_path} {cstat} OVN_Southbound",
+            f"ovn-appctl -t {northd_sock_path} status",
+            f"ovn-appctl -t {northd_sock_path} debug/chassis-features-list",
+            f"ovn-appctl -t {ovn_controller_sock_path} connection-status",
+        ], foreground=True, container=self._container_name, timeout=30
         )
 
         # Some user-friendly versions of DB output

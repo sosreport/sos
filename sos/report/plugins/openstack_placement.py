@@ -76,14 +76,14 @@ class OpenStackPlacement(Plugin):
                 "/var/log/placement/",
                 "/var/log/containers/placement/",
                 "/var/log/containers/httpd/placement-api/",
-                "/var/log/{}*/placement*".format(self.apachepkg),
+                f"/var/log/{self.apachepkg}*/placement*",
             ])
         else:
             self.add_copy_spec([
                 "/var/log/placement/*.log",
                 "/var/log/containers/placement/*.log",
                 "/var/log/containers/httpd/placement-api/*log",
-                "/var/log/{}*/placement*.log".format(self.apachepkg),
+                f"/var/log/{self.apachepkg}*/placement*.log",
             ])
 
         self.add_copy_spec([

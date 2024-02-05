@@ -32,16 +32,16 @@ class omsa(Plugin, IndependentPlugin):
         ])
 
         self.add_cmd_output([
-            "{0} system alertaction".format(self.omreport),
-            "{0} system alertlog".format(self.omreport),
-            "{0} system cmdlog".format(self.omreport),
-            "{0} system pedestinations".format(self.omreport),
-            "{0} system platformevents".format(self.omreport),
-            "{0} system summary".format(self.omreport),
-            "{0} system events".format(self.omreport),
-            "{0} chassis info".format(self.omreport),
-            "{0} chassis biossetup".format(self.omreport),
-            "{0} storage controller".format(self.omreport),
+            f"{self.omreport} system alertaction",
+            f"{self.omreport} system alertlog",
+            f"{self.omreport} system cmdlog",
+            f"{self.omreport} system pedestinations",
+            f"{self.omreport} system platformevents",
+            f"{self.omreport} system summary",
+            f"{self.omreport} system events",
+            f"{self.omreport} chassis info",
+            f"{self.omreport} chassis biossetup",
+            f"{self.omreport} storage controller",
         ], timeout=30)
 
 # vim: et ts=4 sw=4

@@ -34,14 +34,10 @@ class ForemanProxy(Plugin):
             "/etc/foreman-proxy/",
             "/etc/smart_proxy_dynflow_core/settings.yml",
             "/var/log/foreman-proxy/*log*",
-            "/var/log/{}*/katello-reverse-proxy_access_ssl.log*".format(
-                self.apachepkg),
-            "/var/log/{}*/katello-reverse-proxy_error_ssl.log*".format(
-                self.apachepkg),
-            "/var/log/{}*/rhsm-pulpcore-https-*_access_ssl.log*".format(
-                self.apachepkg),
-            "/var/log/{}*/rhsm-pulpcore-https-*_error_ssl.log*".format(
-                self.apachepkg),
+            f"/var/log/{self.apachepkg}*/katello-reverse-proxy_error_ssl.log*",
+            f"/var/log/{self.apachepkg}*/rhsm-pulpcore-https-*access_ssl.log*",
+            f"/var/log/{self.apachepkg}*/rhsm-pulpcore-https-*error_ssl.log*",
+            f"/var/log/{self.apachepkg}*/katello-reverse-proxy_access_ssl.log*"
         ])
 
         # collect http[|s]_proxy env.variables

@@ -38,8 +38,8 @@ class Puppet(Plugin, IndependentPlugin):
             "/var/lib/puppetlabs/puppet/ssl/ca/inventory.txt",
             "/var/lib/puppet/ssl/ca/inventory.txt",
             "/var/lib/puppet/ssl/certs/ca.pem",
-            "/etc/puppetlabs/puppet/ssl/certs/{}.pem".format(_hostname),
-            "/var/lib/puppet/ssl/certs/{}.pem".format(_hostname),
+            f"/etc/puppetlabs/puppet/ssl/certs/{_hostname}.pem",
+            f"/var/lib/puppet/ssl/certs/{_hostname}.pem",
         ])
         self.add_copy_spec("/etc/puppetlabs/puppet/ssl/certs/ca.pem",
                            tags="puppet_ssl_cert_ca_pem")

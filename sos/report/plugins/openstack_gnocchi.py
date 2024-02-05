@@ -28,12 +28,12 @@ class Gnocchi(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/gnocchi/*",
-                "/var/log/{}*/gnocchi*".format(self.apachepkg)
+                f"/var/log/{self.apachepkg}*/gnocchi*"
             ])
         else:
             self.add_copy_spec([
                 "/var/log/gnocchi/*.log",
-                "/var/log/{}*/gnocchi*.log".format(self.apachepkg)
+                f"/var/log/{self.apachepkg}*/gnocchi*.log"
             ])
 
         vars_all = [p in os.environ for p in [

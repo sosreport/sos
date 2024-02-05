@@ -252,7 +252,7 @@ class Ovirt(Plugin, RedHatPlugin):
         ):
             self.do_path_regex_sub(
                 r'/var/lib/ovirt-engine/setup/answers/.*',
-                r'(?P<key>[^=]*{item}[^=]*)=.*'.format(item=item),
+                rf'(?P<key>[^=]*{item}[^=]*)=.*',
                 r'\g<key>=********'
             )
 

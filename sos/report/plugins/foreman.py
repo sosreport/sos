@@ -92,7 +92,7 @@ class Foreman(Plugin):
         # Collect these completely everytime
         self.add_copy_spec([
             "/var/log/foreman/production.log",
-            "/var/log/{}*/foreman-ssl_*_ssl.log".format(self.apachepkg)
+            f"/var/log/{self.apachepkg}*/foreman-ssl_*_ssl.log"
         ], sizelimit=0)
 
         # Allow limiting these
@@ -111,14 +111,12 @@ class Foreman(Plugin):
             "/var/log/foreman-selinux-install.log",
             "/var/log/foreman-proxy-certs-generate*",
             "/usr/share/foreman/Gemfile*",
-            "/var/log/{}*/foreman*".format(self.apachepkg),
-            "/var/log/{}*/katello-reverse-proxy_access_ssl.log*".format(
-                self.apachepkg),
-            "/var/log/{}*/katello-reverse-proxy_error_ssl.log*".format(
-                self.apachepkg),
-            "/var/log/{}*/error_log*".format(self.apachepkg),
-            "/etc/{}*/conf/".format(self.apachepkg),
-            "/etc/{}*/conf.d/".format(self.apachepkg)
+            f"/var/log/{self.apachepkg}*/foreman*",
+            f"/var/log/{self.apachepkg}*/katello-reverse-proxy_error_ssl.log*",
+            f"/var/log/{self.apachepkg}*/error_log*",
+            f"/etc/{self.apachepkg}*/conf/",
+            f"/etc/{self.apachepkg}*/conf.d/",
+            f"/var/log/{self.apachepkg}*/katello-reverse-proxy_access_ssl.log*"
         ])
 
         self.add_cmd_output([

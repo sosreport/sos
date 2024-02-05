@@ -87,7 +87,7 @@ class Ssh(Plugin, IndependentPlugin):
             try:
                 home_dir = self.path_join(usr_line.split(':')[5], '.ssh')
                 if self.path_isdir(home_dir):
-                    self.add_cmd_output('ls -laZ {}'.format(home_dir))
+                    self.add_cmd_output(f"ls -laZ {home_dir}")
             except IndexError:
                 pass
 

@@ -110,7 +110,7 @@ class SoSObfuscationArchive():
 
     def report_msg(self, msg):
         """Helper to easily format ui messages on a per-report basis"""
-        self.ui_log.info("{:<50} {}".format(self.ui_name + ' :', msg))
+        self.ui_log.info(f"{self.ui_name + ' :':<50} {msg}")
 
     def _fmt_log_msg(self, msg):
         return "[cleaner:%s] %s" % (self.archive_name, msg)

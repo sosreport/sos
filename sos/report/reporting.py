@@ -166,7 +166,7 @@ class PlainTextReport(object):
         i = 0
         plugcount = len(self.report_data)
         for section_name, _ in self.report_data:
-            line += self.PLUGLISTITEM.format(name=section_name)
+            line += f"  {section_name}"
             i += 1
             if (i % self.PLUGLISTMAXITEMS == 0) and (i < plugcount):
                 line += self.PLUGLISTSEP
@@ -175,7 +175,7 @@ class PlainTextReport(object):
 
         for section_name, section_contents in self.report_data:
             line_buf.append(self.PLUGDIVIDER)
-            line_buf.append(self.PLUGINFORMAT.format(name=section_name))
+            line_buf.append(f"{section_name}")
             for type_, format_, header, footer in self.subsections:
                 self.process_subsection(section_contents, type_.ADDS_TO,
                                         header, format_, footer)

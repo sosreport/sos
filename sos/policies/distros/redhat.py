@@ -122,7 +122,7 @@ class RedHatPolicy(LinuxPolicy):
         for subc in subs:
             subln = bold("policies.%s" % subc)
             section.add_text(
-                "{:>8}{:<35}{:<30}".format(' ', subln, subs[subc].distro),
+                f"{' ':>8}{subln:<35}{subs[subc].distro:<30}",
                 newline=False
             )
 
@@ -563,18 +563,20 @@ support representative.
         return self.find_preset(RHOCP)
 
     def create_sos_container(self, image=None, auth=None, force_pull=False):
-        _cmd = ("{runtime} run -di --name {name} --privileged --ipc=host"
-                " --net=host --pid=host -e HOST=/host -e NAME={name} -e "
-                "IMAGE={image} {pull} -v /run:/run -v /var/log:/var/log -v "
-                "/etc/machine-id:/etc/machine-id -v "
-                "/etc/localtime:/etc/localtime -v /:/host {auth} {image}")
         _image = image or self.container_image
         _pull = '--pull=always' if force_pull else ''
-        return _cmd.format(runtime=self.container_runtime,
-                           name=self.sos_container_name,
-                           image=_image,
-                           pull=_pull,
-                           auth=auth or '')
+        return (
+            f"{self.container_runtime} run -di "
+            f"--name {self.sos_container_name} --privileged --ipc=host "
+            f"--net=host --pid=host -e HOST=/host "
+            f"-e NAME={self.sos_container_name} -e "
+            f"IMAGE={_image} {_pull} "
+            f"-v /run:/run -v /var/log:/var/log "
+            f"-v /etc/machine-id:/etc/machine-id "
+            f"-v /etc/localtime:/etc/localtime "
+            f"-v /:/host "
+            f"{auth or ''} {_image}"
+        )
 
     def set_cleanup_cmd(self):
         return 'podman rm --force %s' % self.sos_container_name

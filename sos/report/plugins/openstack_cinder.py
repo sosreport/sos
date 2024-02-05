@@ -124,12 +124,12 @@ class OpenStackCinder(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/cinder/",
-                "/var/log/{}*/cinder*".format(self.apachepkg),
+                f"/var/log/{self.apachepkg}*/cinder*",
             ])
         else:
             self.add_copy_spec([
                 "/var/log/cinder/*.log",
-                "/var/log/{}*/cinder*.log".format(self.apachepkg),
+                f"/var/log/{self.apachepkg}*/cinder*.log",
             ])
 
     def apply_regex_sub(self, regexp, subst):
