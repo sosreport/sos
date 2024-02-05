@@ -61,7 +61,7 @@ def _format_since(date):
     didn't. It's used in the _get_parser.
     This will also be a good place to add human readable and relative
     date parsing (like '2 days ago') in the future """
-    return datetime.strptime('{:<014s}'.format(date), '%Y%m%d%H%M%S')
+    return datetime.strptime(f"{date:<014s}", '%Y%m%d%H%M%S')
 
 
 # valid modes for --chroot
@@ -432,8 +432,7 @@ class SoSReport(SoSComponent):
         }
         helpln = ''
         for ln in help_lines:
-            ssec.add_text("\t{:<36}{}".format(ln, help_lines[ln]),
-                          newline=False)
+            ssec.add_text(f"\t{ln:<36}{help_lines[ln]}", newline=False)
         ssec.add_text(helpln)
 
     def print_header(self):

@@ -41,7 +41,7 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
         pkg_list = ' '.join(
             [v.split('\t')[0] for v in dpkg_output if 'ok installed' in v])
         self.add_cmd_output(
-            "apt-cache policy {}".format(pkg_list),
+            f"apt-cache policy {pkg_list}",
             suggest_filename="apt-cache_policy_details"
         )
 

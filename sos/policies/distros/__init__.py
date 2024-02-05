@@ -199,17 +199,13 @@ class LinuxPolicy(Policy):
 
         refsec = section.add_section('Reference URLs')
         for url in cls.vendor_urls:
-            refsec.add_text(
-                "{:>8}{:<30}{:<40}".format(' ', url[0], url[1]),
-                newline=False
-            )
+            refsec.add_text(f"{' ':>8}{url[0]:<30}{url[1]:<40}", newline=False)
 
         presec = section.add_section('Presets Available With This Policy\n')
         presec.add_text(
             bold(
-                "{:>8}{:<20}{:<45}{:<30}".format(' ', 'Preset Name',
-                                                 'Description',
-                                                 'Enabled Options')
+                f"{' ':>8}{'Preset Name':<20}{'Description':<45}"
+                f"{'Enabled Options':<30}"
             ),
             newline=False
         )
@@ -217,9 +213,7 @@ class LinuxPolicy(Policy):
             _preset = _pol.presets[preset]
             _opts = ' '.join(_preset.opts.to_args())
             presec.add_text(
-                "{:>8}{:<20}{:<45}{:<30}".format(
-                    ' ', preset, _preset.desc, _opts
-                ),
+                f"{' ':>8}{preset:<20}{_preset.desc:<45}{_opts:<30}",
                 newline=False
             )
 

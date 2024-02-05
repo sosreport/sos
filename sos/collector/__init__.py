@@ -516,7 +516,7 @@ class SoSCollector(SoSComponent):
         )
         for hsec in hsections:
             section.add_text(
-                "{:>8}{:<40}{:<30}".format(' ', bold(hsec), hsections[hsec]),
+                f"{' ':>8}{bold(hsec):<40}{hsections[hsec]:<30}",
                 newline=False
             )
 
@@ -650,9 +650,9 @@ class SoSCollector(SoSComponent):
         sys.stdout.write('Use the short name with --cluster-type or cluster '
                          'options (-c)\n\n')
         for cluster in sorted(self.clusters):
-            sys.stdout.write(" {:<15} {:30}\n".format(
-                                cluster,
-                                self.clusters[cluster].cluster_name))
+            sys.stdout.write(
+                f" {cluster:<15} {self.clusters[cluster].cluster_name:30}\n"
+            )
 
         _opts = {}
         for _cluster in self.clusters:
@@ -665,22 +665,18 @@ class SoSCollector(SoSComponent):
                             _opts[opt.name].cluster.append(clust)
 
         sys.stdout.write('\nThe following cluster options are available:\n\n')
-        sys.stdout.write(' {:25} {:15} {:<10} {:10} {:<}\n'.format(
-            'Cluster',
-            'Option Name',
-            'Type',
-            'Default',
-            'Description'
-        ))
+        sys.stdout.write(
+            f" {'Cluster':25} {'Option Name':15} {'Type':<10} {'Default':10} "
+            f"{'Description':<}\n"
+        )
 
         for _opt in sorted(_opts, key=lambda x: _opts[x].cluster):
             opt = _opts[_opt]
-            optln = ' {:25} {:15} {:<10} {:<10} {:<10}\n'.format(
-                ', '.join(c for c in sorted(opt.cluster)),
-                opt.name,
-                opt.opt_type.__name__,
-                str(opt.value),
-                opt.description)
+            optln = (
+                f"  {', '.join(c for c in sorted(opt.cluster)):25} "
+                f"{opt.name:15} {opt.opt_type.__name__:<10} "
+                f"{str(opt.value):<10} {opt.description:<10}\n"
+            )
             sys.stdout.write(optln)
         sys.stdout.write('\nOptions take the form of cluster.name=value'
                          '\nE.G. "ovirt.no-database=True" or '

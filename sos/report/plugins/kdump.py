@@ -84,8 +84,8 @@ class RedHatKDump(KDump, RedHatPlugin):
             # set no filesystem and default path
             path = "/var/crash"
 
-        self.add_copy_spec("{}/*/vmcore-dmesg.txt".format(path))
-        self.add_copy_spec("{}/*/kexec-dmesg.log".format(path))
+        self.add_copy_spec(f"{path}/*/vmcore-dmesg.txt")
+        self.add_copy_spec(f"{path}/*/kexec-dmesg.log")
 
 
 class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):

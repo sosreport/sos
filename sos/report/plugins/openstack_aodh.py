@@ -34,12 +34,12 @@ class OpenStackAodh(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/aodh/*",
-                "/var/log/{}*/aodh*".format(self.apachepkg),
+                f"/var/log/{self.apachepkg}*/aodh*",
             ])
         else:
             self.add_copy_spec([
                 "/var/log/aodh/*.log",
-                "/var/log/{}*/aodh*.log".format(self.apachepkg),
+                f"/var/log/{self.apachepkg}*/aodh*.log",
             ])
 
         vars_all = [p in os.environ for p in [

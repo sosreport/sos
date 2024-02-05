@@ -44,12 +44,12 @@ class OpenStackKeystone(Plugin):
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/keystone/",
-                "/var/log/{}*/keystone*".format(self.apachepkg),
+                f"/var/log/{self.apachepkg}*/keystone*",
             ])
         else:
             self.add_copy_spec([
                 "/var/log/keystone/*.log",
-                "/var/log/{}*/keystone*.log".format(self.apachepkg),
+                f"/var/log/{self.apachepkg}*/keystone*.log",
             ])
 
         # collect domain config directory, if specified

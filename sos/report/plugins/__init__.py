@@ -844,10 +844,10 @@ class Plugin():
             "These options may be toggled or changed using '%s'"
             % bold("-k %s.option_name=$value" % cls.plugin_name)
         )
-        optsec.add_text(bold(
-            "\n{:<4}{:<20}{:<30}{:<20}\n".format(
-                ' ', "Option Name", "Default", "Description")
-            ), newline=False
+        optsec.add_text(
+            bold((f"\n{' ':<4}{'Option Name':<20}{'Default':<30}"
+                  f"{'Description':<20}")),
+            newline=False
         )
 
         opt_indent = ' ' * 54
@@ -861,8 +861,7 @@ class Plugin():
                     _def = "True/On"
                 else:
                     _def = "False/Off"
-            _ln = "{:<4}{:<20}{:<30}{:<20}".format(' ', opt.name, _def,
-                                                   opt.desc)
+            _ln = f"{' ':<4}{opt.name:<20}{_def:<30}{opt.desc:<20}"
             optsec.add_text(
                 textwrap.fill(_ln, width=TERMSIZE,
                               subsequent_indent=opt_indent),
@@ -932,7 +931,7 @@ class Plugin():
         seealso.add_text(
             "Additional relevant information may be available in these "
             "help sections:\n\n%s" % "\n".join(
-                "{:>8}{:<30}{:<30}".format(' ', sec, desc)
+                f"{' ':>8}{sec:<30}{desc:<30}"
                 for sec, desc in _also.items()
             ), newline=False
         )

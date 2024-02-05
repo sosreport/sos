@@ -46,14 +46,16 @@ class saltstack(Cluster):
 
     def _get_hostnames_from_grain(self, manage_status: dict) -> list:
         hostnames = []
-        fqdn_cmd = "salt --out=newline_values_only {minion} grains.get fqdn"
         for status, minions in manage_status.items():
             if status == "down":
                 self.log_warn(f"Node(s) {minions} are status down.")
                 hostnames.extend(minions)
             else:
                 for minion in minions:
-                    node_cmd = fqdn_cmd.format(minion=minion)
+                    node_cmd = (
+                        f"salt --out=newline_values_only {minion} "
+                        f"grains.get fqdn"
+                    )
                     hostnames.append(
                         self.exec_primary_cmd(node_cmd)["output"].strip()
                     )

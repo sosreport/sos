@@ -22,20 +22,11 @@ class Rhv_Analyzer(Plugin, RedHatPlugin):
 
     def setup(self):
         tool_name = 'rhv-log-collector-analyzer'
-        report = "{dircmd}/analyzer-report.html".format(
-            dircmd=self.get_cmd_output_path()
-        )
+        report = f"{self.get_cmd_output_path()}/analyzer-report.html"
 
-        self.add_cmd_output(
-            "{tool_name}"
-            " --live"
-            " --html={report}".format(
-                report=report, tool_name=tool_name)
-        )
-
-        self.add_cmd_output(
-            "{tool_name}"
-            " --json".format(tool_name=tool_name)
-        )
+        self.add_cmd_output([
+            f"{tool_name} --live --html={report}",
+            f"{tool_name} --json"
+        ])
 
 # vim: expandtab tabstop=4 shiftwidth=4

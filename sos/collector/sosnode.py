@@ -135,7 +135,7 @@ class SosNode():
         return SSHControlPersist(self.address, commons)
 
     def _fmt_msg(self, msg):
-        return '{:<{}} : {}'.format(self._hostname, self.hostlen + 1, msg)
+        return f"{self._hostname:<{self.hostlen + 1}} : {msg}"
 
     @property
     def env_vars(self):

@@ -90,9 +90,7 @@ class SoS():
             aliases.insert(0, com)
             _com = ', '.join(aliases)
             desc = self._components[com][0].desc
-            _com_string += (
-                "\t{com:<30}{desc}\n".format(com=_com, desc=desc)
-            )
+            _com_string += (f"\t{_com:<30}{desc}\n")
         usage_string = ("%(prog)s <component> [options]\n\n"
                         "Available components:\n")
         usage_string = usage_string + _com_string

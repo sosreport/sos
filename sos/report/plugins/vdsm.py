@@ -129,8 +129,8 @@ class Vdsm(Plugin, RedHatPlugin):
                 pools = json.loads(res['output'])
                 for pool in pools:
                     self.add_cmd_output(
-                        'vdsm-client StoragePool getSpmStatus'
-                        ' storagepoolID={}'.format(pool)
+                        f"vdsm-client StoragePool getSpmStatus "
+                        f"storagepoolID={pool}"
                     )
         except ValueError as e:
             self._log_error(

@@ -242,24 +242,17 @@ any third party.
         rand = ''.join(random.choice(string.ascii_lowercase) for x in range(7))
 
         if self.name_pattern == 'legacy':
-            nstr = "sosreport-{name}{case}{date}"
             case = '.' + case if case else ''
             date = '-%Y%m%d%H%M%S'
+            nstr = f"sosreport-{name}{case}{date}"
         elif self.name_pattern == 'friendly':
-            nstr = "sosreport-{name}{label}{case}{date}-{rand}"
             case = '-' + case if case else ''
             label = '-' + label if label else ''
             date = '-%Y-%m-%d'
+            nstr = f"sosreport-{name}{label}{case}{date}-{rand}"
         else:
             nstr = self.name_pattern
 
-        nstr = nstr.format(
-            name=name,
-            label=label,
-            case=case,
-            date=date,
-            rand=rand
-        )
         return self.sanitize_filename(time.strftime(nstr))
 
     # for some specific binaries like "xz", we need to determine package
@@ -409,8 +402,10 @@ any third party.
             "For more information on distribution policies, see below\n"
         )
         for pol in pols:
-            seealso.add_text("{:>8}{:<20}{:<30}".format(' ', pol, pols[pol]),
-                             newline=False)
+            seealso.add_text(
+                f"{' ':>8}{pol:<20}{pols[pol]:<30}",
+                newline=False
+            )
 
     def display_results(self, archive, directory, checksum, archivestat=None,
                         map_file=None):
@@ -501,10 +496,9 @@ any third party.
         :rtype:     ``str``
         """
         width = max([len(v[0]) for v in self.vendor_urls])
-        return "\n".join("\t{desc:<{width}} : {url}".format(
-                         desc=u[0], width=width, url=u[1])
-                         for u in self.vendor_urls
-                         )
+        return "\n".join(
+            f"\t{url[0]:<{width}} : {url[1]}" for url in self.vendor_urls
+        )
 
     def register_presets(self, presets, replace=False):
         """Add new presets to this policy object.

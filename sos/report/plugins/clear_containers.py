@@ -26,12 +26,12 @@ class ClearContainers(Plugin, IndependentPlugin):
 
         # start with the default file locations
         config_files = [
-                '/etc/clear-containers/configuration.toml'
-                '/usr/share/defaults/clear-containers/configuration.toml'
+            '/etc/clear-containers/configuration.toml'
+            '/usr/share/defaults/clear-containers/configuration.toml'
         ]
 
         # obtain a list of config files by asking the runtime
-        cmd = '{} --cc-show-default-config-paths'.format(self.runtime)
+        cmd = f"{self.runtime} --cc-show-default-config-paths"
         configs = self.exec_cmd(cmd)['output']
 
         for config in configs.splitlines():
@@ -50,7 +50,7 @@ class ClearContainers(Plugin, IndependentPlugin):
         ]
 
         # query the runtime to find the configured global log file
-        cmd = '{} cc-env'.format(self.runtime)
+        cmd = f"{self.runtime} cc-env"
         output = self.exec_cmd(cmd)['output']
         for line in output.splitlines():
             result = re.search(r'\bGlobalLogPath\b\s+=\s+"(.+)"', line)
@@ -72,7 +72,7 @@ class ClearContainers(Plugin, IndependentPlugin):
             # no limit on amount of data recorded
             self.limit = None
 
-        self.add_cmd_output('{} cc-env'.format(self.runtime))
+        self.add_cmd_output(f"{self.runtime} cc-env")
         self.attach_cc_config_files()
 
         self.attach_cc_log_files()

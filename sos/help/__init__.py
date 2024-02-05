@@ -211,7 +211,7 @@ class SoSHelper(SoSComponent):
 
         for sect in sections:
             avail_help.add_text(
-                "\t{:<36}{}".format(bold(sect), sections[sect]),
+                f"\t{bold(sect):<36}{sections[sect]}",
                 newline=False
             )
 
