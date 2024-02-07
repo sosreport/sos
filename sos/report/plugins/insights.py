@@ -25,16 +25,18 @@ class RedHatInsights(Plugin, RedHatPlugin):
     plugin_name = 'insights'
     packages = ('redhat-access-insights', 'insights-client')
     profiles = ('system', 'sysmgmt')
-    config = (
+    config_and_status = (
         '/etc/insights-client/insights-client.conf',
         '/etc/insights-client/.registered',
         '/etc/insights-client/tags.yaml',
         '/etc/insights-client/malware-detection-config.yml',
-        '/etc/redhat-access-insights/redhat-access-insights.conf'
+        '/etc/redhat-access-insights/redhat-access-insights.conf',
+        '/etc/insights-client/.lastupload',
+        '/etc/insights-client/machine-id',
     )
 
     def setup(self):
-        self.add_copy_spec(self.config)
+        self.add_copy_spec(self.config_and_status)
         self.add_copy_spec('/var/lib/insights')
 
         # Legacy log file location
@@ -54,7 +56,7 @@ class RedHatInsights(Plugin, RedHatPlugin):
             self.add_cmd_output(f"/bin/ls -lanR {_dir}", cmd_as_tag=True)
 
     def postproc(self):
-        for conf in self.config:
+        for conf in self.config_and_status:
             self.do_file_sub(
                 conf, r'(password[\t\ ]*=[\t\ ]*)(.+)', r'\1********'
             )
