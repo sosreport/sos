@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
 
 
 class Fwupd(Plugin, IndependentPlugin):
@@ -19,6 +19,7 @@ class Fwupd(Plugin, IndependentPlugin):
     packages = ('fwupd',)
 
     def setup(self):
+        self.set_cmd_predicate(SoSPredicate(self, services=["fwupd"]))
         self.add_cmd_output([
             "fwupdmgr get-approved-firmware",
             "fwupdmgr get-devices --no-unreported-check",
