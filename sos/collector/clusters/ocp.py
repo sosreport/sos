@@ -93,7 +93,8 @@ class ocp(Cluster):
                     self.log_debug("Locating 'oc' failed: %s"
                                    % _oc_path['output'])
             if self.get_option('kubeconfig'):
-                self._oc_cmd += " --config %s" % self.get_option('kubeconfig')
+                self._oc_cmd += " --kubeconfig " \
+                        f"{self.get_option('kubeconfig')}"
             self.log_debug("oc base command set to %s" % self._oc_cmd)
         return self._oc_cmd
 
