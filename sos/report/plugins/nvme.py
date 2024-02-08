@@ -26,7 +26,13 @@ class Nvme(Plugin, IndependentPlugin):
     kernel_mods = ('nvme', 'nvme_core')
 
     def setup(self):
-        self.add_copy_spec("/etc/nvme/*")
+        self.add_copy_spec([
+            "/etc/nvme/*",
+            "/sys/class/nvme-fabrics/ctl/nvme*",
+            "/sys/class/nvme-subsystem/nvme-subsys*/*",
+            "/sys/module/nvme_core/parameters/*",
+        ])
+
         self.add_cmd_output([
             "nvme list",
             "nvme list-subsys",
