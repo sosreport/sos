@@ -23,7 +23,7 @@ class rhbz1950350(StageTwoReportTest):
         ('clean_config_test.txt', '/var/log/clean_config_test.txt')
     ]
 
-    sos_cmd = '-v -o sos_extras --clean'
+    sos_cmd = '-v -o sos_extras --clean --no-update'
 
     def test_clean_config_loaded(self):
         self.assertSosLogContains("effective options now: (.*)? --clean --domains (.*)? --keywords (.*)?")

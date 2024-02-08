@@ -39,7 +39,7 @@ class EncryptedCleanedReportTest(EncryptedReportTest):
     """
 
     encrypt_pass = 'sostest'
-    sos_cmd = "-o host,networking --clean --encrypt-pass %s" % encrypt_pass
+    sos_cmd = "-o host,networking --clean --encrypt-pass %s --no-update" % encrypt_pass
 
     def test_hostname_obfuscated(self):
         self.assertFileHasContent('hostname', 'host0')

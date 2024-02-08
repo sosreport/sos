@@ -16,7 +16,7 @@ class CleanHelpTest(StageOneOutputTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = 'clean --help'
+    sos_cmd = 'clean --help --no-update'
 
     def test_all_help_sections_present(self):
         self.assertOutputContains('Global Options:')

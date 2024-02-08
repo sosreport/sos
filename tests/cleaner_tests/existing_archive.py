@@ -22,7 +22,7 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    sos_cmd = '-v tests/test_data/%s.tar.xz' % ARCHIVE
+    sos_cmd = '-v tests/test_data/%s.tar.xz --no-update' % ARCHIVE
     sos_component = 'clean'
 
     def test_obfuscation_log_created(self):

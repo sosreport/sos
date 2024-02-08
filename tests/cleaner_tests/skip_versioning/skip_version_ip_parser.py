@@ -23,7 +23,7 @@ class SkipVersionIPParser(StageTwoReportTest):
         ('sos-test-version-noskip', NO_SKIP)
     ]
     install_plugins = ['skip_versions']
-    sos_cmd = '--clean -o skip_versions'
+    sos_cmd = '--clean -o skip_versions --no-update'
 
     def test_version_file_skipped(self):
         self.assertFileCollected(DO_SKIP)
