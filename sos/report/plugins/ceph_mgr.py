@@ -47,6 +47,7 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
 
         ceph_mgr_cmds = ([
             "balancer status",
+            "healthcheck history ls",
             "log last cephadm",
             "mgr dump",
             "mgr metadata",
