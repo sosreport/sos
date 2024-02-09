@@ -18,31 +18,16 @@ class LXD(Plugin, UbuntuPlugin):
     profiles = ('container',)
     packages = ('lxd',)
     commands = ('lxc', 'lxd',)
+    services = ('snap.lxd.daemon', 'snap.lxd.activate')
 
     def setup(self):
 
-        lxd_kmods = [
-            'bpfilter',
-            'ebtable_filter',
-            'ebtables',
-            'ip6table_filter',
-            'ip6table_mangle',
-            'ip6table_nat',
-            'ip6table_raw',
-            'ip6_tables',
-            'iptable_filter',
-            'iptable_mangle',
-            'iptable_nat',
-            'iptable_raw',
-            'nf_nat',
-            'nf_tables',
-        ]
-
-        lxd_pred = SoSPredicate(self, kmods=lxd_kmods,
-                                required={'kmods': 'all'})
-
         lxd_pkg = self.policy.package_manager.pkg_by_name('lxd')
         if lxd_pkg and lxd_pkg['pkg_manager'] == 'snap':
+
+            lxd_pred = SoSPredicate(self, services=['snap.lxd.daemon'],
+                                    required={'services': 'all'})
+
             self.add_cmd_output("lxd.buginfo", pred=lxd_pred)
 
             self.add_copy_spec([
@@ -62,6 +47,8 @@ class LXD(Plugin, UbuntuPlugin):
                     '/var/snap/lxd/common/lxd/logs/**',
                 ])
         else:
+            lxd_pred = SoSPredicate(self, services=['lxd'],
+                                    required={'services': 'all'})
             self.add_copy_spec([
                 "/etc/default/lxd-bridge",
                 "/var/log/lxd/*"
@@ -78,5 +65,8 @@ class LXD(Plugin, UbuntuPlugin):
             self.add_cmd_output([
                 "find /var/lib/lxd -maxdepth 2 -type d -ls",
             ], suggest_filename='var-lxd-dirs.txt')
+
+    def postproc(self):
+        self.do_cmd_private_sub('lxd.buginfo')
 
 # vim: set et ts=4 sw=4 :
