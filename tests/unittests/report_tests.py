@@ -79,13 +79,13 @@ class TestPlainReport(unittest.TestCase):
 
     def test_basic(self):
         self.assertEqual(self.pluglist.format(pluglist=""),
-                          PlainTextReport(self.report).unicode())
+                         PlainTextReport(self.report).unicode())
 
     def test_one_section(self):
         self.report.add(self.section)
 
         self.assertEqual(self.defaultheader,
-                          PlainTextReport(self.report).unicode() + '\n')
+                         PlainTextReport(self.report).unicode() + '\n')
 
     def test_two_sections(self):
         section1 = Section(name="first")

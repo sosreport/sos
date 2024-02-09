@@ -69,7 +69,8 @@ class TarFileArchiveTest(unittest.TestCase):
 #        self.check_for_file('test/tests/ziptest')
 
     def test_add_renamed(self):
-        self.tf.add_file('tests/unittests/ziptest', dest='tests/unittests/ziptest_renamed')
+        self.tf.add_file('tests/unittests/ziptest',
+                         dest='tests/unittests/ziptest_renamed')
         self.tf.finalize('auto')
 
         self.check_for_file('test/tests/unittests/ziptest_renamed')

@@ -44,7 +44,6 @@ class FauxDebianPlugin(Plugin, DebianPlugin):
 
 class PolicyTests(unittest.TestCase):
 
-
     def test_independent_only(self):
         p = FauxPolicy()
         p.valid_subclasses = []
