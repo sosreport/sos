@@ -12,6 +12,7 @@ import json
 import os
 import sys
 import re
+from sos.policies.auth import DeviceAuthorizationClass
 
 from sos.report.plugins import RedHatPlugin
 from sos.presets.redhat import (RHEL_PRESETS, RHV, RHEL, CB, RHOSP,
@@ -49,6 +50,10 @@ class RedHatPolicy(LinuxPolicy):
     default_container_runtime = 'podman'
     sos_pkg_name = 'sos'
     sos_bin_path = '/usr/sbin'
+    client_identifier_url = "https://sso.redhat.com/auth/"\
+        "realms/redhat-external/protocol/openid-connect/auth/device"
+    token_endpoint = "https://sso.redhat.com/auth/realms/"\
+        "redhat-external/protocol/openid-connect/token"
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -226,6 +231,7 @@ support representative.
 """ + disclaimer_text + "%(vendor_text)s\n")
     _upload_url = RH_SFTP_HOST
     _upload_method = 'post'
+    _device_token = None
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -264,24 +270,23 @@ support representative.
 
     def prompt_for_upload_user(self):
         if self.commons['cmdlineopts'].upload_user:
-            return
-        # Not using the default, so don't call this prompt for RHCP
-        if self.commons['cmdlineopts'].upload_url:
-            super(RHELPolicy, self).prompt_for_upload_user()
-            return
-        if not self.get_upload_user():
-            if self.case_id:
-                self.upload_user = input(_(
-                    "Enter your Red Hat Customer Portal username for "
-                    "uploading [empty for anonymous SFTP]: ")
-                )
-            else:   # no case id provided => failover to SFTP
-                self.upload_url = RH_SFTP_HOST
-                self.ui_log.info("No case id provided, uploading to SFTP")
-                self.upload_user = input(_(
-                    "Enter your Red Hat Customer Portal username for "
-                    "uploading to SFTP [empty for anonymous]: ")
-                )
+            self.ui_log.info(
+                _("The option --upload-user has been deprecated in favour"
+                  " of device authorization in RHEL")
+            )
+        if not self.case_id:
+            # no case id provided => failover to SFTP
+            self.upload_url = RH_SFTP_HOST
+            self.ui_log.info("No case id provided, uploading to SFTP")
+
+    def prompt_for_upload_password(self):
+        # With OIDC we don't ask for user/pass anymore
+        if self.commons['cmdlineopts'].upload_pass:
+            self.ui_log.info(
+                _("The option --upload-pass has been deprecated in favour"
+                  " of device authorization in RHEL")
+            )
+        return
 
     def get_upload_url(self):
         if self.upload_url:
@@ -290,9 +295,41 @@ support representative.
             return self.commons['cmdlineopts'].upload_url
         elif self.commons['cmdlineopts'].upload_protocol == 'sftp':
             return RH_SFTP_HOST
+        elif not self.commons['cmdlineopts'].case_id:
+            self.ui_log.info("No case id provided, uploading to SFTP")
+            return RH_SFTP_HOST
         else:
             rh_case_api = "/support/v1/cases/%s/attachments"
             return RH_API_HOST + rh_case_api % self.case_id
+
+    def _get_upload_https_auth(self):
+        str_auth = "Bearer {}".format(self._device_token)
+        return {'Authorization': str_auth}
+
+    def _upload_https_post(self, archive, verify=True):
+        """If upload_https() needs to use requests.post(), use this method.
+
+        Policies should override this method instead of the base upload_https()
+
+        :param archive:     The open archive file object
+        """
+        files = {
+            'file': (archive.name.split('/')[-1], archive,
+                     self._get_upload_headers())
+        }
+        # Get the access token at this point. With this,
+        # we cover the cases where report generation takes
+        # longer than the token timeout
+        RHELAuth = DeviceAuthorizationClass(
+                self.client_identifier_url,
+                self.token_endpoint
+            )
+        self._device_token = RHELAuth.get_access_token()
+        self.ui_log.info("Device authorized correctly. Uploading file to "
+                         f"{self.get_upload_url_string()}")
+        return requests.post(self.get_upload_url(), files=files,
+                             headers=self._get_upload_https_auth(),
+                             verify=verify)
 
     def _get_upload_headers(self):
         if self.get_upload_url().startswith(RH_API_HOST):
@@ -330,15 +367,38 @@ support representative.
                             " for obtaining SFTP auth token.")
         _token = None
         _user = None
+
+        # We may have a device token already if we attempted
+        # to upload via http but the upload failed. So
+        # lets check first if there isn't one.
+        if not self._device_token:
+            try:
+                RHELAuth = DeviceAuthorizationClass(
+                    self.client_identifier_url,
+                    self.token_endpoint
+                )
+            except Exception as e:
+                # We end up here if the user cancels the device
+                # authentication in the web interface
+                if "end user denied" in str(e):
+                    self.ui_log.info(
+                        "Device token authorization "
+                        "has been cancelled by the user."
+                    )
+            else:
+                self._device_token = RHELAuth.get_access_token()
+        if self._device_token:
+            self.ui_log.info("Device authorized correctly. Uploading file to"
+                             f" {self.get_upload_url_string()}")
+
         url = RH_API_HOST + '/support/v2/sftp/token'
-        # we have a username and password, but we need to reset the password
-        # to be the token returned from the auth endpoint
-        if self.get_upload_user() and self.get_upload_password():
-            auth = self.get_upload_https_auth()
-            ret = requests.post(url, auth=auth, timeout=10)
+        ret = None
+        if self._device_token:
+            headers = self._get_upload_https_auth()
+            ret = requests.post(url, headers=headers, timeout=10)
             if ret.status_code == 200:
                 # credentials are valid
-                _user = self.get_upload_user()
+                _user = json.loads(ret.text)['username']
                 _token = json.loads(ret.text)['token']
             else:
                 self.ui_log.debug(
@@ -349,8 +409,7 @@ support representative.
                     "Unable to retrieve Red Hat auth token using provided "
                     "credentials. Will try anonymous."
                 )
-        # we either do not have a username or password/token, or both
-        if not _token:
+        else:
             adata = {"isAnonymous": True}
             anon = requests.post(url, data=json.dumps(adata), timeout=10)
             if anon.status_code == 200:
@@ -366,7 +425,6 @@ support representative.
                     f"DEBUG: anonymous request failed (status: "
                     f"{anon.status_code}): {anon.json()}"
                 )
-
         if _user and _token:
             return super(RHELPolicy, self).upload_sftp(user=_user,
                                                        password=_token)
@@ -378,17 +436,18 @@ support representative.
         """
         try:
             if self.upload_url and self.upload_url.startswith(RH_API_HOST) and\
-              (not self.get_upload_user() or not self.get_upload_password()):
+                    (not self.get_upload_user() or
+                     not self.get_upload_password()):
                 self.upload_url = RH_SFTP_HOST
             uploaded = super(RHELPolicy, self).upload_archive(archive)
-        except Exception:
+        except Exception as e:
             uploaded = False
             if not self.upload_url.startswith(RH_API_HOST):
                 raise
             else:
                 self.ui_log.error(
-                    _(f"Upload to Red Hat Customer Portal failed. Trying "
-                      f"{RH_SFTP_HOST}")
+                    _(f"Upload to Red Hat Customer Portal failed due to "
+                      f"{e}. Trying {RH_SFTP_HOST}")
                 )
                 self.upload_url = RH_SFTP_HOST
                 uploaded = super(RHELPolicy, self).upload_archive(archive)
