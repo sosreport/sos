@@ -26,6 +26,7 @@ from sos.cleaner.preppers.ip import IPPrepper
 from sos.cleaner.archives.sos import SoSReportArchive
 from sos.options import SoSOptions
 
+
 class CleanerMapTests(unittest.TestCase):
 
     def setUp(self):
@@ -108,7 +109,8 @@ class CleanerMapTests(unittest.TestCase):
         _net = '2022:1104:abcd::'
         _ob_net = self.ipv6_map.get(_net)
         self.assertNotEqual(_net, _ob_net, 'Address was unchanged')
-        self.assertTrue(_ob_net.startswith('534f'), 'Global address does not start with identifier')
+        self.assertTrue(_ob_net.startswith('534f'),
+                        'Global address does not start with identifier')
         _host = '2022:1104:abcd::1234'
         _ob_host = self.ipv6_map.get(_host)
         self.assertNotEqual(_host, _ob_host, 'Host address was unchanged')
@@ -117,7 +119,8 @@ class CleanerMapTests(unittest.TestCase):
     def test_ipv6_link_local(self):
         _test = 'fe80::1234'
         _ob_test = self.ipv6_map.get(_test)
-        self.assertTrue(_ob_test.startswith('fe80'), 'Link-local identifier not maintained')
+        self.assertTrue(_ob_test.startswith('fe80'),
+                        'Link-local identifier not maintained')
         self.assertNotEqual(_test, _ob_test, 'Device address was unchanged')
 
     def test_ipv6_private(self):
@@ -125,20 +128,25 @@ class CleanerMapTests(unittest.TestCase):
         _host = 'fd00:abcd::1234'
         _ob_net = self.ipv6_map.get(_net).split('/')[0]
         _ob_host = self.ipv6_map.get(_host)
-        self.assertTrue(_ob_net.startswith('fd53'), 'Private network does not start with identifier')
-        self.assertTrue(_ob_host.startswith(_ob_net), 'Private address not in same network')
+        self.assertTrue(_ob_net.startswith('fd53'),
+                        'Private network does not start with identifier')
+        self.assertTrue(_ob_host.startswith(_ob_net),
+                        'Private address not in same network')
         self.assertNotEqual(_net, _ob_net, 'Private network was unchanged')
 
     def test_ipv6_short_network(self):
         _net = 'ff02::'
         _ob_net = self.ipv6_map.get(_net)
-        self.assertTrue(_ob_net.startswith(('53', '54')), f'Short network does not start with identifier: {_ob_net}')
+        self.assertTrue(_ob_net.startswith(('53', '54')),
+                        f'Short network does not start with identifier: '
+                        f'{_ob_net}')
 
     def test_ipv6_consistent_obfuscation(self):
         _test = '2022:1104:abcd::ef09'
         _new = self.ipv6_map.get(_test)
         _second = self.ipv6_map.get(_test)
-        self.assertEqual(_new, _second, "Same address produced two different results")
+        self.assertEqual(_new, _second,
+                         "Same address produced two different results")
 
     def test_ipv6_global_no_collision(self):
         """Tests that generating more than 256 global network obfuscations does
@@ -146,9 +154,14 @@ class CleanerMapTests(unittest.TestCase):
         _nets = []
         for i in range(1, 300):
             _nets.append(self.ipv6_map.get(f"f{i:03}::abcd").split('::')[0])
-        # if there are any duplicates, then the length of the set will not match
-        self.assertTrue(len(set(_nets)) == len(_nets), "Duplicate global network obfuscations produced")
-        self.assertTrue(_nets[-1].startswith('54'), "First hextet of global network obfuscation over 256 not expected '54'")
+        # if there are any duplicates, then the length of the set will not
+        # match
+        self.assertTrue(len(set(_nets)) == len(_nets),
+                        "Duplicate global network obfuscations produced")
+        self.assertTrue(_nets[-1].startswith('54'),
+                        "First hextet of global network obfuscation over 256"
+                        " not expected '54'")
+
 
 class CleanerParserTests(unittest.TestCase):
 
@@ -163,7 +176,7 @@ class CleanerParserTests(unittest.TestCase):
         self.kw_parser_none = SoSKeywordParser(config={})
         self.kw_parser.generate_item_regexes()
         self.uname_parser = SoSUsernameParser(config={})
-        self.uname_parser.mapping.add('DOMAIN\myusername')
+        self.uname_parser.mapping.add('DOMAIN\\myusername')
         self.uname_parser.mapping.add('foo')
 
     def test_ip_parser_valid_ipv4_line(self):
@@ -261,28 +274,37 @@ class CleanerParserTests(unittest.TestCase):
         t1 = 'testing abcd:ef01::1234 as a compressed address'
         t2 = 'testing abcd:ef01::5678:1234 as a separate address'
         t3 = 'testing 2607:c540:8c00:3318::34/64 as another address'
-        t4 = 'testing 2007:1234:5678:90ab:0987:6543:21fe:dcba as a full address'
+        t4 = ('testing 2007:1234:5678:90ab:0987:6543:21fe:dcba as a full '
+              'address')
         t1_test = self.ipv6_parser.parse_line(t1)[0]
         t2_test = self.ipv6_parser.parse_line(t2)[0]
         t3_test = self.ipv6_parser.parse_line(t3)[0]
         t4_test = self.ipv6_parser.parse_line(t4)[0]
-        self.assertNotEqual(t1, t1_test, f"Parser did not match and obfuscate '{t1}'")
-        self.assertNotEqual(t2, t2_test, f"Parser did not match and obfuscate '{t2}'")
-        self.assertNotEqual(t3, t3_test, f"Parser did not match and obfuscate '{t3}'")
-        self.assertNotEqual(t4, t4_test, f"Parser did not match and obfuscate '{t4}'")
+        self.assertNotEqual(t1, t1_test,
+                            f"Parser did not match and obfuscate '{t1}'")
+        self.assertNotEqual(t2, t2_test,
+                            f"Parser did not match and obfuscate '{t2}'")
+        self.assertNotEqual(t3, t3_test,
+                            f"Parser did not match and obfuscate '{t3}'")
+        self.assertNotEqual(t4, t4_test,
+                            f"Parser did not match and obfuscate '{t4}'")
 
     def test_ipv6_no_match_signature(self):
         modstr = '2D:4F:6E:55:4F:E8:5E:D2:D2:A3:73:62:AB:FD:F9:C5:A5:53:31:93'
         mod_test = self.ipv6_parser.parse_line(modstr)[0]
-        self.assertEqual(modstr, mod_test, "Parser matched module signature, and should not")
+        self.assertEqual(modstr, mod_test,
+                         "Parser matched module signature, and should not")
 
     def test_ipv6_no_match_log_false_positive(self):
-        logln = 'Automatically imported trusted_ca::ca from trusted_ca/ca into production'
+        logln = ('Automatically imported trusted_ca::ca from trusted_ca/ca'
+                 ' into production')
         log_test = self.ipv6_parser.parse_line(logln)[0]
-        self.assertEqual(logln, log_test, "IPv6 parser incorrectly matched a log line of 'trusted_ca::ca'")
+        self.assertEqual(logln, log_test,
+                         "IPv6 parser incorrectly matched a log line of"
+                         "'trusted_ca::ca'")
 
     def test_ad_username(self):
-        line = "DOMAIN\myusername"
+        line = "DOMAIN\\myusername"
         _test = self.uname_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
 
@@ -301,24 +323,34 @@ class PrepperTests(unittest.TestCase):
     def setUp(self):
         self.prepper = SoSPrepper(SoSOptions())
         self.archive = SoSReportArchive(
-            archive_path='tests/test_data/sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz',
+            archive_path='tests/test_data/'
+                         'sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz',
             tmpdir='/tmp'
         )
         self.host_prepper = HostnamePrepper(SoSOptions(domains=[]))
         self.ipv4_prepper = IPPrepper(SoSOptions())
 
     def test_parser_method_translation(self):
-        self.assertEqual([], self.prepper.get_parser_file_list('hostname', None))
+        self.assertEqual([],
+                         self.prepper.get_parser_file_list('hostname', None))
 
     def test_mapping_method_translation(self):
         self.assertEqual([], self.prepper.get_items_for_map('foobar', None))
 
     def test_hostname_prepper_map_items(self):
-        self.assertEqual(['cleanertest'], self.host_prepper.get_items_for_map('hostname', self.archive))
+        self.assertEqual(
+            ['cleanertest'],
+            self.host_prepper.get_items_for_map('hostname', self.archive)
+        )
 
     def test_ipv4_prepper_parser_files(self):
-        self.assertEqual(['sos_commands/networking/ip_-o_addr'], self.ipv4_prepper.get_parser_file_list('ip', self.archive))
+        self.assertEqual(
+            ['sos_commands/networking/ip_-o_addr'],
+            self.ipv4_prepper.get_parser_file_list('ip', self.archive)
+        )
 
     def test_ipv4_prepper_invalid_parser_files(self):
-        self.assertEqual([], self.ipv4_prepper.get_parser_file_list('foobar', self.archive))
-
+        self.assertEqual(
+            [],
+            self.ipv4_prepper.get_parser_file_list('foobar', self.archive)
+        )
