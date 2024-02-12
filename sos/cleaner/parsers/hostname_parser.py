@@ -21,9 +21,9 @@ class SoSHostnameParser(SoSCleanerParser):
         r'(((\b|_)[a-zA-Z0-9-\.]{1,200}\.[a-zA-Z]{1,63}(\b|_)))'
     ]
 
-    def __init__(self, config):
+    def __init__(self, config, skip_clean_files=[]):
         self.mapping = SoSHostnameMap()
-        super(SoSHostnameParser, self).__init__(config)
+        super(SoSHostnameParser, self).__init__(config, skip_clean_files)
 
     def parse_line(self, line):
         """This will be called for every line in every file we process, so that

@@ -26,9 +26,9 @@ class SoSUsernameParser(SoSCleanerParser):
     map_file_key = 'username_map'
     regex_patterns = []
 
-    def __init__(self, config):
+    def __init__(self, config, skip_clean_files=[]):
         self.mapping = SoSUsernameMap()
-        super(SoSUsernameParser, self).__init__(config)
+        super(SoSUsernameParser, self).__init__(config, skip_clean_files)
 
     def _parse_line(self, line):
         return line, 0

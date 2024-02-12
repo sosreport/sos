@@ -50,7 +50,6 @@ class SoSObfuscationArchive():
     type_name = 'undetermined'
     description = 'undetermined'
     is_nested = False
-    skip_files = []
     prep_files = {}
 
     def __init__(self, archive_path, tmpdir):

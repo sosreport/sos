@@ -5,6 +5,7 @@ sos clean - Obfuscate sensitive data from one or more sosreports
 .B sos clean TARGET [options]
     [\-\-domains]
     [\-\-disable-parsers]
+    [\-\-skip-cleaning-files|\-\-skip-masking-files]
     [\-\-keywords]
     [\-\-keyword-file]
     [\-\-map-file]
@@ -62,6 +63,15 @@ trust in the party/parties that may handle the generated report.
 
 Valid values for this option are currently: \fBhostname\fR, \fBip\fR, \fBipv6\fR,
 \fBmac\fR, \fBkeyword\fR, and \fBusername\fR.
+.TP
+.B \-\-skip-cleaning-files, \-\-skip-masking-files FILES
+Provide a comma-delimited list of files inside an archive, that cleaner should skip in cleaning.
+
+Globs like asterisk are supported, so \fBsos_commands/host/hostname*\fR will match all three
+usual filenames in that directory (\fBhostname\fR, \fBhostnamectl_status\fR and \fBhostname_-f\fR).
+
+Use this option with caution, only when being certain the given files do not contain any sensitive
+information.
 .TP
 .B \-\-keywords KEYWORDS
 Provide a comma-delimited list of keywords to scrub in addition to the default parsers.
