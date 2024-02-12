@@ -29,15 +29,15 @@ class SoSIPv6Parser(SoSCleanerParser):
         r"(([0-9a-f]{1,4}(:[0-9a-f]{0,4}){0,5}))([^.])::(([0-9a-f]{1,4}"
         r"(:[0-9a-f]{1,4}){0,5})?))(/\d{1,3})?(?![:\\a-z0-9])"
     ]
-    skip_files = [
+    parser_skip_files = [
         'etc/dnsmasq.conf.*',
         '.*modinfo.*',
     ]
     compile_regexes = False
 
-    def __init__(self, config):
+    def __init__(self, config, skip_clean_files=[]):
         self.mapping = SoSIPv6Map()
-        super(SoSIPv6Parser, self).__init__(config)
+        super(SoSIPv6Parser, self).__init__(config, skip_clean_files)
 
     def get_map_contents(self):
         """Structure the dataset contents properly so that they can be reloaded

@@ -15,6 +15,7 @@ import os
 import shutil
 import sos.cleaner.preppers
 import tempfile
+import fnmatch
 
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
@@ -81,6 +82,7 @@ class SoSCleaner(SoSComponent):
         'archive_type': 'auto',
         'domains': [],
         'disable_parsers': [],
+        'skip_clean_files': [],
         'jobs': 4,
         'keywords': [],
         'keyword_file': None,
@@ -116,7 +118,7 @@ class SoSCleaner(SoSComponent):
             # when obfuscating a SoSCollector run during archive extraction
             os.makedirs(os.path.join(self.tmpdir, 'cleaner'), exist_ok=True)
 
-        self.validate_parser_values()
+        self.review_parser_values()
 
         self.cleaner_mapping = self.load_map_file()
         os.umask(0o77)
@@ -125,13 +127,14 @@ class SoSCleaner(SoSComponent):
 
         self.cleaner_md = self.manifest.components.add_section('cleaner')
 
+        skip_clean_files = self.opts.skip_clean_files
         self.parsers = [
-            SoSHostnameParser(self.cleaner_mapping),
-            SoSIPParser(self.cleaner_mapping),
-            SoSIPv6Parser(self.cleaner_mapping),
-            SoSMacParser(self.cleaner_mapping),
-            SoSKeywordParser(self.cleaner_mapping),
-            SoSUsernameParser(self.cleaner_mapping)
+            SoSHostnameParser(self.cleaner_mapping, skip_clean_files),
+            SoSIPParser(self.cleaner_mapping, skip_clean_files),
+            SoSIPv6Parser(self.cleaner_mapping, skip_clean_files),
+            SoSMacParser(self.cleaner_mapping, skip_clean_files),
+            SoSKeywordParser(self.cleaner_mapping, skip_clean_files),
+            SoSUsernameParser(self.cleaner_mapping, skip_clean_files)
         ]
 
         for _parser in self.opts.disable_parsers:
@@ -262,6 +265,11 @@ third party.
                                default=[], dest='disable_parsers',
                                help=('Disable specific parsers, so that those '
                                      'elements are not obfuscated'))
+        clean_grp.add_argument('--skip-cleaning-files', '--skip-masking-files',
+                               action='extend', default=[],
+                               dest='skip_clean_files',
+                               help=('List of files to skip/ignore during '
+                                     'cleaning. Globs are supported.'))
         clean_grp.add_argument('-j', '--jobs', default=4, type=int,
                                help='Number of concurrent archives to clean')
         clean_grp.add_argument('--keywords', action='extend', default=[],
@@ -323,10 +331,11 @@ third party.
         if self.nested_archive:
             self.nested_archive.ui_name = self.nested_archive.description
 
-    def validate_parser_values(self):
-        """Check any values passed to the parsers via the commandline, e.g.
-        the --domains option, to ensure that they are valid for the parser in
-        question.
+    def review_parser_values(self):
+        """Check any values passed to the parsers via the commandline:
+        - For the --domains option, ensure that they are valid for the parser
+          in question.
+        - Convert --skip-cleaning-files from globs to regular expressions.
         """
         for _dom in self.opts.domains:
             if len(_dom.split('.')) < 2:
@@ -334,6 +343,8 @@ third party.
                     f"Invalid value '{_dom}' given: --domains values must be "
                     "actual domains"
                 )
+        self.opts.skip_clean_files = [fnmatch.translate(p) for p in
+                                      self.opts.skip_clean_files]
 
     def execute(self):
         """SoSCleaner will begin by inspecting the TARGET option to determine

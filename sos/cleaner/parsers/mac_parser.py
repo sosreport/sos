@@ -43,15 +43,15 @@ class SoSMacParser(SoSCleanerParser):
         '53:4f:53',
         '534f:53'
     )
-    skip_files = [
+    parser_skip_files = [
         'sos_commands/.*/modinfo.*'
     ]
     map_file_key = 'mac_map'
     compile_regexes = False
 
-    def __init__(self, config):
+    def __init__(self, config, skip_clean_files=[]):
         self.mapping = SoSMacMap()
-        super(SoSMacParser, self).__init__(config)
+        super(SoSMacParser, self).__init__(config, skip_clean_files)
 
     def reduce_mac_match(self, match):
         """Strips away leading and trailing non-alphanum characters from any

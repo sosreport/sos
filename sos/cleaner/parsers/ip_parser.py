@@ -25,7 +25,7 @@ class SoSIPParser(SoSCleanerParser):
         r'.*dnf\[.*\]:'
     ]
 
-    skip_files = [
+    parser_skip_files = [
         # skip these as version numbers will frequently look like IP addresses
         # when using regex matching
         'installed-debs',
@@ -44,6 +44,6 @@ class SoSIPParser(SoSCleanerParser):
     map_file_key = 'ip_map'
     compile_regexes = False
 
-    def __init__(self, config):
+    def __init__(self, config, skip_clean_files=[]):
         self.mapping = SoSIPMap()
-        super(SoSIPParser, self).__init__(config)
+        super(SoSIPParser, self).__init__(config, skip_clean_files)

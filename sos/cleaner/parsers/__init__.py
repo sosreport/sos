@@ -42,22 +42,24 @@ class SoSCleanerParser():
     name = 'Undefined Parser'
     regex_patterns = []
     skip_line_patterns = []
-    skip_files = []
+    parser_skip_files = []  # list of skip files relevant to a parser
+    skip_clean_files = []   # list of global skip files from cmdline arguments
     map_file_key = 'unset'
     compile_regexes = True
 
-    def __init__(self, config={}):
+    def __init__(self, config={}, skip_clean_files=[]):
         if self.map_file_key in config:
             self.mapping.conf_update(config[self.map_file_key])
+        self.skip_clean_files = skip_clean_files
         self._generate_skip_regexes()
 
     def _generate_skip_regexes(self):
-        """Generate the regexes for the parser's configured `skip_files`,
-        so that we don't regenerate them on every file being examined for if
-        the parser should skip a given file.
+        """Generate the regexes for the parser's configured parser_skip_files
+        or global skip_clean_files, so that we don't regenerate them on every
+        file being examined for if the parser should skip a given file.
         """
         self.skip_patterns = []
-        for p in self.skip_files:
+        for p in self.parser_skip_files + self.skip_clean_files:
             self.skip_patterns.append(re.compile(p))
 
     def generate_item_regexes(self):

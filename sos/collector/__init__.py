@@ -87,6 +87,7 @@ class SoSCollector(SoSComponent):
         'group': None,
         'image': '',
         'force_pull_image': True,
+        'skip_clean_files': [],
         'jobs': 4,
         'journal_size': 0,
         'keywords': [],
@@ -483,6 +484,11 @@ class SoSCollector(SoSComponent):
                                  default=[], dest='disable_parsers',
                                  help=('Disable specific parsers, so that '
                                        'those elements are not obfuscated'))
+        cleaner_grp.add_argument('--skip-cleaning-files',
+                                 '--skip-masking-files', action='extend',
+                                 default=[], dest='skip_clean_files',
+                                 help=('List of files to skip/ignore during '
+                                       'cleaning. Globs are supported.'))
         cleaner_grp.add_argument('--keywords', action='extend', default=[],
                                  dest='keywords',
                                  help='List of keywords to obfuscate')
