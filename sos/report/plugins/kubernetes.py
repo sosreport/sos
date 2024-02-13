@@ -176,12 +176,12 @@ class Kubernetes(Plugin):
         # like "pass", "pwd", "key" or "token"
         env_regexp = r'(?P<var>{\s*"name":\s*[^,]*' \
             r'(pass|pwd|key|token|cred|PASS|PWD|KEY)[^,]*,\s*"value":)[^}]*'
-        self.do_cmd_output_sub('kubectl', env_regexp,
+        self.do_cmd_output_sub(self.kube_cmd, env_regexp,
                                r'\g<var> "********"')
 
         # Next, we need to handle the private keys and certs in some
         # output that is not hit by the previous iteration.
-        self.do_cmd_private_sub('kubectl')
+        self.do_cmd_private_sub(self.kube_cmd)
 
 
 class RedHatKubernetes(Kubernetes, RedHatPlugin):
@@ -211,7 +211,8 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
     packages = ('kubernetes',)
     files = (
         '/root/cdk/cdk_addons_kubectl_config',
-        '/etc/kubernetes/admin.conf'
+        '/etc/kubernetes/admin.conf',
+        '/var/snap/microk8s/current/credentials/client.config',
     )
 
     services = (
@@ -227,6 +228,9 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
 
         for svc in self.services:
             self.add_journal(units=svc)
+
+        if self.is_installed('microk8s'):
+            self.kube_cmd = 'microk8s kubectl'
 
         super(UbuntuKubernetes, self).setup()
 
