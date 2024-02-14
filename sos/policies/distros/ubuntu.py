@@ -42,9 +42,13 @@ class UbuntuPolicy(DebianPolicy):
             chroot=self.sysroot,
             remote_exec=remote_exec)
 
-        if self.package_manager.pkg_by_name(
-                'sosreport')['pkg_manager'] == 'snap':
-            self.sos_bin_path = '/snap/bin'
+        try:
+            if self.package_manager.pkg_by_name(
+                    'sosreport')['pkg_manager'] == 'snap':
+                self.sos_bin_path = '/snap/bin'
+        except TypeError:
+            # Use the default sos_bin_path
+            pass
 
         self.valid_subclasses += [UbuntuPlugin]
 
