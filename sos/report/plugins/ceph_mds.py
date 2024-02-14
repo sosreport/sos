@@ -46,6 +46,8 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
             "client ls",
             "config diff",
             "config show",
+            "counter dump",
+            "counter schema",
             "damage ls",
             "dump loads",
             "dump tree",
@@ -57,13 +59,13 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
             "get subtrees",
             "objecter_requests",
             "ops",
+            "perf dump",
             "perf histogram dump",
             "perf histogram schema",
             "perf schema",
-            "perf dump",
+            "session ls",
             "status",
             "version",
-            "session ls"
         ]
 
         mds_ids = []

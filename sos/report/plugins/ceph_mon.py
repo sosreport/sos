@@ -86,29 +86,29 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             # The ceph_mon plugin will collect all the "ceph ..." commands
             # which typically require the keyring.
 
-            "ceph mon stat",
-            "ceph quorum_status",
-            "ceph-disk list",
-            "ceph versions",
+            "ceph config dump",
+            "ceph config generate-minimal-conf",
+            "ceph config log",
+            "ceph config-key dump",
+            "ceph crash stat",
             "ceph features",
             "ceph insights",
-            "ceph crash stat",
-            "ceph config dump",
-            "ceph config log",
-            "ceph config generate-minimal-conf",
-            "ceph config-key dump",
-            "ceph osd metadata",
-            "ceph osd erasure-code-profile ls",
-            "ceph osd crush dump",
-            "ceph osd crush show-tunables",
-            "ceph osd crush tree --show-shadow",
+            "ceph log last 10000 debug audit",
+            "ceph log last 10000 debug cluster",
             "ceph mgr dump",
             "ceph mgr metadata",
             "ceph mgr module ls",
             "ceph mgr services",
             "ceph mgr versions",
-            "ceph log last 10000 debug cluster",
-            "ceph log last 10000 debug audit"
+            "ceph mon stat",
+            "ceph osd crush dump",
+            "ceph osd crush show-tunables",
+            "ceph osd crush tree --show-shadow",
+            "ceph osd erasure-code-profile ls",
+            "ceph osd metadata",
+            "ceph quorum_status",
+            "ceph versions",
+            "ceph-disk list",
         ])
 
         crashes = self.collect_cmd_output('ceph crash ls')
@@ -119,26 +119,26 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
                     self.add_cmd_output(f"ceph crash info {cid}")
 
         ceph_cmds = [
-            "mon dump",
-            "status",
             "device ls",
-            "df",
             "df detail",
-            "fs ls",
+            "df",
             "fs dump",
+            "fs ls",
+            "mds stat",
+            "mon dump",
+            "osd blocked-by",
+            "osd df tree",
+            "osd df",
+            "osd dump",
+            "osd numa-status",
+            "osd perf",
+            "osd pool autoscale-status",
+            "osd pool ls detail",
+            "osd stat",
             "pg dump",
             "pg stat",
+            "status",
             "time-sync-status",
-            "osd stat",
-            "osd df tree",
-            "osd dump",
-            "osd df",
-            "osd perf",
-            "osd blocked-by",
-            "osd pool ls detail",
-            "osd pool autoscale-status",
-            "mds stat",
-            "osd numa-status"
         ]
 
         self.add_cmd_output("ceph health detail --format json-pretty",
@@ -176,7 +176,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
     def get_ceph_ids(self):
         ceph_ids = []
         # ceph version 14 correlates to RHCS 4
-        if self.ceph_version == 14 or self.ceph_version == 15:
+        if self.ceph_version in (14, 15):
             # Get the ceph user processes
             out = self.exec_cmd('ps -u ceph -o args')
 

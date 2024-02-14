@@ -72,6 +72,8 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
         cmds = [
             "config diff",
             "config show",
+            "counter dump",
+            "counter schema",
             "dump_cache",
             "dump_mempools",
             "dump_osd_network",
@@ -83,7 +85,7 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
             "perf histogram schema",
             "perf schema",
             "status",
-            "version"
+            "version",
         ]
 
         directory = ''
@@ -146,7 +148,7 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
         later versions of Ceph) which can be used for ceph daemon commands
         """
         ceph_sockets = []
-        for rdir, dirs, files in os.walk(directory):
+        for rdir, _, files in os.walk(directory):
             for file in files:
                 if file.startswith('ceph-mgr') and file.endswith('.asok'):
                     ceph_sockets.append(self.path_join(rdir, file))

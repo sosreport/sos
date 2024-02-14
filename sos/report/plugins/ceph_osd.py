@@ -41,33 +41,36 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
         microceph_pkg = self.policy.package_manager.pkg_by_name('microceph')
         cmds = [
             # will work pre quincy
-            "dump_reservations",
             "bluestore bluefs available",
+            "dump_reservations",
             # will work quincy onward
-            "bluestore bluefs device info",
             "bluefs stats",
+            "bluestore bluefs device info",
             "config diff",
             "config show",
-            "dump_blocklist",
+            "counter dump",
+            "counter schema",
             "dump_blocked_ops",
+            "dump_blocklist",
             "dump_historic_ops_by_duration",
             "dump_historic_slow_ops",
             "dump_mempools",
-            "dump_ops_in_flight",
             "dump_op_pq_state",
+            "dump_ops_in_flight",
             "dump_osd_network",
             "dump_pgstate_history",
             "dump_recovery_reservations",
             "dump_scrubs",
-            "get_mapped_pools",
             "dump_watchers",
-            "log dump",
+            "get_mapped_pools",
             "list_devices",
             "list_unfound",
-            "perf dump",
-            "perf histogram dump",
+            "log dump",
             "objecter_requests",
             "ops",
+            "perf dump",
+            "perf histogram dump",
+            "perf schema",
             "status",
             "version",
         ]
@@ -126,7 +129,7 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
         later versions of Ceph) which can be used for ceph daemon commands
         """
         ceph_sockets = []
-        for rdir, dirs, files in os.walk(directory):
+        for rdir, _, files in os.walk(directory):
             for file in files:
                 if file.endswith('.asok') and 'osd' in file:
                     ceph_sockets.append(self.path_join(rdir, file))
