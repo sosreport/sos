@@ -52,4 +52,17 @@ class Microk8s(Plugin, UbuntuPlugin):
         rsub = r'(certificate-authority-data:|token:)\s.*'
         self.do_cmd_output_sub("microk8s", rsub, r'\1 "**********"')
 
+        protect_keys = [
+            "certificate-authority-data",
+            "client-certificate-data",
+            "client-key-data",
+        ]
+
+        key_regex = fr'(^\s*({"|".join(protect_keys)})\s*:\s*)(.*)'
+
+        self.do_path_regex_sub(
+            "/var/snap/microk8s/current/credentials/client.config",
+            key_regex, r"\1*********"
+        )
+
 # vim: set et ts=4 sw=4
