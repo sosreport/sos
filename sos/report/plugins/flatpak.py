@@ -19,6 +19,7 @@ class Flatpak(Plugin, IndependentPlugin):
     packages = ("flatpak",)
 
     def setup(self):
+        env = {"GVFS_REMOTE_VOLUME_MONITOR_IGNORE": "1"}
         self.add_cmd_output([
             "flatpak --version",
             "flatpak --default-arch",
@@ -31,8 +32,8 @@ class Flatpak(Plugin, IndependentPlugin):
             "flatpak list --runtime --show-details",
             "flatpak list --app --show-details",
             "flatpak history --columns=all",
-        ])
+        ], env=env)
         if self.get_option("verify"):
-            self.add_cmd_output("flatpak repair --dry-run")
+            self.add_cmd_output("flatpak repair --dry-run", env=env)
 
 # vim: set et ts=4 sw=4 :
