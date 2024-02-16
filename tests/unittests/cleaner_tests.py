@@ -164,6 +164,7 @@ class CleanerParserTests(unittest.TestCase):
         self.kw_parser.generate_item_regexes()
         self.uname_parser = SoSUsernameParser(config={})
         self.uname_parser.mapping.add('DOMAIN\myusername')
+        self.uname_parser.mapping.add('foo')
 
     def test_ip_parser_valid_ipv4_line(self):
         line = 'foobar foo 10.0.0.1/24 barfoo bar'
@@ -246,6 +247,11 @@ class CleanerParserTests(unittest.TestCase):
         _test = self.kw_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
 
+    def test_keyword_parser_fullword_only(self):
+        line = 'notfoobar and foobars line'
+        _test = self.kw_parser.parse_line(line)[0]
+        self.assertEqual(line, _test)
+
     def test_keyword_parser_no_change_by_default(self):
         line = 'this is my foobar test line'
         _test = self.kw_parser_none.parse_line(line)[0]
@@ -279,6 +285,11 @@ class CleanerParserTests(unittest.TestCase):
         line = "DOMAIN\myusername"
         _test = self.uname_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
+
+    def test_too_short_username(self):
+        line = "but foo is too short username"
+        _test = self.uname_parser.parse_line(line)[0]
+        self.assertEqual(line, _test)
 
 
 class PrepperTests(unittest.TestCase):
