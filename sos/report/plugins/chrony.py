@@ -32,7 +32,7 @@ class Chrony(Plugin):
 
 class RedHatChrony(Chrony, RedHatPlugin):
     def setup(self):
-        super(RedHatChrony, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/chrony.conf",
             "/var/lib/chrony/drift"
@@ -42,7 +42,7 @@ class RedHatChrony(Chrony, RedHatPlugin):
 
 class DebianChrony(Chrony, DebianPlugin, UbuntuPlugin):
     def setup(self):
-        super(DebianChrony, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/chrony/chrony.conf",
             "/etc/chrony/conf.d",

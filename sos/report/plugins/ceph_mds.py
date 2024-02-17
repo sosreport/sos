@@ -10,6 +10,7 @@ from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
+
     short_desc = 'CEPH mds'
     plugin_name = 'ceph_mds'
     profiles = ('storage', 'virt', 'container', 'ceph')
@@ -84,7 +85,7 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
         # If containerized, run commands in containers
         try:
             cname = self.get_all_containers_by_regex("ceph-mds*")[0][1]
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             cname = None
 
         self.add_cmd_output([

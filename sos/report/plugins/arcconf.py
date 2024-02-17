@@ -15,7 +15,7 @@ import re
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class arcconf(Plugin, IndependentPlugin):
+class ArcConf(Plugin, IndependentPlugin):
 
     short_desc = 'arcconf Integrated RAID adapter information'
 

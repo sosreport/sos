@@ -7,7 +7,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 import re
-
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
@@ -21,8 +20,10 @@ class ClearContainers(Plugin, IndependentPlugin):
     runtime = 'cc-runtime'
     packages = (runtime,)
     services = ('cc-proxy',)
+    loglimit = None
 
-    def attach_cc_config_files(self):
+    def collect_cc_config_files(self):
+        """ Collect Clear Containers config files """
 
         # start with the default file locations
         config_files = [
@@ -43,7 +44,9 @@ class ClearContainers(Plugin, IndependentPlugin):
 
         self.add_copy_spec(config_files)
 
-    def attach_cc_log_files(self):
+    def collect_cc_log_files(self):
+        """ Collect Clear Containers log files """
+
         # start with the default global log
         log_files = [
             '/var/lib/clear-containers/runtime/runtime.log'
@@ -63,19 +66,19 @@ class ClearContainers(Plugin, IndependentPlugin):
         # get a unique list of log files
         log_files = set(log_files)
 
-        self.add_copy_spec(log_files, self.limit)
+        self.add_copy_spec(log_files, self.loglimit)
 
     def setup(self):
-        self.limit = self.get_option("log_size")
+        self.loglimit = self.get_option("log_size")
 
         if self.get_option("all_logs"):
-            # no limit on amount of data recorded
-            self.limit = None
+            # no loglimit on amount of data recorded
+            self.loglimit = None
 
         self.add_cmd_output(f"{self.runtime} cc-env")
-        self.attach_cc_config_files()
+        self.collect_cc_config_files()
 
-        self.attach_cc_log_files()
+        self.collect_cc_log_files()
         self.add_journal(identifier="cc-shim")
 
 # vim: set et ts=4 sw=4 :

@@ -34,15 +34,16 @@ class Collectd(Plugin, IndependentPlugin):
             + '*.conf',
         ])
 
-        p = re.compile('^LoadPlugin.*')
+        plugin = re.compile('^LoadPlugin.*')
         try:
-            with open(self.path_join("/etc/collectd.conf"), 'r') as f:
-                for line in f:
-                    if p.match(line):
+            cfile = self.path_join("/etc/collectd.conf")
+            with open(cfile, 'r', encoding='UTF-8') as file:
+                for line in file:
+                    if plugin.match(line):
                         self.add_alert("Active Plugin found: %s" %
                                        line.split()[-1])
-        except IOError as e:
-            self._log_warn("could not open /etc/collectd.conf: %s" % e)
+        except IOError as err:
+            self._log_warn("could not open /etc/collectd.conf: %s" % err)
 
     def postproc(self):
         # add these to protect_keys if need be:

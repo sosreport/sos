@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class cxl(Plugin, IndependentPlugin):
+class Cxl(Plugin, IndependentPlugin):
     """This plugin collects data from Compute Express Link (CXL) devices
     """
 
@@ -32,11 +32,8 @@ class cxl(Plugin, IndependentPlugin):
             "daxctl list -iDRM"
         ])
 
-        """ Use the cxl-list(1) command to collect data about
-        all CXL devices.
-
-        Output is JSON formatted
-        """
+        # Use the cxl-list(1) command to collect data about all CXL devices.
+        # Output is JSON formatted.
         self.add_cmd_output([
             "cxl version",
             "cxl list",

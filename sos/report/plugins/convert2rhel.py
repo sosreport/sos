@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
-class convert2rhel(Plugin, RedHatPlugin):
+class Convert2RHEL(Plugin, RedHatPlugin):
 
     short_desc = 'Convert2RHEL'
     plugin_name = 'convert2rhel'

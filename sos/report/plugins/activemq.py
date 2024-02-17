@@ -42,7 +42,7 @@ class ActiveMq(Plugin, DebianPlugin):
 class RedHatActiveMq(ActiveMq, RedHatPlugin):
 
     def setup(self):
-        super(RedHatActiveMq, self).setup()
+        super().setup()
         self.add_copy_spec([
             '/etc/sysconfig/activemq',
             '/etc/activemq/activemq.xml'
@@ -51,7 +51,7 @@ class RedHatActiveMq(ActiveMq, RedHatPlugin):
 
 class UbuntuActiveMq(ActiveMq, UbuntuPlugin):
     def setup(self):
-        super(UbuntuActiveMq, self).setup()
+        super().setup()
         self.add_copy_spec([
             '/etc/activemq',
             '/etc/default/activemq'

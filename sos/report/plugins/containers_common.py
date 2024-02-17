@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
 import os
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
 
 
 class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):

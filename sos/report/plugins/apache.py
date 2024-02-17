@@ -30,6 +30,7 @@ class Apache(Plugin):
     profiles = ('webserver', 'openshift')
     packages = ('httpd',)
     files = ('/var/www/',)
+    apachepkg = None
 
     option_list = [
         PluginOpt(name="log", default=False, desc="gathers all apache logs")
@@ -90,7 +91,7 @@ class RedHatApache(Apache, RedHatPlugin):
             "/var/log/httpd/ssl_error_log": 'httpd_ssl_error_log'
         })
 
-        super(RedHatApache, self).setup()
+        super().setup()
 
         # httpd versions, including those used for JBoss Web Server
         vers = ['', '22', '24']
@@ -137,7 +138,7 @@ class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
     apachepkg = 'apache2'
 
     def setup(self):
-        super(DebianApache, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/apache2/*",
             "/etc/default/apache2"

@@ -6,11 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 from socket import gethostname
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
-class Ceph_Common(Plugin, RedHatPlugin, UbuntuPlugin):
+class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
 
     short_desc = 'CEPH common'
 

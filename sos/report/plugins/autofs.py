@@ -85,7 +85,7 @@ class Autofs(Plugin):
 class RedHatAutofs(Autofs, RedHatPlugin):
 
     def setup(self):
-        super(RedHatAutofs, self).setup()
+        super().setup()
         if self.get_option("verify"):
             self.add_cmd_output("rpm -qV autofs")
 
@@ -93,7 +93,7 @@ class RedHatAutofs(Autofs, RedHatPlugin):
 class DebianAutofs(Autofs, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
-        super(DebianAutofs, self).setup()
+        super().setup()
         self.add_cmd_output("dpkg-query -s autofs")
 
 # vim: set et ts=4 sw=4 :

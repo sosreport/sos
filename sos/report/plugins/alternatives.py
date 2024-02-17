@@ -15,6 +15,8 @@ class Alternatives(Plugin):
 
     short_desc = 'System alternatives'
     plugin_name = 'alternatives'
+    alternatives_cmd = None
+    alternatives_list = None
 
     def setup(self):
 
@@ -49,7 +51,7 @@ class RedHatAlternatives(Alternatives, RedHatPlugin):
 
     def setup(self):
 
-        super(RedHatAlternatives, self).setup()
+        super().setup()
 
         self.add_cmd_tags({
             "alternatives --display java.*": 'display_java',
@@ -68,7 +70,7 @@ class UbuntuAlternatives(Alternatives, UbuntuPlugin):
 
     def setup(self):
 
-        super(UbuntuAlternatives, self).setup()
+        super().setup()
 
         if self.get_option("all_logs"):
             self.add_copy_spec([

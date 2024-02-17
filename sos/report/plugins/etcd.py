@@ -12,7 +12,7 @@
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
-class etcd(Plugin, RedHatPlugin):
+class Etcd(Plugin, RedHatPlugin):
     """The etcd plugin collects information from the etcd key-value store. It
     is primarily used by Kubernetes/OpenShift clusters and is often run inside
     a container within the cluster.

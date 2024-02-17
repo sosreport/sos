@@ -10,8 +10,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
 from glob import glob
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class CertificateSystem(Plugin, RedHatPlugin):
@@ -37,19 +37,23 @@ class CertificateSystem(Plugin, RedHatPlugin):
     )
 
     def checkversion(self):
+        """ Get Certificate System version """
         if (self.is_installed("redhat-cs") or
                 self.path_exists("/opt/redhat-cs")):
             return 71
-        elif self.is_installed("rhpki-common") or \
-                len(glob("/var/lib/rhpki-*")):
+
+        if self.is_installed("rhpki-common") or glob("/var/lib/rhpki-*"):
             return 73
+
         # 8 should cover dogtag
-        elif self.is_installed("pki-common"):
+        if self.is_installed("pki-common"):
             return 8
-        elif self.is_installed("redhat-pki") or \
+
+        if self.is_installed("redhat-pki") or \
                 self.is_installed("dogtag-pki") or \
                 self.is_installed("pki-base"):
             return 9
+
         return False
 
     def setup(self):
