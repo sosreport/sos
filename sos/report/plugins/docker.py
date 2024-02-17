@@ -74,8 +74,8 @@ class Docker(Plugin, CosPlugin):
         nets = self.collect_cmd_output('docker network ls')
 
         if nets['status'] == 0:
-            n = [n.split()[1] for n in nets['output'].splitlines()[1:]]
-            for net in n:
+            networks = [n.split()[1] for n in nets['output'].splitlines()[1:]]
+            for net in networks:
                 self.add_cmd_output("docker network inspect %s" % net)
 
         containers = [
@@ -126,7 +126,7 @@ class RedHatDocker(Docker, RedHatPlugin):
                 'docker-ce', 'docker-ee')
 
     def setup(self):
-        super(RedHatDocker, self).setup()
+        super().setup()
 
         self.add_copy_spec([
             "/etc/udev/rules.d/80-docker.rules",
@@ -139,7 +139,7 @@ class UbuntuDocker(Docker, UbuntuPlugin, DebianPlugin):
     packages = ('docker.io', 'docker-engine', 'docker-ce', 'docker-ee')
 
     def setup(self):
-        super(UbuntuDocker, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/default/docker",
             "/run/docker/libcontainerd/containerd/events.log"

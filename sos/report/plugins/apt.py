@@ -46,7 +46,7 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
         )
 
     def postproc(self):
-        super(Apt, self).postproc()
+        super().postproc()
         self.do_file_sub(
             "/etc/apt/sources.list",
             r"(deb\shttp(s)?://)\S+:\S+(@.*)",

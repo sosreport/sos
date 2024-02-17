@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
 import re
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class Elastic(Plugin, IndependentPlugin):
@@ -21,10 +21,11 @@ class Elastic(Plugin, IndependentPlugin):
     packages = ('elasticsearch',)
 
     def get_hostname_port(self, els_config_file):
+        """ Get hostname and port number """
         hostname = "localhost"
         port = "9200"
         try:
-            with open(els_config_file) as fread:
+            with open(els_config_file, encoding='UTF-8') as fread:
                 for line in fread:
                     network_host = re.search(r'(^network.host):(.*)', line)
                     network_port = re.search(r'(^http.port):(.*)', line)
@@ -34,8 +35,8 @@ class Elastic(Plugin, IndependentPlugin):
                         continue
                     if network_port and len(network_port.groups()) == 2:
                         port = network_port.groups()[-1].strip()
-        except Exception as e:
-            self._log_info("Failed to parse %s: %s" % (els_config_file, e))
+        except Exception as err:  # pylint: disable=broad-except
+            self._log_info("Failed to parse %s: %s" % (els_config_file, err))
         return hostname, port
 
     def setup(self):

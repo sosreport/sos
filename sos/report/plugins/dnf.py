@@ -38,6 +38,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
     ]
 
     def get_modules_info(self, modules):
+        """ Get DN module information """
         if not modules:
             return
         # take just lines with the module names, i.e. containing "[i]" and
@@ -134,8 +135,8 @@ class DNFPlugin(Plugin, RedHatPlugin):
         # Whitespace around '=' is allowed.
         regexp = r"(password(\s)*=(\s)*)(\S+)\n"
         repl = r"\1********\n"
-        for f in ["/etc/yum.repos.d/*", "/etc/dnf/vars/*"]:
-            self.do_path_regex_sub(f, regexp, repl)
+        for file in ["/etc/yum.repos.d/*", "/etc/dnf/vars/*"]:
+            self.do_path_regex_sub(file, regexp, repl)
 
         # Scrub password and proxy_password from /etc/dnf/dnf.conf.
         # This uses the same regex patterns as above.

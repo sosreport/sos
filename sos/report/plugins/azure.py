@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, UbuntuPlugin, RedHatPlugin
 import os
+from sos.report.plugins import Plugin, UbuntuPlugin, RedHatPlugin
 
 
 class Azure(Plugin, UbuntuPlugin):
@@ -36,7 +36,7 @@ class Azure(Plugin, UbuntuPlugin):
         # extensions and there is no standard log filename format
         limit = self.get_option("log_size")
 
-        for path, subdirs, files in os.walk("/var/log/azure"):
+        for path, _, files in os.walk("/var/log/azure"):
             for name in files:
                 self.add_copy_spec(self.path_join(path, name), sizelimit=limit)
 
@@ -50,7 +50,7 @@ class Azure(Plugin, UbuntuPlugin):
 class RedHatAzure(Azure, RedHatPlugin):
 
     def setup(self):
-        super(RedHatAzure, self).setup()
+        super().setup()
 
         if self.path_isfile('/etc/yum.repos.d/rh-cloud.repo'):
             curl_cmd = ('curl -s -m 5 -vvv '

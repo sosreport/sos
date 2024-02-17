@@ -44,7 +44,7 @@ class Ctdb(Plugin, DebianPlugin, UbuntuPlugin):
 
 class RedHatCtdb(Ctdb, RedHatPlugin):
     def setup(self):
-        super(RedHatCtdb, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/sysconfig/ctdb")
 
 # vim: set et ts=4 sw=4 :

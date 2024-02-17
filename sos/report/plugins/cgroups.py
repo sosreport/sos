@@ -38,7 +38,7 @@ class Cgroups(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
 class RedHatCgroups(Cgroups, RedHatPlugin):
 
     def setup(self):
-        super(RedHatCgroups, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/sysconfig/cgconfig",
             "/etc/sysconfig/cgred",

@@ -36,7 +36,7 @@ class RedHatAide(Aide, RedHatPlugin):
     conf_file = "/etc/aide.conf"
 
     def setup(self):
-        super(RedHatAide, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/aide.conf",
             "/etc/logrotate.d/aide"
@@ -47,7 +47,7 @@ class DebianAide(Aide, DebianPlugin, UbuntuPlugin):
     conf_file = "/etc/aide/aide.conf"
 
     def setup(self):
-        super(DebianAide, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/aide/",
             "/etc/default/aide"

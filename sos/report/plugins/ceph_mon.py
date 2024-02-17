@@ -161,12 +161,14 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
         )
 
     def get_ceph_version(self):
+        """ Get the versions of running daemons """
+
         ver = self.exec_cmd('ceph --version')
         if ver['status'] == 0:
             try:
                 _ver = ver['output'].split()[2]
                 return int(_ver.split('.')[0])
-            except Exception as err:
+            except Exception as err:  # pylint: disable=broad-except
                 self._log_debug(f"Could not determine ceph version: {err}")
         self._log_error(
             'Failed to find ceph version, command collection will be limited'
@@ -174,6 +176,8 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
         return 0
 
     def get_ceph_ids(self):
+        """ Get the IDs of the Ceph daemons """
+
         ceph_ids = []
         # ceph version 14 correlates to RHCS 4
         if self.ceph_version in (14, 15):
@@ -200,7 +204,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
                     ret = re.search(r'(\s*mon: .* quorum) (.*) (\(.*\))',
                                     stats['output'])
                     ceph_ids.extend(ret.groups()[1].split(','))
-                except Exception as err:
+                except Exception as err:  # pylint: disable=broad-except
                     self._log_debug(f"id determination failed: {err}")
         return ceph_ids
 

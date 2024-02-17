@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
-class drbd(Plugin, RedHatPlugin, UbuntuPlugin):
+class DRDB(Plugin, RedHatPlugin, UbuntuPlugin):
 
     short_desc = 'Distributed Replicated Block Device (DRBD)'
 

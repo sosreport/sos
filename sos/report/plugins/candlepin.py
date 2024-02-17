@@ -8,9 +8,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
-from pipes import quote
 from re import match
+from shlex import quote
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Candlepin(Plugin, RedHatPlugin):
@@ -19,6 +19,10 @@ class Candlepin(Plugin, RedHatPlugin):
 
     plugin_name = 'candlepin'
     packages = ('candlepin',)
+
+    dbhost = None
+    dbpasswd = None
+    env = None
 
     def setup(self):
         # for external DB, search in /etc/candlepin/candlepin.conf for:
@@ -30,7 +34,7 @@ class Candlepin(Plugin, RedHatPlugin):
         self.dbpasswd = ""
         cfg_file = "/etc/candlepin/candlepin.conf"
         try:
-            with open(cfg_file, 'r') as cfile:
+            with open(cfg_file, 'r', encoding='UTF--8') as cfile:
                 candle_lines = cfile.read().splitlines()
             for line in candle_lines:
                 # skip empty lines and lines with comments

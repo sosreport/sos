@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 import re
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Dlm(Plugin, IndependentPlugin):
@@ -34,6 +34,7 @@ class Dlm(Plugin, IndependentPlugin):
             self.do_lockdump()
 
     def do_lockdump(self):
+        """ Do dlm lock dumps """
         dlm_tool = "dlm_tool ls"
         result = self.collect_cmd_output(dlm_tool)
         if result["status"] != 0:

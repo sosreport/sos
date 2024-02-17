@@ -21,8 +21,8 @@ class DockerDistribution(Plugin):
         self.add_journal('docker-distribution')
         conf = self.path_join('/etc/docker-distribution/registry/config.yml')
         if self.path_exists(conf):
-            with open(conf) as f:
-                for line in f:
+            with open(conf, encoding='UTF-8') as file:
+                for line in file:
                     if 'rootdirectory' in line:
                         loc = line.split()[1]
                         self.add_cmd_output('tree ' + loc)
@@ -34,4 +34,4 @@ class RedHatDockerDistribution(DockerDistribution, RedHatPlugin):
 
     def setup(self):
         self.add_forbidden_path('/etc/docker-distribution/registry/*passwd')
-        super(RedHatDockerDistribution, self).setup()
+        super().setup()

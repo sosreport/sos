@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import re
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Corosync(Plugin):
@@ -48,12 +48,13 @@ class Corosync(Plugin):
         # (it isnt precise but sufficient)
         pattern = r'^\s*(logging.)?logfile:\s*(\S+)$'
         try:
-            with open(self.path_join("/etc/corosync/corosync.conf"), 'r') as f:
-                for line in f:
+            cconf = self.path_join("/etc/corosync/corosync.conf")
+            with open(cconf, 'r', encoding='UTF-8') as file:
+                for line in file:
                     if re.match(pattern, line):
                         self.add_copy_spec(re.search(pattern, line).group(2))
-        except IOError as e:
-            self._log_warn("could not read from %s: %s" % (corosync_conf, e))
+        except IOError as err:  # pylint: disable=broad-except
+            self._log_warn("could not read from %s: %s" % (corosync_conf, err))
 
     def postproc(self):
         self.do_cmd_output_sub(
@@ -64,16 +65,11 @@ class Corosync(Plugin):
 
 
 class RedHatCorosync(Corosync, RedHatPlugin):
-
-    def setup(self):
-        super(RedHatCorosync, self).setup()
+    """ Parent class Corosync's setup() will be called """
 
 
 class DebianCorosync(Corosync, DebianPlugin, UbuntuPlugin):
-
-    def setup(self):
-        super(DebianCorosync, self).setup()
-
+    """ Parent class Corosync's setup() will be called """
     files = ('/usr/sbin/corosync',)
 
 # vim: set et ts=4 sw=4 :

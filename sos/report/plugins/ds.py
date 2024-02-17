@@ -24,12 +24,15 @@ class DirectoryServer(Plugin, RedHatPlugin):
     packages = ('redhat-ds-base', 'redhat-ds-7')
 
     def check_version(self):
+        """ Get Directory Server version """
         if self.is_installed("redhat-ds-base") or \
                 self.path_exists("/etc/dirsrv"):
             return "ds8"
-        elif self.is_installed("redhat-ds-7") or \
+
+        if self.is_installed("redhat-ds-7") or \
                 self.path_exists("/opt/redhat-ds"):
             return "ds7"
+
         return False
 
     def setup(self):
@@ -44,11 +47,11 @@ class DirectoryServer(Plugin, RedHatPlugin):
         ])
 
         try:
-            for d in self.listdir("/etc/dirsrv"):
-                if d[0:5] == 'slapd':
-                    certpath = self.path_join("/etc/dirsrv", d)
+            for dsrv in self.listdir("/etc/dirsrv"):
+                if dsrv[0:5] == 'slapd':
+                    certpath = self.path_join("/etc/dirsrv", dsrv)
                     self.add_cmd_output("certutil -L -d %s" % certpath)
-                    self.add_cmd_output("dsctl %s healthcheck" % d)
+                    self.add_cmd_output("dsctl %s healthcheck" % dsrv)
         except OSError:
             self._log_warn("could not list /etc/dirsrv")
 

@@ -22,18 +22,14 @@ class Dovecot(Plugin):
 
 
 class RedHatDovecot(Dovecot, RedHatPlugin):
-
-    def setup(self):
-        super(RedHatDovecot, self).setup()
+    """ Parent class Dovecot's setup() will be called """
 
     packages = ('dovecot', )
     files = ('/etc/dovecot.conf',)
 
 
 class DebianDovecot(Dovecot, DebianPlugin, UbuntuPlugin):
-
-    def setup(self):
-        super(DebianDovecot, self).setup()
+    """ Parent class Dovecot's setup() will be called """
 
     files = ('/etc/dovecot/README',)
 

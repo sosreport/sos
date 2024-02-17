@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
 from glob import glob
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Cman(Plugin, RedHatPlugin):
@@ -61,6 +61,5 @@ class Cman(Plugin, RedHatPlugin):
             r"(.*secret\s*=\s*)\S+",
             r"\1******"
         )
-        return
 
 # vim: et ts=4 sw=4

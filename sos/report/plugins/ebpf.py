@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 import json
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Ebpf(Plugin, IndependentPlugin):
@@ -22,27 +22,29 @@ class Ebpf(Plugin, IndependentPlugin):
     ]
 
     def get_bpftool_prog_ids(self, prog_json):
+        """ Collect the list of program IDs """
         out = []
         try:
             prog_data = json.loads(prog_json)
-        except Exception as e:
-            self._log_info("Could not parse bpftool prog list as JSON: %s" % e)
+        except Exception as err:  # pylint: disable=broad-except
+            self._log_info("Couldn't parse bpftool prog list: %s" % err)
             return out
-        for item in range(len(prog_data)):
-            if "id" in prog_data[item]:
-                out.append(prog_data[item]["id"])
+        for _, item in enumerate(prog_data):
+            if "id" in item:
+                out.append(item["id"])
         return out
 
     def get_bpftool_map_ids(self, map_json):
+        """ Collect the list of mapIDs """
         out = []
         try:
             map_data = json.loads(map_json)
-        except Exception as e:
-            self._log_info("Could not parse bpftool map list as JSON: %s" % e)
+        except Exception as err:  # pylint: disable=broad-except
+            self._log_info("Could not parse bpftool map list: %s" % err)
             return out
-        for item in range(len(map_data)):
-            if "id" in map_data[item]:
-                out.append(map_data[item]["id"])
+        for _, item in enumerate(map_data):
+            if "id" in item:
+                out.append(item["id"])
         return out
 
     def setup(self):

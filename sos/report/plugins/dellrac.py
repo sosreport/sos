@@ -34,9 +34,11 @@ class DellRAC(Plugin, IndependentPlugin):
             self.do_debug()
 
     def do_debug(self):
-        # ensure the sos_commands/dellrac directory does exist in either case
-        # as we will need to run the command at that dir, and also ensure
-        # logpath is properly populated in either case as well
+        """
+        Ensure the sos_commands/dellrac directory does exist in either case
+        as we will need to run the command at that dir, and also ensure
+        logpath is properly populated in either case as well.
+        """
         try:
             logpath = self.get_cmd_output_path()
         except FileExistsError:
