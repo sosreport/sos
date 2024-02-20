@@ -1,3 +1,9 @@
+sosreport (4.7.0-0ubuntu1) mantic; urgency=medium
+
+  * New 4.7.0 upstream release
+
+  -- Jake Hunsaker <jacob.r.hunsaker@gmail.com> Mon, 19 Feb 2024 18:15:00 +0000
+
 sosreport (4.6.0-0ubuntu1) mantic; urgency=medium
 
   * New 4.6.0 upstream.
