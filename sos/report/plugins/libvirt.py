@@ -42,6 +42,7 @@ class Libvirt(Plugin, IndependentPlugin):
             "/etc/libvirt/storage/autostart/*.xml",
             "/etc/libvirt/qemu-lockd.conf",
             "/etc/libvirt/virtlockd.conf",
+            "/etc/libvirt/virtlogd.conf",
             "/var/lib/libvirt/dnsmasq/*",
             "/var/lib/libvirt/qemu/snapshot/*/*.xml",
             "/var/lib/openstack/config/libvirt",
