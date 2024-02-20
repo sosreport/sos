@@ -17,7 +17,7 @@ To clone the current main (development) branch run:
 
 .. code::
 
-    git clone git://github.com/sosreport/sos.git
+    git clone git@github.com:sosreport/sos.git
 
 Reporting bugs
 ^^^^^^^^^^^^^^
