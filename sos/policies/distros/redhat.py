@@ -22,7 +22,7 @@ from sos.policies.distros import LinuxPolicy, ENV_HOST_SYSROOT
 from sos.policies.package_managers.rpm import RpmPackageManager
 from sos.policies.package_managers.flatpak import FlatpakPackageManager
 from sos.policies.package_managers import MultiPackageManager
-from sos.utilities import bold
+from sos.utilities import bold, convert_bytes
 from sos import _sos as _
 
 try:
@@ -232,6 +232,8 @@ support representative.
     _upload_url = RH_SFTP_HOST
     _upload_method = 'post'
     _device_token = None
+    # Max size for an http single request is 1Gb
+    _max_size_request = 1073741824
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -429,16 +431,31 @@ support representative.
             return super().upload_sftp(user=_user, password=_token)
         raise Exception("Could not retrieve valid or anonymous credentials")
 
+    def check_file_too_big(self, archive):
+        size = os.path.getsize(archive)
+        # Lets check if the size is bigger than the limit.
+        # There's really no need to transform the size to Gb,
+        # so we don't need to call any size converter implemented
+        # in tools.py
+        if (size >= self._max_size_request):
+            self.ui_log.warning(
+                _("Size of archive is bigger than Red Hat Customer Portal "
+                  "limit for uploads of "
+                  f"{convert_bytes(self._max_size_request)} "
+                  " via sos http upload. \n")
+                  )
+            return RH_SFTP_HOST
+        else:
+            return RH_API_HOST
+
     def upload_archive(self, archive):
         """Override the base upload_archive to provide for automatic failover
         from RHCP failures to the public RH dropbox
         """
         try:
-            if self.upload_url and self.upload_url.startswith(RH_API_HOST) and\
-                    (not self.get_upload_user() or
-                     not self.get_upload_password()):
-                self.upload_url = RH_SFTP_HOST
-            uploaded = super().upload_archive(archive)
+            if self.get_upload_url().startswith(RH_API_HOST):
+                self.upload_url = self.check_file_too_big(archive)
+            uploaded = super(RHELPolicy, self).upload_archive(archive)
         except Exception as e:
             uploaded = False
             if not self.upload_url.startswith(RH_API_HOST):
