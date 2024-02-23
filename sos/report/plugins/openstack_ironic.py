@@ -70,8 +70,6 @@ class OpenStackIronic(Plugin):
                     "/var/log/containers/ironic/*.log",
                     "/var/log/containers/ironic-inspector/*.log",
                 ])
-
-
             for path in [
                 '/var/lib/ironic',
                 '/httpboot',

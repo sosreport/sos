@@ -64,8 +64,10 @@ class Foreman(Plugin):
             pass
         # strip wrapping ".." or '..' around password
         if (self.dbpasswd.startswith('"') and self.dbpasswd.endswith('"')) or \
-
-               (self.dbpasswd.startswith('\'') and self.dbpasswd.endswith('\'')):
+            (
+                self.dbpasswd.startswith('\'') and
+                self.dbpasswd.endswith('\'')
+                ):
             self.dbpasswd = self.dbpasswd[1:-1]
         # set the password to os.environ when calling psql commands to prevent
         # printing it in sos logs
@@ -282,8 +284,8 @@ class Foreman(Plugin):
                     proxy = proxy.split(',')
                     # proxy is now tuple [name, url]
                     _cmd = 'curl -s --key /etc/foreman/client_key.pem ' \
-                               '--cert /etc/foreman/client_cert.pem ' \
-                               '%s/v2/features' % proxy[1]
+                        '--cert /etc/foreman/client_cert.pem ' \
+                        '%s/v2/features' % proxy[1]
                     self.add_cmd_output(_cmd, suggest_filename=proxy[0],
                                         subdir='smart_proxies_features',
                                         timeout=10)

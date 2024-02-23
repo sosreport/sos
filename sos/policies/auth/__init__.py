@@ -195,7 +195,7 @@ class DeviceAuthorizationClass:
             self._set_token_data(refresh_token_res.json())
 
         elif refresh_token_res.status_code == 400 and 'invalid' in\
-                    refresh_token_res.json()['error']:
+                refresh_token_res.json()['error']:
             logger.warning(
                 "Problem while fetching the new tokens from refresh token"
                 f"  grant - {refresh_token_res.status_code}"

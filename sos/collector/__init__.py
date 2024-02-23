@@ -1226,8 +1226,8 @@ this utility or remote systems that it connects to.
         #   - we dont forcibly remove local host from collection
         #     (i.e. strict_node_list=False)
         if self.primary.connected and \
-                    (filters.intersection(set(self.node_list)) or
-                 not self.cluster.strict_node_list):
+            (filters.intersection(set(self.node_list)) or
+                not self.cluster.strict_node_list):
             self.client_list.append(self.primary)
 
         self.ui_log.info("\nConnecting to nodes...")
@@ -1300,7 +1300,7 @@ this utility or remote systems that it connects to.
             self.exit(msg, 1)
 
         if (self.opts.upload and self.policy.get_upload_url()) or \
-                    self.opts.upload_s3_endpoint:
+                self.opts.upload_s3_endpoint:
             try:
                 self.policy.upload_archive(arc_name)
                 self.ui_log.info("Uploaded archive successfully")

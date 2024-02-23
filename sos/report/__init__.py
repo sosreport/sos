@@ -420,7 +420,8 @@ class SoSReport(SoSComponent):
 
         ssec = section.add_section(title='See Also')
         ssec.add_text(
-            f"For information on available options for report, see {bold('sos report --help')} and {bold('man sos-report')}"
+            "For information on available options for report, see"
+            f" {bold('sos report --help')} and {bold('man sos-report')}"
         )
         ssec.add_text("The following %s sections may be of interest:\n"
                       % bold('sos help'))
@@ -468,13 +469,15 @@ class SoSReport(SoSComponent):
             elif crun not in self.policy.runtimes.keys():
                 valid = ', '.join(p for p in self.policy.runtimes.keys()
                                   if p != 'default')
-                raise Exception("Cannot use container runtime '%s': no such "
-                                "runtime detected. Available runtimes: %s"
-                                % (crun, valid))
+                raise Exception(
+                    f"Cannot use container runtime{crun}%s': no such "
+                    f"runtime detected. Available runtimes: {valid}"
+                )
             else:
                 self.policy.runtimes['default'] = self.policy.runtimes[crun]
                 self.soslog.info(
-                    f"Set default container runtime to '{self.policy.runtimes['default'].name}'"
+                    "Set default container runtime to"
+                    f" '{self.policy.runtimes['default'].name}'"
                 )
 
     def _get_fibre_devs(self):
@@ -630,7 +633,8 @@ class SoSReport(SoSComponent):
                             _eth_devs.append(_nseth)
             except Exception as err:
                 self.soslog.warning(
-                    f"Could not determine network namespace '{namespace}' devices: {err}"
+                    "Could not determine network namespace"
+                    f" '{namespace}' devices: {err}"
                 )
         return {
             'ethernet': _eth_devs,
@@ -655,7 +659,9 @@ class SoSReport(SoSComponent):
                 try:
                     _bridges.append(_bline.split()[0])
                 except Exception as err:
-                    self.soslog.info(f"Could not parse device from line '{_bline}': {err}")
+                    self.soslog.info(
+                        f"Could not parse device from line '{_bline}': {err}"
+                    )
         return _bridges
 
     def _get_network_namespaces(self):
@@ -917,14 +923,19 @@ class SoSReport(SoSComponent):
                             self._exit(1)
                         try:
                             plug.options[opt].set_value(opts[plugname][opt])
-                            self.soslog.debug(f"Set {plugname} plugin option to {plug.options[opt]}")
+                            self.soslog.debug(
+                                f"Set {plugname} plugin option to"
+                                f" {plug.options[opt]}"
+                            )
                         except Exception as err:
                             self.soslog.error(err)
                             self._exit(1)
                     del opts[plugname]
             for plugname in opts.keys():
-                self.soslog.error('WARNING: unable to set option for disabled '
-                                  'or non-existing plugin (%s).' % (plugname))
+                self.soslog.error(
+                    'WARNING: unable to set option for disabled '
+                    'or non-existing plugin (%s).' % (plugname)
+                )
             # in case we printed warnings above, visually intend them from
             # subsequent header text
             if opts.keys():
@@ -936,12 +947,15 @@ class SoSReport(SoSComponent):
                                       self.opts.enable_plugins):
             plugin_name = plugin.split(".")[0]
             if plugin_name not in self.plugin_names:
-                self.soslog.fatal('a non-existing plugin (%s) was specified '
-                                  'in the command line.' % (plugin_name))
+                self.soslog.fatal(
+                    'a non-existing plugin (%s) was specified '
+                    'in the command line.' % (plugin_name))
                 self._exit(1)
         for plugin in self.opts.skip_plugins:
             if plugin not in self.plugin_names:
-                self.soslog.warning(f"Requested to skip non-existing plugin '{plugin}'.")
+                self.soslog.warning(
+                    f"Requested to skip non-existing plugin '{plugin}'."
+                    )
 
     def _set_plugin_options(self):
         for plugin_name, plugin in self.loaded_plugins:
@@ -1232,7 +1246,9 @@ class SoSReport(SoSComponent):
             except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
-                    self.ui_log.error(f" {e.strerror} while setting up plugins")
+                    self.ui_log.error(
+                        f" {e.strerror} while setting up plugins"
+                    )
                     self.ui_log.error("")
                     self._exit(1)
                 self.handle_exception(plugname, "setup")
@@ -1307,7 +1323,7 @@ class SoSReport(SoSComponent):
             try:
                 du = sos_get_command_output(f'du -sB1 {tmpdir}')
                 self.estimated_plugsizes[plugin[1]] = \
-                        int(du['output'].split()[0])
+                    int(du['output'].split()[0])
             except Exception:
                 self.estimated_plugsizes[plugin[1]] = 0
             # remove whole tmp_dir content - including "sos_commands" and
@@ -1453,7 +1469,9 @@ class SoSReport(SoSComponent):
             except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
-                    self.ui_log.error(f" {e.strerror} while writing {type_} report")
+                    self.ui_log.error(
+                        f" {e.strerror} while writing {type_} report"
+                    )
                     self.ui_log.error("")
                     self._exit(1)
 
@@ -1463,11 +1481,15 @@ class SoSReport(SoSComponent):
                 if plug.get_option('postproc'):
                     plug.postproc()
                 else:
-                    self.soslog.info(f"Skipping postproc for plugin {plugname}")
+                    self.soslog.info(
+                        f"Skipping postproc for plugin {plugname}"
+                    )
             except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
-                    self.ui_log.error(f" {e.strerror} while post-processing plugin data")
+                    self.ui_log.error(
+                        f" {e.strerror} while post-processing plugin data"
+                    )
                     self.ui_log.error("")
                     self._exit(1)
                 self.handle_exception(plugname, "postproc")
@@ -1592,7 +1614,8 @@ class SoSReport(SoSComponent):
                 print("")
                 print(
                     _(
-                        f" {e.strerror} while finalizing archive {self.archive.get_archive_path()}"
+                        f" {e.strerror} while finalizing archive"
+                        f" {self.archive.get_archive_path()}"
                     )
                 )
                 print("")
@@ -1781,12 +1804,16 @@ class SoSReport(SoSComponent):
 
         # Log active preset defaults
         preset_args = self.preset.opts.to_args()
-        msg = f"""[{__name__}:{"setup"}] using '{self.preset.name}' preset defaults ({" ".join(preset_args)})"""
+        msg = (
+            f"""[{__name__}:{"setup"}] using '{self.preset.name}'"""
+            f""" preset defaults ({" ".join(preset_args)})"""
+        )
         self.soslog.info(msg)
 
         # Log effective options after applying preset defaults
         self.soslog.info(
-            f'[{__name__}:{"setup"}] effective options now: {" ".join(self.opts.to_args())}'
+            f'[{__name__}:{"setup"}] effective options now:'
+            f' {" ".join(self.opts.to_args())}'
         )
 
     def execute(self):

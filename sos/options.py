@@ -166,7 +166,8 @@ class SoSOptions():
             val = str_to_bool(val)
             if val is None:
                 raise Exception(
-                    f"Value of '{key}' in {conf} must be True or False or analagous"
+                    f"Value of '{key}' in {conf}"
+                    " must be True or False or analagous"
                 )
             else:
                 return val
@@ -227,13 +228,17 @@ class SoSOptions():
                     config.read_file(f, config_file)
             except DuplicateOptionError as err:
                 raise exit(
-                    f"Duplicate option '{err.option}' in section '{err.section}' in file {config_file}"
+                    f"Duplicate option '{err.option}' in section"
+                    f" '{err.section}' in file {config_file}"
                 )
             except (ParsingError, Error):
-                raise exit(f'Failed to parse configuration file {config_file}')
+                raise exit(
+                    f'Failed to parse configuration file {config_file}'
+                )
         except (OSError, IOError) as e:
             print(
-                f'WARNING: Unable to read configuration file {config_file} : {e.args[1]}'
+                'WARNING: Unable to read configuration file'
+                f' {config_file} : {e.args[1]}'
             )
 
         _update_from_section("global", config)
@@ -303,7 +308,7 @@ class SoSOptions():
                 return False
             # Exception list for options that still need to be reported when 0
             if name in ['log_size', 'plugin_timeout', 'cmd_timeout'] \
-                   and value == 0:
+                    and value == 0:
                 return True
             return has_value(name, value)
 

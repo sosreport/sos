@@ -47,13 +47,14 @@ class SosExtras(Plugin, IndependentPlugin):
         try:
             st = os.stat(self.extras_dir)
             if (st.st_uid != 0) or (st.st_mode & stat.S_IWGRP) or \
-
-                   (st.st_mode & stat.S_IWOTH):
+                    (st.st_mode & stat.S_IWOTH):
                 self._log_warn("Skipping sos extras as %s has too wide"
                                " permissions or ownership." % self.extras_dir)
                 return
         except OSError:
-            self._log_warn(f"can't stat {self.extras_dir}, skipping sos extras")
+            self._log_warn(
+                f"can't stat {self.extras_dir}, skipping sos extras"
+            )
             return
 
         for path, dirlist, filelist in os.walk(self.extras_dir):

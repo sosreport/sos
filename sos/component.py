@@ -108,7 +108,7 @@ class SoSComponent():
             self.manifest = SoSMetadata()
 
             if not os.path.isdir(tmpdir) \
-                        or not os.access(tmpdir, os.W_OK):
+                    or not os.access(tmpdir, os.W_OK):
                 msg = f"temporary directory {tmpdir} "
                 msg += "does not exist or is not writable\n"
                 # write directly to stderr as logging is not initialised yet

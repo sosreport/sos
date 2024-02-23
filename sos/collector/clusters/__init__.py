@@ -141,7 +141,7 @@ class Cluster():
             optsec = section.add_section("Available cluster options")
             optsec.add_text(
                 "These options may be toggled or changed using"
-                f" '{bold(f"-c {cls.__name__}.$option=$value")}'"
+                f""" '{bold(f"-c {cls.__name__}.$option=$value")}'"""
             )
             optsec.add_text(
                 bold(

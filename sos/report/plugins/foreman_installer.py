@@ -45,10 +45,8 @@ class ForemanInstaller(Plugin, DebianPlugin, UbuntuPlugin):
     def postproc(self):
         install_logs = "/var/log/foreman-installer/"
         logsreg = r"((foreman.*)?(\"::(foreman(.*?)|katello).*)?((::(.*)::.*" \
-
-
-                      r"(passw|cred|token|secret|key).*(\")?:)|(storepass )" \
-                      r"|(password =)))(.*)"
+            r"(passw|cred|token|secret|key).*(\")?:)|(storepass )" \
+            r"|(password =)))(.*)"
         self.do_path_regex_sub(install_logs, logsreg, r"\1 ********")
         # need to do two passes here, debug output has different formatting
         logs_debug_reg = (r"(\s)+(Found key: (\"(foreman(.*?)|katello)"
@@ -71,13 +69,15 @@ class ForemanInstaller(Plugin, DebianPlugin, UbuntuPlugin):
         # all scrubbing applied to configs must be applied to installer logs
         # as well, since logs contain diff of configs
         self.do_path_regex_sub(
-            f"(/etc/foreman-(installer|maintain)/(.*)((conf)(.*)?))|({install_logs})",
+            f"(/etc/foreman-(installer|maintain)/(.*)((conf)(.*)?))|"
+            F"({install_logs})",
             r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
             r"\1********",
         )
         # yaml values should be alphanumeric
         self.do_path_regex_sub(
-            f"(/etc/foreman-(installer|maintain)/(.*)((yaml|yml)(.*)?))|({install_logs})",
+            f"(/etc/foreman-(installer|maintain)/(.*)((yaml|yml)(.*)?))|"
+            f"({install_logs})",
             r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
             r'\1"********"',
         )

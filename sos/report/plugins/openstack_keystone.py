@@ -61,8 +61,7 @@ class OpenStackKeystone(Plugin):
                 "identity domain_config_dir")
         self.domain_config_dir = exec_out['output']
         if exec_out['status'] != 0 or \
-
-                    not (self.path_isdir(self.domain_config_dir)):
+                not (self.path_isdir(self.domain_config_dir)):
             self.domain_config_dir = "/etc/keystone/domains"
         self.add_copy_spec(self.domain_config_dir)
 
@@ -87,7 +86,11 @@ class OpenStackKeystone(Plugin):
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/keystone/*", regexp, subst)
-        self.do_path_regex_sub(f"{self.var_puppet_gen}/etc/keystone/*", regexp, subst)
+        self.do_path_regex_sub(
+            f"{self.var_puppet_gen}/etc/keystone/*",
+            regexp,
+            subst
+        )
 
     def postproc(self):
         protect_keys = [

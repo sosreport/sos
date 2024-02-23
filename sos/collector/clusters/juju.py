@@ -34,8 +34,6 @@ def _get_index(model_name):
     filter to remove Index class.
     """
 
-
-
     class Index:
         """Index structure to help parse juju status output.
 
@@ -108,7 +106,6 @@ def _get_index(model_name):
             for machine in juju_status["machines"].keys():
                 node = f"{self.model_name}:{machine}"
                 self.machines[machine] = [node]
-
 
     return Index(model_name)
 
