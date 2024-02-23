@@ -59,7 +59,7 @@ class Kernel(Plugin, IndependentPlugin):
                                 suggest_filename="modinfo_ALL_MODULES",
                                 tags='modinfo_all')
         except OSError:
-            self._log_warn("could not list %s" % self.sys_module)
+            self._log_warn(f"could not list {self.sys_module}")
 
         # find /lib/modules/*/{extras,updates,weak-updates} -ls
         extra_mod_patterns = [
@@ -72,7 +72,7 @@ class Kernel(Plugin, IndependentPlugin):
             extra_mod_paths.extend(glob.glob(pattern))
 
         if extra_mod_paths:
-            self.add_cmd_output("find %s -ls" % " ".join(extra_mod_paths))
+            self.add_cmd_output(f'find {" ".join(extra_mod_paths)} -ls')
 
         self.add_cmd_output([
             "dmesg",
@@ -97,48 +97,50 @@ class Kernel(Plugin, IndependentPlugin):
             '/sys/kernel/debug/tracing/instances/*/trace_pipe'
         ])
 
-        self.add_copy_spec([
-            "/proc/modules",
-            "/proc/sys/kernel/random/boot_id",
-            "/sys/module/*/parameters",
-            "/sys/module/*/initstate",
-            "/sys/module/*/refcnt",
-            "/sys/module/*/taint",
-            "/sys/module/*/version",
-            "/sys/firmware/acpi/*",
-            "/sys/kernel/debug/tracing/*",
-            "/sys/kernel/livepatch/*",
-            "/proc/kallsyms",
-            "/proc/buddyinfo",
-            "/proc/slabinfo",
-            "/proc/zoneinfo",
-            "/lib/modules/%s/modules.dep" % self.policy.kernel_version(),
-            "/etc/conf.modules",
-            "/etc/modules.conf",
-            "/etc/modprobe.conf",
-            "/etc/modprobe.d",
-            "/lib/modprobe.d",
-            "/run/modprobe.d",
-            "/usr/local/lib/modprobe.d",
-            "/etc/sysctl.conf",
-            "/etc/sysctl.d",
-            "/lib/sysctl.d",
-            "/proc/cmdline",
-            "/proc/driver",
-            "/proc/sys/kernel/tainted",
-            "/proc/softirqs",
-            "/proc/lock*",
-            "/proc/misc",
-            "/var/log/dmesg",
-            "/sys/fs/pstore",
-            "/var/lib/systemd/pstore",
-            "/sys/kernel/debug/dynamic_debug/control",
-            "/sys/kernel/debug/extfrag/unusable_index",
-            "/sys/kernel/debug/extfrag/extfrag_index",
-            clocksource_path + "available_clocksource",
-            clocksource_path + "current_clocksource",
-            "/proc/pressure/"
-        ])
+        self.add_copy_spec(
+            [
+                "/proc/modules",
+                "/proc/sys/kernel/random/boot_id",
+                "/sys/module/*/parameters",
+                "/sys/module/*/initstate",
+                "/sys/module/*/refcnt",
+                "/sys/module/*/taint",
+                "/sys/module/*/version",
+                "/sys/firmware/acpi/*",
+                "/sys/kernel/debug/tracing/*",
+                "/sys/kernel/livepatch/*",
+                "/proc/kallsyms",
+                "/proc/buddyinfo",
+                "/proc/slabinfo",
+                "/proc/zoneinfo",
+                f"/lib/modules/{self.policy.kernel_version()}/modules.dep",
+                "/etc/conf.modules",
+                "/etc/modules.conf",
+                "/etc/modprobe.conf",
+                "/etc/modprobe.d",
+                "/lib/modprobe.d",
+                "/run/modprobe.d",
+                "/usr/local/lib/modprobe.d",
+                "/etc/sysctl.conf",
+                "/etc/sysctl.d",
+                "/lib/sysctl.d",
+                "/proc/cmdline",
+                "/proc/driver",
+                "/proc/sys/kernel/tainted",
+                "/proc/softirqs",
+                "/proc/lock*",
+                "/proc/misc",
+                "/var/log/dmesg",
+                "/sys/fs/pstore",
+                "/var/lib/systemd/pstore",
+                "/sys/kernel/debug/dynamic_debug/control",
+                "/sys/kernel/debug/extfrag/unusable_index",
+                "/sys/kernel/debug/extfrag/extfrag_index",
+                f"{clocksource_path}available_clocksource",
+                f"{clocksource_path}current_clocksource",
+                "/proc/pressure/",
+            ]
+        )
 
         if self.get_option("with-timer"):
             # This can be very slow, depending on the number of timers,

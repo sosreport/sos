@@ -21,7 +21,7 @@ from textwrap import fill
 
 
 def import_policy(name):
-    policy_fqname = "sos.policies.distros.%s" % name
+    policy_fqname = f"sos.policies.distros.{name}"
     try:
         return import_module(policy_fqname, Policy)
     except ImportError:
@@ -242,12 +242,12 @@ any third party.
         rand = ''.join(random.choice(string.ascii_lowercase) for x in range(7))
 
         if self.name_pattern == 'legacy':
-            case = '.' + case if case else ''
+            case = f'.{case}' if case else ''
             date = '-%Y%m%d%H%M%S'
             nstr = f"sosreport-{name}{case}{date}"
         elif self.name_pattern == 'friendly':
-            case = '-' + case if case else ''
-            label = '-' + label if label else ''
+            case = f'-{case}' if case else ''
+            label = f'-{label}' if label else ''
             date = '-%Y-%m-%d'
             nstr = f"sosreport-{name}{label}{case}{date}-{rand}"
         else:
@@ -584,7 +584,7 @@ any third party.
             raise ValueError("Preset name cannot be empty")
 
         if name in self.presets.keys():
-            raise ValueError("A preset with name '%s' already exists" % name)
+            raise ValueError(f"A preset with name '{name}' already exists")
 
         preset = PresetDefaults(name=name, desc=desc, note=note, opts=opts)
         preset.builtin = False
@@ -593,13 +593,12 @@ any third party.
 
     def del_preset(self, name=""):
         if not name or name not in self.presets.keys():
-            raise ValueError("Unknown profile: '%s'" % name)
+            raise ValueError(f"Unknown profile: '{name}'")
 
         preset = self.presets[name]
 
         if preset.builtin:
-            raise ValueError("Cannot delete built-in preset '%s'" %
-                             preset.name)
+            raise ValueError(f"Cannot delete built-in preset '{preset.name}'")
 
         preset.delete(self.presets_path)
         self.presets.pop(name)

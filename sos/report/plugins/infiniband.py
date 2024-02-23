@@ -76,7 +76,7 @@ class Infiniband(Plugin, IndependentPlugin):
                 if not state.endswith(": ACTIVE\n"):
                     continue
 
-                opts = "-C %s -P %s" % (ib, port)
-                self.add_cmd_output(["%s %s" % (c, opts) for c in ports_cmds])
+                opts = f"-C {ib} -P {port}"
+                self.add_cmd_output([f"{c} {opts}" for c in ports_cmds])
 
 # vim: set et ts=4 sw=4 :

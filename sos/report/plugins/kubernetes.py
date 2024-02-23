@@ -71,10 +71,10 @@ class Kubernetes(Plugin):
 
         kube_get_cmd = "get -o json "
         for subcmd in ['version', 'config view']:
-            self.add_cmd_output('%s %s' % (self.kube_cmd, subcmd))
+            self.add_cmd_output(f'{self.kube_cmd} {subcmd}')
 
         # get all namespaces in use
-        kn = self.collect_cmd_output('%s get namespaces' % self.kube_cmd)
+        kn = self.collect_cmd_output(f'{self.kube_cmd} get namespaces')
         # namespace is the 1st word on line, until the line has spaces only
         kn_output = kn['output'].splitlines()[1:]
         knsps = [n.split()[0] for n in kn_output if n and len(n.split())]
@@ -98,12 +98,10 @@ class Kubernetes(Plugin):
             'projects',
             'pvs'
         ]
-        self.add_cmd_output([
-            "%s get %s" % (self.kube_cmd, res) for res in global_resources
-        ])
+        self.add_cmd_output([f"{self.kube_cmd} get {res}" for res in global_resources])
 
         # Get detailed node information
-        nodes = self.collect_cmd_output("%s get nodes" % self.kube_cmd)
+        nodes = self.collect_cmd_output(f"{self.kube_cmd} get nodes")
         if nodes['status'] == 0:
             for line in nodes['output'].splitlines()[1:]:
                 # find first word in the line and ignore empty+blank lines
@@ -111,13 +109,10 @@ class Kubernetes(Plugin):
                 if not words:
                     continue
                 node = words[0]
-                self.add_cmd_output(
-                    "%s describe node %s" % (self.kube_cmd, node),
-                    subdir='nodes'
-                )
+                self.add_cmd_output(f"{self.kube_cmd} describe node {node}", subdir='nodes')
 
         # Also collect master metrics
-        self.add_cmd_output("%s get --raw /metrics" % self.kube_cmd)
+        self.add_cmd_output(f"{self.kube_cmd} get --raw /metrics")
 
         # CNV is not part of the base installation, but can be added
         if self.is_installed('kubevirt-virtctl'):
@@ -125,33 +120,30 @@ class Kubernetes(Plugin):
             self.add_cmd_output('virtctl version')
 
         for n in knsps:
-            knsp = '--namespace=%s' % n
+            knsp = f'--namespace={n}'
             if self.get_option('all'):
-                k_cmd = '%s %s %s' % (self.kube_cmd, kube_get_cmd, knsp)
+                k_cmd = f'{self.kube_cmd} {kube_get_cmd} {knsp}'
 
-                self.add_cmd_output('%s events' % k_cmd)
+                self.add_cmd_output(f'{k_cmd} events')
 
                 for res in resources:
-                    self.add_cmd_output('%s %s' % (k_cmd, res), subdir=res)
+                    self.add_cmd_output(f'{k_cmd} {res}', subdir=res)
 
             if self.get_option('describe'):
                 # need to drop json formatting for this
-                k_cmd = '%s %s' % (self.kube_cmd, knsp)
+                k_cmd = f'{self.kube_cmd} {knsp}'
                 for res in resources:
-                    r = self.exec_cmd('%s get %s' % (k_cmd, res))
+                    r = self.exec_cmd(f'{k_cmd} get {res}')
                     if r['status'] == 0:
                         k_list = [k.split()[0] for k in
                                   r['output'].splitlines()[1:]]
                         for k in k_list:
-                            k_cmd = '%s %s' % (self.kube_cmd, knsp)
-                            self.add_cmd_output(
-                                '%s describe %s %s' % (k_cmd, res, k),
-                                subdir=res
-                            )
+                            k_cmd = f'{self.kube_cmd} {knsp}'
+                            self.add_cmd_output(f'{k_cmd} describe {res} {k}', subdir=res)
 
             if self.get_option('podlogs'):
-                k_cmd = '%s %s' % (self.kube_cmd, knsp)
-                r = self.exec_cmd('%s get pods' % k_cmd)
+                k_cmd = f'{self.kube_cmd} {knsp}'
+                r = self.exec_cmd(f'{k_cmd} get pods')
                 if r['status'] == 0:
                     pods = [p.split()[0] for p in
                             r['output'].splitlines()[1:]]
@@ -161,13 +153,12 @@ class Kubernetes(Plugin):
                     for pod in pods:
                         if reg and not re.match(reg, pod):
                             continue
-                        self.add_cmd_output('%s logs %s' % (k_cmd, pod),
-                                            subdir='pods')
+                        self.add_cmd_output(f'{k_cmd} logs {pod}', subdir='pods')
 
         if not self.get_option('all'):
-            k_cmd = '%s get --all-namespaces=true' % self.kube_cmd
+            k_cmd = f'{self.kube_cmd} get --all-namespaces=true'
             for res in resources:
-                self.add_cmd_output('%s %s' % (k_cmd, res), subdir=res)
+                self.add_cmd_output(f'{k_cmd} {res}', subdir=res)
 
     def postproc(self):
         # First, clear sensitive data from the json output collected.
@@ -223,7 +214,7 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
     def setup(self):
         for _kconf in self.files:
             if self.path_exists(_kconf):
-                self.kube_cmd += " --kubeconfig=%s" % _kconf
+                self.kube_cmd += f" --kubeconfig={_kconf}"
                 break
 
         for svc in self.services:

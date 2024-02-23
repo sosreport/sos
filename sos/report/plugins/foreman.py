@@ -64,7 +64,7 @@ class Foreman(Plugin):
             pass
         # strip wrapping ".." or '..' around password
         if (self.dbpasswd.startswith('"') and self.dbpasswd.endswith('"')) or \
-           (self.dbpasswd.startswith('\'') and self.dbpasswd.endswith('\'')):
+               (self.dbpasswd.startswith('\'') and self.dbpasswd.endswith('\'')):
             self.dbpasswd = self.dbpasswd[1:-1]
         # set the password to os.environ when calling psql commands to prevent
         # printing it in sos logs
@@ -119,18 +119,20 @@ class Foreman(Plugin):
             f"/var/log/{self.apachepkg}*/katello-reverse-proxy_access_ssl.log*"
         ])
 
-        self.add_cmd_output([
-            'foreman-selinux-relabel -nv',
-            'passenger-status --show pool',
-            'passenger-status --show requests',
-            'passenger-status --show backtraces',
-            'passenger-memory-stats',
-            'ls -lanR /root/ssl-build',
-            'ls -lanR /usr/share/foreman/config/hooks',
-            'ping -c1 -W1 %s' % _hostname,
-            'ping -c1 -W1 %s' % _host_f,
-            'ping -c1 -W1 localhost'
-        ])
+        self.add_cmd_output(
+            [
+                'foreman-selinux-relabel -nv',
+                'passenger-status --show pool',
+                'passenger-status --show requests',
+                'passenger-status --show backtraces',
+                'passenger-memory-stats',
+                'ls -lanR /root/ssl-build',
+                'ls -lanR /usr/share/foreman/config/hooks',
+                f'ping -c1 -W1 {_hostname}',
+                f'ping -c1 -W1 {_host_f}',
+                'ping -c1 -W1 localhost',
+            ]
+        )
         self.add_cmd_output(
             'qpid-stat -b amqps://localhost:5671 -q \
                     --ssl-certificate=/etc/pki/katello/qpid_router_client.crt \
@@ -177,7 +179,7 @@ class Foreman(Plugin):
         self.add_cmd_output(_cmd, suggest_filename='foreman_db_tables_sizes',
                             env=self.env)
 
-        days = '%s days' % self.get_option('days')
+        days = f"{self.get_option('days')} days"
 
         # Construct the DB queries, using the days option to limit the range
         # of entries returned
@@ -279,8 +281,8 @@ class Foreman(Plugin):
                     proxy = proxy.split(',')
                     # proxy is now tuple [name, url]
                     _cmd = 'curl -s --key /etc/foreman/client_key.pem ' \
-                           '--cert /etc/foreman/client_cert.pem ' \
-                           '%s/v2/features' % proxy[1]
+                               '--cert /etc/foreman/client_cert.pem ' \
+                               '%s/v2/features' % proxy[1]
                     self.add_cmd_output(_cmd, suggest_filename=proxy[0],
                                         subdir='smart_proxies_features',
                                         timeout=10)
@@ -329,7 +331,7 @@ class RedHatForeman(Foreman, SCLPlugin, RedHatPlugin):
         # if we are on RHEL7 with scl, wrap some Puma commands by
         # scl enable tfm 'command'
         if self.policy.dist_version() == 7 and is_executable('scl'):
-            self.pumactl = "scl enable tfm '%s'" % self.pumactl
+            self.pumactl = f"scl enable tfm '{self.pumactl}'"
 
         super(RedHatForeman, self).setup()
         self.add_cmd_output('gem list')

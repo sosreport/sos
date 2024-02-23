@@ -42,27 +42,29 @@ class Navicli(Plugin, RedHatPlugin):
         """ EMC Navisphere Host Agent NAVICLI specific
         information - CLARiiON - commands
         """
-        self.add_cmd_output([
-            "navicli -h %s getall" % SP_address,
-            "navicli -h %s getsptime -spa" % SP_address,
-            "navicli -h %s getsptime -spb" % SP_address,
-            "navicli -h %s getlog" % SP_address,
-            "navicli -h %s getdisk" % SP_address,
-            "navicli -h %s getcache" % SP_address,
-            "navicli -h %s getlun" % SP_address,
-            "navicli -h %s getlun -rg -type -default -owner -crus "
-            "-capacity" % SP_address,
-            "navicli -h %s lunmapinfo" % SP_address,
-            "navicli -h %s getcrus" % SP_address,
-            "navicli -h %s port -list -all" % SP_address,
-            "navicli -h %s storagegroup -list" % SP_address,
-            "navicli -h %s spportspeed -get" % SP_address
-        ])
+        self.add_cmd_output(
+            [
+                f"navicli -h {SP_address} getall",
+                f"navicli -h {SP_address} getsptime -spa",
+                f"navicli -h {SP_address} getsptime -spb",
+                f"navicli -h {SP_address} getlog",
+                f"navicli -h {SP_address} getdisk",
+                f"navicli -h {SP_address} getcache",
+                f"navicli -h {SP_address} getlun",
+                "navicli -h %s getlun -rg -type -default -owner -crus "
+                "-capacity" % SP_address,
+                f"navicli -h {SP_address} lunmapinfo",
+                f"navicli -h {SP_address} getcrus",
+                f"navicli -h {SP_address} port -list -all",
+                f"navicli -h {SP_address} storagegroup -list",
+                f"navicli -h {SP_address} spportspeed -get",
+            ]
+        )
 
     def setup(self):
         self.get_navicli_config()
         for ip in set(self.get_option("ipaddrs").split()):
-            if self.exec_cmd("navicli -h %s getsptime" % (ip))['status'] == 0:
+            if self.exec_cmd(f"navicli -h {ip} getsptime")['status'] == 0:
                 self.get_navicli_SP_info(ip)
 
 # vim: set et ts=4 sw=4 :

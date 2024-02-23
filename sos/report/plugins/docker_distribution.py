@@ -25,7 +25,7 @@ class DockerDistribution(Plugin):
                 for line in f:
                     if 'rootdirectory' in line:
                         loc = line.split()[1]
-                        self.add_cmd_output('tree ' + loc)
+                        self.add_cmd_output(f'tree {loc}')
 
 
 class RedHatDockerDistribution(DockerDistribution, RedHatPlugin):

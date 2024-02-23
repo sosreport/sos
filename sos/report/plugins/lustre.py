@@ -23,9 +23,11 @@ class Lustre(Plugin, RedHatPlugin):
             file.
 
         """
-        self.add_cmd_output("lctl get_param %s" % " ".join(param_list),
-                            suggest_filename="params-%s" % name,
-                            stderr=False)
+        self.add_cmd_output(
+            f'lctl get_param {" ".join(param_list)}',
+            suggest_filename=f"params-{name}",
+            stderr=False,
+        )
 
     def setup(self):
         self.add_cmd_output([

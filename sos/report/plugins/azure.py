@@ -63,8 +63,6 @@ class RedHatAzure(Azure, RedHatPlugin):
 
         crt_path = '/etc/pki/rhui/product/content.crt'
         if self.path_isfile(crt_path):
-            self.add_cmd_output([
-                'openssl x509 -noout -text -in ' + crt_path
-            ])
+            self.add_cmd_output([f'openssl x509 -noout -text -in {crt_path}'])
 
 # vim: set et ts=4 sw=4 :

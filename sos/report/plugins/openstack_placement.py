@@ -33,11 +33,10 @@ class OpenStackPlacement(Plugin):
             placement_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
-                placement_config = "--config-dir " + self.var_puppet_gen + \
-                                "/etc/placement/"
+                placement_config = f"--config-dir {self.var_puppet_gen}/etc/placement/"
             self.add_cmd_output(
-                "placement-manage " + placement_config + " db version",
-                suggest_filename="placement-manage_db_version"
+                f"placement-manage {placement_config} db version",
+                suggest_filename="placement-manage_db_version",
             )
 
             vars_all = [p in os.environ for p in [
@@ -86,21 +85,20 @@ class OpenStackPlacement(Plugin):
                 f"/var/log/{self.apachepkg}*/placement*.log",
             ])
 
-        self.add_copy_spec([
-            "/etc/placement/",
-            self.var_puppet_gen + "/etc/placement/",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
-            self.var_puppet_gen + "/etc/httpd/conf/",
-            self.var_puppet_gen + "/etc/httpd/conf.d/",
-            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/placement/",
+                f"{self.var_puppet_gen}/etc/placement/",
+                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+                f"{self.var_puppet_gen}/etc/httpd/conf/",
+                f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
+            ]
+        )
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/placement/*", regexp, subst)
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/placement/*",
-            regexp, subst
-        )
+        self.do_path_regex_sub(f"{self.var_puppet_gen}/etc/placement/*", regexp, subst)
 
     def postproc(self):
         protect_keys = ["password", "memcache_secret_key"]

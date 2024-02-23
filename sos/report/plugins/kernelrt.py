@@ -25,14 +25,16 @@ class KernelRT(Plugin, RedHatPlugin):
 
     def setup(self):
         clocksource_path = '/sys/devices/system/clocksource/clocksource0/'
-        self.add_copy_spec([
-            '/etc/rtgroups',
-            '/proc/sys/kernel/sched_rt_period_us',
-            '/proc/sys/kernel/sched_rt_runtime_us',
-            '/sys/kernel/realtime',
-            clocksource_path + 'available_clocksource',
-            clocksource_path + 'current_clocksource'
-        ])
+        self.add_copy_spec(
+            [
+                '/etc/rtgroups',
+                '/proc/sys/kernel/sched_rt_period_us',
+                '/proc/sys/kernel/sched_rt_runtime_us',
+                '/sys/kernel/realtime',
+                f'{clocksource_path}available_clocksource',
+                f'{clocksource_path}current_clocksource',
+            ]
+        )
         # note: rhbz#1059685 'tuna - NameError: global name 'cgroups' is not
         # defined this command throws an exception on versions prior to
         # 0.10.4-5.

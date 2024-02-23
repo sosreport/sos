@@ -98,13 +98,9 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                     #
                     # Reverse the normal sos quoting convention here and place
                     # double quotes around the innermost quoted string.
-                    self.add_cmd_output('%s "%s"' %
-                                        (nmcli_con_details_cmd, con))
+                    self.add_cmd_output(f'{nmcli_con_details_cmd} "{con}"')
 
-            self.add_device_cmd(
-                nmcli_dev_details_cmd + ' "%(dev)s"',
-                devices='ethernet'
-            )
+            self.add_device_cmd(f'{nmcli_dev_details_cmd} "%(dev)s"', devices='ethernet')
 
         self.add_cmd_tags({
             "nmcli dev show": "nmcli_dev_show",
@@ -116,7 +112,7 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                 "/etc/NetworkManager/system-connections"):
             for net_conf in files:
                 self.do_file_sub(
-                    "/etc/NetworkManager/system-connections/"+net_conf,
+                    f"/etc/NetworkManager/system-connections/{net_conf}",
                     r"(password|psk|mka-cak|password-raw|pin|preshared-key"
                     r"|private-key|secrets|wep-key[0-9])=(.*)",
                     r"\1=***",

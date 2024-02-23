@@ -78,14 +78,17 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
 
         self.add_cmd_output("ldapsearch -x -b '' -s base 'objectclass=*'")
         self.add_cmd_output(
-            ldap_search + "-b cn=config '(!(objectClass=olcSchemaConfig))'",
-            suggest_filename="configuration_minus_schemas")
+            f"{ldap_search}-b cn=config '(!(objectClass=olcSchemaConfig))'",
+            suggest_filename="configuration_minus_schemas",
+        )
         self.add_cmd_output(
-            ldap_search + "-b cn=schema,cn=config dn",
-            suggest_filename="loaded_schemas")
+            f"{ldap_search}-b cn=schema,cn=config dn",
+            suggest_filename="loaded_schemas",
+        )
         self.add_cmd_output(
-            ldap_search + "-b cn=config '(olcAccess=*)' olcAccess olcSuffix",
-            suggest_filename="access_control_lists")
+            f"{ldap_search}-b cn=config '(olcAccess=*)' olcAccess olcSuffix",
+            suggest_filename="access_control_lists",
+        )
 
     def postproc(self):
         super(DebianLdap, self).postproc()

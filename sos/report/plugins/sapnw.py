@@ -44,38 +44,38 @@ class sapnw(Plugin, RedHatPlugin):
                 inst = fields[5]
                 vhost = fields[7]
                 sidsunique.add(sid)
-                path = "/usr/sap/%s/SYS/profile/" % sid
+                path = f"/usr/sap/{sid}/SYS/profile/"
                 if not self.path_exists(path):
                     continue
                 for line in self.listdir(path):
                     if all(f in line for f in [sid, inst, vhost]):
-                        ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
+                        ldenv = f'LD_LIBRARY_PATH=/usr/sap/{sid}/SYS/exe/run'
                         # TODO: I am assuming unicode here
                         # nuc should be accounted
-                        pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
+                        pt = f'/usr/sap/{sid}/SYS/exe/uc/linuxx86_64'
                         profile = line.strip()
 
                         # collect profiles
                         self.add_cmd_output(
                             prof_cmd % (ldenv, pt, sid, profile),
-                            suggest_filename="%s_parameters" % profile
+                            suggest_filename=f"{profile}_parameters",
                         )
 
                         # collect instance status
                         self.add_cmd_output(
                             inst_cmd % (ldenv, pt, inst),
-                            suggest_filename="%s_%s_GetProcList" % (sid, inst)
+                            suggest_filename=f"{sid}_{inst}_GetProcList",
                         )
 
                         # collect version info for the various components
                         self.add_cmd_output(
                             vers_cmd % (ldenv, pt, inst),
-                            suggest_filename="%s_%s_GetVersInfo" % (sid, inst)
+                            suggest_filename=f"{sid}_{inst}_GetVersInfo",
                         )
 
                         # collect <SID>adm user environment
                         lowsid = sid.lower()
-                        fname = "%s_%sadm_%s_userenv" % (sid, lowsid, inst)
+                        fname = f"{sid}_{lowsid}adm_{inst}_userenv"
                         self.add_cmd_output(
                             user_cmd % (lowsid, inst),
                             suggest_filename=fname
@@ -83,7 +83,7 @@ class sapnw(Plugin, RedHatPlugin):
 
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
-            self.add_copy_spec("/usr/sap/%s/*DVEB*/work/dev_w0" % sid)
+            self.add_copy_spec(f"/usr/sap/{sid}/*DVEB*/work/dev_w0")
 
     def collect_list_dbs(self):
         # list installed sap dbs
@@ -106,25 +106,23 @@ class sapnw(Plugin, RedHatPlugin):
                     # IBM DB2
                     self.add_cmd_output(
                         "su - %s -c \"db2 get dbm cfg\"" % dbadm,
-                        suggest_filename="%s_%s_db2_info" % (sid, dbadm)
+                        suggest_filename=f"{sid}_{dbadm}_db2_info",
                     )
 
                 elif dbtype == 'sap':
                     # SAP MAXDB
                     sid = fields[2][:-1]
-                    self.add_copy_spec(
-                        "/sapdb/%s/data/config/%s.pah" % (sid, sid)
-                    )
+                    self.add_copy_spec(f"/sapdb/{sid}/data/config/{sid}.pah")
 
                 elif dbtype == 'ora':
                     # Oracle
                     sid = fields[2][:-1]
-                    self.add_copy_spec("/oracle/%s/*/dbs/init.ora" % sid)
+                    self.add_copy_spec(f"/oracle/{sid}/*/dbs/init.ora")
 
                 elif dbtype == 'syb':
                     # Sybase
                     sid = fields[2][:-1]
-                    self.add_copy_spec("/sybase/%s/ASE*/%s.cfg" % (sid, sid))
+                    self.add_copy_spec(f"/sybase/{sid}/ASE*/{sid}.cfg")
 
     def setup(self):
         self.collect_list_instances()

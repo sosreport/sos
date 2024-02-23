@@ -35,16 +35,18 @@ class OpenStackOctavia(Plugin):
 
     def setup(self):
         # configs
-        self.add_copy_spec([
-            "/etc/sysconfig/network-scripts/ifcfg-o-hm0",
-            "/etc/logrotate.d/openstack-octavia",
-            "/etc/octavia/*",
-            "/var/lib/octavia",
-            self.var_config_data + "/octavia/etc/octavia",
-            self.var_puppet_gen + "/etc/octavia",
-            self.var_puppet_gen + "/etc/rsyslog.d",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/sysconfig/network-scripts/ifcfg-o-hm0",
+                "/etc/logrotate.d/openstack-octavia",
+                "/etc/octavia/*",
+                "/var/lib/octavia",
+                f"{self.var_config_data}/octavia/etc/octavia",
+                f"{self.var_puppet_gen}/etc/octavia",
+                f"{self.var_puppet_gen}/etc/rsyslog.d",
+                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+            ]
+        )
 
         self.add_file_tags({
             ".*/etc/octavia/octavia.conf": "octavia_conf"
@@ -52,8 +54,8 @@ class OpenStackOctavia(Plugin):
 
         # don't collect certificates
         self.add_forbidden_path("/etc/octavia/certs")
-        self.add_forbidden_path(self.var_config_data + "/etc/octavia/certs")
-        self.add_forbidden_path(self.var_puppet_gen + "/etc/octavia/certs")
+        self.add_forbidden_path(f"{self.var_config_data}/etc/octavia/certs")
+        self.add_forbidden_path(f"{self.var_puppet_gen}/etc/octavia/certs")
 
         # logs
         if self.get_option("all_logs"):
@@ -73,7 +75,7 @@ class OpenStackOctavia(Plugin):
                         'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
 
         if not (all(vars_all) and any(vars_any)) and not \
-               (self.is_installed("python2-octaviaclient") or
+                   (self.is_installed("python2-octaviaclient") or
                    self.is_installed("python3-octaviaclient")):
             self.soslog.warning("Not all environment variables set or "
                                 "octavia client package not installed."
@@ -87,18 +89,15 @@ class OpenStackOctavia(Plugin):
 
             for res in self.resources:
                 # get a list for each resource type
-                self.add_cmd_output('openstack loadbalancer %s list' % res,
-                                    subdir=res)
+                self.add_cmd_output(f'openstack loadbalancer {res} list', subdir=res)
 
                 # get details from each resource
-                cmd = "openstack loadbalancer %s list -f value -c id" % res
+                cmd = f"openstack loadbalancer {res} list -f value -c id"
                 ret = self.exec_cmd(cmd)
                 if ret['status'] == 0:
                     for ent in ret['output'].splitlines():
                         ent = ent.split()[0]
-                        self.add_cmd_output(
-                            "openstack loadbalancer %s show %s" % (res, ent),
-                            subdir=res)
+                        self.add_cmd_output(f"openstack loadbalancer {res} show {ent}", subdir=res)
 
             # get capability details from each provider
             cmd = "openstack loadbalancer provider list -f value -c name"
@@ -121,8 +120,7 @@ class OpenStackOctavia(Plugin):
 
         self.do_path_regex_sub("/etc/octavia/*", regexp, r"\1*********")
         self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/octavia/*",
-            regexp, r"\1*********"
+            f"{self.var_puppet_gen}/etc/octavia/*", regexp, r"\1*********"
         )
 
 

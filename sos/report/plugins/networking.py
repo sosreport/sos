@@ -47,9 +47,7 @@ class Networking(Plugin):
     def setup(self):
         super(Networking, self).setup()
         for opt in self.ethtool_shortopts:
-            self.add_cmd_tags({
-                'ethtool -%s .*' % opt: 'ethool_%s' % opt
-            })
+            self.add_cmd_tags({f'ethtool -{opt} .*': f'ethool_{opt}'})
 
         self.add_file_tags({
             '/proc/net/bonding/bond.*': 'bond',
@@ -90,30 +88,31 @@ class Networking(Plugin):
                             tags=['ip_route', 'iproute_show_table_all'])
         self.add_cmd_output("plotnetcfg")
 
-        self.add_cmd_output("netstat %s -neopa" % self.ns_wide,
-                            root_symlink="netstat")
+        self.add_cmd_output(f"netstat {self.ns_wide} -neopa", root_symlink="netstat")
 
-        self.add_cmd_output([
-            "nstat -zas",
-            "netstat -s",
-            "netstat %s -agn" % self.ns_wide,
-            "networkctl status -a",
-            "ip -6 route show table all",
-            "ip -d route show cache",
-            "ip -d -6 route show cache",
-            "ip -4 rule list",
-            "ip -6 rule list",
-            "ip vrf show",
-            "ip -s -d link",
-            "ip -d address",
-            "ifenslave -a",
-            "ip mroute show",
-            "ip maddr show",
-            "ip -s -s neigh show",
-            "ip neigh show nud noarp",
-            "biosdevname -d",
-            "tc -s qdisc show",
-        ])
+        self.add_cmd_output(
+            [
+                "nstat -zas",
+                "netstat -s",
+                f"netstat {self.ns_wide} -agn",
+                "networkctl status -a",
+                "ip -6 route show table all",
+                "ip -d route show cache",
+                "ip -d -6 route show cache",
+                "ip -4 rule list",
+                "ip -6 rule list",
+                "ip vrf show",
+                "ip -s -d link",
+                "ip -d address",
+                "ifenslave -a",
+                "ip mroute show",
+                "ip maddr show",
+                "ip -s -s neigh show",
+                "ip neigh show nud noarp",
+                "biosdevname -d",
+                "tc -s qdisc show",
+            ]
+        )
 
         if self.path_isdir('/sys/class/devlink'):
             self.add_cmd_output([
@@ -126,8 +125,7 @@ class Networking(Plugin):
             if devlinks['status'] == 0:
                 devlinks_list = devlinks['output'].splitlines()
                 for devlink in devlinks_list:
-                    self.add_cmd_output("devlink dev eswitch show %s" %
-                                        devlink)
+                    self.add_cmd_output(f"devlink dev eswitch show {devlink}")
 
         # below commands require some kernel module(s) to be loaded
         # run them only if the modules are loaded, or if explicitly requested
@@ -143,10 +141,8 @@ class Networking(Plugin):
 
         # Get ethtool output for every device that does not exist in a
         # namespace.
-        _ecmds = ["ethtool -%s" % opt for opt in self.ethtool_shortopts]
-        self.add_device_cmd([
-            _cmd + " %(dev)s" for _cmd in _ecmds
-        ], devices='ethernet')
+        _ecmds = [f"ethtool -{opt}" for opt in self.ethtool_shortopts]
+        self.add_device_cmd([f"{_cmd} %(dev)s" for _cmd in _ecmds], devices='ethernet')
 
         self.add_device_cmd([
             "ethtool %(dev)s",
@@ -176,8 +172,7 @@ class Networking(Plugin):
         ])
 
         if self.get_option("traceroute"):
-            self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host,
-                                priority=100)
+            self.add_cmd_output(f"/bin/traceroute -n {self.trace_host}", priority=100)
 
         # Capture additional data from namespaces; each command is run
         # per-namespace.
@@ -203,31 +198,39 @@ class Networking(Plugin):
 
             for namespace in namespaces:
                 _devs = self.devices['namespaced_network'][namespace]
-                _subdir = "namespaces/%s" % namespace
+                _subdir = f"namespaces/{namespace}"
                 ns_cmd_prefix = cmd_prefix + namespace + " "
-                self.add_cmd_output([
-                    ns_cmd_prefix + "ip -d address show",
-                    ns_cmd_prefix + "ip route show table all",
-                    ns_cmd_prefix + "ip -s -s neigh show",
-                    ns_cmd_prefix + "ip -4 rule list",
-                    ns_cmd_prefix + "ip -6 rule list",
-                    ns_cmd_prefix + "ip vrf show",
-                    ns_cmd_prefix + "sysctl -a",
-                    ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
-                    ns_cmd_prefix + "netstat -s",
-                    ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
-                    ns_cmd_prefix + "nstat -zas",
-                ], priority=50, subdir=_subdir)
-                self.add_cmd_output([ns_cmd_prefix + "iptables-save"],
-                                    pred=iptables_with_nft,
-                                    subdir=_subdir,
-                                    priority=50)
-                self.add_cmd_output([ns_cmd_prefix + "ip6tables-save"],
-                                    pred=ip6tables_with_nft,
-                                    subdir=_subdir,
-                                    priority=50)
+                self.add_cmd_output(
+                    [
+                        f"{ns_cmd_prefix}ip -d address show",
+                        f"{ns_cmd_prefix}ip route show table all",
+                        f"{ns_cmd_prefix}ip -s -s neigh show",
+                        f"{ns_cmd_prefix}ip -4 rule list",
+                        f"{ns_cmd_prefix}ip -6 rule list",
+                        f"{ns_cmd_prefix}ip vrf show",
+                        f"{ns_cmd_prefix}sysctl -a",
+                        f"{ns_cmd_prefix}netstat {self.ns_wide} -neopa",
+                        f"{ns_cmd_prefix}netstat -s",
+                        f"{ns_cmd_prefix}netstat {self.ns_wide} -agn",
+                        f"{ns_cmd_prefix}nstat -zas",
+                    ],
+                    priority=50,
+                    subdir=_subdir,
+                )
+                self.add_cmd_output(
+                    [f"{ns_cmd_prefix}iptables-save"],
+                    pred=iptables_with_nft,
+                    subdir=_subdir,
+                    priority=50,
+                )
+                self.add_cmd_output(
+                    [f"{ns_cmd_prefix}ip6tables-save"],
+                    pred=ip6tables_with_nft,
+                    subdir=_subdir,
+                    priority=50,
+                )
 
-                ss_cmd = ns_cmd_prefix + "ss -peaonmi"
+                ss_cmd = f"{ns_cmd_prefix}ss -peaonmi"
                 # --allow-system-changes is handled directly in predicate
                 # evaluation, so plugin code does not need to separately
                 # check for it
@@ -238,12 +241,17 @@ class Networking(Plugin):
                 if self.get_option("ethtool_namespaces"):
                     # Devices that exist in a namespace use less ethtool
                     # parameters. Run this per namespace.
-                    self.add_device_cmd([
-                        ns_cmd_prefix + "ethtool %(dev)s",
-                        ns_cmd_prefix + "ethtool -i %(dev)s",
-                        ns_cmd_prefix + "ethtool -k %(dev)s",
-                        ns_cmd_prefix + "ethtool -S %(dev)s"
-                    ], devices=_devs['ethernet'], priority=50, subdir=_subdir)
+                    self.add_device_cmd(
+                        [
+                            f"{ns_cmd_prefix}ethtool %(dev)s",
+                            f"{ns_cmd_prefix}ethtool -i %(dev)s",
+                            f"{ns_cmd_prefix}ethtool -k %(dev)s",
+                            f"{ns_cmd_prefix}ethtool -S %(dev)s",
+                        ],
+                        devices=_devs['ethernet'],
+                        priority=50,
+                        subdir=_subdir,
+                    )
 
         self.add_cmd_tags({
             "ethtool [^-].*": "ethtool",
@@ -309,8 +317,7 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
         ])
 
         if self.get_option("traceroute"):
-            self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host,
-                                priority=100)
+            self.add_cmd_output(f"/usr/sbin/traceroute -n {self.trace_host}", priority=100)
 
     def postproc(self):
 

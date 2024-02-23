@@ -26,7 +26,7 @@ class Ebpf(Plugin, IndependentPlugin):
         try:
             prog_data = json.loads(prog_json)
         except Exception as e:
-            self._log_info("Could not parse bpftool prog list as JSON: %s" % e)
+            self._log_info(f"Could not parse bpftool prog list as JSON: {e}")
             return out
         for item in range(len(prog_data)):
             if "id" in prog_data[item]:
@@ -38,7 +38,7 @@ class Ebpf(Plugin, IndependentPlugin):
         try:
             map_data = json.loads(map_json)
         except Exception as e:
-            self._log_info("Could not parse bpftool map list as JSON: %s" % e)
+            self._log_info(f"Could not parse bpftool map list as JSON: {e}")
             return out
         for item in range(len(map_data)):
             if "id" in map_data[item]:
@@ -50,12 +50,11 @@ class Ebpf(Plugin, IndependentPlugin):
         progs = self.collect_cmd_output("bpftool -j prog list")
         for prog_id in self.get_bpftool_prog_ids(progs['output']):
             for dumpcmd in ["xlated", "jited"]:
-                self.add_cmd_output("bpftool prog dump %s id %s" %
-                                    (dumpcmd, prog_id))
+                self.add_cmd_output(f"bpftool prog dump {dumpcmd} id {prog_id}")
 
         maps = self.collect_cmd_output("bpftool -j map list")
         for map_id in self.get_bpftool_map_ids(maps['output']):
-            self.add_cmd_output("bpftool map dump id %s" % map_id)
+            self.add_cmd_output(f"bpftool map dump id {map_id}")
 
         self.add_cmd_output([
             # collect list of eBPF programs and maps and their dumps
@@ -76,6 +75,6 @@ class Ebpf(Plugin, IndependentPlugin):
         nsps = self.get_option('namespaces')
         for namespace in self.get_network_namespaces(ns_max=nsps):
             ns_cmd_prefix = cmd_prefix + namespace + " "
-            self.add_cmd_output(ns_cmd_prefix + "bpftool net list")
+            self.add_cmd_output(f"{ns_cmd_prefix}bpftool net list")
 
 # vim: set et ts=4 sw=4 :

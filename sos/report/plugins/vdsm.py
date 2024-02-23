@@ -94,11 +94,9 @@ class Vdsm(Plugin, RedHatPlugin):
         qemu_pids = self.get_process_pids('qemu-kvm')
         if qemu_pids:
             files = ["cmdline", "status", "mountstats"]
-            self.add_copy_spec([
-                "/proc/%s/%s" % (pid, name)
-                for pid in qemu_pids
-                for name in files
-            ])
+            self.add_copy_spec(
+                [f"/proc/{pid}/{name}" for pid in qemu_pids for name in files]
+            )
         self.add_cmd_output([
             "ls -ldZ /etc/vdsm",
             "su vdsm -s /bin/sh -c 'tree -l /rhev/data-center'",
@@ -133,9 +131,7 @@ class Vdsm(Plugin, RedHatPlugin):
                         f"storagepoolID={pool}"
                     )
         except ValueError as e:
-            self._log_error(
-                'vdsm-client Host getConnectedStoragePools: %s' % (e)
-            )
+            self._log_error(f'vdsm-client Host getConnectedStoragePools: {e}')
 
         try:
             res = self.collect_cmd_output('vdsm-client Host getStorageDomains')
@@ -146,9 +142,7 @@ class Vdsm(Plugin, RedHatPlugin):
                     dump_volume_chains_cmd % uuid for uuid in sd_uuids
                 ])
         except ValueError as e:
-            self._log_error(
-                'vdsm-client Host getStorageDomains: %s' % (e)
-            )
+            self._log_error(f'vdsm-client Host getStorageDomains: {e}')
 
     def _add_vdsm_forbidden_paths(self):
         """Add confidential sysprep vfds under /run/vdsm to

@@ -27,18 +27,19 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
     )
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/mongodb.conf",
-            self.var_puppet_gen + "/etc/",
-            self.var_puppet_gen + "/etc/systemd/system/mongod.service.d/",
-            "/var/log/mongodb/mongodb.log",
-            "/var/lib/mongodb/mongodb.log*"
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/mongodb.conf",
+                f"{self.var_puppet_gen}/etc/",
+                f"{self.var_puppet_gen}/etc/systemd/system/mongod.service.d/",
+                "/var/log/mongodb/mongodb.log",
+                "/var/lib/mongodb/mongodb.log*",
+            ]
+        )
         self.add_cmd_output("du -sh /var/lib/mongodb/")
 
     def postproc(self):
-        for f in ["/etc/mongodb.conf",
-                  self.var_puppet_gen + "/etc/mongodb.conf"]:
+        for f in ["/etc/mongodb.conf", f"{self.var_puppet_gen}/etc/mongodb.conf"]:
             self.do_file_sub(
                 f,
                 r"(mms-token)\s*=\s*(.*)",

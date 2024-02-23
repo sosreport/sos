@@ -83,8 +83,8 @@ class RedHatPolicy(LinuxPolicy):
             self.PATH = "/usr/sbin:/usr/bin:/root/bin"
         else:
             self.PATH = "/sbin:/bin:/usr/sbin:/usr/bin:/root/bin"
-        self.PATH += os.pathsep + "/usr/local/bin"
-        self.PATH += os.pathsep + "/usr/local/sbin"
+        self.PATH += f"{os.pathsep}/usr/local/bin"
+        self.PATH += f"{os.pathsep}/usr/local/sbin"
         if not self.remote_exec:
             self.set_exec_path()
         self.load_presets()
@@ -120,7 +120,7 @@ class RedHatPolicy(LinuxPolicy):
         }
 
         for subc in subs:
-            subln = bold("policies.%s" % subc)
+            subln = bold(f"policies.{subc}")
             section.add_text(
                 f"{' ':>8}{subln:<35}{subs[subc].distro:<30}",
                 newline=False
@@ -303,7 +303,7 @@ support representative.
             return RH_API_HOST + rh_case_api % self.case_id
 
     def _get_upload_https_auth(self):
-        str_auth = "Bearer {}".format(self._device_token)
+        str_auth = f"Bearer {self._device_token}"
         return {'Authorization': str_auth}
 
     def _upload_https_post(self, archive, verify=True):
@@ -349,7 +349,7 @@ support representative.
         """
         fname = self.upload_archive_name.split('/')[-1]
         if self.case_id:
-            fname = "%s_%s" % (self.case_id, fname)
+            fname = f"{self.case_id}_{fname}"
         if self.upload_directory:
             fname = os.path.join(self.upload_directory, fname)
         return fname
@@ -391,7 +391,7 @@ support representative.
             self.ui_log.info("Device authorized correctly. Uploading file to"
                              f" {self.get_upload_url_string()}")
 
-        url = RH_API_HOST + '/support/v2/sftp/token'
+        url = f'{RH_API_HOST}/support/v2/sftp/token'
         ret = None
         if self._device_token:
             headers = self._get_upload_https_auth()
@@ -468,7 +468,7 @@ support representative.
     def probe_preset(self):
         # Emergency or rescue mode?
         for target in ["rescue", "emergency"]:
-            if self.init_system.is_running("%s.target" % target, False):
+            if self.init_system.is_running(f"{target}.target", False):
                 return self.find_preset(CB)
         # Package based checks
         if self.pkg_by_name("satellite-common") is not None:
@@ -478,7 +478,7 @@ support representative.
         if self.pkg_by_name("cfme") is not None:
             return self.find_preset(RH_CFME)
         if self.pkg_by_name("ovirt-engine") is not None or \
-                self.pkg_by_name("vdsm") is not None:
+                    self.pkg_by_name("vdsm") is not None:
             return self.find_preset(RHV)
         for pkg in ['automation-eda-controller',
                     'automation-eda-controller-server']:
@@ -579,7 +579,7 @@ support representative.
         )
 
     def set_cleanup_cmd(self):
-        return 'podman rm --force %s' % self.sos_container_name
+        return f'podman rm --force {self.sos_container_name}'
 
 
 class FedoraPolicy(RedHatPolicy):

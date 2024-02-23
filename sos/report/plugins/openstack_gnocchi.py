@@ -77,13 +77,15 @@ class RedHatGnocchi(Gnocchi, RedHatPlugin):
 
     def setup(self):
         super(RedHatGnocchi, self).setup()
-        self.add_copy_spec([
-            self.var_puppet_gen + "/etc/gnocchi/*",
-            self.var_puppet_gen + "/etc/httpd/conf/*",
-            self.var_puppet_gen + "/etc/httpd/conf.d/*",
-            self.var_puppet_gen + "/etc/httpd/conf.modules.d/wsgi.conf",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
-        ])
+        self.add_copy_spec(
+            [
+                f"{self.var_puppet_gen}/etc/gnocchi/*",
+                f"{self.var_puppet_gen}/etc/httpd/conf/*",
+                f"{self.var_puppet_gen}/etc/httpd/conf.d/*",
+                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/wsgi.conf",
+                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+            ]
+        )
 
     def postproc(self):
         super(RedHatGnocchi, self).postproc()

@@ -58,7 +58,7 @@ class DeviceAuthorizationClass:
         requesting a new device code.
 
         """
-        data = "client_id={}".format(DEVICE_AUTH_CLIENT_ID)
+        data = f"client_id={DEVICE_AUTH_CLIENT_ID}"
         headers = {'content-type': 'application/x-www-form-urlencoded'}
         if not REQUESTS_LOADED:
             raise Exception("python3-requests is not installed and is required"
@@ -195,12 +195,10 @@ class DeviceAuthorizationClass:
             self._set_token_data(refresh_token_res.json())
 
         elif refresh_token_res.status_code == 400 and 'invalid' in\
-                refresh_token_res.json()['error']:
-            logger.warning("Problem while fetching the new tokens from refresh"
-                           " token grant - {} {}."
-                           " New Device code will be requested !".format
-                           (refresh_token_res.status_code,
-                            refresh_token_res.json()['error']))
+                    refresh_token_res.json()['error']:
+            logger.warning(
+                f"Problem while fetching the new tokens from refresh token grant - {refresh_token_res.status_code} {refresh_token_res.json()['error']}. New Device code will be requested !"
+            )
             self._use_device_code_grant()
         else:
             raise Exception(

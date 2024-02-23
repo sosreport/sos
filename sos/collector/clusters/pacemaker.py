@@ -42,7 +42,7 @@ class pacemaker(Cluster):
                 # is offline from the cluster
                 self.get_nodes_from_corosync()
         except Exception as err:
-            self.log_error("Could not determine nodes from cluster: %s" % err)
+            self.log_error(f"Could not determine nodes from cluster: {err}")
 
         _shorts = [n for n in self.nodes if '.' not in n]
         if _shorts:
@@ -68,8 +68,7 @@ class pacemaker(Cluster):
         else:
             return
         _out = self.exec_primary_cmd(
-            "crm_mon --one-shot --inactive %s" % xmlopt,
-            need_root=True
+            f"crm_mon --one-shot --inactive {xmlopt}", need_root=True
         )
         if _out['status'] == 0:
             self.parse_crm_xml(_out['output'])

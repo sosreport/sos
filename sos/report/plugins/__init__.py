@@ -134,19 +134,19 @@ class SoSPredicate(object):
             optional prefix, suffix and value quoting.
         """
         quotes = '"%s"'
-        pstr = "dry_run=%s, " % self.dry_run
+        pstr = f"dry_run={self.dry_run}, "
 
         kmods = self.kmods
         kmods = [quotes % k for k in kmods] if quote else kmods
-        pstr += "kmods=[%s], " % (",".join(kmods))
+        pstr += f'kmods=[{",".join(kmods)}], '
 
         services = self.services
         services = [quotes % s for s in services] if quote else services
-        pstr += "services=[%s], " % (",".join(services))
+        pstr += f'services=[{",".join(services)}], '
 
         pkgs = self.packages
         pkgs = [quotes % p for p in pkgs] if quote else pkgs
-        pstr += "packages=[%s], " % (",".join(pkgs))
+        pstr += f'packages=[{",".join(pkgs)}], '
 
         cmdoutputs = [
             "{ %s: %s, %s: %s }" % (quotes % "cmd",
@@ -155,11 +155,11 @@ class SoSPredicate(object):
                                     quotes % cmdoutput['output'])
             for cmdoutput in self.cmd_outputs
         ]
-        pstr += "cmdoutputs=[%s], " % (",".join(cmdoutputs))
+        pstr += f'cmdoutputs=[{",".join(cmdoutputs)}], '
 
         arches = self.arch
         arches = [quotes % a for a in arches] if quote else arches
-        pstr += "arches=[%s]" % (",".join(arches))
+        pstr += f'arches=[{",".join(arches)}]'
 
         return prefix + pstr + suffix
 
@@ -267,10 +267,7 @@ class SoSPredicate(object):
             res = self._eval_cmd_output(cmd)
             _cmds.append(res)
             if not res:
-                self._failed_or_forbidden(
-                    'cmd_outputs',
-                    "%s: %s" % (cmd['cmd'], cmd['output'])
-                )
+                self._failed_or_forbidden('cmd_outputs', f"{cmd['cmd']}: {cmd['output']}")
         return self._check_required_state(_cmds, self.required['cmd_outputs'])
 
     def _eval_arch(self):
@@ -281,7 +278,7 @@ class SoSPredicate(object):
         # see if the system's reported architecture is in the last of 'allowed'
         # arches requested by the predicate
         _arch = self._owner.policy.get_arch()
-        regex = '(?:%s)' % '|'.join(self.arch)
+        regex = f"(?:{'|'.join(self.arch)})"
         if self.required['arch'] == 'none':
             if re.match(regex, _arch):
                 self._forbidden['architecture'].append(_arch)
@@ -443,10 +440,10 @@ class PluginOpt():
 
     def __str__(self):
         items = [
-            'name=%s' % self.name,
+            f'name={self.name}',
             'desc=\'%s\'' % self.desc,
-            'value=%s' % self.value,
-            'default=%s' % self.default
+            f'value={self.value}',
+            f'default={self.default}',
         ]
         return '(' + ', '.join(items) + ')'
 
@@ -470,10 +467,7 @@ class PluginOpt():
                 elif t.__name__ == 'int':
                     valid.append("integer values")
             raise Exception(
-                "Plugin option '%s.%s' takes %s, not %s" % (
-                    self.plugin, self.name, ', '.join(valid),
-                    type(val).__name__
-                )
+                f"Plugin option '{self.plugin}.{self.name}' takes {', '.join(valid)}, not {type(val).__name__}"
             )
         self.value = val
 
@@ -636,8 +630,9 @@ class Plugin():
                 "Environment variables for Plugin must be specified by dict"
             )
         self.default_environment = env_vars
-        self._log_debug("Default environment for all commands now set to %s"
-                        % self.default_environment)
+        self._log_debug(
+            f"Default environment for all commands now set to {self.default_environment}"
+        )
 
     def add_default_cmd_environment(self, env_vars):
         """
@@ -650,7 +645,7 @@ class Plugin():
         """
         if not isinstance(env_vars, dict):
             raise TypeError("Environment variables must be added via dict")
-        self._log_debug("Adding %s to default environment" % env_vars)
+        self._log_debug(f"Adding {env_vars} to default environment")
         self.default_environment.update(env_vars)
 
     def _get_cmd_environment(self, env=None):
@@ -778,8 +773,9 @@ class Plugin():
     @classmethod
     def display_plugin_help(cls, section):
         from sos.help import TERMSIZE
-        section.set_title("%s Plugin Information - %s"
-                          % (cls.plugin_name.title(), cls.short_desc))
+        section.set_title(
+            f"{cls.plugin_name.title()} Plugin Information - {cls.short_desc}"
+        )
         missing = '\nDetailed information is not available for this plugin.\n'
 
         # Concatenate the docstrings of distro-specific plugins with their
@@ -804,22 +800,19 @@ class Plugin():
                          'services']:
                 if getattr(cls, trig, None):
                     section.add_text(
-                        "Enabled by %s: %s"
-                        % (trig, ', '.join(getattr(cls, trig))),
-                        newline=False
+                        f"Enabled by {trig}: {', '.join(getattr(cls, trig))}",
+                        newline=False,
                     )
             if getattr(cls, 'containers'):
                 section.add_text(
-                    "Enabled by containers with names matching: %s"
-                    % ', '.join(c for c in cls.containers),
-                    newline=False
+                    f"Enabled by containers with names matching: {', '.join(c for c in cls.containers)}",
+                    newline=False,
                 )
 
         if cls.profiles:
             section.add_text(
-                "Enabled with the following profiles: %s"
-                % ', '.join(p for p in cls.profiles),
-                newline=False
+                f"Enabled with the following profiles: {', '.join(p for p in cls.profiles)}",
+                newline=False,
             )
 
         if hasattr(cls, 'verify_packages'):
@@ -841,8 +834,7 @@ class Plugin():
 
         optsec = section.add_section('Plugin Options')
         optsec.add_text(
-            "These options may be toggled or changed using '%s'"
-            % bold("-k %s.option_name=$value" % cls.plugin_name)
+            f"""These options may be toggled or changed using '{bold(f"-k {cls.plugin_name}.option_name=$value")}'"""
         )
         optsec.add_text(
             bold((f"\n{' ':<4}{'Option Name':<20}{'Default':<30}"
@@ -937,10 +929,7 @@ class Plugin():
         )
 
     def _format_msg(self, msg):
-        return "[plugin:%s] %s" % (self.name(),
-                                   # safeguard against non-UTF logging, see
-                                   # #2790 for reference
-                                   msg.encode('utf-8', 'replace').decode())
+        return f"[plugin:{self.name()}] {msg.encode('utf-8', 'replace').decode()}"
 
     def _log_error(self, msg):
         self.soslog.error(self._format_msg(msg))
@@ -1147,7 +1136,7 @@ class Plugin():
         """
         if pred is None:
             pred = SoSPredicate(self)
-        msg = "skipped command '%s': %s" % (cmd, pred.report_failure())
+        msg = f"skipped command '{cmd}': {pred.report_failure()}"
 
         if changes:
             msg += " Use '--allow-system-changes' to enable collection."
@@ -1171,10 +1160,9 @@ class Plugin():
         if not self.executed_commands:
             return 0
 
-        self._log_debug("Scrubbing certs and keys for commands matching %s"
-                        % (cmd))
+        self._log_debug(f"Scrubbing certs and keys for commands matching {cmd}")
 
-        replace = "%s %s" % (_cert_replace, desc) if desc else _cert_replace
+        replace = f"{_cert_replace} {desc}" if desc else _cert_replace
 
         return self.do_cmd_output_sub(cmd, _certmatch, replace)
 
@@ -1200,10 +1188,11 @@ class Plugin():
         :returns: Number of replacements made
         :rtype: ``int``
         """
-        globstr = '*' + cmd + '*'
+        globstr = f'*{cmd}*'
         pattern = regexp.pattern if hasattr(regexp, "pattern") else regexp
-        self._log_debug("substituting '%s' for '%s' in commands matching '%s'"
-                        % (subst, pattern, globstr))
+        self._log_debug(
+            f"substituting '{subst}' for '{pattern}' in commands matching '{globstr}'"
+        )
 
         if not self.executed_commands:
             return 0
@@ -1220,7 +1209,7 @@ class Plugin():
                     continue
                 if fnmatch.fnmatch(called['cmd'], globstr):
                     path = os.path.join(self.commons['cmddir'], called['file'])
-                    self._log_debug("applying substitution to '%s'" % path)
+                    self._log_debug(f"applying substitution to '{path}'")
                     readable = self.archive.open_file(path)
                     result, replacements = re.subn(
                         regexp, subst, readable.read())
@@ -1249,10 +1238,9 @@ class Plugin():
         :param desc: A description of the replaced content
         :type desc: ``str``
         """
-        self._log_debug("Scrubbing certs and keys for paths matching %s"
-                        % pathregex)
+        self._log_debug(f"Scrubbing certs and keys for paths matching {pathregex}")
         match = re.compile(pathregex).match
-        replace = "%s %s" % (_cert_replace, desc) if desc else _cert_replace
+        replace = f"{_cert_replace} {desc}" if desc else _cert_replace
         file_list = [f for f in self.copied_files if match(f['srcpath'])]
         for i in file_list:
             path = i['dstpath']
@@ -1278,7 +1266,7 @@ class Plugin():
         """
         try:
             path = self._get_dest_for_srcpath(srcpath)
-            self._log_debug("substituting scrpath '%s'" % srcpath)
+            self._log_debug(f"substituting scrpath '{srcpath}'")
             self._log_debug("substituting '%s' for '%s' in '%s'"
                             % (subst,
                                regexp.pattern if hasattr(regexp, "pattern")
@@ -1339,20 +1327,20 @@ class Plugin():
             # trim leading /sysroot
             if self.use_sysroot():
                 reldest = reldest[len(os.sep + os.pardir):]
-            self._log_debug("made link target '%s' relative as '%s'"
-                            % (linkdest, reldest))
+            self._log_debug(f"made link target '{linkdest}' relative as '{reldest}'")
         else:
             reldest = linkdest
 
-        self._log_debug("copying link '%s' pointing to '%s' with isdir=%s"
-                        % (srcpath, linkdest, self.path_isdir(absdest)))
+        self._log_debug(
+            f"copying link '{srcpath}' pointing to '{linkdest}' with isdir={self.path_isdir(absdest)}"
+        )
 
         dstpath = self.strip_sysroot(srcpath)
         # use the relative target path in the tarball
         self.archive.add_link(reldest, dstpath)
 
         if self.path_isdir(absdest):
-            self._log_debug("link '%s' is a directory, skipping..." % linkdest)
+            self._log_debug(f"link '{linkdest}' is a directory, skipping...")
             return
 
         self.copied_files.append({'srcpath': srcpath,
@@ -1372,8 +1360,7 @@ class Plugin():
 
         # copy the symlink target translating relative targets
         # to absolute paths to pass to _do_copy_path.
-        self._log_debug("normalized link target '%s' as '%s'"
-                        % (linkdest, absdest))
+        self._log_debug(f"normalized link target '{linkdest}' as '{absdest}'")
 
         # skip recursive copying of symlink pointing to itself.
         if (absdest != srcpath):
@@ -1383,24 +1370,22 @@ class Plugin():
                      self.policy._in_container)
             self._do_copy_path(absdest, force=force)
         else:
-            self._log_debug("link '%s' points to itself, skipping target..."
-                            % linkdest)
+            self._log_debug(f"link '{linkdest}' points to itself, skipping target...")
 
     def _copy_dir(self, srcpath):
         try:
             for name in self.listdir(srcpath):
-                self._log_debug("recursively adding '%s' from '%s'"
-                                % (name, srcpath))
+                self._log_debug(f"recursively adding '{name}' from '{srcpath}'")
                 path = os.path.join(srcpath, name)
                 self._do_copy_path(path)
         except OSError as e:
             if e.errno == errno.EPERM or errno.EACCES:
                 msg = "Permission denied"
-                self._log_warn("_copy_dir: '%s' %s" % (srcpath, msg))
+                self._log_warn(f"_copy_dir: '{srcpath}' {msg}")
                 return
             if e.errno == errno.ELOOP:
                 msg = "Too many levels of symbolic links copying"
-                self._log_error("_copy_dir: %s '%s'" % (msg, srcpath))
+                self._log_error(f"_copy_dir: {msg} '{srcpath}'")
                 return
             raise
 
@@ -1452,7 +1437,7 @@ class Plugin():
             return None
 
         if self._is_forbidden_path(srcpath):
-            self._log_debug("skipping forbidden path '%s'" % srcpath)
+            self._log_debug(f"skipping forbidden path '{srcpath}'")
             return None
 
         if not dest:
@@ -1464,7 +1449,7 @@ class Plugin():
         try:
             st = os.lstat(srcpath)
         except (OSError, IOError):
-            self._log_info("failed to stat '%s'" % srcpath)
+            self._log_info(f"failed to stat '{srcpath}'")
             return None
 
         if stat.S_ISLNK(st.st_mode):
@@ -1482,13 +1467,12 @@ class Plugin():
         # handle special nodes (block, char, fifo, socket)
         if not (stat.S_ISREG(st.st_mode) or stat.S_ISDIR(st.st_mode)):
             ntype = _node_type(st)
-            self._log_debug("creating %s node at archive:'%s'"
-                            % (ntype, dest))
+            self._log_debug(f"creating {ntype} node at archive:'{dest}'")
             self._copy_node(dest, st)
             return None
 
         # if we get here, it's definitely a regular file (not a symlink or dir)
-        self._log_debug("copying path '%s' to archive:'%s'" % (srcpath, dest))
+        self._log_debug(f"copying path '{srcpath}' to archive:'{dest}'")
 
         # if not readable(srcpath)
         if not st.st_mode & 0o444:
@@ -1519,7 +1503,7 @@ class Plugin():
             forbidden = [self.path_join(f) for f in forbidden]
 
         for forbid in forbidden:
-            self._log_info("adding forbidden path '%s'" % forbid)
+            self._log_info(f"adding forbidden path '{forbid}'")
             if "*" in forbid:
                 # calling translate() here on a dir-level path will break the
                 # re.match() call during path comparison
@@ -1681,7 +1665,7 @@ class Plugin():
             since = self.get_option('since')
 
         logarchive_pattern = re.compile(r'.*((\.(zip|gz|bz2|xz))|[-.][\d]+)$')
-        configfile_pattern = re.compile(r"^%s/*" % self.path_join("etc"))
+        configfile_pattern = re.compile(f'^{self.path_join("etc")}/*')
 
         if not self.test_predicate(pred=pred):
             self._log_info("skipped copy spec '%s' due to predicate (%s)" %
@@ -1754,7 +1738,7 @@ class Plugin():
                     if sizelimit:
                         # to get just the size, stat requires a literal '%s'
                         # which conflicts with python string formatting
-                        cmd = "stat -c %s " + copyspec
+                        cmd = f"stat -c %s {copyspec}"
                         ret = self.exec_cmd(cmd, container=con)
                         if ret['status'] == 0:
                             try:
@@ -1778,10 +1762,7 @@ class Plugin():
                     self.container_copy_paths.append(
                         (con, copyspec, sizelimit, _tail, _spec_tags)
                     )
-                    self._log_info(
-                        "added collection of '%s' from container '%s'"
-                        % (copyspec, con)
-                    )
+                    self._log_info(f"added collection of '{copyspec}' from container '{con}'")
                 # break out of the normal flow here as container file
                 # copies are done via command execution, not raw cp/mv
                 # operations
@@ -1820,20 +1801,19 @@ class Plugin():
 
             for _file in files:
                 if _file in self.copy_paths:
-                    self._log_debug("skipping redundant file '%s'" % _file)
+                    self._log_debug(f"skipping redundant file '{_file}'")
                     continue
                 if self._is_forbidden_path(_file):
-                    self._log_debug("skipping forbidden path '%s'" % _file)
+                    self._log_debug(f"skipping forbidden path '{_file}'")
                     continue
                 if self._is_policy_forbidden_path(_file):
-                    self._log_debug("skipping policy forbidden path '%s'"
-                                    % _file)
+                    self._log_debug(f"skipping policy forbidden path '{_file}'")
                     continue
                 if self._is_skipped_path(_file):
-                    self._log_debug("skipping excluded path '%s'" % _file)
+                    self._log_debug(f"skipping excluded path '{_file}'")
                     continue
                 if limit_reached:
-                    self._log_info("skipping '%s' over size limit" % _file)
+                    self._log_info(f"skipping '{_file}' over size limit")
                     continue
 
                 try:
@@ -1844,7 +1824,7 @@ class Plugin():
                     if self.path_islink(_file):
                         file_size = 0
                     else:
-                        self._log_info("failed to stat '%s', skipping" % _file)
+                        self._log_info(f"failed to stat '{_file}', skipping")
                         continue
                 current_size += file_size
 
@@ -1949,15 +1929,21 @@ class Plugin():
             if isinstance(whitelist, str):
                 whitelist = [whitelist]
 
-            _devs = [d for d in _devs if
-                     any(re.match("(.*)?%s" % wl, d) for wl in whitelist)]
+            _devs = [
+                d
+                for d in _devs
+                if any(re.match(f"(.*)?{wl}", d) for wl in whitelist)
+            ]
 
         if blacklist:
             if isinstance(blacklist, str):
                 blacklist = [blacklist]
 
-            _devs = [d for d in _devs if not
-                     any(re.match("(.*)?%s" % bl, d) for bl in blacklist)]
+            _devs = [
+                d
+                for d in _devs
+                if not any(re.match(f"(.*)?{bl}", d) for bl in blacklist)
+            ]
 
         _dev_tags.extend(tags)
         self._add_device_cmd(cmds, _devs, timeout=timeout,
@@ -1998,18 +1984,18 @@ class Plugin():
         if self.get_option('all_logs') or kwargs['sizelimit'] == 0:
             kwargs['to_file'] = True
         soscmd = SoSCommand(**kwargs)
-        self._log_debug("packed command: " + soscmd.__str__())
+        self._log_debug(f"packed command: {soscmd.__str__()}")
         for _skip_cmd in self.skip_commands:
             # This probably seems weird to be doing filename matching on the
             # commands, however we want to remain consistent with our regex
             # matching with file paths, which sysadmins are almost guaranteed
             # to assume will use shell-style unix matching
             if fnmatch.fnmatch(soscmd.cmd, _skip_cmd):
-                self._log_debug("skipping excluded command '%s'" % soscmd.cmd)
+                self._log_debug(f"skipping excluded command '{soscmd.cmd}'")
                 return
         if self.test_predicate(cmd=True, pred=pred):
             self.collect_cmds.append(soscmd)
-            self._log_info("added cmd output '%s'" % soscmd.cmd)
+            self._log_info(f"added cmd output '{soscmd.cmd}'")
         else:
             self.log_skipped_cmd(soscmd.cmd, pred, changes=soscmd.changes)
 
@@ -2197,7 +2183,7 @@ class Plugin():
 
         plugin_dir = self.name()
         if subdir:
-            plugin_dir += "/%s" % subdir
+            plugin_dir += f"/{subdir}"
         outdir = os.path.join(self.commons['cmddir'], plugin_dir)
         outfn = self._mangle_command(exe)
 
@@ -2273,7 +2259,7 @@ class Plugin():
             tags = [tags]
 
         self.copy_strings.append((content, filename, tags))
-        self._log_debug("added string as '%s'" % filename)
+        self._log_debug(f"added string as '{filename}'")
 
     def _collect_cmd_output(self, cmd, suggest_filename=None,
                             root_symlink=False, timeout=None,
@@ -2347,8 +2333,7 @@ class Plugin():
         outfn_strip = outfn[len(self.commons['cmddir'])+1:]
 
         if to_file:
-            self._log_debug("collecting '%s' output directly to disk"
-                            % cmd)
+            self._log_debug(f"collecting '{cmd}' output directly to disk")
             self.archive.check_path(outfn, P_FILE)
             out_file = os.path.join(self.archive.get_archive_path(), outfn)
         else:
@@ -2372,7 +2357,7 @@ class Plugin():
             if to_file:
                 msg = (" - output up until the timeout may be available at "
                        "%s" % outfn)
-                self._log_debug("%s%s" % (warn, msg))
+                self._log_debug(f"{warn}{msg}")
 
         manifest_cmd = {
             'command': cmd.split(' ')[0],
@@ -2402,7 +2387,7 @@ class Plugin():
                         poller=self.check_timeout, to_file=out_file
                     )
                     run_time = time() - start
-            self._log_debug("could not run '%s': command not found" % cmd)
+            self._log_debug(f"could not run '{cmd}': command not found")
             # Exit here if the command was not found in the chroot check above
             # as otherwise we will create a blank file in the archive
             if result['status'] in [126, 127]:
@@ -2410,12 +2395,12 @@ class Plugin():
                     self.manifest.commands.append(manifest_cmd)
                     return result
 
-        self._log_debug("collected output of '%s' in %s (changes=%s)"
-                        % (cmd.split()[0], run_time, changes))
+        self._log_debug(
+            f"collected output of '{cmd.split()[0]}' in {run_time} (changes={changes})"
+        )
 
         if result['truncated']:
-            self._log_info("collected output of '%s' was truncated"
-                           % cmd.split()[0])
+            self._log_info(f"collected output of '{cmd.split()[0]}' was truncated")
             linkfn = outfn
             outfn = outfn.replace('sos_commands', 'sos_strings') + '.tailed'
 
@@ -2646,10 +2631,10 @@ class Plugin():
         manifest['command'] = cmd.split(' ')[0]
         manifest['parameters'] = cmd.split(' ')[1:]
 
-        _cdir = "sos_containers/%s/sos_commands/%s" % (container, self.name())
-        _outloc = "../../../../%s" % manifest['filepath']
+        _cdir = f"sos_containers/{container}/sos_commands/{self.name()}"
+        _outloc = f"../../../../{manifest['filepath']}"
         cmdfn = self._mangle_command(cmd)
-        conlnk = "%s/%s" % (_cdir, cmdfn)
+        conlnk = f"{_cdir}/{cmdfn}"
 
         # If check_path return None, it means that the sym link already exits,
         # so to avoid Error 17, trying to recreate, we will skip creation and
@@ -2884,7 +2869,7 @@ class Plugin():
             return
 
         for service in services:
-            self.add_cmd_output("%s %s" % (query, service), **kwargs)
+            self.add_cmd_output(f"{query} {service}", **kwargs)
 
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None,
@@ -2955,7 +2940,7 @@ class Plugin():
         if units:
             for unit in units:
                 journal_cmd += unit_opt % unit
-                tags.append("journal_%s" % unit)
+                tags.append(f"journal_{unit}")
 
         if identifier:
             journal_cmd += identifier_opt % identifier
@@ -2985,7 +2970,7 @@ class Plugin():
         if output:
             journal_cmd += output_opt % output
 
-        self._log_debug("collecting journal: %s" % journal_cmd)
+        self._log_debug(f"collecting journal: {journal_cmd}")
         self._add_cmd_output(cmd=journal_cmd, timeout=timeout,
                              sizelimit=log_size, pred=pred, tags=tags,
                              priority=priority)
@@ -3036,7 +3021,7 @@ class Plugin():
 
     def _collect_copy_specs(self):
         for path in sorted(self.copy_paths, reverse=True):
-            self._log_info("collecting path '%s'" % path)
+            self._log_info(f"collecting path '{path}'")
             self._do_copy_path(path)
         self.generate_copyspec_tags()
 
@@ -3061,9 +3046,9 @@ class Plugin():
             return
         for contup in self.container_copy_paths:
             con, path, sizelimit, tailit, tags = contup
-            self._log_info("collecting '%s' from container '%s'" % (path, con))
+            self._log_info(f"collecting '{path}' from container '{con}'")
 
-            arcdest = "sos_containers/%s/%s" % (con, path.lstrip('/'))
+            arcdest = f"sos_containers/{con}/{path.lstrip('/')}"
             self.archive.check_path(arcdest, P_FILE)
             dest = self.archive.dest_path(arcdest)
 
@@ -3079,14 +3064,15 @@ class Plugin():
                     self.archive.add_string(cpret['output'], arcdest)
                 self._add_container_file_to_manifest(con, path, arcdest, tags)
             else:
-                self._log_info("error copying '%s' from container '%s': %s"
-                               % (path, con, cpret['output']))
+                self._log_info(
+                    f"error copying '{path}' from container '{con}': {cpret['output']}"
+                )
 
     def _collect_cmds(self):
         self.collect_cmds.sort(key=lambda x: x.priority)
         for soscmd in self.collect_cmds:
-            self._log_debug("unpacked command: " + soscmd.__str__())
-            self._log_info("collecting output of '%s'" % soscmd.cmd)
+            self._log_debug(f"unpacked command: {soscmd.__str__()}")
+            self._log_info(f"collecting output of '{soscmd.cmd}'")
             self._collect_cmd_output(**soscmd.__dict__)
 
     def _collect_tailed_files(self):
@@ -3108,7 +3094,7 @@ class Plugin():
         for string, file_name, tags in self.copy_strings:
             if self._timeout_hit:
                 return
-            self._log_info("collecting string as '%s'" % file_name)
+            self._log_info(f"collecting string as '{file_name}'")
             try:
                 self.archive.add_string(string, file_name)
                 _name = file_name.split('/')[-1].replace('.', '_')
@@ -3117,8 +3103,7 @@ class Plugin():
                     'tags': tags
                 }
             except Exception as e:
-                self._log_debug("could not add string '%s': %s"
-                                % (file_name, e))
+                self._log_debug(f"could not add string '{file_name}': {e}")
 
     def _collect_manual(self):
         """Kick off manual collections performed by the plugin. These manual
@@ -3298,7 +3283,7 @@ class Plugin():
         """
         if self.architectures is None:
             return True
-        regex = '(?:%s)' % '|'.join(self.architectures)
+        regex = f"(?:{'|'.join(self.architectures)})"
         return re.match(regex, self.policy.get_arch())
 
     def default_enabled(self):
@@ -3332,7 +3317,7 @@ class Plugin():
         if not hasattr(self, "verify_packages") or not self.verify_packages:
             if hasattr(self, "packages") and self.packages:
                 # Limit automatic verification to only the named packages
-                self.verify_packages = [p + "$" for p in self.packages]
+                self.verify_packages = [f"{p}$" for p in self.packages]
             else:
                 return
 
@@ -3483,9 +3468,7 @@ class Plugin():
 
         # Regex initialization outside of for loop
         if ns_pattern:
-            pattern = (
-                '(?:%s$)' % '$|'.join(ns_pattern.split()).replace('*', '.*')
-                )
+            pattern = f"(?:{'$|'.join(ns_pattern.split()).replace('*', '.*')}$)"
         for ns in ns_list:
             # if ns_pattern defined, skip namespaces not matching the pattern
             if ns_pattern and not bool(re.match(pattern, ns)):
@@ -3587,10 +3570,8 @@ class SCLPlugin(RedHatPlugin):
     def convert_copyspec_scl(self, scl, copyspec):
         scl_prefix = self.policy.get_default_scl_prefix()
         for rootdir in ['etc', 'var']:
-            p = re.compile('^/%s/' % rootdir)
-            copyspec = os.path.abspath(p.sub('/%s/%s/%s/' %
-                                       (rootdir, scl_prefix, scl),
-                                       copyspec))
+            p = re.compile(f'^/{rootdir}/')
+            copyspec = os.path.abspath(p.sub(f'/{rootdir}/{scl_prefix}/{scl}/', copyspec))
         return copyspec
 
     def add_copy_spec_scl(self, scl, copyspecs):
@@ -3612,7 +3593,7 @@ def import_plugin(name, superclasses=None):
     module. superclasses should be a tuple of valid superclasses to import,
     this defaults to (Plugin,).
     """
-    plugin_fqname = "sos.report.plugins.%s" % name
+    plugin_fqname = f"sos.report.plugins.{name}"
     if not superclasses:
         superclasses = (Plugin,)
     return import_module(plugin_fqname, superclasses)

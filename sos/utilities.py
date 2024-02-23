@@ -88,7 +88,7 @@ def fileobj(path_or_file, mode='r'):
             return open(path_or_file, mode)
         except IOError:
             log = logging.getLogger('sos')
-            log.debug("fileobj: %s could not be opened" % path_or_file)
+            log.debug(f"fileobj: {path_or_file} could not be opened")
             return closing(io.StringIO())
     else:
         return closing(path_or_file)

@@ -30,17 +30,11 @@ class OpenStackTrove(Plugin):
                 "/var/log/trove/*.log",
             ])
 
-        self.add_copy_spec([
-            '/etc/trove/',
-            self.var_puppet_gen + '/etc/trove/'
-        ])
+        self.add_copy_spec(['/etc/trove/', f'{self.var_puppet_gen}/etc/trove/'])
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/trove/*", regexp, subst)
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/trove/*",
-            regexp, subst
-        )
+        self.do_path_regex_sub(f"{self.var_puppet_gen}/etc/trove/*", regexp, subst)
 
     def postproc(self):
         protect_keys = [

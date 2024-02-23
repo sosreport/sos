@@ -52,9 +52,9 @@ class IprConfig(Plugin, IndependentPlugin):
                     devices.append(temp[0])
 
         for device in devices:
-            self.add_cmd_output("iprconfig -c show-details %s" % device)
-            self.add_cmd_output("iprconfig -c show-battery-info %s" % device)
-            self.add_cmd_output("iprconfig -c show-perf %s" % device)
+            self.add_cmd_output(f"iprconfig -c show-details {device}")
+            self.add_cmd_output(f"iprconfig -c show-battery-info {device}")
+            self.add_cmd_output(f"iprconfig -c show-perf {device}")
 
         # Look for IBM Power RAID enclosures (iprconfig lists them)
         show_config = self.collect_cmd_output("iprconfig -c show-config")

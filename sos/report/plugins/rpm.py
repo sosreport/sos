@@ -33,7 +33,7 @@ class Rpm(Plugin, RedHatPlugin):
             rpmq = "rpm --nodigest -qa --qf=%s"
             # basic installed-rpms
             nvra = '"%-59{NVRA} %{INSTALLTIME:date}\n"'
-            irpms = "sh -c '%s | sort -V'" % rpmq % nvra
+            irpms = f"sh -c '{rpmq} | sort -V'" % nvra
 
             self.add_cmd_output(irpms, root_symlink='installed-rpms',
                                 tags='installed_rpms')

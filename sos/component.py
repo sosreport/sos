@@ -108,8 +108,8 @@ class SoSComponent():
             self.manifest = SoSMetadata()
 
             if not os.path.isdir(tmpdir) \
-                    or not os.access(tmpdir, os.W_OK):
-                msg = "temporary directory %s " % tmpdir
+                        or not os.access(tmpdir, os.W_OK):
+                msg = f"temporary directory {tmpdir} "
                 msg += "does not exist or is not writable\n"
                 # write directly to stderr as logging is not initialised yet
                 sys.stderr.write(msg)
@@ -175,7 +175,7 @@ class SoSComponent():
         # no standard library method exists for this, so call out to stat to
         # avoid bringing in a dependency on psutil
         self.tmpfstype = shell_out(
-            "stat --file-system --format=%s %s" % ("%T", tmpdir)
+            f'stat --file-system --format={"%T"} {tmpdir}'
         ).strip()
 
         if self.tmpfstype == 'tmpfs':

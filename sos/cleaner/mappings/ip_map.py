@@ -156,7 +156,7 @@ class SoSIPMap(SoSMap):
                 if not self.ip_in_dataset(_ip):
                     # the ipaddress module does not assign the network's
                     # netmask to hosts in the hosts() generator for some reason
-                    return "%s/%s" % (str(_ip), _obf_network.prefixlen)
+                    return f"{str(_ip)}/{_obf_network.prefixlen}"
 
         # ip is a single ip address without the netmask
         return self._new_obfuscated_single_address()
@@ -187,11 +187,9 @@ class SoSIPMap(SoSMap):
         if isinstance(network, ipaddress.IPv4Network):
             if self.network_first_octet in self.skip_network_octets:
                 self.network_first_octet += 1
-            _obf_address = "%s.0.0.0" % self.network_first_octet
+            _obf_address = f"{self.network_first_octet}.0.0.0"
             _obf_mask = network.with_netmask.split('/')[1]
-            _obf_network = ipaddress.IPv4Network(
-                "%s/%s" % (_obf_address, _obf_mask)
-            )
+            _obf_network = ipaddress.IPv4Network(f"{_obf_address}/{_obf_mask}")
             self.network_first_octet += 1
 
         if isinstance(network, ipaddress.IPv6Network):

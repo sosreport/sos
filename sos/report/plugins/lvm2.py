@@ -79,30 +79,30 @@ class Lvm2(Plugin, IndependentPlugin):
             lvm_opts = '--config="global{metadata_read_only=1}" --nolocking'
         else:
             lvm_opts = '--config="global{locking_type=0 metadata_read_only=1}"'
-        lvm_opts_foreign = lvm_opts + ' --foreign'
+        lvm_opts_foreign = f'{lvm_opts} --foreign'
 
         self.add_cmd_output(
-            "vgdisplay -vv %s" % lvm_opts_foreign,
-            root_symlink="vgdisplay", tags="vgdisplay"
+            f"vgdisplay -vv {lvm_opts_foreign}",
+            root_symlink="vgdisplay",
+            tags="vgdisplay",
         )
 
         pvs_cols = 'pv_mda_free,pv_mda_size,pv_mda_count,pv_mda_used_count'
-        pvs_cols = pvs_cols + ',' + 'pe_start'
+        pvs_cols = f'{pvs_cols},pe_start'
         vgs_cols = 'vg_mda_count,vg_mda_free,vg_mda_size,vg_mda_used_count'
-        vgs_cols = vgs_cols + ',' + 'vg_tags,systemid'
+        vgs_cols = f'{vgs_cols},vg_tags,systemid'
         lvs_cols = ('lv_tags,devices,lv_kernel_read_ahead,lv_read_ahead,'
                     'stripes,stripesize')
-        self.add_cmd_output("lvs -a -o +%s %s" % (lvs_cols, lvm_opts_foreign),
-                            tags="lvs_headings")
         self.add_cmd_output(
-            "pvs -a -v -o +%s %s" % (pvs_cols, lvm_opts_foreign),
-            tags="pvs_headings")
-        self.add_cmd_output("vgs -v -o +%s %s" % (vgs_cols, lvm_opts_foreign),
-                            tags="vgs_headings")
-        self.add_cmd_output([
-            "pvscan -v %s" % lvm_opts,
-            "vgscan -vvv %s" % lvm_opts
-        ])
+            f"lvs -a -o +{lvs_cols} {lvm_opts_foreign}", tags="lvs_headings"
+        )
+        self.add_cmd_output(
+            f"pvs -a -v -o +{pvs_cols} {lvm_opts_foreign}", tags="pvs_headings"
+        )
+        self.add_cmd_output(
+            f"vgs -v -o +{vgs_cols} {lvm_opts_foreign}", tags="vgs_headings"
+        )
+        self.add_cmd_output([f"pvscan -v {lvm_opts}", f"vgscan -vvv {lvm_opts}"])
 
         self.add_copy_spec("/etc/lvm")
         self.add_copy_spec("/run/lvm")

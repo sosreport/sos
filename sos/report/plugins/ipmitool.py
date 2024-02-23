@@ -33,18 +33,20 @@ class IpmiTool(Plugin, RedHatPlugin, DebianPlugin):
         # raw 0x30 0x65: Get HDD drive Fault LED State
         # raw 0x30 0xb0: Get LED Status
 
-        self.add_cmd_output([
-            "%s raw 0x30 0x65" % cmd,
-            "%s raw 0x30 0xb0" % cmd,
-            "%s sel info" % cmd,
-            "%s sel elist" % cmd,
-            "%s sel list -v" % cmd,
-            "%s sensor list" % cmd,
-            "%s chassis status" % cmd,
-            "%s lan print" % cmd,
-            "%s fru print" % cmd,
-            "%s mc info" % cmd,
-            "%s sdr info" % cmd
-        ])
+        self.add_cmd_output(
+            [
+                f"{cmd} raw 0x30 0x65",
+                f"{cmd} raw 0x30 0xb0",
+                f"{cmd} sel info",
+                f"{cmd} sel elist",
+                f"{cmd} sel list -v",
+                f"{cmd} sensor list",
+                f"{cmd} chassis status",
+                f"{cmd} lan print",
+                f"{cmd} fru print",
+                f"{cmd} mc info",
+                f"{cmd} sdr info",
+            ]
+        )
 
 # vim: set et ts=4 sw=4 :

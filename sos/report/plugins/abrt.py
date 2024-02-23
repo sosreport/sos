@@ -32,8 +32,7 @@ class Abrt(Plugin, RedHatPlugin):
         if self.get_option("detailed") and abrt_list['status'] == 0:
             for line in abrt_list["output"].splitlines():
                 if line.startswith("Directory"):
-                    self.add_cmd_output("abrt-cli info -d '%s'"
-                                        % line.split()[1])
+                    self.add_cmd_output(f"abrt-cli info -d '{line.split()[1]}'")
 
         self.add_copy_spec([
             "/etc/abrt/abrt.conf",

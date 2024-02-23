@@ -65,10 +65,7 @@ class SoSObfuscationArchive():
         self.is_extracted = False
         self._load_self()
         self.archive_root = ''
-        self.log_info(
-            "Loaded %s as type %s"
-            % (self.archive_path, self.description)
-        )
+        self.log_info(f"Loaded {self.archive_path} as type {self.description}")
 
     @classmethod
     def check_is_type(cls, arc_path):
@@ -110,10 +107,10 @@ class SoSObfuscationArchive():
 
     def report_msg(self, msg):
         """Helper to easily format ui messages on a per-report basis"""
-        self.ui_log.info(f"{self.ui_name + ' :':<50} {msg}")
+        self.ui_log.info(f"{f'{self.ui_name} :':<50} {msg}")
 
     def _fmt_log_msg(self, msg):
-        return "[cleaner:%s] %s" % (self.archive_name, msg)
+        return f"[cleaner:{self.archive_name}] {msg}"
 
     def log_debug(self, msg):
         self.soslog.debug(self._fmt_log_msg(msg))
@@ -149,7 +146,7 @@ class SoSObfuscationArchive():
         full_fname = self.get_file_path(fname)
         # don't call a blank remove() here
         if full_fname:
-            self.log_info("Removing binary file '%s' from archive" % fname)
+            self.log_info(f"Removing binary file '{fname}' from archive")
             os.remove(full_fname)
             self.removed_file_count += 1
 
@@ -175,9 +172,7 @@ class SoSObfuscationArchive():
             try:
                 return self.tarobj.extractfile(filename).read().decode('utf-8')
             except KeyError:
-                self.log_debug(
-                    "Unable to retrieve %s: no such file in archive" % fname
-                )
+                self.log_debug(f"Unable to retrieve {fname}: no such file in archive")
                 return ''
         else:
             try:
@@ -216,13 +211,12 @@ class SoSObfuscationArchive():
                         if (not os.access(fname, os.R_OK) or not
                                 os.access(fname, os.W_OK)):
                             self.log_debug(
-                                "Adding owner rw permissions to %s"
-                                % fname.split(self.archive_path)[-1]
+                                f"Adding owner rw permissions to {fname.split(self.archive_path)[-1]}"
                             )
                             os.chmod(fname, stat.S_IRUSR | stat.S_IWUSR)
                 except Exception as err:
-                    self.log_debug("Error while trying to set perms: %s" % err)
-        self.log_debug("Extracted path is %s" % self.extracted_path)
+                    self.log_debug(f"Error while trying to set perms: {err}")
+        self.log_debug(f"Extracted path is {self.extracted_path}")
 
     def rename_top_dir(self, new_name):
         """Rename the top-level directory to new_name, which should be an
@@ -249,16 +243,16 @@ class SoSObfuscationArchive():
         """Pack the extracted archive as a tarfile to then be re-compressed
         """
         mode = 'w'
-        tarpath = self.extracted_path + '-obfuscated.tar'
+        tarpath = f'{self.extracted_path}-obfuscated.tar'
         compr_args = {}
         if method:
-            mode += ":%s" % method
-            tarpath += ".%s" % method
+            mode += f":{method}"
+            tarpath += f".{method}"
             if method == 'xz':
                 compr_args = {'preset': 3}
             else:
                 compr_args = {'compresslevel': 6}
-        self.log_debug("Building tar file %s" % tarpath)
+        self.log_debug(f"Building tar file {tarpath}")
         tar = tarfile.open(tarpath, mode=mode, **compr_args)
         tar.add(self.extracted_path,
                 arcname=os.path.split(self.archive_name)[1])
@@ -272,13 +266,13 @@ class SoSObfuscationArchive():
         try:
             self.final_archive_path = self.build_tar_file(method)
         except Exception as err:
-            self.log_debug("Exception while re-compressing archive: %s" % err)
+            self.log_debug(f"Exception while re-compressing archive: {err}")
             raise
-        self.log_debug("Compressed to %s" % self.final_archive_path)
+        self.log_debug(f"Compressed to {self.final_archive_path}")
         try:
             self.remove_extracted_path()
         except Exception as err:
-            self.log_debug("Failed to remove extraction directory: %s" % err)
+            self.log_debug(f"Failed to remove extraction directory: {err}")
             self.report_msg('Failed to remove temporary extraction directory')
 
     def remove_extracted_path(self):
@@ -292,7 +286,8 @@ class SoSObfuscationArchive():
                 os.remove(name)
             else:
                 shutil.rmtree(name)
-        self.log_debug("Removing %s" % self.extracted_path)
+
+        self.log_debug(f"Removing {self.extracted_path}")
         shutil.rmtree(self.extracted_path, onerror=force_delete_file)
 
     def extract_self(self):

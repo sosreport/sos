@@ -35,22 +35,22 @@ class QpidDispatch(Plugin, RedHatPlugin):
         """ performs data collection for qpid dispatch router """
         options = ""
         if self.get_option("port"):
-            options = (options + " -b " + gethostname() +
-                       ":%s" % (self.get_option("port")))
+            options = (f"{options} -b {gethostname()}" + f':{self.get_option("port")}')
         # gethostname() is due to DISPATCH-156
 
         # for either present option, add --option=value to 'options' variable
         for option in ["ssl-certificate", "ssl-key", "ssl-trustfile"]:
             if self.get_option(option):
-                options = (options + " --%s=" % (option) +
-                           self.get_option(option))
+                options = f"{options} --{option}={self.get_option(option)}"
 
-        self.add_cmd_output([
-            "qdstat -a" + options,  # Show Router Addresses
-            "qdstat -n" + options,  # Show Router Nodes
-            "qdstat -c" + options,  # Show Connections
-            "qdstat -m" + options   # Show Broker Memory Stats
-        ])
+        self.add_cmd_output(
+            [
+                f"qdstat -a{options}",
+                f"qdstat -n{options}",
+                f"qdstat -c{options}",
+                f"qdstat -m{options}",
+            ]
+        )
 
         self.add_copy_spec([
             "/etc/qpid-dispatch/qdrouterd.conf"

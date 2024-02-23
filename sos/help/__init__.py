@@ -76,7 +76,7 @@ class SoSHelper(SoSComponent):
         try:
             klass = self.get_obj_for_topic()
         except Exception as err:
-            print("Could not load help for '%s': %s" % (self.opts.topic, err))
+            print(f"Could not load help for '{self.opts.topic}': {err}")
             sys.exit(1)
 
         if klass:
@@ -85,9 +85,9 @@ class SoSHelper(SoSComponent):
                 klass.display_help(ht)
                 ht.display()
             except Exception as err:
-                print("Error loading help: %s" % err)
+                print(f"Error loading help: {err}")
         else:
-            print("No help section found for '%s'" % self.opts.topic)
+            print(f"No help section found for '{self.opts.topic}'")
 
     def get_obj_for_topic(self):
         """Based on the help topic we're after, try to smartly decide which
@@ -106,7 +106,7 @@ class SoSHelper(SoSComponent):
         cls = None
 
         if self.opts.topic in static_map:
-            mod = importlib.import_module('sos.' + self.opts.topic)
+            mod = importlib.import_module(f'sos.{self.opts.topic}')
             cls = getattr(mod, static_map[self.opts.topic])
         else:
             _help = {
@@ -139,7 +139,7 @@ class SoSHelper(SoSComponent):
         return None
 
     def _get_plugin_variant(self):
-        mod = importlib.import_module('sos.' + self.opts.topic)
+        mod = importlib.import_module(f'sos.{self.opts.topic}')
         self.load_local_policy()
         mems = inspect.getmembers(mod, inspect.isclass)
         plugins = [m[1] for m in mems if issubclass(m[1], Plugin)]

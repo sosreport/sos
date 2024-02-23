@@ -62,7 +62,7 @@ class ovirt(Cluster):
         Wrapper for running DB queries on the manager. Any scrubbing of the
         query should be done _before_ passing the query to this method.
         '''
-        cmd = "%s %s" % (self.db_exec, quote(query))
+        cmd = f"{self.db_exec} {quote(query)}"
         return self.exec_primary_cmd(cmd, need_root=True)
 
     def _sql_scrub(self, val):
@@ -118,7 +118,7 @@ class ovirt(Cluster):
             # 1 - Contending (SPM election in progress, but is not SPM)
             # 2 - SPM
             self.dbquery += ' AND spm_status = 2'
-        self.log_debug('Query command for ovirt DB set to: %s' % self.dbquery)
+        self.log_debug(f'Query command for ovirt DB set to: {self.dbquery}')
 
     def get_nodes(self):
         if self.get_option('no-hypervisors'):
@@ -128,8 +128,7 @@ class ovirt(Cluster):
             nodes = res['output'].splitlines()[2:-1]
             return [n.split('(')[0].strip() for n in nodes]
         else:
-            raise Exception('database query failed, return code: %s'
-                            % res['status'])
+            raise Exception(f"database query failed, return code: {res['status']}")
 
     def run_extra_cmd(self):
         if not self.get_option('no-database') and self.conf:
@@ -139,7 +138,7 @@ class ovirt(Cluster):
     def parse_db_conf(self):
         conf = {}
         engconf = '/etc/ovirt-engine/engine.conf.d/10-setup-database.conf'
-        res = self.exec_primary_cmd('cat %s' % engconf, need_root=True)
+        res = self.exec_primary_cmd(f'cat {engconf}', need_root=True)
         if res['status'] == 0:
             config = res['output'].splitlines()
             for line in config:

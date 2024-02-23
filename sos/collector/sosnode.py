@@ -84,7 +84,7 @@ class SosNode():
         try:
             self._transport.connect(self._password)
         except Exception as err:
-            self.log_error('Unable to open remote session: %s' % err)
+            self.log_error(f'Unable to open remote session: {err}')
             raise
         # load the host policy now, even if we don't want to load further
         # host information. This is necessary if we're running locally on the
@@ -128,8 +128,7 @@ class SosNode():
             return TRANSPORTS[self.opts.transport](self.address, commons)
         elif self.opts.transport != 'auto':
             self.log_error(
-                "Connection failed: unknown or unsupported transport %s"
-                % self.opts.transport
+                f"Connection failed: unknown or unsupported transport {self.opts.transport}"
             )
             raise InvalidTransportException(self.opts.transport)
         return SSHControlPersist(self.address, commons)
@@ -202,16 +201,13 @@ class SosNode():
                 ret = self.run_command(self.host.restart_sos_container(),
                                        need_root=True)
                 if ret['status'] == 0:
-                    self.log_info("Temporary container %s created"
-                                  % self.host.sos_container_name)
+                    self.log_info(f"Temporary container {self.host.sos_container_name} created")
                     return True
                 else:
-                    self.log_error("Could not start container after create: %s"
-                                   % ret['output'])
+                    self.log_error(f"Could not start container after create: {ret['output']}")
                     raise Exception
             else:
-                self.log_error("Could not create container on host: %s"
-                               % res['output'])
+                self.log_error(f"Could not create container on host: {res['output']}")
                 raise Exception
         return False
 
@@ -232,7 +228,7 @@ class SosNode():
     def file_exists(self, fname, need_root=False):
         """Checks for the presence of fname on the remote node"""
         try:
-            res = self.run_command("stat %s" % fname, need_root=need_root)
+            res = self.run_command(f"stat {fname}", need_root=need_root)
             return res['status'] == 0
         except Exception:
             return False
@@ -256,20 +252,20 @@ class SosNode():
     def log_info(self, msg):
         """Used to print and log info messages"""
         caller = inspect.stack()[1][3]
-        lmsg = '[%s:%s] %s' % (self._hostname, caller, msg)
+        lmsg = f'[{self._hostname}:{caller}] {msg}'
         self.soslog.info(lmsg)
 
     def log_error(self, msg):
         """Used to print and log error messages"""
         caller = inspect.stack()[1][3]
-        lmsg = '[%s:%s] %s' % (self._hostname, caller, msg)
+        lmsg = f'[{self._hostname}:{caller}] {msg}'
         self.soslog.error(lmsg)
 
     def log_debug(self, msg):
         """Used to print and log debug messages"""
         msg = self._sanitize_log_msg(msg)
         caller = inspect.stack()[1][3]
-        msg = '[%s:%s] %s' % (self._hostname, caller, msg)
+        msg = f'[{self._hostname}:{caller}] {msg}'
         self.soslog.debug(msg)
 
     def _format_cmd(self, cmd):
@@ -277,9 +273,9 @@ class SosNode():
         here we prefix the command with the correct bits
         """
         if self.opts.become_root:
-            return "su -c %s" % quote(cmd)
+            return f"su -c {quote(cmd)}"
         if self.need_sudo:
-            return "sudo -S %s" % cmd
+            return f"sudo -S {cmd}"
         return cmd
 
     def _load_sos_info(self):
@@ -307,14 +303,14 @@ class SosNode():
                 # comparison by parse_version
                 ver += '.0'
             try:
-                ver += '-%s' % rel.split('.')[0]
+                ver += f"-{rel.split('.')[0]}"
             except Exception as err:
-                self.log_debug("Unable to fully parse sos release: %s" % err)
+                self.log_debug(f"Unable to fully parse sos release: {err}")
 
         self.sos_info['version'] = ver
 
         if self.sos_info['version']:
-            self.log_info('sos version is %s' % self.sos_info['version'])
+            self.log_info(f"sos version is {self.sos_info['version']}")
         else:
             if not self.address == self.opts.primary:
                 # in the case where the 'primary' enumerates nodes but is not
@@ -326,7 +322,7 @@ class SosNode():
         # sos-4.0 changes the binary
         if self.check_sos_version('4.0'):
             self.sos_bin = 'sos report'
-        cmd = "%s -l" % self.sos_bin
+        cmd = f"{self.sos_bin} -l"
         sosinfo = self.run_command(cmd, use_container=True, need_root=True)
         if sosinfo['status'] == 0:
             self._load_sos_plugins(sosinfo['output'])
@@ -335,7 +331,7 @@ class SosNode():
         return None
 
     def _load_sos_presets(self):
-        cmd = '%s --list-presets' % self.sos_bin
+        cmd = f'{self.sos_bin} --list-presets'
         res = self.run_command(cmd, use_container=True, need_root=True)
         if res['status'] == 0:
             for line in res['output'].splitlines():
@@ -350,10 +346,10 @@ class SosNode():
         OPTIONS = 'The following plugin options are available:'
         PROFILES = 'Profiles:'
 
-        enablereg = ENABLED + '(.*?)' + DISABLED
-        disreg = DISABLED + '(.*?)' + ALL_OPTIONS
-        optreg = OPTIONS + '(.*?)' + PROFILES
-        proreg = PROFILES + '(.*?)' + '\n\n'
+        enablereg = f'{ENABLED}(.*?){DISABLED}'
+        disreg = f'{DISABLED}(.*?){ALL_OPTIONS}'
+        optreg = f'{OPTIONS}(.*?){PROFILES}'
+        proreg = f'{PROFILES}(.*?)' + '\n\n'
 
         self.sos_info['enabled'] = self._regex_sos_help(enablereg, sosinfo)
         self.sos_info['disabled'] = self._regex_sos_help(disreg, sosinfo)
@@ -377,10 +373,10 @@ class SosNode():
     def read_file(self, to_read):
         """Reads the specified file and returns the contents"""
         try:
-            self.log_info("Reading file %s" % to_read)
+            self.log_info(f"Reading file {to_read}")
             return self._transport.read_file(to_read)
         except Exception as err:
-            self.log_error("Exception while reading %s: %s" % (to_read, err))
+            self.log_error(f"Exception while reading {to_read}: {err}")
             return ''
 
     def determine_host_policy(self):
@@ -388,15 +384,14 @@ class SosNode():
         distributions
         """
         if self.local:
-            self.log_info("using local policy %s"
-                          % self.commons['policy'].distro)
+            self.log_info(f"using local policy {self.commons['policy'].distro}")
             return self.commons['policy']
         host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
                     probe_runtime=True,
                     remote_exec=self._transport.run_command,
                     remote_check=self.read_file('/etc/os-release'))
         if host:
-            self.log_info("loaded policy %s for host" % host.distro)
+            self.log_info(f"loaded policy {host.distro} for host")
             return host
         self.log_error('Unable to determine host installation. Ignoring node')
         raise UnsupportedHostException
@@ -424,7 +419,7 @@ class SosNode():
 
                 return _fver + _rel
             except Exception as err:
-                self.log_debug("Unable to format '%s': %s" % (ver, err))
+                self.log_debug(f"Unable to format '{ver}': {err}")
                 return ver
 
         _ver = _format_version(ver)
@@ -434,7 +429,7 @@ class SosNode():
             _test_ver = parse_version(_ver)
             return _node_ver >= _test_ver
         except Exception as err:
-            self.log_error("Error checking sos version: %s" % err)
+            self.log_error(f"Error checking sos version: {err}")
             return False
 
     def is_installed(self, pkg):
@@ -471,7 +466,7 @@ class SosNode():
                     self.log_debug('Failed to reconnect to node')
                     raise ConnectionException
             except Exception as err:
-                self.log_debug("Error while trying to reconnect: %s" % err)
+                self.log_debug(f"Error while trying to reconnect: {err}")
                 raise
         if use_container and self.host.containerized:
             cmd = self.host.format_container_command(cmd)
@@ -571,8 +566,7 @@ class SosNode():
         if self.cluster.sos_plugin_options:
             for opt in self.cluster.sos_plugin_options:
                 if not any(opt in o for o in self.plugopts):
-                    option = '%s=%s' % (opt,
-                                        self.cluster.sos_plugin_options[opt])
+                    option = f'{opt}={self.cluster.sos_plugin_options[opt]}'
                     self.plugopts.append(option)
 
         # set primary-only options
@@ -600,7 +594,7 @@ class SosNode():
         sos_cmd = self.sos_info['sos_cmd']
         label = self.determine_sos_label()
         if label:
-            sos_cmd = '%s %s ' % (sos_cmd, quote(label))
+            sos_cmd = f'{sos_cmd} {quote(label)} '
 
         sos_opts = []
 
@@ -608,13 +602,12 @@ class SosNode():
         if self.check_sos_version('3.6'):
             # 4 threads is the project's default
             if self.opts.threads != 4:
-                sos_opts.append('--threads=%s' % quote(str(self.opts.threads)))
+                sos_opts.append(f'--threads={quote(str(self.opts.threads))}')
 
         # sos-3.7 added options
         if self.check_sos_version('3.7'):
             if self.opts.plugin_timeout:
-                sos_opts.append('--plugin-timeout=%s'
-                                % quote(str(self.opts.plugin_timeout)))
+                sos_opts.append(f'--plugin-timeout={quote(str(self.opts.plugin_timeout))}')
 
         # sos-3.8 added options
         if self.check_sos_version('3.8'):
@@ -625,34 +618,24 @@ class SosNode():
                 sos_opts.append('--no-env-vars')
 
             if self.opts.since:
-                sos_opts.append('--since=%s' % quote(self.opts.since))
+                sos_opts.append(f'--since={quote(self.opts.since)}')
 
         if self.check_sos_version('4.1'):
             if self.opts.skip_commands:
-                sos_opts.append(
-                    '--skip-commands=%s' % (
-                        quote(','.join(self.opts.skip_commands)))
-                )
+                sos_opts.append(f"--skip-commands={quote(','.join(self.opts.skip_commands))}")
             if self.opts.skip_files:
-                sos_opts.append(
-                    '--skip-files=%s' % (quote(','.join(self.opts.skip_files)))
-                )
+                sos_opts.append(f"--skip-files={quote(','.join(self.opts.skip_files))}")
 
         if self.check_sos_version('4.2'):
             if self.opts.cmd_timeout:
-                sos_opts.append('--cmd-timeout=%s'
-                                % quote(str(self.opts.cmd_timeout)))
+                sos_opts.append(f'--cmd-timeout={quote(str(self.opts.cmd_timeout))}')
 
         # handle downstream versions that backported this option
         if self.check_sos_version('4.3') or self.check_sos_version('4.2-13'):
             if self.opts.container_runtime != 'auto':
-                sos_opts.append(
-                    "--container-runtime=%s" % self.opts.container_runtime
-                )
+                sos_opts.append(f"--container-runtime={self.opts.container_runtime}")
             if self.opts.namespaces:
-                sos_opts.append(
-                    "--namespaces=%s" % self.opts.namespaces
-                )
+                sos_opts.append(f"--namespaces={self.opts.namespaces}")
 
         if self.check_sos_version('4.5.2'):
             if self.opts.journal_size:
@@ -676,11 +659,11 @@ class SosNode():
                     if self._plugin_exists(o.split('.')[0])
                     and self._plugin_option_exists(o.split('=')[0])]
             if opts:
-                sos_opts.append('-k %s' % quote(','.join(o for o in opts)))
+                sos_opts.append(f"-k {quote(','.join(o for o in opts))}")
 
         if self.preset:
             if self._preset_exists(self.preset):
-                sos_opts.append('--preset=%s' % quote(self.preset))
+                sos_opts.append(f'--preset={quote(self.preset)}')
             else:
                 self.log_debug('Requested to enable preset %s but preset does '
                                'not exist on node' % self.preset)
@@ -693,9 +676,9 @@ class SosNode():
                                'enabled but do not exist' % not_only)
             only = self._fmt_sos_opt_list(self.only_plugins)
             if only:
-                sos_opts.append('--only-plugins=%s' % quote(only))
-            self.sos_cmd = "%s %s" % (sos_cmd, ' '.join(sos_opts))
-            self.log_info('Final sos command set to %s' % self.sos_cmd)
+                sos_opts.append(f'--only-plugins={quote(only)}')
+            self.sos_cmd = f"{sos_cmd} {' '.join(sos_opts)}"
+            self.log_info(f'Final sos command set to {self.sos_cmd}')
             self.manifest.add_field('final_sos_command', self.sos_cmd)
             return
 
@@ -708,7 +691,7 @@ class SosNode():
                                'already not enabled' % not_skip)
             skipln = self._fmt_sos_opt_list(skip)
             if skipln:
-                sos_opts.append('--skip-plugins=%s' % quote(skipln))
+                sos_opts.append(f'--skip-plugins={quote(skipln)}')
 
         if self.enable_plugins:
             # only run enable for plugins that are disabled
@@ -721,10 +704,10 @@ class SosNode():
                                'are already enabled or do not exist' % not_on)
             enable = self._fmt_sos_opt_list(opts)
             if enable:
-                sos_opts.append('--enable-plugins=%s' % quote(enable))
+                sos_opts.append(f'--enable-plugins={quote(enable)}')
 
-        self.sos_cmd = "%s %s" % (sos_cmd, ' '.join(sos_opts))
-        self.log_info('Final sos command set to %s' % self.sos_cmd)
+        self.sos_cmd = f"{sos_cmd} {' '.join(sos_opts)}"
+        self.log_info(f'Final sos command set to {self.sos_cmd}')
         self.manifest.add_field('final_sos_command', self.sos_cmd)
 
     def determine_sos_label(self):
@@ -733,19 +716,18 @@ class SosNode():
         label += self.cluster.get_node_label(self)
 
         if self.opts.label:
-            label += ('%s' % self.opts.label if not label
-                      else '-%s' % self.opts.label)
+            label += f'{self.opts.label}' if not label else f'-{self.opts.label}'
 
         if not label:
             return None
 
-        self.log_debug('Label for sos report set to %s' % label)
+        self.log_debug(f'Label for sos report set to {label}')
         if self.check_sos_version('3.6'):
             lcmd = '--label'
         else:
             lcmd = '--name'
-            label = '%s-%s' % (self.address.split('.')[0], label)
-        return '%s=%s' % (lcmd, label)
+            label = f"{self.address.split('.')[0]}-{label}"
+        return f'{lcmd}={label}'
 
     def finalize_sos_path(self, path):
         """Use host facts to determine if we need to change the sos path
@@ -754,7 +736,7 @@ class SosNode():
         if pstrip:
             path = path.replace(pstrip, '')
         path = path.split()[0]
-        self.log_info('Final sos path: %s' % path)
+        self.log_info(f'Final sos path: {path}')
         self.sos_path = path
         self.archive = path.split('/')[-1]
         self.manifest.add_field('collected_archive', self.archive)
@@ -770,7 +752,7 @@ class SosNode():
         if len(stdout) > 0:
             return stdout.split('\n')[0:1]
         else:
-            return 'sos exited with code %s' % rc
+            return f'sos exited with code {rc}'
 
     def execute_sos_command(self):
         """Run sos report and capture the resulting file path"""
@@ -805,8 +787,9 @@ class SosNode():
                     self.manifest.add_field('checksum_type', 'unknown')
             else:
                 err = self.determine_sos_error(res['status'], res['output'])
-                self.log_debug("Error running sos report. rc = %s msg = %s"
-                               % (res['status'], res['output']))
+                self.log_debug(
+                    f"Error running sos report. rc = {res['status']} msg = {res['output']}"
+                )
                 raise Exception(err)
             return path
         except CommandTimeoutException:
@@ -819,19 +802,18 @@ class SosNode():
 
     def retrieve_file(self, path):
         """Copies the specified file from the host to our temp dir"""
-        destdir = self.tmpdir + '/'
+        destdir = f'{self.tmpdir}/'
         dest = os.path.join(destdir, path.split('/')[-1])
         try:
             if self.file_exists(path):
-                self.log_info("Copying remote %s to local %s" %
-                              (path, destdir))
+                self.log_info(f"Copying remote {path} to local {destdir}")
                 return self._transport.retrieve_file(path, dest)
             else:
                 self.log_debug("Attempting to copy remote file %s, but it "
                                "does not exist on filesystem" % path)
                 return False
         except Exception as err:
-            self.log_debug("Failed to retrieve %s: %s" % (path, err))
+            self.log_debug(f"Failed to retrieve {path}: {err}")
             return False
 
     def remove_file(self, path):
@@ -845,8 +827,8 @@ class SosNode():
                                "incorrect and possibly dangerous" % path)
                 return False
             if self.file_exists(path):
-                self.log_info("Removing file %s" % path)
-                cmd = "rm -f %s" % path
+                self.log_info(f"Removing file {path}")
+                cmd = f"rm -f {path}"
                 res = self.run_command(cmd, need_root=True)
                 return res['status'] == 0
             else:
@@ -854,7 +836,7 @@ class SosNode():
                                "does not exist on filesystem" % path)
                 return False
         except Exception as e:
-            self.log_debug('Failed to remove %s: %s' % (path, e))
+            self.log_debug(f'Failed to remove {path}: {e}')
             return False
 
     def retrieve_sosreport(self):
@@ -866,7 +848,7 @@ class SosNode():
                 except Exception:
                     self.log_error('Failed to make archive readable')
                     return False
-            self.log_info('Retrieving sos report from %s' % self.address)
+            self.log_info(f'Retrieving sos report from {self.address}')
             self.ui_msg('Retrieving sos report...')
             try:
                 ret = self.retrieve_file(self.sos_path)
@@ -886,9 +868,8 @@ class SosNode():
                 e = self.stderr.read()
             else:
                 e = [x.strip() for x in self.stdout.readlines() if x.strip][-1]
-            self.soslog.error(
-                'Failed to run sos report on %s: %s' % (self.address, e))
-            self.log_error('Failed to run sos report. %s' % e)
+            self.soslog.error(f'Failed to run sos report on {self.address}: {e}')
+            self.log_error(f'Failed to run sos report. {e}')
             return False
 
     def remove_sos_archive(self):
@@ -925,18 +906,17 @@ class SosNode():
                     try:
                         self.make_archive_readable(filename)
                     except Exception as err:
-                        self.log_error("Unable to retrieve file %s" % filename)
-                        self.log_debug("Failed to make file %s readable: %s"
-                                       % (filename, err))
+                        self.log_error(f"Unable to retrieve file {filename}")
+                        self.log_debug(f"Failed to make file {filename} readable: {err}")
                         continue
                 ret = self.retrieve_file(filename)
                 if ret:
                     self.file_list.append(filename.split('/')[-1])
                     self.remove_file(filename)
                 else:
-                    self.log_error("Unable to retrieve file %s" % filename)
+                    self.log_error(f"Unable to retrieve file {filename}")
             except Exception as e:
-                msg = 'Error collecting additional data from primary: %s' % e
+                msg = f'Error collecting additional data from primary: {e}'
                 self.log_error(msg)
 
     def make_archive_readable(self, filepath):
@@ -945,7 +925,7 @@ class SosNode():
 
         This is only used when we're not connecting as root.
         """
-        cmd = 'chmod o+r %s' % filepath
+        cmd = f'chmod o+r {filepath}'
         res = self.run_command(cmd, timeout=10, need_root=True)
         if res['status'] == 0:
             return True

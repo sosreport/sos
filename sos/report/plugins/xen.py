@@ -94,6 +94,6 @@ class Xen(Plugin, RedHatPlugin):
             # for bare-metal, we don't have to do anything special
             return  # USEFUL
 
-        self.add_custom_text("Xen hostType: "+host_type)
+        self.add_custom_text(f"Xen hostType: {host_type}")
 
 # vim: set et ts=4 sw=4 :

@@ -21,10 +21,12 @@ class OpenDaylight(Plugin, RedHatPlugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/opendaylight"
 
     def setup(self):
-        self.add_copy_spec([
-            "/opt/opendaylight/etc/",
-            self.var_puppet_gen + "/opt/opendaylight/etc/",
-        ])
+        self.add_copy_spec(
+            [
+                "/opt/opendaylight/etc/",
+                f"{self.var_puppet_gen}/opt/opendaylight/etc/",
+            ]
+        )
 
         if self.get_option("all_logs"):
 

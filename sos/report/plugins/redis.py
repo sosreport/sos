@@ -24,12 +24,14 @@ class Redis(Plugin, SCLPlugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/redis"
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/redis.conf",
-            self.var_puppet_gen + "/etc/redis*",
-            self.var_puppet_gen + "/etc/redis/",
-            self.var_puppet_gen + "/etc/security/limits.d/"
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/redis.conf",
+                f"{self.var_puppet_gen}/etc/redis*",
+                f"{self.var_puppet_gen}/etc/redis/",
+                f"{self.var_puppet_gen}/etc/security/limits.d/",
+            ]
+        )
 
         for pkg in self.packages[1:]:
             scl = pkg.split('rh-redis*-')[0]
@@ -53,14 +55,11 @@ class Redis(Plugin, SCLPlugin):
             ])
 
     def postproc(self):
-        for path in ["/etc/",
-                     self.var_puppet_gen + "/etc/",
-                     "/etc/opt/rh/rh-redis32/",
-                     "/etc/opt/rh/rh-redis5/"]:
+        for path in ["/etc/", f"{self.var_puppet_gen}/etc/", "/etc/opt/rh/rh-redis32/", "/etc/opt/rh/rh-redis5/"]:
             self.do_file_sub(
-                path + "redis.conf",
+                f"{path}redis.conf",
                 r"(masterauth|requirepass)\s.*",
-                r"\1 ********"
+                r"\1 ********",
             )
 
 # vim: set et ts=4 sw=4 :

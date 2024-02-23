@@ -22,20 +22,14 @@ class Qaucli(Plugin, IndependentPlugin):
         subcmds = ['-c', '-g', '-pr fc -z', '-t']
 
         for subcmd in subcmds:
-            self.add_cmd_output(
-                "%s %s" % (cmd, subcmd),
-                suggest_filename="qaucli_%s" % subcmd)
+            self.add_cmd_output(f"{cmd} {subcmd}", suggest_filename=f"qaucli_{subcmd}")
 
-        result = self.collect_cmd_output(
-                     "%s -i" % cmd,
-                     suggest_filename="qaucli_-i")
+        result = self.collect_cmd_output(f"{cmd} -i", suggest_filename="qaucli_-i")
 
         if result['status'] == 0:
             for line in result['output'].splitlines():
                 if "HBA Instance" in line:
                     hba = line.split(':')[1].strip()
-                    self.add_cmd_output(
-                        "%s -l %s" % (cmd, hba),
-                        suggest_filename="qaucli_-l_%s" % hba)
+                    self.add_cmd_output(f"{cmd} -l {hba}", suggest_filename=f"qaucli_-l_{hba}")
 
 # vim: set et ts=4 sw=4 :

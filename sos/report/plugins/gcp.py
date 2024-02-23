@@ -91,8 +91,7 @@ class GCP(Plugin, IndependentPlugin):
             req = request.Request(url, headers={'Metadata-Flavor': 'Google'})
             response = request.urlopen(req)
         except URLError as err:
-            raise RuntimeError(
-                "Failed to communicate with Metadata Server: " + str(err))
+            raise RuntimeError(f"Failed to communicate with Metadata Server: {str(err)}")
         if response.code != 200:
             raise RuntimeError(
                 f"Failed to communicate with Metadata Server "

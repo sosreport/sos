@@ -29,7 +29,7 @@ class Kpatch(Plugin, RedHatPlugin):
             if not re.match(r"^kpatch-.*\(.*\)", patch):
                 continue
             (module, version) = patch.split()
-            self.add_cmd_output("kpatch info " + module)
+            self.add_cmd_output(f"kpatch info {module}")
 
 
 # vim: set et ts=4 sw=4 :

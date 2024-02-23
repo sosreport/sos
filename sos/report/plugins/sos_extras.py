@@ -47,19 +47,18 @@ class SosExtras(Plugin, IndependentPlugin):
         try:
             st = os.stat(self.extras_dir)
             if (st.st_uid != 0) or (st.st_mode & stat.S_IWGRP) or \
-               (st.st_mode & stat.S_IWOTH):
+                   (st.st_mode & stat.S_IWOTH):
                 self._log_warn("Skipping sos extras as %s has too wide"
                                " permissions or ownership." % self.extras_dir)
                 return
         except OSError:
-            self._log_warn("can't stat %s, skipping sos extras" %
-                           self.extras_dir)
+            self._log_warn(f"can't stat {self.extras_dir}, skipping sos extras")
             return
 
         for path, dirlist, filelist in os.walk(self.extras_dir):
             for f in filelist:
                 _file = self.path_join(path, f)
-                self._log_warn("Collecting data from extras file %s" % _file)
+                self._log_warn(f"Collecting data from extras file {_file}")
                 try:
                     with open(_file, 'r') as sfile:
                         for line in sfile.read().splitlines():
@@ -86,6 +85,6 @@ class SosExtras(Plugin, IndependentPlugin):
                                 self.add_cmd_output(line, subdir=f)
 
                 except IOError:
-                    self._log_warn("unable to read extras file %s" % _file)
+                    self._log_warn(f"unable to read extras file {_file}")
 
 # vim: set et ts=4 sw=4 :

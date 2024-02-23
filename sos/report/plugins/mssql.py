@@ -58,8 +58,7 @@ class MsSQL(Plugin, RedHatPlugin):
                         if section == '[network]':
                             kerberoskeytabfile = words[1].strip()
         except IOError as ex:
-            self._log_error('Could not open conf file %s: %s' %
-                            (mssql_conf, ex))
+            self._log_error(f'Could not open conf file {mssql_conf}: {ex}')
             return
 
         # Collect AD authentication configuratoin
@@ -67,23 +66,19 @@ class MsSQL(Plugin, RedHatPlugin):
                       ' but not found in %s' % kerberoskeytabfile)
         if kerberoskeytabfile is not None:
             if self.path_isfile(kerberoskeytabfile):
-                self.add_cmd_output('ls -l %s' % kerberoskeytabfile)
-                self.add_cmd_output('klist -e -k %s' % kerberoskeytabfile)
+                self.add_cmd_output(f'ls -l {kerberoskeytabfile}')
+                self.add_cmd_output(f'klist -e -k {kerberoskeytabfile}')
             else:
                 self._log_error(keytab_err)
 
         # Expecting mssql_conf doesn't includeno sensitive information.
-        self.add_copy_spec([
-            mssql_conf,
-            errorlogfile + '/*',
-            sqlagent_errorlogfile
-        ])
+        self.add_copy_spec([mssql_conf, f'{errorlogfile}/*', sqlagent_errorlogfile])
 
         if not self.get_option('all_logs'):
-            self.add_copy_spec(errorlogfile + '/*')
+            self.add_copy_spec(f'{errorlogfile}/*')
             self.add_copy_spec(sqlagent_errorlogfile)
         else:
-            self.add_copy_spec(errorlogfile + '/*')
+            self.add_copy_spec(f'{errorlogfile}/*')
             self.add_copy_spec(sqlagent_errorlogfile)
 
         self.add_journal(units=['mssql-server'])

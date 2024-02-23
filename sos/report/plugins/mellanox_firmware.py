@@ -86,7 +86,7 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
             0000:08:00.0 Ethernet controller: Mellanox Technologies MT2892
             Family
             """
-            devices.append(line[0:8]+'00.0')
+            devices.append(f'{line[0:8]}00.0')
 
         devices = set(devices)
 

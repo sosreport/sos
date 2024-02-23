@@ -46,8 +46,8 @@ class OpenStackCinder(Plugin):
         # collect commands output if the standalone, wsgi or container is up
         if in_ps or in_container:
             self.add_cmd_output(
-                "cinder-manage " + cinder_config + " db version",
-                suggest_filename="cinder_db_version"
+                f"cinder-manage {cinder_config} db version",
+                suggest_filename="cinder_db_version",
             )
             self.add_cmd_output(
                 f"cinder-manage {cinder_config} backup list"
@@ -111,15 +111,17 @@ class OpenStackCinder(Plugin):
                         self.add_cmd_output(cmd)
 
         self.add_forbidden_path('/etc/cinder/volumes')
-        self.add_copy_spec([
-            "/etc/cinder/",
-            self.var_puppet_gen + "/etc/cinder/",
-            self.var_puppet_gen + "/etc/httpd/conf/",
-            self.var_puppet_gen + "/etc/httpd/conf.d/",
-            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
-            self.var_puppet_gen + "/etc/sysconfig/",
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/cinder/",
+                f"{self.var_puppet_gen}/etc/cinder/",
+                f"{self.var_puppet_gen}/etc/httpd/conf/",
+                f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
+                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+                f"{self.var_puppet_gen}/etc/sysconfig/",
+            ]
+        )
 
         if self.get_option("all_logs"):
             self.add_copy_spec([
@@ -134,10 +136,7 @@ class OpenStackCinder(Plugin):
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/cinder/*", regexp, subst)
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/cinder/*",
-            regexp, subst
-        )
+        self.do_path_regex_sub(f"{self.var_puppet_gen}/etc/cinder/*", regexp, subst)
 
     def postproc(self):
         protect_keys = [

@@ -36,11 +36,13 @@ class OpenStackGlance(Plugin):
                 "/var/log/glance/*.log",
             ])
 
-        self.add_copy_spec([
-            "/etc/glance/",
-            self.var_puppet_gen + "/etc/glance/",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/glance/",
+                f"{self.var_puppet_gen}/etc/glance/",
+                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+            ]
+        )
 
         # collect commands output only if the openstack-glance-api service
         # is running
@@ -50,12 +52,11 @@ class OpenStackGlance(Plugin):
             glance_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
-                glance_config = "--config-dir " + self.var_puppet_gen + \
-                                "/etc/glance/"
+                glance_config = f"--config-dir {self.var_puppet_gen}/etc/glance/"
 
             self.add_cmd_output(
-                "glance-manage " + glance_config + " db_version",
-                suggest_filename="glance_db_version"
+                f"glance-manage {glance_config} db_version",
+                suggest_filename="glance_db_version",
             )
 
             vars_all = [p in os.environ for p in [
@@ -90,10 +91,7 @@ class OpenStackGlance(Plugin):
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/glance/*", regexp, subst)
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/glance/*",
-            regexp, subst
-        )
+        self.do_path_regex_sub(f"{self.var_puppet_gen}/etc/glance/*", regexp, subst)
 
     def postproc(self):
         protect_keys = [

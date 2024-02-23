@@ -47,8 +47,8 @@ class DirectoryServer(Plugin, RedHatPlugin):
             for d in self.listdir("/etc/dirsrv"):
                 if d[0:5] == 'slapd':
                     certpath = self.path_join("/etc/dirsrv", d)
-                    self.add_cmd_output("certutil -L -d %s" % certpath)
-                    self.add_cmd_output("dsctl %s healthcheck" % d)
+                    self.add_cmd_output(f"certutil -L -d {certpath}")
+                    self.add_cmd_output(f"dsctl {d} healthcheck")
         except OSError:
             self._log_warn("could not list /etc/dirsrv")
 

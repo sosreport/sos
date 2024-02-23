@@ -43,10 +43,11 @@ class LibvirtClient(Plugin, IndependentPlugin):
         ]
 
         for subcmd in subcmds:
-            self.add_cmd_output('%s %s' % (cmd, subcmd), foreground=True)
+            self.add_cmd_output(f'{cmd} {subcmd}', foreground=True)
 
-        self.add_cmd_output("%s list --all" % cmd,
-                            tags="virsh_list_all", foreground=True)
+        self.add_cmd_output(
+            f"{cmd} list --all", tags="virsh_list_all", foreground=True
+        )
 
         # get network, pool and nwfilter elements
         for k in ['net', 'nwfilter', 'pool']:
@@ -63,19 +64,17 @@ class LibvirtClient(Plugin, IndependentPlugin):
                     continue
                 for j in filter(lambda x: x, k_lines[2:]):
                     n = j.split()[pos]
-                    self.add_cmd_output('%s %s-dumpxml %s' % (cmd, k, n),
-                                        foreground=True)
+                    self.add_cmd_output(f'{cmd} {k}-dumpxml {n}', foreground=True)
 
         # cycle through the VMs/domains list, ignore 2 header lines and latest
         # empty line, and dumpxml domain name in 2nd column
-        domains_output = self.exec_cmd('%s list --all' % cmd, foreground=True)
+        domains_output = self.exec_cmd(f'{cmd} list --all', foreground=True)
         if domains_output['status'] == 0:
             domains_lines = domains_output['output'].splitlines()[2:]
             for domain in filter(lambda x: x, domains_lines):
                 d = domain.split()[1]
                 for x in ['dumpxml', 'dominfo', 'domblklist']:
-                    self.add_cmd_output('%s %s %s' % (cmd, x, d),
-                                        foreground=True)
+                    self.add_cmd_output(f'{cmd} {x} {d}', foreground=True)
 
         nodedev_output = self.exec_cmd(f"{cmd} nodedev-list", foreground=True)
         if nodedev_output['status'] == 0:

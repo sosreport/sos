@@ -42,8 +42,7 @@ class Vault(Plugin, UbuntuPlugin):
                         self.add_cmd_output("vault status",
                                             env={'VAULT_ADDR': api_addr})
         except IOError as error:
-            self._log_error('Could not open conf file %s: %s' %
-                            (vault_cfg, error))
+            self._log_error(f'Could not open conf file {vault_cfg}: {error}')
 
     def postproc(self):
         self.do_file_sub(

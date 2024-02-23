@@ -53,9 +53,9 @@ class Pulp(Plugin, RedHatPlugin):
                     self.dbhost = uri[0]
                     self.dbport = uri[1]
                 if match(r"\s*username:\s+\S+", line):
-                    self.dbuser = "-u %s" % line.split()[1]
+                    self.dbuser = f"-u {line.split()[1]}"
                 if match(r"\s*password:\s+\S+", line):
-                    self.dbpassword = "-p %s" % line.split()[1]
+                    self.dbpassword = f"-p {line.split()[1]}"
                 if line.startswith("[messaging]"):
                     in_messaging_section = True
                 if in_messaging_section and line.startswith("certfile:"):
@@ -148,8 +148,7 @@ class Pulp(Plugin, RedHatPlugin):
 
     def build_mongo_cmd(self, query):
         _cmd = "bash -c %s"
-        _mondb = "--host %s --port %s %s %s" % (self.dbhost, self.dbport,
-                                                self.dbuser, self.dbpassword)
+        _mondb = f"--host {self.dbhost} --port {self.dbport} {self.dbuser} {self.dbpassword}"
         _moncmd = "mongo pulp_database %s --eval %s"
         return _cmd % quote(_moncmd % (_mondb, query))
 

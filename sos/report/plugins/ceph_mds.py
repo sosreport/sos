@@ -79,7 +79,7 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
                 if len(proc) < 6:
                     continue
                 if proc[4] == '--id' and "ceph-mds" in proc[0]:
-                    mds_ids.append("mds.%s" % proc[5])
+                    mds_ids.append(f"mds.{proc[5]}")
 
         # If containerized, run commands in containers
         try:
@@ -87,10 +87,14 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
         except Exception:
             cname = None
 
-        self.add_cmd_output([
-            "ceph daemon %s %s"
-            % (mdsid, cmd) for mdsid in mds_ids for cmd in ceph_cmds
-        ], container=cname)
+        self.add_cmd_output(
+            [
+                f"ceph daemon {mdsid} {cmd}"
+                for mdsid in mds_ids
+                for cmd in ceph_cmds
+            ],
+            container=cname,
+        )
 
 
 # vim: set et ts=4 sw=4 :

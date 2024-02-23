@@ -55,17 +55,9 @@ class PostgreSQL(Plugin):
                     os.environ["PGPASSWORD"] = self.get_option("password")
 
                 if self.get_option("dbhost"):
-                    cmd = "pg_dump -U %s -h %s -p %s -w -F t %s" % (
-                        self.get_option("username"),
-                        self.get_option("dbhost"),
-                        self.get_option("dbport"),
-                        self.get_option("dbname")
-                    )
+                    cmd = f'pg_dump -U {self.get_option("username")} -h {self.get_option("dbhost")} -p {self.get_option("dbport")} -w -F t {self.get_option("dbname")}'
                 else:
-                    cmd = "pg_dump -C -U %s -w -F t %s " % (
-                        self.get_option("username"),
-                        self.get_option("dbname")
-                    )
+                    cmd = f'pg_dump -C -U {self.get_option("username")} -w -F t {self.get_option("dbname")} '
 
                 if scl is not None:
                     cmd = self.convert_cmd_scl(scl, cmd)
@@ -82,7 +74,7 @@ class PostgreSQL(Plugin):
 
     def setup(self):
         self.do_pg_dump()
-        self.add_cmd_output("du -sh %s" % self.get_option('pghome'))
+        self.add_cmd_output(f"du -sh {self.get_option('pghome')}")
 
 
 class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
@@ -108,10 +100,10 @@ class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
             _dir = self.convert_copyspec_scl(scl, pghome)
             dirs.append(_dir)
             if self.path_isdir(_dir):
-                self.add_cmd_output("du -sh %s" % _dir)
+                self.add_cmd_output(f"du -sh {_dir}")
             if (self.is_service_running(pkg.replace('-server', '')) and
                     scl in self.scls_matched):
-                self.do_pg_dump(scl=scl, filename="pgdump-scl-%s.tar" % scl)
+                self.do_pg_dump(scl=scl, filename=f"pgdump-scl-{scl}.tar")
 
         for _dir in dirs:
             # Copy PostgreSQL log files.

@@ -29,7 +29,7 @@ class OVNCentral(Plugin):
     def _find_sock(self, path, regex_name):
         _sfile = os.path.join(path, regex_name)
         if self._container_name:
-            res = self.exec_cmd("ls %s" % path, container=self._container_name)
+            res = self.exec_cmd(f"ls {path}", container=self._container_name)
             if res['status'] != 0 or '\n' not in res['output']:
                 self._log_error(
                     "Could not retrieve ovn_controller socket path "
@@ -45,7 +45,7 @@ class OVNCentral(Plugin):
 
     def get_tables_from_schema(self, filename, skip=[]):
         if self._container_name:
-            cmd = "cat %s" % filename
+            cmd = f"cat {filename}"
             res = self.exec_cmd(cmd, timeout=None, foreground=True,
                                 container=self._container_name)
             if res['status'] != 0:
@@ -55,7 +55,7 @@ class OVNCentral(Plugin):
             try:
                 db = json.loads(res['output'])
             except Exception:
-                self._log_error("Cannot parse JSON file %s" % filename)
+                self._log_error(f"Cannot parse JSON file {filename}")
                 return None
         else:
             try:
@@ -63,25 +63,23 @@ class OVNCentral(Plugin):
                     try:
                         db = json.load(f)
                     except Exception:
-                        self._log_error(
-                            "Cannot parse JSON file %s" % filename)
+                        self._log_error(f"Cannot parse JSON file {filename}")
                         return None
             except IOError as ex:
-                self._log_error(
-                    "Could not open DB schema file %s: %s" % (filename, ex))
+                self._log_error(f"Could not open DB schema file {filename}: {ex}")
                 return None
         try:
             return [table for table in dict.keys(
                 db['tables']) if table not in skip]
         except AttributeError:
-            self._log_error("DB schema %s has no 'tables' key" % filename)
+            self._log_error(f"DB schema {filename} has no 'tables' key")
         return None
 
     def add_database_output(self, tables, cmds, ovn_cmd):
         if not tables:
             return
         for table in tables:
-            cmds.append('%s list %s' % (ovn_cmd, table))
+            cmds.append(f'{ovn_cmd} list {table}')
 
     def setup(self):
         # check if env is a clustered or non-clustered one
@@ -178,8 +176,7 @@ class OVNCentral(Plugin):
                 dbfilepath = self.path_join(path, dbfile)
                 if os.path.exists(dbfilepath):
                     self.add_copy_spec(dbfilepath)
-                    self.add_cmd_output(
-                        "ls -lan %s" % dbfilepath, foreground=True)
+                    self.add_cmd_output(f"ls -lan {dbfilepath}", foreground=True)
             if ovs_dbdir:
                 self.add_copy_spec(self.path_join(ovs_dbdir, dbfile))
 

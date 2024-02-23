@@ -98,8 +98,7 @@ class Slurm(Plugin, UbuntuPlugin, RedHatPlugin):
                     if words[0].strip() == 'SlurmctldLogFile':
                         slurmctld_log_file = words[1].strip()
         except IOError as error:
-            self._log_error('Could not open conf file %s: %s' %
-                            (config_file, error))
+            self._log_error(f'Could not open conf file {config_file}: {error}')
 
         if not self.get_option("all_logs"):
             self.add_copy_spec([

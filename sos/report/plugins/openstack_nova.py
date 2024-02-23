@@ -39,24 +39,23 @@ class OpenStackNova(Plugin):
             nova_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
-                nova_config = "--config-dir " + self.var_puppet_gen + \
-                                "/etc/nova/"
+                nova_config = f"--config-dir {self.var_puppet_gen}/etc/nova/"
 
             self.add_cmd_output(
-                "nova-manage " + nova_config + " db version",
-                suggest_filename="nova-manage_db_version"
+                f"nova-manage {nova_config} db version",
+                suggest_filename="nova-manage_db_version",
             )
             self.add_cmd_output(
-                "nova-manage " + nova_config + " fixed list",
-                suggest_filename="nova-manage_fixed_list"
+                f"nova-manage {nova_config} fixed list",
+                suggest_filename="nova-manage_fixed_list",
             )
             self.add_cmd_output(
-                "nova-manage " + nova_config + " floating list",
-                suggest_filename="nova-manage_floating_list"
+                f"nova-manage {nova_config} floating list",
+                suggest_filename="nova-manage_floating_list",
             )
             self.add_cmd_output(
-                "nova-status " + nova_config + " upgrade check",
-                suggest_filename="nova-status_upgrade_check"
+                f"nova-status {nova_config} upgrade check",
+                suggest_filename="nova-status_upgrade_check",
             )
 
             vars_all = [p in os.environ for p in [
@@ -126,24 +125,23 @@ class OpenStackNova(Plugin):
         specs = [
             "/etc/nova/",
             "authorized_keys",
-            self.var_puppet_gen + "/../memcached/etc/sysconfig/memcached",
-            self.var_puppet_gen + "/var/spool/cron/nova",
-            self.var_puppet_gen + "_libvirt/etc/libvirt/",
-            self.var_puppet_gen + "_libvirt/etc/nova/migration/",
-            self.var_puppet_gen + "_libvirt/var/lib/nova/.ssh/config"
+            f"{self.var_puppet_gen}/../memcached/etc/sysconfig/memcached",
+            f"{self.var_puppet_gen}/var/spool/cron/nova",
+            f"{self.var_puppet_gen}_libvirt/etc/libvirt/",
+            f"{self.var_puppet_gen}_libvirt/etc/nova/migration/",
+            f"{self.var_puppet_gen}_libvirt/var/lib/nova/.ssh/config",
         ] + list(
-            filter(re.compile('^((?!libvirt.+httpd).)*$').match,
-                   ['%s%s%s' % (
-                       self.var_puppet_gen, p, s) for p in pp for s in sp
-                    ]))
+            filter(
+                re.compile('^((?!libvirt.+httpd).)*$').match,
+                [f'{self.var_puppet_gen}{p}{s}' for p in pp for s in sp],
+            )
+        )
         self.add_copy_spec(specs)
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/nova/*", regexp, subst)
         for p in ['', '_libvirt', '_metadata', '_placement']:
-            self.do_path_regex_sub(
-                "%s%s/etc/nova/*" % (self.var_puppet_gen, p),
-                regexp, subst)
+            self.do_path_regex_sub(f"{self.var_puppet_gen}{p}/etc/nova/*", regexp, subst)
 
     def postproc(self):
         protect_keys = [

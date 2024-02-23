@@ -123,8 +123,7 @@ class Openshift(Plugin, RedHatPlugin):
                 return True
 
             self._log_warn(
-                "The login command failed with status: %s and error: %s"
-                % (oc_res['status'], oc_res['output'])
+                f"The login command failed with status: {oc_res['status']} and error: {oc_res['output']}"
             )
             return False
 
@@ -251,7 +250,7 @@ class Openshift(Plugin, RedHatPlugin):
             self.collect_cluster_resources()
 
             # get all namespaces, as data collection will be organized by that
-            _nm_res = self.collect_cmd_output("%s namespaces" % self.oc_cmd)
+            _nm_res = self.collect_cmd_output(f"{self.oc_cmd} namespaces")
             if _nm_res['status'] == 0:
                 nsps = [
                     n.split()[0] for n in _nm_res['output'].splitlines()[1:]
@@ -286,15 +285,16 @@ class Openshift(Plugin, RedHatPlugin):
         ]
 
         for resource in global_resources:
-            _subdir = "cluster_resources/%s" % resource
-            _tag = ["ocp_%s" % resource]
-            _res = self.collect_cmd_output("%s %s" % (self.oc_cmd, resource),
-                                           subdir=_subdir, tags=_tag)
+            _subdir = f"cluster_resources/{resource}"
+            _tag = [f"ocp_{resource}"]
+            _res = self.collect_cmd_output(
+                f"{self.oc_cmd} {resource}", subdir=_subdir, tags=_tag
+            )
             if _res['status'] == 0:
                 for _res_name in _res['output'].splitlines()[1:]:
                     self.add_cmd_output(
-                        "oc describe %s %s" % (resource, _res_name.split()[0]),
-                        subdir=_subdir
+                        f"oc describe {resource} {_res_name.split()[0]}",
+                        subdir=_subdir,
                     )
 
     def collect_from_namespace(self, namespace):
@@ -341,20 +341,15 @@ class Openshift(Plugin, RedHatPlugin):
         ]
 
         # save to namespace-specific subdirs to keep the plugin dir organized
-        subdir = "namespaces/%s" % namespace
+        subdir = f"namespaces/{namespace}"
 
         # namespace-specific non-resource collections
-        self.add_cmd_output("oc describe namespace %s" % namespace,
-                            subdir=subdir)
+        self.add_cmd_output(f"oc describe namespace {namespace}", subdir=subdir)
 
         for res in resources:
-            _subdir = "%s/%s" % (subdir, res)
-            _tags = [
-                "ocp_%s" % res,
-                "ocp_%s_%s" % (namespace, res),
-                namespace
-            ]
-            _get_cmd = "%s --namespace=%s %s" % (self.oc_cmd, namespace, res)
+            _subdir = f"{subdir}/{res}"
+            _tags = [f"ocp_{res}", f"ocp_{namespace}_{res}", namespace]
+            _get_cmd = f"{self.oc_cmd} --namespace={namespace} {res}"
             # get the 'normal' output first
             _res_out = self.collect_cmd_output(
                 _get_cmd,
@@ -368,9 +363,9 @@ class Openshift(Plugin, RedHatPlugin):
                 for _instance in _instances:
                     _instance_name = _instance.split()[0]
                     self.add_cmd_output(
-                        "%s %s -o yaml" % (_get_cmd, _instance_name),
+                        f"{_get_cmd} {_instance_name} -o yaml",
                         subdir=_subdir,
-                        suggest_filename="%s.yaml" % _instance_name
+                        suggest_filename=f"{_instance_name}.yaml",
                     )
                 # check for podlogs here as a slight optimization to re-running
                 # 'oc get pods' on all namespaces
@@ -384,7 +379,7 @@ class Openshift(Plugin, RedHatPlugin):
 
             :param pod_list list:       A list of pod names
         """
-        _log_dir = "namespaces/%s/pods/podlogs" % namespace
+        _log_dir = f"namespaces/{namespace}/pods/podlogs"
 
         if self.get_option('podlogs-filter'):
             # this allows shell-style regex which is more commonly known by
@@ -396,11 +391,8 @@ class Openshift(Plugin, RedHatPlugin):
         for pod in pod_list:
             if regex and not re.match(regex, pod):
                 continue
-            _log_cmd = "oc logs --namespace=%s %s" % (namespace, pod)
-            self.add_cmd_output([
-                _log_cmd,
-                _log_cmd + " -p"
-            ], subdir=_log_dir)
+            _log_cmd = f"oc logs --namespace={namespace} {pod}"
+            self.add_cmd_output([_log_cmd, f"{_log_cmd} -p"], subdir=_log_dir)
 
     def postproc(self):
 

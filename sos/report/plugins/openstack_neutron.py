@@ -32,12 +32,14 @@ class OpenStackNeutron(Plugin):
                 "/var/log/neutron/*.log",
             ])
 
-        self.add_copy_spec([
-            "/etc/neutron/",
-            self.var_puppet_gen + "/etc/neutron/",
-            self.var_puppet_gen + "/etc/default/neutron-server",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/neutron/",
+                f"{self.var_puppet_gen}/etc/neutron/",
+                f"{self.var_puppet_gen}/etc/default/neutron-server",
+                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+            ]
+        )
         # copy whole /var/lib/neutron except for potentially huge lock subdir;
         # rather take a list of files in the dir only
         self.add_copy_spec("/var/lib/neutron/")
@@ -83,10 +85,7 @@ class OpenStackNeutron(Plugin):
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/neutron/*", regexp, subst)
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/neutron/*",
-            regexp, subst
-        )
+        self.do_path_regex_sub(f"{self.var_puppet_gen}/etc/neutron/*", regexp, subst)
 
     def postproc(self):
         protect_keys = [
@@ -142,11 +141,13 @@ class RedHatNeutron(OpenStackNeutron, RedHatPlugin):
 
     def setup(self):
         super(RedHatNeutron, self).setup()
-        self.add_copy_spec([
-            "/etc/sudoers.d/neutron-rootwrap",
-            self.var_ansible_gen + "/neutron-dhcp-agent/",
-            self.var_ansible_gen + "/neutron-dhcp-ovn/",
-            self.var_ansible_gen + "/neutron-sriov-agent/"
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/sudoers.d/neutron-rootwrap",
+                f"{self.var_ansible_gen}/neutron-dhcp-agent/",
+                f"{self.var_ansible_gen}/neutron-dhcp-ovn/",
+                f"{self.var_ansible_gen}/neutron-sriov-agent/",
+            ]
+        )
 
 # vim: set et ts=4 sw=4 :

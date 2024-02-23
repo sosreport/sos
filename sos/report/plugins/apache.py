@@ -59,9 +59,9 @@ class Apache(Plugin):
             'placement',
             'pulp'
         ]
-        self.add_forbidden_path([
-            "/var/log/%s*/%s*" % (self.apachepkg, sub) for sub in subdirs
-        ])
+        self.add_forbidden_path(
+            [f"/var/log/{self.apachepkg}*/{sub}*" for sub in subdirs]
+        )
 
 
 class RedHatApache(Apache, RedHatPlugin):
@@ -97,7 +97,7 @@ class RedHatApache(Apache, RedHatPlugin):
 
         # Extrapolate all top-level config directories for each version, and
         # relevant config files within each
-        etcdirs = ["/etc/httpd%s" % ver for ver in vers]
+        etcdirs = [f"/etc/httpd{ver}" for ver in vers]
         confs = [
             "conf/*.conf",
             "conf.d/*.conf",
@@ -106,7 +106,7 @@ class RedHatApache(Apache, RedHatPlugin):
 
         # Extrapolate top-level logging directories for each version, and the
         # relevant log files within each
-        logdirs = ["/var/log/httpd%s" % ver for ver in vers]
+        logdirs = [f"/var/log/httpd{ver}" for ver in vers]
         logs = [
             "access_log",
             "error_log",
@@ -114,20 +114,18 @@ class RedHatApache(Apache, RedHatPlugin):
             "ssl_error_log"
         ]
 
-        self.add_forbidden_path([
-            "%s/conf/password.conf" % etc for etc in etcdirs
-        ])
+        self.add_forbidden_path([f"{etc}/conf/password.conf" for etc in etcdirs])
 
         for edir in etcdirs:
             for conf in confs:
-                self.add_copy_spec("%s/%s" % (edir, conf), tags="httpd_conf")
+                self.add_copy_spec(f"{edir}/{conf}", tags="httpd_conf")
 
         if self.get_option("log") or self.get_option("all_logs"):
             self.add_copy_spec(logdirs)
         else:
             for ldir in logdirs:
                 for log in logs:
-                    self.add_copy_spec("%s/%s" % (ldir, log))
+                    self.add_copy_spec(f"{ldir}/{log}")
 
         self.add_service_status('httpd', tags='systemctl_httpd')
 

@@ -29,10 +29,12 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
     files = (var_puppet_gen, )
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/haproxy/haproxy.cfg",
-            self.var_puppet_gen + "/etc/haproxy/haproxy.cfg"
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/haproxy/haproxy.cfg",
+                f"{self.var_puppet_gen}/etc/haproxy/haproxy.cfg",
+            ]
+        )
         self.add_copy_spec("/etc/haproxy/conf.d/*")
         self.add_cmd_output("haproxy -f /etc/haproxy/haproxy.cfg -c")
 
@@ -62,10 +64,12 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
             return
 
         # check if provision_ip contains port - if not, add default ":1993"
-        if urlparse("http://"+provision_ip).port is None:
-            provision_ip = provision_ip + ":1993"
+        if urlparse(f"http://{provision_ip}").port is None:
+            provision_ip = f"{provision_ip}:1993"
 
-        self.add_cmd_output("curl http://"+provision_ip+r"/\;csv",
-                            suggest_filename="haproxy_overview.txt")
+        self.add_cmd_output(
+            f"curl http://{provision_ip}" + r"/\;csv",
+            suggest_filename="haproxy_overview.txt",
+        )
 
 # vim: set et ts=4 sw=4 :

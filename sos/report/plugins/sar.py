@@ -58,7 +58,7 @@ class Sar(Plugin):
         try:
             dir_list = self.listdir(self.sa_path)
         except OSError:
-            self._log_warn("sar: could not list %s" % self.sa_path)
+            self._log_warn(f"sar: could not list {self.sa_path}")
             return
         sa_regex = re.compile(r"sa[\d]+")
         # find all the sa files that don't have an existing sar file
@@ -69,7 +69,7 @@ class Sar(Plugin):
         for fname in dir_list:
             if sa_regex.match(fname):
                 sa_data_path = self.path_join(self.sa_path, fname)
-                sar_filename = 'sar' + fname[2:]
+                sar_filename = f'sar{fname[2:]}'
                 if sar_filename not in dir_list:
                     # only collect sar output for the last 7 days by default
                     if not self.get_option('all_sar'):
@@ -85,10 +85,10 @@ class Sar(Plugin):
                                 % (sa_data_path, err)
                             )
                             continue
-                    sar_cmd = "sar -A -f %s" % sa_data_path
+                    sar_cmd = f"sar -A -f {sa_data_path}"
                     self.add_cmd_output(sar_cmd, sar_filename)
-                sadf_cmd = "sadf -x -- -A %s" % sa_data_path
-                self.add_cmd_output(sadf_cmd, "%s.xml" % fname)
+                sadf_cmd = f"sadf -x -- -A {sa_data_path}"
+                self.add_cmd_output(sadf_cmd, f"{fname}.xml")
 
 
 class RedHatSar(Sar, RedHatPlugin):

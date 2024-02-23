@@ -40,7 +40,7 @@ class Python(Plugin):
             # pip: /usr/bin/pip2.7 /usr/bin/pip3.6
             # where we must skip the first word
             for pip in pips['output'].split()[1:]:
-                self.add_cmd_output("%s list installed" % pip)
+                self.add_cmd_output(f"{pip} list installed")
 
 
 class UbuntuPython(Python, DebianPlugin, UbuntuPlugin):
@@ -105,8 +105,7 @@ class RedHatPython(Python, RedHatPlugin):
                                 'sha256': digest
                             })
                     except IOError:
-                        self._log_error("Unable to read python file at %s"
-                                        % filepath)
+                        self._log_error(f"Unable to read python file at {filepath}")
         return digests
 
 # vim: set et ts=4 sw=4 :

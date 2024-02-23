@@ -29,14 +29,16 @@ class OpenStackDesignate(Plugin):
         )
 
         # configs
-        self.add_copy_spec([
-            "/etc/designate/*",
-            self.var_puppet_gen + "/etc/designate/designate.conf",
-            self.var_puppet_gen + "/etc/designate/pools.yaml",
-            self.var_ansible_gen + "/designate/etc/designate/named.conf",
-            self.var_ansible_gen + "/designate/etc/designate/named/*",
-            self.var_ansible_gen + "/unbound/*"
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/designate/*",
+                f"{self.var_puppet_gen}/etc/designate/designate.conf",
+                f"{self.var_puppet_gen}/etc/designate/pools.yaml",
+                f"{self.var_ansible_gen}/designate/etc/designate/named.conf",
+                f"{self.var_ansible_gen}/designate/etc/designate/named/*",
+                f"{self.var_ansible_gen}/unbound/*",
+            ]
+        )
 
         # logs
         if self.get_option("all_logs"):
@@ -69,9 +71,7 @@ class OpenStackDesignate(Plugin):
         ]
 
         # commands
-        self.add_cmd_output([
-            'openstack %s --all-projects' % sub for sub in subcmds
-        ])
+        self.add_cmd_output([f'openstack {sub} --all-projects' for sub in subcmds])
 
         # get recordsets for each zone
         cmd = "openstack zone list -f value -c id"
@@ -80,8 +80,9 @@ class OpenStackDesignate(Plugin):
             for zone in ret['output'].splitlines():
                 zone = zone.split()[0]
                 self.add_cmd_output(
-                    "openstack recordset list --all-projects %s" % zone,
-                    subdir='recordset')
+                    f"openstack recordset list --all-projects {zone}",
+                    subdir='recordset',
+                )
 
     def postproc(self):
         protect_keys = [
@@ -93,8 +94,7 @@ class OpenStackDesignate(Plugin):
 
         self.do_path_regex_sub("/etc/designate/*", regexp, r"\1*********")
         self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/designate/*",
-            regexp, r"\1*********"
+            f"{self.var_puppet_gen}/etc/designate/*", regexp, r"\1*********"
         )
 
 

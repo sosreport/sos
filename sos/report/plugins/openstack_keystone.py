@@ -27,19 +27,21 @@ class OpenStackKeystone(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/keystone"
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/keystone/default_catalog.templates",
-            "/etc/keystone/keystone.conf",
-            "/etc/keystone/logging.conf",
-            "/etc/keystone/policy.json",
-            self.var_puppet_gen + "/etc/keystone/*.conf",
-            self.var_puppet_gen + "/etc/keystone/*.json",
-            self.var_puppet_gen + "/etc/httpd/conf/",
-            self.var_puppet_gen + "/etc/httpd/conf.d/",
-            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
-            self.var_puppet_gen + "/var/spool/cron/",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
-        ])
+        self.add_copy_spec(
+            [
+                "/etc/keystone/default_catalog.templates",
+                "/etc/keystone/keystone.conf",
+                "/etc/keystone/logging.conf",
+                "/etc/keystone/policy.json",
+                f"{self.var_puppet_gen}/etc/keystone/*.conf",
+                f"{self.var_puppet_gen}/etc/keystone/*.json",
+                f"{self.var_puppet_gen}/etc/httpd/conf/",
+                f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
+                f"{self.var_puppet_gen}/var/spool/cron/",
+                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+            ]
+        )
 
         if self.get_option("all_logs"):
             self.add_copy_spec([
@@ -59,7 +61,7 @@ class OpenStackKeystone(Plugin):
                 "identity domain_config_dir")
         self.domain_config_dir = exec_out['output']
         if exec_out['status'] != 0 or \
-                not (self.path_isdir(self.domain_config_dir)):
+                    not (self.path_isdir(self.domain_config_dir)):
             self.domain_config_dir = "/etc/keystone/domains"
         self.add_copy_spec(self.domain_config_dir)
 
@@ -84,10 +86,7 @@ class OpenStackKeystone(Plugin):
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/keystone/*", regexp, subst)
-        self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/keystone/*",
-            regexp, subst
-        )
+        self.do_path_regex_sub(f"{self.var_puppet_gen}/etc/keystone/*", regexp, subst)
 
     def postproc(self):
         protect_keys = [

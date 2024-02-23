@@ -65,10 +65,9 @@ class RedHatKDump(KDump, RedHatPlugin):
     def setup(self):
         super(RedHatKDump, self).setup()
 
-        initramfs_img = "/boot/initramfs-" + platform.release() \
-                        + "kdump.img"
+        initramfs_img = f"/boot/initramfs-{platform.release()}kdump.img"
         if self.path_exists(initramfs_img):
-            self.add_cmd_output("lsinitrd %s" % initramfs_img)
+            self.add_cmd_output(f"lsinitrd {initramfs_img}")
 
         self.add_copy_spec([
             "/etc/kdump.conf",
@@ -96,9 +95,9 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super(DebianKDump, self).setup()
 
-        initramfs_img = "/var/lib/kdump/initrd.img-" + platform.release()
+        initramfs_img = f"/var/lib/kdump/initrd.img-{platform.release()}"
         if self.path_exists(initramfs_img):
-            self.add_cmd_output("lsinitramfs -l %s" % initramfs_img)
+            self.add_cmd_output(f"lsinitramfs -l {initramfs_img}")
 
         self.add_cmd_output("kdump-config show")
 

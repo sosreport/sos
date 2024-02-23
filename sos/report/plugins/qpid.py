@@ -37,32 +37,35 @@ class Qpid(Plugin, RedHatPlugin):
         for option in ["ssl-certificate", "ssl-key"]:
             if self.get_option(option):
                 amqps_prefix = "amqps://"
-                options = (options + " --%s=" % (option) +
-                           self.get_option(option))
+                options = f"{options} --{option}={self.get_option(option)}"
         if self.get_option("port"):
-            options = (options + " -b " + amqps_prefix +
-                       "localhost:%s" % (self.get_option("port")))
+            options = (
+                f"{options} -b {amqps_prefix}"
+                + f'localhost:{self.get_option("port")}'
+            )
 
-        self.add_cmd_output([
-            "qpid-stat -g" + options,  # applies since 0.18 version
-            "qpid-stat -b" + options,  # applies to pre-0.18 versions
-            "qpid-stat -c" + options,
-            "qpid-stat -e" + options,
-            "qpid-stat -q" + options,
-            "qpid-stat -u" + options,
-            "qpid-stat -m" + options,  # applies since 0.18 version
-            "qpid-config exchanges" + options,
-            "qpid-config queues" + options,
-            "qpid-config exchanges -b" + options,  # applies to pre-0.18 vers.
-            "qpid-config queues -b" + options,  # applies to pre-0.18 versions
-            "qpid-config exchanges -r" + options,  # applies since 0.18 version
-            "qpid-config queues -r" + options,  # applies since 0.18 version
-            "qpid-route link list" + options,
-            "qpid-route route list" + options,
-            "qpid-cluster" + options,  # applies to pre-0.22 versions
-            "qpid-ha query" + options,  # applies since 0.22 version
-            "ls -lanR /var/lib/qpidd"
-        ])
+        self.add_cmd_output(
+            [
+                f"qpid-stat -g{options}",
+                f"qpid-stat -b{options}",
+                f"qpid-stat -c{options}",
+                f"qpid-stat -e{options}",
+                f"qpid-stat -q{options}",
+                f"qpid-stat -u{options}",
+                f"qpid-stat -m{options}",
+                f"qpid-config exchanges{options}",
+                f"qpid-config queues{options}",
+                f"qpid-config exchanges -b{options}",
+                f"qpid-config queues -b{options}",
+                f"qpid-config exchanges -r{options}",
+                f"qpid-config queues -r{options}",
+                f"qpid-route link list{options}",
+                f"qpid-route route list{options}",
+                f"qpid-cluster{options}",
+                f"qpid-ha query{options}",
+                "ls -lanR /var/lib/qpidd",
+            ]
+        )
 
         self.add_copy_spec([
             "/etc/qpidd.conf",  # applies to pre-0.22 versions
