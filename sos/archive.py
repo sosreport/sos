@@ -148,7 +148,9 @@ class FileCacheArchive(Archive):
         self._archive_root = os.path.join(tmpdir, name)
         with self._path_lock:
             os.makedirs(self._archive_root, 0o700)
-        self.log_info(f"initialised empty FileCacheArchive at '{self._archive_root}'")
+        self.log_info(
+            f"initialised empty FileCacheArchive at '{self._archive_root}'"
+        )
 
     def dest_path(self, name):
         if os.path.isabs(name):
@@ -244,7 +246,9 @@ class FileCacheArchive(Archive):
                     if os.path.isabs(target):
                         target = os.path.relpath(target, target_dir)
 
-                    self.log_debug(f"Making symlink '{abs_path}' -> '{target}'")
+                    self.log_debug(
+                        f"Making symlink '{abs_path}' -> '{target}'"
+                    )
                     os.symlink(target, abs_path)
                 else:
                     self.log_debug(f"Making directory {abs_path}")
@@ -294,8 +298,10 @@ class FileCacheArchive(Archive):
 
         # Check containing directory presence and path type
         if os.path.exists(dest_dir) and not os.path.isdir(dest_dir):
-            raise ValueError(f"path '{dest_dir}' exists and is not a directory")
-        elif not os.path.exists(dest_dir):
+            raise ValueError(
+                f"path '{dest_dir}' exists and is not a directory"
+            )
+        if not os.path.exists(dest_dir):
             src_dir = src if path_type == P_DIR else os.path.split(src)[0]
             self._make_leading_paths(src_dir)
 
@@ -373,7 +379,9 @@ class FileCacheArchive(Archive):
                         f.write(line)
                 file_name = "open file"
 
-            self.log_debug(f"added {file_name} to FileCacheArchive '{self._archive_root}'")
+            self.log_debug(
+                f"added {file_name} to FileCacheArchive '{self._archive_root}'"
+            )
 
     def add_string(self, content, dest, mode='w'):
         with self._path_lock:
@@ -392,7 +400,8 @@ class FileCacheArchive(Archive):
                 if os.path.exists(src):
                     self._copy_attributes(src, dest)
                 self.log_debug(
-                    f"added string at '{src}' to FileCacheArchive '{self._archive_root}'"
+                    f"added string at '{src}' to FileCacheArchive"
+                    f" '{self._archive_root}'"
                 )
 
     def add_binary(self, content, dest):
@@ -404,7 +413,8 @@ class FileCacheArchive(Archive):
             with codecs.open(dest, 'wb', encoding=None) as f:
                 f.write(content)
             self.log_debug(
-                f"added binary content at '{dest}' to archive '{self._archive_root}'"
+                f"added binary content at '{dest}' to archive"
+                f" '{self._archive_root}'"
             )
 
     def add_link(self, source, link_name):
@@ -417,14 +427,16 @@ class FileCacheArchive(Archive):
             if not os.path.lexists(dest):
                 os.symlink(source, dest)
                 self.log_debug(
-                    f"added symlink at '{dest}' to '{source}' in archive '{self._archive_root}'"
+                    f"added symlink at '{dest}' to '{source}' in archive"
+                    f" '{self._archive_root}'"
                 )
 
         # Follow-up must be outside the path lock: we recurse into
         # other monitor methods that will attempt to reacquire it.
 
         self.log_debug(
-            f"Link follow up: source={source} link_name={link_name} dest={dest}"
+            "Link follow up:"
+            f" source={source} link_name={link_name} dest={dest}"
         )
 
         source_dir = os.path.dirname(link_name)
@@ -464,9 +476,13 @@ class FileCacheArchive(Archive):
                 source = os.path.join(dest_dir, os.readlink(host_path_name))
                 source = os.path.relpath(source, dest_dir)
                 if is_loop(link_name, source):
-                    self.log_debug(f"Link '{link_name}' - '{source}' loops: skipping...")
+                    self.log_debug(
+                        f"Link '{link_name}' - '{source}' loops: skipping..."
+                    )
                     return
-                self.log_debug(f"Adding link {link_name} -> {source} for link follow up")
+                self.log_debug(
+                    f"Adding link {link_name} -> {source} for link follow up"
+                )
                 self.add_link(source, link_name)
             elif os.path.isdir(host_path_name):
                 self.log_debug(f"Adding dir {source} for link follow up")
@@ -475,7 +491,9 @@ class FileCacheArchive(Archive):
                 self.log_debug(f"Adding file {source} for link follow up")
                 self.add_file(host_path_name)
             else:
-                self.log_debug(f"No link follow up: source={source} link_name={link_name}")
+                self.log_debug(
+                    f"No link follow up: source={source} link_name={link_name}"
+                )
 
     def add_dir(self, path):
         """Create a directory in the archive.
@@ -522,7 +540,8 @@ class FileCacheArchive(Archive):
         """
         os.makedirs(os.path.join(self._archive_root, path), mode=mode)
         self.log_debug(
-            f"created directory at '{path}' in FileCacheArchive '{self._archive_root}'"
+            f"created directory at '{path}' in FileCacheArchive"
+            f" '{self._archive_root}'"
         )
 
     def open_file(self, path):
@@ -595,7 +614,8 @@ class FileCacheArchive(Archive):
 
     def finalize(self, method):
         self.log_info(
-            f"finalizing archive '{self._archive_root}' using method '{method}'"
+            f"finalizing archive '{self._archive_root}' using method"
+            f" '{method}'"
         )
         try:
             res = self._build_archive(method)
@@ -733,7 +753,9 @@ class TarFileArchive(FileCacheArchive):
             kwargs = {'compresslevel': 6}
         else:
             kwargs = {'preset': 3}
-        tar = tarfile.open(self._archive_name, mode=f"w:{_comp_mode}", **kwargs)
+        tar = tarfile.open(
+            self._archive_name, mode=f"w:{_comp_mode}", **kwargs
+        )
         # add commonly reviewed files first, so that they can be more easily
         # read from memory without needing to extract the whole archive
         for _content in ['version.txt', 'sos_reports', 'sos_logs']:

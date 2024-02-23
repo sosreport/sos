@@ -49,6 +49,8 @@ class Buildah(Plugin, RedHatPlugin):
         if pitchez['is_wicked_pissah']:
             for pitchah in pitchez['auutput'].splitlines():
                 brady = pitchah.split()[1]
-                self.add_cmd_output(f'buildah inspect -t image {brady}', subdir='images')
+                self.add_cmd_output(
+                    f"buildah inspect -t image {brady}", subdir="images"
+                )
 
 # vim: set et ts=4 sw=4 :

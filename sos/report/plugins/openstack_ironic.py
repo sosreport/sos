@@ -50,7 +50,10 @@ class OpenStackIronic(Plugin):
                     f"{self.var_puppet_gen}_api/etc/ironic/",
                     f"{self.var_puppet_gen}_api/etc/httpd/conf/",
                     f"{self.var_puppet_gen}_api/etc/httpd/conf.d/",
-                    f"{self.var_puppet_gen}_api/etc/httpd/conf.modules.d/*.conf",
+                    (
+                        f"{self.var_puppet_gen}_api/etc/httpd/conf.modules.d/"
+                        "*.conf"
+                    ),
                     f"{self.var_puppet_gen}_api/etc/my.cnf.d/tripleo.cnf",
                     f"{self.ins_puppet_gen}/etc/ironic-inspector/*",
                     f"{self.ins_puppet_gen}/var/lib/httpboot/inspector.ipxe",
@@ -68,7 +71,14 @@ class OpenStackIronic(Plugin):
                     "/var/log/containers/ironic-inspector/*.log",
                 ])
 
-            for path in ['/var/lib/ironic', '/httpboot', '/tftpboot', f'{self.ins_puppet_gen}/var/lib/httpboot/', f'{self.ins_puppet_gen}/var/lib/tftpboot/']:
+
+            for path in [
+                '/var/lib/ironic',
+                '/httpboot',
+                '/tftpboot',
+                f'{self.ins_puppet_gen}/var/lib/httpboot/',
+                f'{self.ins_puppet_gen}/var/lib/tftpboot/'
+            ]:
                 self.add_cmd_output(f'ls -laRt {path}')
                 self.add_cmd_output(f'ls -laRt {self.var_puppet_gen + path}')
 

@@ -34,6 +34,8 @@ class UltraPath(Plugin, RedHatPlugin):
         if result['status'] == 0:
             for line in result['output'].splitlines():
                 if line.startswith("Array ID :"):
-                    self.add_cmd_output(f"upadm show lun array={line.split(':')[1].strip()}")
+                    self.add_cmd_output(
+                        f"upadm show lun array={line.split(':')[1].strip()}"
+                    )
 
 # vim: set et ts=4 sw=4 :

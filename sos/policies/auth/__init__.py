@@ -197,7 +197,10 @@ class DeviceAuthorizationClass:
         elif refresh_token_res.status_code == 400 and 'invalid' in\
                     refresh_token_res.json()['error']:
             logger.warning(
-                f"Problem while fetching the new tokens from refresh token grant - {refresh_token_res.status_code} {refresh_token_res.json()['error']}. New Device code will be requested !"
+                "Problem while fetching the new tokens from refresh token"
+                f"  grant - {refresh_token_res.status_code}"
+                f" {refresh_token_res.json()['error']}."
+                " New Device code will be requested !"
             )
             self._use_device_code_grant()
         else:

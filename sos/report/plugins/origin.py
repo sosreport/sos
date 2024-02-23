@@ -133,7 +133,9 @@ class OpenShiftOrigin(Plugin):
                 "adm top nodes"
             ]
 
-            self.add_cmd_output([f'{oc_cmd_admin} {subcmd}' for subcmd in subcmds])
+            self.add_cmd_output(
+                [f"{oc_cmd_admin} {subcmd}" for subcmd in subcmds]
+            )
 
             jcmds = [
                 "hostsubnet",
@@ -141,7 +143,9 @@ class OpenShiftOrigin(Plugin):
                 "netnamespaces"
             ]
 
-            self.add_cmd_output([f'{oc_cmd_admin} get -o json {jcmd}' for jcmd in jcmds])
+            self.add_cmd_output(
+                [f"{oc_cmd_admin} get -o json {jcmd}" for jcmd in jcmds]
+            )
 
             nmsps = [
                 'default',
@@ -153,7 +157,10 @@ class OpenShiftOrigin(Plugin):
 
             self.add_cmd_output(
                 [
-                    f'{oc_cmd_admin} get -o json deploymentconfig,deployment,daemonsets -n {n}'
+                    (
+                        f"{oc_cmd_admin} get -o json"
+                        f" deploymentconfig,deployment,daemonsets -n {n}"
+                    )
                     for n in nmsps
                 ]
             )

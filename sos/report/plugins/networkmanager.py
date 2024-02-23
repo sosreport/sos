@@ -100,7 +100,9 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                     # double quotes around the innermost quoted string.
                     self.add_cmd_output(f'{nmcli_con_details_cmd} "{con}"')
 
-            self.add_device_cmd(f'{nmcli_dev_details_cmd} "%(dev)s"', devices='ethernet')
+            self.add_device_cmd(
+                f'{nmcli_dev_details_cmd} "%(dev)s"', devices="ethernet"
+            )
 
         self.add_cmd_tags({
             "nmcli dev show": "nmcli_dev_show",

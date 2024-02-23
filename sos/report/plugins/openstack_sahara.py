@@ -19,7 +19,9 @@ class OpenStackSahara(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/sahara"
 
     def setup(self):
-        self.add_copy_spec(["/etc/sahara/", f"{self.var_puppet_gen}/etc/sahara/"])
+        self.add_copy_spec(
+            ["/etc/sahara/", f"{self.var_puppet_gen}/etc/sahara/"]
+        )
         self.add_journal(units="openstack-sahara-all")
         self.add_journal(units="openstack-sahara-api")
         self.add_journal(units="openstack-sahara-engine")
@@ -35,7 +37,9 @@ class OpenStackSahara(Plugin):
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/sahara/*", regexp, subst)
-        self.do_path_regex_sub(f"{self.var_puppet_gen}/etc/sahara/*", regexp, subst)
+        self.do_path_regex_sub(
+            f"{self.var_puppet_gen}/etc/sahara/*", regexp, subst
+        )
 
     def postproc(self):
         protect_keys = [

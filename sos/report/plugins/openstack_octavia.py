@@ -75,6 +75,8 @@ class OpenStackOctavia(Plugin):
                         'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
 
         if not (all(vars_all) and any(vars_any)) and not \
+
+
                    (self.is_installed("python2-octaviaclient") or
                    self.is_installed("python3-octaviaclient")):
             self.soslog.warning("Not all environment variables set or "

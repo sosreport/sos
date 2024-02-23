@@ -52,7 +52,9 @@ class Composer(Plugin, IndependentPlugin):
         composes = self._get_entries("composer-cli compose list")
         for compose in composes:
             # the first column contains the compose id
-            self.add_cmd_output(f'composer-cli compose log {compose.split(" ")[0]}')
+            self.add_cmd_output(
+                f'composer-cli compose log {compose.split(" ")[0]}'
+            )
 
         self.add_journal(units=[
             "osbuild-composer.service",

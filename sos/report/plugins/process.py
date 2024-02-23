@@ -78,7 +78,9 @@ class Process(Plugin, IndependentPlugin):
             "ps -elfL"
         ], cmd_as_tag=True)
 
-        self.add_cmd_output([f"{ps_axo} {ps_group_opts}", f"{ps_axo} {ps_sched_opts}"])
+        self.add_cmd_output(
+            [f"{ps_axo} {ps_group_opts}", f"{ps_axo} {ps_sched_opts}"]
+        )
 
         if self.get_option("samples"):
             self.add_cmd_output(

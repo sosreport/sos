@@ -34,6 +34,8 @@ class Peripety(Plugin, RedHatPlugin):
                        [d.split('/')[-1] for d in glob.glob('/sys/block/*')])
 
         for disk in disks:
-            self.add_cmd_output([f"prpt info {disk}", f"prpt query --blk {disk}"])
+            self.add_cmd_output(
+                [f"prpt info {disk}", f"prpt query --blk {disk}"]
+            )
 
 # vim: set et ts=4 sw=4 :

@@ -81,7 +81,9 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
         self._get_crio_goroutine_stacks()
 
         for container in containers:
-            self.add_cmd_output(f"crictl inspect {container}", subdir="containers")
+            self.add_cmd_output(
+                f"crictl inspect {container}", subdir="containers"
+            )
             if self.get_option('logs'):
                 self.add_cmd_output(
                     f"crictl logs -t {container}",

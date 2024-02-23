@@ -160,7 +160,9 @@ class SSHControlPersist(RemoteTransport):
         if connected:
             if not os.path.exists(self.control_path):
                 raise ControlSocketMissingException
-            self.log_debug(f"Successfully created control socket at {self.control_path}")
+            self.log_debug(
+                f"Successfully created control socket at {self.control_path}"
+            )
             return True
         return False
 
@@ -191,11 +193,18 @@ class SSHControlPersist(RemoteTransport):
     @property
     def remote_exec(self):
         if not self.ssh_cmd:
-            self.ssh_cmd = f"ssh -oControlPath={self.control_path} {self.opts.ssh_user}@{self.address}"
+            self.ssh_cmd = (
+                "ssh -oControlPath="
+                f"{self.control_path} {self.opts.ssh_user}@{self.address}"
+            )
         return self.ssh_cmd
 
     def _retrieve_file(self, fname, dest):
-        cmd = f"/usr/bin/scp -oControlPath={self.control_path} {self.opts.ssh_user}@{self.address}:{fname} {dest}"
+        cmd = (
+            "/usr/bin/scp -oControlPath="
+            f"{self.control_path} {self.opts.ssh_user}@{self.address}:{fname}"
+            f" {dest}"
+        )
         res = sos_get_command_output(cmd)
         return res['status'] == 0
 

@@ -72,7 +72,9 @@ class MsSQL(Plugin, RedHatPlugin):
                 self._log_error(keytab_err)
 
         # Expecting mssql_conf doesn't includeno sensitive information.
-        self.add_copy_spec([mssql_conf, f'{errorlogfile}/*', sqlagent_errorlogfile])
+        self.add_copy_spec(
+            [mssql_conf, f"{errorlogfile}/*", sqlagent_errorlogfile]
+        )
 
         if not self.get_option('all_logs'):
             self.add_copy_spec(f'{errorlogfile}/*')

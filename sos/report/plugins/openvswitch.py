@@ -220,7 +220,9 @@ class OpenVSwitch(Plugin):
                     m = re.match(r'^([\d]+):[\s]+([^\s]+)', port)
                     if m:
                         port_name = m.group(2)
-                        self.add_cmd_output([f"fp-cli dpdk-cp-filter-budget {port_name}"])
+                        self.add_cmd_output(
+                            [f"fp-cli dpdk-cp-filter-budget {port_name}"]
+                        )
 
         # Gather the datapath information for each datapath
         dp_list_result = self.collect_cmd_output('ovs-appctl dpctl/dump-dps')
@@ -317,7 +319,9 @@ class OpenVSwitch(Plugin):
                             ]
                         )
 
-                port_list_result = self.exec_cmd(f"ovs-vsctl -t 5 list-ports {br}")
+                port_list_result = self.exec_cmd(
+                    f"ovs-vsctl -t 5 list-ports {br}"
+                )
                 if port_list_result['status'] == 0:
                     for port in port_list_result['output'].splitlines():
                         self.add_cmd_output(
@@ -330,13 +334,21 @@ class OpenVSwitch(Plugin):
                         )
 
                         if check_dpdk:
-                            self.add_cmd_output(f"ovs-appctl netdev-dpdk/get-mempool-info {port}")
+                            self.add_cmd_output(
+                                "ovs-appctl netdev-dpdk/get-mempool-info"
+                                f" {port}"
+                            )
 
                 if check_dpdk:
-                    iface_list_result = self.exec_cmd(f"ovs-vsctl -t 5 list-ifaces {br}")
+                    iface_list_result = self.exec_cmd(
+                        f"ovs-vsctl -t 5 list-ifaces {br}"
+                    )
                     if iface_list_result['status'] == 0:
                         for iface in iface_list_result['output'].splitlines():
-                            self.add_cmd_output(f"ovs-appctl netdev-dpdk/get-mempool-info {iface}")
+                            self.add_cmd_output(
+                                "ovs-appctl netdev-dpdk/get-mempool-info"
+                                f" {iface}"
+                            )
                 if check_6wind:
                     self.add_cmd_output(
                         [
@@ -352,9 +364,13 @@ class OpenVSwitch(Plugin):
                     if vrf_list['status'] == 0:
                         vrfs = vrf_list['output'].split()[1:]
                         for vrf in vrfs:
-                            self.add_cmd_output([f"{actl} vrf/route-table {vrf}"])
+                            self.add_cmd_output(
+                                [f"{actl} vrf/route-table {vrf}"]
+                            )
 
-                    evpn_list = self.collect_cmd_output(f"ovs-appctl evpn/list {br}")
+                    evpn_list = self.collect_cmd_output(
+                        f"ovs-appctl evpn/list {br}"
+                    )
                     if evpn_list['status'] == 0:
                         evpns = evpn_list['output'].split()[1:]
                         for evpn in evpns:
@@ -365,9 +381,15 @@ class OpenVSwitch(Plugin):
                                     f"{actl} evpn/dump-flows {br} {evpn}",
                                     f"{actl} evpn/dhcp-pool-show {br} {evpn}",
                                     f"{actl} evpn/dhcp-relay-show {br} {evpn}",
-                                    f"{actl} evpn/dhcp-static-show {br} {evpn}",
+                                    (
+                                        f"{actl} evpn/dhcp-static-show"
+                                        f" {br} {evpn}"
+                                    ),
                                     f"{actl} evpn/dhcp-table-show {br} {evpn}",
-                                    f"{actl} evpn/proxy-arp-filter-list {br} {evpn}",
+                                    (
+                                        f"{actl} evpn/proxy-arp-filter-list"
+                                        f" {br} {evpn}"
+                                    ),
                                     f"{actl} evpn/show {br} {evpn}",
                                     f"{actl} port/dscp-table {br} {evpn}",
                                 ]

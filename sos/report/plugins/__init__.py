@@ -267,7 +267,9 @@ class SoSPredicate(object):
             res = self._eval_cmd_output(cmd)
             _cmds.append(res)
             if not res:
-                self._failed_or_forbidden('cmd_outputs', f"{cmd['cmd']}: {cmd['output']}")
+                self._failed_or_forbidden(
+                    "cmd_outputs", f"{cmd['cmd']}: {cmd['output']}"
+                )
         return self._check_required_state(_cmds, self.required['cmd_outputs'])
 
     def _eval_arch(self):
@@ -467,7 +469,8 @@ class PluginOpt():
                 elif t.__name__ == 'int':
                     valid.append("integer values")
             raise Exception(
-                f"Plugin option '{self.plugin}.{self.name}' takes {', '.join(valid)}, not {type(val).__name__}"
+                f"Plugin option '{self.plugin}.{self.name}' takes"
+                f" {', '.join(valid)}, not {type(val).__name__}"
             )
         self.value = val
 
@@ -631,7 +634,8 @@ class Plugin():
             )
         self.default_environment = env_vars
         self._log_debug(
-            f"Default environment for all commands now set to {self.default_environment}"
+            "Default environment for all commands now set to"
+            f" {self.default_environment}"
         )
 
     def add_default_cmd_environment(self, env_vars):
@@ -805,13 +809,15 @@ class Plugin():
                     )
             if getattr(cls, 'containers'):
                 section.add_text(
-                    f"Enabled by containers with names matching: {', '.join(c for c in cls.containers)}",
+                    "Enabled by containers with names matching:"
+                    f" {', '.join(c for c in cls.containers)}",
                     newline=False,
                 )
 
         if cls.profiles:
             section.add_text(
-                f"Enabled with the following profiles: {', '.join(p for p in cls.profiles)}",
+                "Enabled with the following profiles:"
+                f" {', '.join(p for p in cls.profiles)}",
                 newline=False,
             )
 
@@ -834,7 +840,8 @@ class Plugin():
 
         optsec = section.add_section('Plugin Options')
         optsec.add_text(
-            f"""These options may be toggled or changed using '{bold(f"-k {cls.plugin_name}.option_name=$value")}'"""
+            "These options may be toggled or changed using"
+            f""" '{bold(f"-k {cls.plugin_name}.option_name=$value")}'"""
         )
         optsec.add_text(
             bold((f"\n{' ':<4}{'Option Name':<20}{'Default':<30}"
@@ -929,7 +936,9 @@ class Plugin():
         )
 
     def _format_msg(self, msg):
-        return f"[plugin:{self.name()}] {msg.encode('utf-8', 'replace').decode()}"
+        return (
+            f"[plugin:{self.name()}] {msg.encode('utf-8', 'replace').decode()}"
+        )
 
     def _log_error(self, msg):
         self.soslog.error(self._format_msg(msg))
@@ -1160,7 +1169,9 @@ class Plugin():
         if not self.executed_commands:
             return 0
 
-        self._log_debug(f"Scrubbing certs and keys for commands matching {cmd}")
+        self._log_debug(
+            f"Scrubbing certs and keys for commands matching {cmd}"
+        )
 
         replace = f"{_cert_replace} {desc}" if desc else _cert_replace
 
@@ -1191,7 +1202,8 @@ class Plugin():
         globstr = f'*{cmd}*'
         pattern = regexp.pattern if hasattr(regexp, "pattern") else regexp
         self._log_debug(
-            f"substituting '{subst}' for '{pattern}' in commands matching '{globstr}'"
+            f"substituting '{subst}' for '{pattern}' in commands matching"
+            f" '{globstr}'"
         )
 
         if not self.executed_commands:
@@ -1238,7 +1250,9 @@ class Plugin():
         :param desc: A description of the replaced content
         :type desc: ``str``
         """
-        self._log_debug(f"Scrubbing certs and keys for paths matching {pathregex}")
+        self._log_debug(
+            f"Scrubbing certs and keys for paths matching {pathregex}"
+        )
         match = re.compile(pathregex).match
         replace = f"{_cert_replace} {desc}" if desc else _cert_replace
         file_list = [f for f in self.copied_files if match(f['srcpath'])]
@@ -1327,12 +1341,15 @@ class Plugin():
             # trim leading /sysroot
             if self.use_sysroot():
                 reldest = reldest[len(os.sep + os.pardir):]
-            self._log_debug(f"made link target '{linkdest}' relative as '{reldest}'")
+            self._log_debug(
+                f"made link target '{linkdest}' relative as '{reldest}'"
+            )
         else:
             reldest = linkdest
 
         self._log_debug(
-            f"copying link '{srcpath}' pointing to '{linkdest}' with isdir={self.path_isdir(absdest)}"
+            f"copying link '{srcpath}' pointing to '{linkdest}' with"
+            f" isdir={self.path_isdir(absdest)}"
         )
 
         dstpath = self.strip_sysroot(srcpath)
@@ -1370,12 +1387,16 @@ class Plugin():
                      self.policy._in_container)
             self._do_copy_path(absdest, force=force)
         else:
-            self._log_debug(f"link '{linkdest}' points to itself, skipping target...")
+            self._log_debug(
+                f"link '{linkdest}' points to itself, skipping target..."
+            )
 
     def _copy_dir(self, srcpath):
         try:
             for name in self.listdir(srcpath):
-                self._log_debug(f"recursively adding '{name}' from '{srcpath}'")
+                self._log_debug(
+                    f"recursively adding '{name}' from '{srcpath}'"
+                )
                 path = os.path.join(srcpath, name)
                 self._do_copy_path(path)
         except OSError as e:
@@ -1762,7 +1783,10 @@ class Plugin():
                     self.container_copy_paths.append(
                         (con, copyspec, sizelimit, _tail, _spec_tags)
                     )
-                    self._log_info(f"added collection of '{copyspec}' from container '{con}'")
+                    self._log_info(
+                        f"added collection of '{copyspec}' from container"
+                        f" '{con}'"
+                    )
                 # break out of the normal flow here as container file
                 # copies are done via command execution, not raw cp/mv
                 # operations
@@ -1807,7 +1831,9 @@ class Plugin():
                     self._log_debug(f"skipping forbidden path '{_file}'")
                     continue
                 if self._is_policy_forbidden_path(_file):
-                    self._log_debug(f"skipping policy forbidden path '{_file}'")
+                    self._log_debug(
+                        f"skipping policy forbidden path '{_file}'"
+                    )
                     continue
                 if self._is_skipped_path(_file):
                     self._log_debug(f"skipping excluded path '{_file}'")
@@ -2396,11 +2422,14 @@ class Plugin():
                     return result
 
         self._log_debug(
-            f"collected output of '{cmd.split()[0]}' in {run_time} (changes={changes})"
+            f"collected output of '{cmd.split()[0]}' in"
+            f" {run_time} (changes={changes})"
         )
 
         if result['truncated']:
-            self._log_info(f"collected output of '{cmd.split()[0]}' was truncated")
+            self._log_info(
+                f"collected output of '{cmd.split()[0]}' was truncated"
+            )
             linkfn = outfn
             outfn = outfn.replace('sos_commands', 'sos_strings') + '.tailed'
 
@@ -3065,7 +3094,8 @@ class Plugin():
                 self._add_container_file_to_manifest(con, path, arcdest, tags)
             else:
                 self._log_info(
-                    f"error copying '{path}' from container '{con}': {cpret['output']}"
+                    f"error copying '{path}' from container '{con}':"
+                    f" {cpret['output']}"
                 )
 
     def _collect_cmds(self):
@@ -3468,7 +3498,9 @@ class Plugin():
 
         # Regex initialization outside of for loop
         if ns_pattern:
-            pattern = f"(?:{'$|'.join(ns_pattern.split()).replace('*', '.*')}$)"
+            pattern = (
+                f"(?:{'$|'.join(ns_pattern.split()).replace('*', '.*')}$)"
+            )
         for ns in ns_list:
             # if ns_pattern defined, skip namespaces not matching the pattern
             if ns_pattern and not bool(re.match(pattern, ns)):
@@ -3571,7 +3603,9 @@ class SCLPlugin(RedHatPlugin):
         scl_prefix = self.policy.get_default_scl_prefix()
         for rootdir in ['etc', 'var']:
             p = re.compile(f'^/{rootdir}/')
-            copyspec = os.path.abspath(p.sub(f'/{rootdir}/{scl_prefix}/{scl}/', copyspec))
+            copyspec = os.path.abspath(
+                p.sub(f"/{rootdir}/{scl_prefix}/{scl}/", copyspec)
+            )
         return copyspec
 
     def add_copy_spec_scl(self, scl, copyspecs):

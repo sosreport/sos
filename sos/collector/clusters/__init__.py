@@ -108,13 +108,15 @@ class Cluster():
 
         if cls.packages:
             section.add_text(
-                f"Enabled by the following packages: {', '.join(p for p in cls.packages)}",
+                "Enabled by the following packages:"
+                f" {', '.join(p for p in cls.packages)}",
                 newline=False,
             )
 
         if cls.sos_preset:
             section.add_text(
-                f"Uses the following sos preset: {cls.sos_preset}", newline=False
+                f"Uses the following sos preset: {cls.sos_preset}",
+                newline=False,
             )
 
         if cls.sos_options:
@@ -123,19 +125,23 @@ class Cluster():
 
         if cls.sos_plugins:
             section.add_text(
-                f"Enables the following plugins: {', '.join(plug for plug in cls.sos_plugins)}",
+                "Enables the following plugins:"
+                f" {', '.join(plug for plug in cls.sos_plugins)}",
                 newline=False,
             )
 
         if cls.sos_plugin_options:
             _opts = cls.sos_plugin_options
             opts = ', '.join(f"{opt}={_opts[opt]}" for opt in _opts)
-            section.add_text(f"Sets the following plugin options: {opts}", newline=False)
+            section.add_text(
+                f"Sets the following plugin options: {opts}", newline=False
+            )
 
         if cls.option_list:
             optsec = section.add_section("Available cluster options")
             optsec.add_text(
-                f"""These options may be toggled or changed using '{bold(f"-c {cls.__name__}.$option=$value")}'"""
+                "These options may be toggled or changed using"
+                f" '{bold(f"-c {cls.__name__}.$option=$value")}'"
             )
             optsec.add_text(
                 bold(

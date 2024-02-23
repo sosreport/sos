@@ -39,7 +39,10 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("du -sh /var/lib/mongodb/")
 
     def postproc(self):
-        for f in ["/etc/mongodb.conf", f"{self.var_puppet_gen}/etc/mongodb.conf"]:
+        for f in [
+            "/etc/mongodb.conf",
+            f"{self.var_puppet_gen}/etc/mongodb.conf"
+        ]:
             self.do_file_sub(
                 f,
                 r"(mms-token)\s*=\s*(.*)",

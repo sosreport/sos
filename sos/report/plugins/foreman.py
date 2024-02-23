@@ -64,6 +64,7 @@ class Foreman(Plugin):
             pass
         # strip wrapping ".." or '..' around password
         if (self.dbpasswd.startswith('"') and self.dbpasswd.endswith('"')) or \
+
                (self.dbpasswd.startswith('\'') and self.dbpasswd.endswith('\'')):
             self.dbpasswd = self.dbpasswd[1:-1]
         # set the password to os.environ when calling psql commands to prevent

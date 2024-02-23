@@ -114,7 +114,9 @@ class RedHatApache(Apache, RedHatPlugin):
             "ssl_error_log"
         ]
 
-        self.add_forbidden_path([f"{etc}/conf/password.conf" for etc in etcdirs])
+        self.add_forbidden_path(
+            [f"{etc}/conf/password.conf" for etc in etcdirs]
+        )
 
         for edir in etcdirs:
             for conf in confs:

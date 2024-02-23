@@ -128,7 +128,8 @@ class SosNode():
             return TRANSPORTS[self.opts.transport](self.address, commons)
         elif self.opts.transport != 'auto':
             self.log_error(
-                f"Connection failed: unknown or unsupported transport {self.opts.transport}"
+                "Connection failed: unknown or unsupported transport"
+                f" {self.opts.transport}"
             )
             raise InvalidTransportException(self.opts.transport)
         return SSHControlPersist(self.address, commons)
@@ -201,13 +202,21 @@ class SosNode():
                 ret = self.run_command(self.host.restart_sos_container(),
                                        need_root=True)
                 if ret['status'] == 0:
-                    self.log_info(f"Temporary container {self.host.sos_container_name} created")
+                    self.log_info(
+                        "Temporary container"
+                        f" {self.host.sos_container_name} created"
+                    )
                     return True
                 else:
-                    self.log_error(f"Could not start container after create: {ret['output']}")
+                    self.log_error(
+                        "Could not start container after create:"
+                        f" {ret['output']}"
+                    )
                     raise Exception
             else:
-                self.log_error(f"Could not create container on host: {res['output']}")
+                self.log_error(
+                    f"Could not create container on host: {res['output']}"
+                )
                 raise Exception
         return False
 
@@ -384,7 +393,9 @@ class SosNode():
         distributions
         """
         if self.local:
-            self.log_info(f"using local policy {self.commons['policy'].distro}")
+            self.log_info(
+                f"using local policy {self.commons['policy'].distro}"
+            )
             return self.commons['policy']
         host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
                     probe_runtime=True,
@@ -607,7 +618,9 @@ class SosNode():
         # sos-3.7 added options
         if self.check_sos_version('3.7'):
             if self.opts.plugin_timeout:
-                sos_opts.append(f'--plugin-timeout={quote(str(self.opts.plugin_timeout))}')
+                sos_opts.append(
+                    f"--plugin-timeout={quote(str(self.opts.plugin_timeout))}"
+                )
 
         # sos-3.8 added options
         if self.check_sos_version('3.8'):
@@ -622,18 +635,27 @@ class SosNode():
 
         if self.check_sos_version('4.1'):
             if self.opts.skip_commands:
-                sos_opts.append(f"--skip-commands={quote(','.join(self.opts.skip_commands))}")
+                sos_opts.append(
+                    "--skip-commands="
+                    f"{quote(','.join(self.opts.skip_commands))}"
+                )
             if self.opts.skip_files:
-                sos_opts.append(f"--skip-files={quote(','.join(self.opts.skip_files))}")
+                sos_opts.append(
+                    f"--skip-files={quote(','.join(self.opts.skip_files))}"
+                )
 
         if self.check_sos_version('4.2'):
             if self.opts.cmd_timeout:
-                sos_opts.append(f'--cmd-timeout={quote(str(self.opts.cmd_timeout))}')
+                sos_opts.append(
+                    f"--cmd-timeout={quote(str(self.opts.cmd_timeout))}"
+                )
 
         # handle downstream versions that backported this option
         if self.check_sos_version('4.3') or self.check_sos_version('4.2-13'):
             if self.opts.container_runtime != 'auto':
-                sos_opts.append(f"--container-runtime={self.opts.container_runtime}")
+                sos_opts.append(
+                    f"--container-runtime={self.opts.container_runtime}"
+                )
             if self.opts.namespaces:
                 sos_opts.append(f"--namespaces={self.opts.namespaces}")
 
@@ -716,7 +738,9 @@ class SosNode():
         label += self.cluster.get_node_label(self)
 
         if self.opts.label:
-            label += f'{self.opts.label}' if not label else f'-{self.opts.label}'
+            label += (
+                f"{self.opts.label}" if not label else f"-{self.opts.label}"
+            )
 
         if not label:
             return None
@@ -788,7 +812,8 @@ class SosNode():
             else:
                 err = self.determine_sos_error(res['status'], res['output'])
                 self.log_debug(
-                    f"Error running sos report. rc = {res['status']} msg = {res['output']}"
+                    f"Error running sos report. rc = {res['status']} msg ="
+                    f" {res['output']}"
                 )
                 raise Exception(err)
             return path
@@ -868,7 +893,9 @@ class SosNode():
                 e = self.stderr.read()
             else:
                 e = [x.strip() for x in self.stdout.readlines() if x.strip][-1]
-            self.soslog.error(f'Failed to run sos report on {self.address}: {e}')
+            self.soslog.error(
+                f"Failed to run sos report on {self.address}: {e}"
+            )
             self.log_error(f'Failed to run sos report. {e}')
             return False
 
@@ -907,7 +934,9 @@ class SosNode():
                         self.make_archive_readable(filename)
                     except Exception as err:
                         self.log_error(f"Unable to retrieve file {filename}")
-                        self.log_debug(f"Failed to make file {filename} readable: {err}")
+                        self.log_debug(
+                            f"Failed to make file {filename} readable: {err}"
+                        )
                         continue
                 ret = self.retrieve_file(filename)
                 if ret:

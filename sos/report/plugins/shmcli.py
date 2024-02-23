@@ -39,7 +39,9 @@ class SHMcli(Plugin, IndependentPlugin):
         ]
 
         for subcmd in subcmds:
-            self.add_cmd_output(f"{cmd} {subcmd}", suggest_filename=f"shmcli_{subcmd}")
+            self.add_cmd_output(
+                f"{cmd} {subcmd}", suggest_filename=f"shmcli_{subcmd}"
+            )
 
         models = []
 
@@ -75,12 +77,17 @@ class SHMcli(Plugin, IndependentPlugin):
                     adapt_index = _line[-1]
                     enc_index = _line[0]
                     for subcmd in subcmds:
-                        _cmd = f"{cmd} {subcmd} -a={adapt_index} -enc={enc_index}"
+                        _cmd = (
+                            f"{cmd} {subcmd} -a={adapt_index} -enc={enc_index}"
+                        )
                         _fname = _cmd.replace(cmd, 'shmcli')
                         self.add_cmd_output(_cmd, suggest_filename=_fname)
                     if self.get_option('debug'):
                         logpath = self.get_cmd_output_path(make=False)
-                        _dcmd = f"{cmd} getdebugcli -a={adapt_index} -enc={enc_index}"
+                        _dcmd = (
+                            f"{cmd} getdebugcli"
+                            f" -a={adapt_index} -enc={enc_index}"
+                        )
                         _dname = _dcmd.replace(cmd, 'shmcli')
                         _odir = f" -outputdir={logpath}"
                         self.add_cmd_output(

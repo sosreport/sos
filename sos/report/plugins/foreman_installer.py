@@ -45,6 +45,8 @@ class ForemanInstaller(Plugin, DebianPlugin, UbuntuPlugin):
     def postproc(self):
         install_logs = "/var/log/foreman-installer/"
         logsreg = r"((foreman.*)?(\"::(foreman(.*?)|katello).*)?((::(.*)::.*" \
+
+
                       r"(passw|cred|token|secret|key).*(\")?:)|(storepass )" \
                       r"|(password =)))(.*)"
         self.do_path_regex_sub(install_logs, logsreg, r"\1 ********")

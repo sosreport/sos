@@ -31,10 +31,13 @@ class saphana(Plugin, RedHatPlugin):
                 sidadm = f'{sid.lower()}adm'
                 prefix = f'su - {sidadm} -c'
 
-                self.add_cmd_output(f'{prefix} "HDB info"', suggest_filename=f"{sid}_HDB_info")
+                self.add_cmd_output(
+                    f'{prefix} "HDB info"', suggest_filename=f"{sid}_HDB_info"
+                )
 
                 self.add_cmd_output(
-                    f'{prefix} "hdbsrvutil -v"', suggest_filename=f"{sid}_version"
+                    f'{prefix} "hdbsrvutil -v"',
+                    suggest_filename=f"{sid}_version",
                 )
 
                 self.add_cmd_output(

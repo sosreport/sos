@@ -47,7 +47,9 @@ class ConnectionException(Exception):
     """Raised when an attempt to connect fails"""
 
     def __init__(self, address='', port=''):
-        message = f"Could not connect to host {address} on specified port {port}"
+        message = (
+            f"Could not connect to host {address} on specified port {port}"
+        )
         super(ConnectionException, self).__init__(message)
 
 

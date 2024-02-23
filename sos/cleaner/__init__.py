@@ -158,7 +158,9 @@ class SoSCleaner(SoSComponent):
         ]
         self.nested_archive = None
 
-        self.log_info(f"Cleaner initialized. From cmdline: {self.from_cmdline}")
+        self.log_info(
+            f"Cleaner initialized. From cmdline: {self.from_cmdline}"
+        )
 
     def _fmt_log_msg(self, msg, caller=None):
         return f"""[cleaner{f":{caller}" if caller else ''}] {msg}"""
@@ -193,7 +195,9 @@ class SoSCleaner(SoSComponent):
         _conf = {}
         default_map = '/etc/sos/cleaner/default_mapping'
         if os.path.isdir(self.opts.map_file):
-            raise Exception(f"Requested map file {self.opts.map_file} is a directory")
+            raise Exception(
+                f"Requested map file {self.opts.map_file} is a directory"
+            )
         if not os.path.exists(self.opts.map_file):
             if self.opts.map_file != default_map:
                 self.log_error(
@@ -207,7 +211,9 @@ class SoSCleaner(SoSComponent):
                     self.log_error("ERROR: Unable to parse map file, json is "
                                    "malformed. Will not load any mappings.")
                 except Exception as err:
-                    self.log_error(f"ERROR: Could not load '{self.opts.map_file}': {err}")
+                    self.log_error(
+                        f"ERROR: Could not load '{self.opts.map_file}': {err}"
+                    )
         return _conf
 
     def print_disclaimer(self):
@@ -476,7 +482,9 @@ third party.
     def write_map_for_archive(self, _map):
         try:
             map_path = os.path.join(
-                self.sys_tmp, self.obfuscate_string(f"{self.arc_name}-private_map")
+                self.sys_tmp, self.obfuscate_string(
+                    f"{self.arc_name}-private_map"
+                )
             )
             return self.write_map_to_file(_map, map_path)
         except Exception as err:
@@ -504,7 +512,9 @@ third party.
         not be added to the archive(s) it processes, so we need to write it
         separately to disk
         """
-        log_name = os.path.join(self.sys_tmp, f"{self.arc_name}-obfuscation.log")
+        log_name = os.path.join(
+            self.sys_tmp, f"{self.arc_name}-obfuscation.log"
+        )
         with open(log_name, 'w') as logfile:
             self.sos_log_file.seek(0)
             for line in self.sos_log_file.readlines():
@@ -710,8 +720,13 @@ third party.
                         )
                         archive.compress(method)
                     except Exception as err:
-                        self.log_debug(f"Archive {archive.archive_name} failed to compress: {err}")
-                        archive.report_msg(f"Failed to re-compress archive: {err}")
+                        self.log_debug(
+                            f"Archive {archive.archive_name} failed to"
+                            f" compress: {err}"
+                        )
+                        archive.report_msg(
+                            f"Failed to re-compress archive: {err}"
+                        )
                         return
                 self.completed_reports.append(archive)
 
@@ -727,7 +742,9 @@ third party.
             archive.report_msg(f"Obfuscation completed{rmsg}")
 
         except Exception as err:
-            self.ui_log.info(f"Exception while processing {archive.archive_name}: {err}")
+            self.ui_log.info(
+                f"Exception while processing {archive.archive_name}: {err}"
+            )
 
     def obfuscate_file(self, filename, short_name=None, arc_name=None):
         """Obfuscate and individual file, line by line.
@@ -752,7 +769,9 @@ third party.
         if not os.path.islink(filename):
             # don't run the obfuscation on the link, but on the actual file
             # at some other point.
-            self.log_debug(f"Obfuscating {short_name}" or filename, caller=arc_name)
+            self.log_debug(
+                f"Obfuscating {short_name}" or filename, caller=arc_name
+            )
             tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
             _parsers = [
                 _p for _p in self.parsers if not
@@ -767,7 +786,10 @@ third party.
                         subs += count
                         tfile.write(line)
                     except Exception as err:
-                        self.log_debug(f"Unable to obfuscate {short_name}: {err}", caller=arc_name)
+                        self.log_debug(
+                            f"Unable to obfuscate {short_name}: {err}",
+                            caller=arc_name,
+                        )
             tfile.seek(0)
             if subs:
                 shutil.copyfile(tfile.name, filename)
@@ -812,7 +834,9 @@ third party.
             try:
                 # relative name of the symlink in the archive
                 _sym = symlink.split(archive.extracted_path)[1].lstrip('/')
-                self.log_debug(f"Obfuscating symlink {_sym}", caller=archive.archive_name)
+                self.log_debug(
+                    f"Obfuscating symlink {_sym}", caller=archive.archive_name
+                )
                 # current target of symlink, again relative to the archive
                 _target = os.readlink(symlink)
                 # get the potentially renamed symlink name, this time the full
@@ -834,7 +858,9 @@ third party.
         """For all directories that exist within the archive, obfuscate the
         directory name if it contains sensitive strings found during execution
         """
-        self.log_info(f"Obfuscating directory names in archive {archive.archive_name}")
+        self.log_info(
+            f"Obfuscating directory names in archive {archive.archive_name}"
+        )
         for dirpath in sorted(archive.get_directory_list(), reverse=True):
             for _name in os.listdir(dirpath):
                 _dirname = os.path.join(dirpath, _name)

@@ -148,7 +148,10 @@ class Pulp(Plugin, RedHatPlugin):
 
     def build_mongo_cmd(self, query):
         _cmd = "bash -c %s"
-        _mondb = f"--host {self.dbhost} --port {self.dbport} {self.dbuser} {self.dbpassword}"
+        _mondb = (
+            f"--host {self.dbhost} --port"
+            f" {self.dbport} {self.dbuser} {self.dbpassword}"
+        )
         _moncmd = "mongo pulp_database %s --eval %s"
         return _cmd % quote(_moncmd % (_mondb, query))
 

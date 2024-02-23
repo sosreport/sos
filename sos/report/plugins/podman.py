@@ -126,7 +126,9 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
 
         if self.get_option('logs'):
             for con in containers:
-                self.add_cmd_output(f"podman logs -t {con}", subdir='containers', priority=50)
+                self.add_cmd_output(
+                    f"podman logs -t {con}", subdir="containers", priority=50
+                )
 
     def postproc(self):
         # Attempts to match key=value pairs inside container inspect output

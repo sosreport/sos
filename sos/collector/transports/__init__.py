@@ -154,7 +154,9 @@ class RemoteTransport():
         """Actually perform the connection requirements. Should be overridden
         by specific transports that subclass RemoteTransport
         """
-        raise NotImplementedError(f"Transport {self.name} does not define connect")
+        raise NotImplementedError(
+            f"Transport {self.name} does not define connect"
+        )
 
     def reconnect(self, password):
         """Attempts to reconnect to the node using the standard connect()
@@ -190,7 +192,9 @@ class RemoteTransport():
             self.log_error(f"Failed to disconnect: {err}")
 
     def _disconnect(self):
-        raise NotImplementedError(f"Transport {self.name} does not define disconnect")
+        raise NotImplementedError(
+            f"Transport {self.name} does not define disconnect"
+        )
 
     @property
     def _need_shell(self):
@@ -403,7 +407,9 @@ class RemoteTransport():
             if 'No such file' in res['output']:
                 self.log_debug(f"File {fname} does not exist on node")
             else:
-                self.log_error(f"Error reading {fname}: {res['output'].split(':')[1:]}")
+                self.log_error(
+                    f"Error reading {fname}: {res['output'].split(':')[1:]}"
+                )
             return ''
 
 # vim: set et ts=4 sw=4 :

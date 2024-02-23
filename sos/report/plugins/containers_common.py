@@ -64,7 +64,9 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
         ]
         for user in users_list:
             # collect user's containers' config
-            self.add_copy_spec(f"{os.path.expanduser(f'~{user}')}/.config/containers/")
+            self.add_copy_spec(
+                f"{os.path.expanduser(f'~{user}')}/.config/containers/"
+            )
             # collect user-status
             self.add_cmd_output(f'loginctl user-status {user}')
             # collect the user's related commands

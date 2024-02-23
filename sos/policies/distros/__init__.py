@@ -190,7 +190,9 @@ class LinuxPolicy(Policy):
             f"Default container runtime: {_pol.default_container_runtime}",
             newline=False,
         )
-        section.add_text(f"$PATH used when running report: {_pol.PATH}", newline=False)
+        section.add_text(
+            f"$PATH used when running report: {_pol.PATH}", newline=False
+        )
 
         refsec = section.add_section('Reference URLs')
         for url in cls.vendor_urls:
@@ -243,7 +245,9 @@ class LinuxPolicy(Policy):
         ])
 
         # next, include kernel builtins
-        builtins = self.join_sysroot(f"/usr/lib/modules/{release}/modules.builtin")
+        builtins = self.join_sysroot(
+            f"/usr/lib/modules/{release}/modules.builtin"
+        )
         try:
             with open(builtins, "r") as mfile:
                 for line in mfile:
@@ -438,7 +442,10 @@ class LinuxPolicy(Policy):
         """
         if not self.get_upload_password() and (self.get_upload_user() !=
                                                self._upload_user):
-            msg = f"Please provide the upload password for {self.get_upload_user()}: "
+            msg = (
+                "Please provide the upload password for"
+                f" {self.get_upload_user()}: "
+            )
             self.upload_password = getpass(msg)
 
     def upload_archive(self, archive):
@@ -712,18 +719,23 @@ class LinuxPolicy(Policy):
             if not sftp_connected:
                 ret.close()
                 raise Exception(
-                    f"Incorrect username or password for {self.get_upload_url_string()}"
+                    "Incorrect username or password for"
+                    f" {self.get_upload_url_string()}"
                 )
         elif idx == 2:
             raise Exception(
-                f"Connection refused by {self.get_upload_url_string()}. Incorrect port?"
+                f"Connection refused by {self.get_upload_url_string()}."
+                " Incorrect port?"
             )
         elif idx == 3:
             raise Exception(
-                f"Timeout hit trying to connect to {self.get_upload_url_string()}"
+                "Timeout hit trying to connect to"
+                f" {self.get_upload_url_string()}"
             )
         elif idx == 4:
-            raise Exception(f"Unexpected error trying to connect to sftp: {ret.before}")
+            raise Exception(
+                f"Unexpected error trying to connect to sftp: {ret.before}"
+            )
 
         if not sftp_connected:
             ret.close()
@@ -731,7 +743,9 @@ class LinuxPolicy(Policy):
                 f"Unable to connect via SFTP to {self.get_upload_url_string()}"
             )
 
-        put_cmd = f'put {self.upload_archive_name} {self._get_sftp_upload_name()}'
+        put_cmd = (
+            f"put {self.upload_archive_name} {self._get_sftp_upload_name()}"
+        )
         ret.sendline(put_cmd)
 
         put_expects = [
@@ -826,7 +840,9 @@ class LinuxPolicy(Policy):
                     raise Exception(
                         "Authentication failed: invalid user credentials"
                     )
-                raise Exception(f"POST request returned {r.status_code}: {r.reason}")
+                raise Exception(
+                    f"POST request returned {r.status_code}: {r.reason}"
+                )
             return True
 
     def upload_ftp(self, url=None, directory=None, user=None, password=None):
@@ -892,12 +908,16 @@ class LinuxPolicy(Policy):
             if errno == '530':
                 raise Exception(f"invalid password for user '{user}'")
             if errno == '550':
-                raise Exception(f"could not set upload directory to {directory}")
+                raise Exception(
+                    f"could not set upload directory to {directory}"
+                )
             raise Exception(f"error trying to establish session: {str(err)}")
 
         try:
             with open(self.upload_archive_name, 'rb') as _arcfile:
-                session.storbinary(f"STOR {self.upload_archive_name.split('/')[-1]}", _arcfile)
+                session.storbinary(
+                    f"STOR {self.upload_archive_name.split('/')[-1]}", _arcfile
+                )
             session.quit()
             return True
         except IOError:
@@ -1028,7 +1048,10 @@ class LinuxPolicy(Policy):
         :rtype: ``str``
         """
         if self.container_runtime:
-            return f'{self.container_runtime} exec {self.sos_container_name} {cmd}'
+            return (
+                f"{self.container_runtime} exec"
+                f" {self.sos_container_name} {cmd}"
+            )
         else:
             return cmd
 

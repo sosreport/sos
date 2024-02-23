@@ -21,7 +21,9 @@ class Opensvc(Plugin, IndependentPlugin):
         dirname = f'{kind}_status'
         if getobjs['status'] == 0:
             for line in getobjs['output'].splitlines():
-                self.add_cmd_output(f"om {line} print status --color=no", subdir=dirname)
+                self.add_cmd_output(
+                    f"om {line} print status --color=no", subdir=dirname
+                )
 
     def setup(self):
         self.add_copy_spec([

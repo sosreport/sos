@@ -86,9 +86,13 @@ class Docker(Plugin, CosPlugin):
         volumes = self.get_container_volumes(runtime='docker')
 
         for container in containers:
-            self.add_cmd_output(f"docker inspect {container}", subdir='containers')
+            self.add_cmd_output(
+                f"docker inspect {container}", subdir="containers"
+            )
             if self.get_option('logs'):
-                self.add_cmd_output(f"docker logs -t {container}", subdir='containers')
+                self.add_cmd_output(
+                    f"docker logs -t {container}", subdir="containers"
+                )
 
         for img in images:
             name, img_id = img
@@ -100,7 +104,9 @@ class Docker(Plugin, CosPlugin):
             )
 
         for vol in volumes:
-            self.add_cmd_output(f"docker volume inspect {vol}", subdir='volumes')
+            self.add_cmd_output(
+                f"docker volume inspect {vol}", subdir="volumes"
+            )
 
     def postproc(self):
         # Attempts to match key=value pairs inside container inspect output

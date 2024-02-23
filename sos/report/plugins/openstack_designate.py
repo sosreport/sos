@@ -71,7 +71,9 @@ class OpenStackDesignate(Plugin):
         ]
 
         # commands
-        self.add_cmd_output([f'openstack {sub} --all-projects' for sub in subcmds])
+        self.add_cmd_output(
+            [f"openstack {sub} --all-projects" for sub in subcmds]
+        )
 
         # get recordsets for each zone
         cmd = "openstack zone list -f value -c id"

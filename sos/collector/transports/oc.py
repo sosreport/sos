@@ -88,7 +88,9 @@ class OCTransport(RemoteTransport):
                     },
                     {
                         "name": "machine-id",
-                        "hostPath": {"path": "/etc/machine-id", "type": "File"},
+                        "hostPath": {
+                            "path": "/etc/machine-id", "type": "File"
+                        },
                     },
                 ],
                 "containers": [
@@ -104,9 +106,15 @@ class OCTransport(RemoteTransport):
                             {"name": "host", "mountPath": "/host"},
                             {"name": "run", "mountPath": "/run"},
                             {"name": "varlog", "mountPath": "/var/log"},
-                            {"name": "machine-id", "mountPath": "/etc/machine-id"},
+                            {
+                                "name": "machine-id",
+                                "mountPath": "/etc/machine-id"
+                            },
                         ],
-                        "securityContext": {"privileged": True, "runAsUser": 0},
+                        "securityContext": {
+                            "privileged": True,
+                            "runAsUser": 0
+                        },
                         "stdin": True,
                         "stdinOnce": True,
                         "tty": True,
@@ -150,7 +158,8 @@ class OCTransport(RemoteTransport):
         # wait for the pod to report as running
         try:
             up = self.run_oc(
-                f"wait --for=condition=Ready pod/{self.pod_name} --timeout=30s",
+                "wait --for=condition=Ready"
+                f" pod/{self.pod_name} --timeout=30s",
                 timeout=40,
             )
             if not up['status'] == 0:
@@ -167,7 +176,10 @@ class OCTransport(RemoteTransport):
 
     def _format_cmd_for_exec(self, cmd):
         if cmd.startswith('oc'):
-            return f"oc -n {self.project} exec --request-timeout=0 {self.pod_name} -- chroot /host {cmd}"
+            return (
+                f"oc -n {self.project} exec --request-timeout=0"
+                f" {self.pod_name} -- chroot /host {cmd}"
+            )
         return super(OCTransport, self)._format_cmd_for_exec(cmd)
 
     def run_command(self, cmd, timeout=180, need_root=False, env=None,
@@ -186,13 +198,18 @@ class OCTransport(RemoteTransport):
             os.unlink(self.pod_tmp_conf)
         removed = self.run_oc(f"delete pod {self.pod_name}")
         if "deleted" not in removed['output']:
-            self.log_debug(f"Calling delete on pod '{self.pod_name}' failed: {removed}")
+            self.log_debug(
+                f"Calling delete on pod '{self.pod_name}' failed: {removed}"
+            )
             return False
         return True
 
     @property
     def remote_exec(self):
-        return f"oc -n {self.project} exec --request-timeout=0 {self.pod_name} -- /bin/bash -c"
+        return (
+            f"oc -n {self.project} exec --request-timeout=0 {self.pod_name} --"
+            " /bin/bash -c"
+        )
 
     def _retrieve_file(self, fname, dest):
         # check if --retries flag is available for given version of oc

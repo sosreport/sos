@@ -45,7 +45,8 @@ class Libraries(Plugin, IndependentPlugin):
 
             if dirs:
                 self.add_cmd_output(
-                    f'ls -lanH {" ".join(dirs)}', suggest_filename="ld_so_cache"
+                    f'ls -lanH {" ".join(dirs)}',
+                    suggest_filename="ld_so_cache",
                 )
 
 # vim: set et ts=4 sw=4 :

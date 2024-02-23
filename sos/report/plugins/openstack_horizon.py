@@ -38,7 +38,10 @@ class OpenStackHorizon(Plugin):
                 f"{self.var_puppet_gen}/horizon/etc/openstack-dashboard/",
                 f"{self.var_puppet_gen}/horizon/etc/httpd/conf/",
                 f"{self.var_puppet_gen}/horizon/etc/httpd/conf.d/",
-                f"{self.var_puppet_gen}/horizon/etc/httpd/conf.modules.d/*.conf",
+                (
+                    f"{self.var_puppet_gen}/horizon/etc/httpd/conf.modules.d/"
+                    "*.conf"
+                ),
                 f"{self.var_puppet_gen}/memcached/etc/sysconfig/memcached",
             ]
         )

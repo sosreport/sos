@@ -46,7 +46,10 @@ class SubscriptionManager(Plugin, RedHatPlugin):
         # if port is set, prepend it by ':' separating it from hostname
         if len(port) > 0:
             port = f":{port}"
-        return f"http{secure}://{config.get('server', 'hostname')}{port}{config.get('server', 'prefix')}"
+        return (
+            f"http{secure}://{config.get('server', 'hostname')}"
+            f"{port}{config.get('server', 'prefix')}"
+        )
 
     def setup(self):
         # rhsm config and logs
@@ -81,15 +84,20 @@ class SubscriptionManager(Plugin, RedHatPlugin):
         )
 
         # try curl to the RHSM server for potential certificate/proxy issue
-        curlcmd = "curl -vv --cacert /etc/rhsm/ca/redhat-uep.pem " \
-                      "https://subscription.rhsm.redhat.com:443/subscription"
+        curlcmd = (
+            "curl -vv --cacert /etc/rhsm/ca/redhat-uep.pem"
+            " https://subscription.rhsm.redhat.com:443/subscription"
+        )
         env = None  # for no_proxy
         try:
             from rhsm.config import get_config_parser
             config = get_config_parser()
             proxy = self.get_proxy_string(config)
             server_url = self.get_server_url(config)
-            curlcmd = f"curl -vv {server_url} --cacert {config.get('rhsm', 'repo_ca_cert')} {proxy}"
+            curlcmd = (
+                f"curl -vv {server_url} --cacert"
+                f" {config.get('rhsm', 'repo_ca_cert')} {proxy}"
+            )
             # honour os.environ no_proxy, if set
             no_proxy = config.get('server', 'no_proxy')
             if no_proxy:

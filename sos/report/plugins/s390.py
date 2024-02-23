@@ -71,7 +71,9 @@ class S390(Plugin, IndependentPlugin):
         r = self.exec_cmd("ls /dev/dasd?")
         dasd_dev = r['output']
         for x in dasd_dev.split('\n'):
-            self.add_cmd_output([f"dasdview -x -i -j -l -f {x}", f"fdasd -p {x}"])
+            self.add_cmd_output(
+                [f"dasdview -x -i -j -l -f {x}", f"fdasd -p {x}"]
+            )
 
 
 # vim: set et ts=4 sw=4 :

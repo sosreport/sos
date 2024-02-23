@@ -88,7 +88,9 @@ class Networking(Plugin):
                             tags=['ip_route', 'iproute_show_table_all'])
         self.add_cmd_output("plotnetcfg")
 
-        self.add_cmd_output(f"netstat {self.ns_wide} -neopa", root_symlink="netstat")
+        self.add_cmd_output(
+            f"netstat {self.ns_wide} -neopa", root_symlink="netstat"
+        )
 
         self.add_cmd_output(
             [
@@ -142,7 +144,9 @@ class Networking(Plugin):
         # Get ethtool output for every device that does not exist in a
         # namespace.
         _ecmds = [f"ethtool -{opt}" for opt in self.ethtool_shortopts]
-        self.add_device_cmd([f"{_cmd} %(dev)s" for _cmd in _ecmds], devices='ethernet')
+        self.add_device_cmd(
+            [f"{_cmd} %(dev)s" for _cmd in _ecmds], devices="ethernet"
+        )
 
         self.add_device_cmd([
             "ethtool %(dev)s",
@@ -172,7 +176,9 @@ class Networking(Plugin):
         ])
 
         if self.get_option("traceroute"):
-            self.add_cmd_output(f"/bin/traceroute -n {self.trace_host}", priority=100)
+            self.add_cmd_output(
+                f"/bin/traceroute -n {self.trace_host}", priority=100
+            )
 
         # Capture additional data from namespaces; each command is run
         # per-namespace.
@@ -317,7 +323,9 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
         ])
 
         if self.get_option("traceroute"):
-            self.add_cmd_output(f"/usr/sbin/traceroute -n {self.trace_host}", priority=100)
+            self.add_cmd_output(
+                f"/usr/sbin/traceroute -n {self.trace_host}", priority=100
+            )
 
     def postproc(self):
 

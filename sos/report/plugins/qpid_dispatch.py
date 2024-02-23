@@ -35,7 +35,9 @@ class QpidDispatch(Plugin, RedHatPlugin):
         """ performs data collection for qpid dispatch router """
         options = ""
         if self.get_option("port"):
-            options = (f"{options} -b {gethostname()}" + f':{self.get_option("port")}')
+            options = (
+                f"{options} -b {gethostname()}" + f':{self.get_option("port")}'
+            )
         # gethostname() is due to DISPATCH-156
 
         # for either present option, add --option=value to 'options' variable

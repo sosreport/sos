@@ -66,7 +66,9 @@ class OVNCentral(Plugin):
                         self._log_error(f"Cannot parse JSON file {filename}")
                         return None
             except IOError as ex:
-                self._log_error(f"Could not open DB schema file {filename}: {ex}")
+                self._log_error(
+                    f"Could not open DB schema file {filename}: {ex}"
+                )
                 return None
         try:
             return [table for table in dict.keys(
@@ -176,7 +178,9 @@ class OVNCentral(Plugin):
                 dbfilepath = self.path_join(path, dbfile)
                 if os.path.exists(dbfilepath):
                     self.add_copy_spec(dbfilepath)
-                    self.add_cmd_output(f"ls -lan {dbfilepath}", foreground=True)
+                    self.add_cmd_output(
+                        f"ls -lan {dbfilepath}", foreground=True
+                    )
             if ovs_dbdir:
                 self.add_copy_spec(self.path_join(ovs_dbdir, dbfile))
 

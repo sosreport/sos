@@ -90,7 +90,9 @@ class ocp(Cluster):
                         "Unable to to determine PATH for 'oc' command, "
                         "node enumeration may fail."
                     )
-                    self.log_debug(f"Locating 'oc' failed: {_oc_path['output']}")
+                    self.log_debug(
+                        f"Locating 'oc' failed: {_oc_path['output']}"
+                    )
             if self.get_option('kubeconfig'):
                 self._oc_cmd += " --kubeconfig " \
                             f"{self.get_option('kubeconfig')}"
@@ -139,7 +141,9 @@ class ocp(Cluster):
                             "collection project.\nAborting...")
 
         self.log_info(f"Creating new temporary project '{self.project}'")
-        ret = self.exec_primary_cmd(self.fmt_oc_cmd(f"new-project {self.project}"))
+        ret = self.exec_primary_cmd(
+            self.fmt_oc_cmd(f"new-project {self.project}")
+        )
         if ret['status'] == 0:
             self._label_sos_project()
             return True

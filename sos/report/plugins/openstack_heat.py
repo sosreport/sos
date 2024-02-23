@@ -32,7 +32,9 @@ class OpenStackHeat(Plugin):
             heat_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
-                heat_config = f"--config-dir {self.var_puppet_gen}_api/etc/heat/"
+                heat_config = (
+                    f"--config-dir {self.var_puppet_gen}_api/etc/heat/"
+                )
 
             self.add_cmd_output(
                 f"heat-manage {heat_config} db_version",
@@ -89,7 +91,10 @@ class OpenStackHeat(Plugin):
                 f"{self.var_puppet_gen}_api_cfn/etc/heat/",
                 f"{self.var_puppet_gen}_api_cfn/etc/httpd/conf/",
                 f"{self.var_puppet_gen}_api_cfn/etc/httpd/conf.d/",
-                f"{self.var_puppet_gen}_api_cfn/etc/httpd/conf.modules.d/*.conf",
+                (
+                    f"{self.var_puppet_gen}_api_cfn/etc/httpd/conf.modules.d/"
+                    "*.conf"
+                ),
                 f"{self.var_puppet_gen}_api_cfn/var/spool/cron/heat",
             ]
         )
@@ -102,8 +107,12 @@ class OpenStackHeat(Plugin):
         self.do_path_regex_sub(
             "/etc/heat/*",
             regexp, subst)
-        self.do_path_regex_sub(f"{self.var_puppet_gen}/etc/heat/*", regexp, subst)
-        self.do_path_regex_sub(f"{self.var_puppet_gen}_api/etc/heat/*", regexp, subst)
+        self.do_path_regex_sub(
+            f"{self.var_puppet_gen}/etc/heat/*", regexp, subst
+        )
+        self.do_path_regex_sub(
+            f"{self.var_puppet_gen}_api/etc/heat/*", regexp, subst
+        )
         self.do_path_regex_sub(
             f"{self.var_puppet_gen}_api_cfn/etc/heat/*", regexp, subst
         )

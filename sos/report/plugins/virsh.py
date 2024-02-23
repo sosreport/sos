@@ -64,7 +64,9 @@ class LibvirtClient(Plugin, IndependentPlugin):
                     continue
                 for j in filter(lambda x: x, k_lines[2:]):
                     n = j.split()[pos]
-                    self.add_cmd_output(f'{cmd} {k}-dumpxml {n}', foreground=True)
+                    self.add_cmd_output(
+                        f"{cmd} {k}-dumpxml {n}", foreground=True
+                    )
 
         # cycle through the VMs/domains list, ignore 2 header lines and latest
         # empty line, and dumpxml domain name in 2nd column

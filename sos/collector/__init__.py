@@ -186,7 +186,9 @@ class SoSCollector(SoSComponent):
                 self.parse_node_strings()
                 self.parse_cluster_options()
                 self.log_debug(f"Executing {' '.join(s for s in sys.argv)}")
-                self.log_debug(f"Found cluster profiles: {self.clusters.keys()}")
+                self.log_debug(
+                    f"Found cluster profiles: {self.clusters.keys()}"
+                )
                 self.verify_cluster_options()
 
             except KeyboardInterrupt:
@@ -594,7 +596,11 @@ class SoSCollector(SoSComponent):
                             opt.value = self._validate_option(option, opt)
                             break
             if not match:
-                self.exit(f'Unknown cluster option provided: {opt.cluster}.{opt.name}', 1)
+                self.exit(
+                    "Unknown cluster option provided:"
+                    f" {opt.cluster}.{opt.name}",
+                    1,
+                )
 
     def _validate_option(self, default, cli):
         """Checks to make sure that the option given on the CLI is valid.
@@ -747,7 +753,10 @@ class SoSCollector(SoSComponent):
             _group = json.load(hf)
             for key in ['primary', 'cluster_type']:
                 if _group[key]:
-                    self.log_debug(f"Setting option '{key}' to '{_group[key]}' per host group")
+                    self.log_debug(
+                        f"Setting option '{key}' to '{_group[key]}' per host"
+                        " group"
+                    )
                     setattr(self.opts, key, _group[key])
             if _group['nodes']:
                 self.log_debug(f"Adding {_group['nodes']} to node list")
@@ -793,7 +802,9 @@ class SoSCollector(SoSComponent):
                                         self.opts.primary))
                     and not self.opts.batch):
                 self.log_debug('password specified, not using SSH keys')
-                msg = f'Provide the SSH password for user {self.opts.ssh_user}: '
+                msg = (
+                    f"Provide the SSH password for user {self.opts.ssh_user}: "
+                )
                 self.opts.password = getpass(prompt=msg)
 
             if ((self.commons['need_sudo'] and not self.opts.nopasswd_sudo)
@@ -832,7 +843,9 @@ class SoSCollector(SoSComponent):
             try:
                 self._load_group_config()
             except Exception as err:
-                msg = f"Could not load specified group {self.opts.group}: {err}"
+                msg = (
+                    f"Could not load specified group {self.opts.group}: {err}"
+                )
                 self.exit(msg, 1)
 
         try:
@@ -872,7 +885,9 @@ class SoSCollector(SoSComponent):
                                        local_sudo=local_sudo,
                                        load_facts=can_run_local)
             except Exception as err:
-                self.log_debug(f"Unable to determine local installation: {err}")
+                self.log_debug(
+                    f"Unable to determine local installation: {err}"
+                )
                 self.exit('Unable to determine local installation. Use the '
                           '--no-local option if localhost should not be '
                           'included.\nAborting...\n', 1)
@@ -912,7 +927,8 @@ class SoSCollector(SoSComponent):
             if self.cluster.cluster_ssh_key:
                 if not self.opts.ssh_key:
                     self.log_debug(
-                        f"Updating SSH key to {self.cluster.cluster_ssh_key} per cluster"
+                        "Updating SSH key to"
+                        f" {self.cluster.cluster_ssh_key} per cluster"
                     )
                     self.opts.ssh_key = self.cluster.cluster_ssh_key
 
@@ -994,7 +1010,8 @@ class SoSCollector(SoSComponent):
         try:
             self.primary = SosNode(self.opts.primary, self.commons)
             self.ui_log.info(
-                f'Connected to {self.opts.primary}, determining cluster type...'
+                f"Connected to {self.opts.primary}, determining cluster"
+                " type..."
             )
         except Exception as e:
             self.log_debug(f'Failed to connect to primary node: {e}')
@@ -1219,7 +1236,10 @@ this utility or remote systems that it connects to.
         if self.opts.password_per_node:
             _nodes = []
             for node in nodes:
-                msg = f"Please enter the password for {self.opts.ssh_user}@{node[0]}: "
+                msg = (
+                    "Please enter the password for"
+                    f" {self.opts.ssh_user}@{node[0]}: "
+                )
                 node_pwd = getpass(msg)
                 _nodes.append((node[0], node_pwd))
             nodes = _nodes
@@ -1294,7 +1314,10 @@ this utility or remote systems that it connects to.
         try:
             client.finalize_sos_cmd()
         except Exception as err:
-            self.log_error(f"Could not finalize sos command for {client.address}: {err}")
+            self.log_error(
+                "Could not finalize sos command for"
+                f" {client.address}: {err}"
+            )
 
     def _collect(self, client):
         """Runs sosreport on each node"""
@@ -1396,7 +1419,10 @@ this utility or remote systems that it connects to.
                 # rename the map file to match the collector archive name, not
                 # the temp dir it was constructed in
                 map_name = cleaner.obfuscate_string(
-                    os.path.join(self.sys_tmp, f"{self.archive_name}_private_map")
+                    os.path.join(
+                        self.sys_tmp,
+                        f"{self.archive_name}_private_map"
+                    )
                 )
                 os.rename(map_file, map_name)
                 self.ui_log.info("A mapping of obfuscated elements is "

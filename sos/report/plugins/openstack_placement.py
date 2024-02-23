@@ -33,7 +33,9 @@ class OpenStackPlacement(Plugin):
             placement_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
-                placement_config = f"--config-dir {self.var_puppet_gen}/etc/placement/"
+                placement_config = (
+                    f"--config-dir {self.var_puppet_gen}/etc/placement/"
+                )
             self.add_cmd_output(
                 f"placement-manage {placement_config} db version",
                 suggest_filename="placement-manage_db_version",
@@ -98,7 +100,9 @@ class OpenStackPlacement(Plugin):
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/placement/*", regexp, subst)
-        self.do_path_regex_sub(f"{self.var_puppet_gen}/etc/placement/*", regexp, subst)
+        self.do_path_regex_sub(
+            f"{self.var_puppet_gen}/etc/placement/*", regexp, subst
+        )
 
     def postproc(self):
         protect_keys = ["password", "memcache_secret_key"]

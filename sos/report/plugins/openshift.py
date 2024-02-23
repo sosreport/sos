@@ -123,7 +123,8 @@ class Openshift(Plugin, RedHatPlugin):
                 return True
 
             self._log_warn(
-                f"The login command failed with status: {oc_res['status']} and error: {oc_res['output']}"
+                f"The login command failed with status: {oc_res['status']} and"
+                f" error: {oc_res['output']}"
             )
             return False
 
@@ -344,7 +345,9 @@ class Openshift(Plugin, RedHatPlugin):
         subdir = f"namespaces/{namespace}"
 
         # namespace-specific non-resource collections
-        self.add_cmd_output(f"oc describe namespace {namespace}", subdir=subdir)
+        self.add_cmd_output(
+            f"oc describe namespace {namespace}", subdir=subdir
+        )
 
         for res in resources:
             _subdir = f"{subdir}/{res}"

@@ -102,7 +102,9 @@ class Lvm2(Plugin, IndependentPlugin):
         self.add_cmd_output(
             f"vgs -v -o +{vgs_cols} {lvm_opts_foreign}", tags="vgs_headings"
         )
-        self.add_cmd_output([f"pvscan -v {lvm_opts}", f"vgscan -vvv {lvm_opts}"])
+        self.add_cmd_output(
+            [f"pvscan -v {lvm_opts}", f"vgscan -vvv {lvm_opts}"]
+        )
 
         self.add_copy_spec("/etc/lvm")
         self.add_copy_spec("/run/lvm")
