@@ -36,13 +36,11 @@ class OpenStackGlance(Plugin):
                 "/var/log/glance/*.log",
             ])
 
-        self.add_copy_spec(
-            [
-                "/etc/glance/",
-                f"{self.var_puppet_gen}/etc/glance/",
-                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/glance/",
+            f"{self.var_puppet_gen}/etc/glance/",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+        ])
 
         # collect commands output only if the openstack-glance-api service
         # is running
@@ -94,7 +92,9 @@ class OpenStackGlance(Plugin):
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/glance/*", regexp, subst)
         self.do_path_regex_sub(
-            f"{self.var_puppet_gen}/etc/glance/*", regexp, subst
+            f"{self.var_puppet_gen}/etc/glance/*",
+            regexp,
+            subst
         )
 
     def postproc(self):

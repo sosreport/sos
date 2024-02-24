@@ -27,21 +27,19 @@ class OpenStackKeystone(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/keystone"
 
     def setup(self):
-        self.add_copy_spec(
-            [
-                "/etc/keystone/default_catalog.templates",
-                "/etc/keystone/keystone.conf",
-                "/etc/keystone/logging.conf",
-                "/etc/keystone/policy.json",
-                f"{self.var_puppet_gen}/etc/keystone/*.conf",
-                f"{self.var_puppet_gen}/etc/keystone/*.json",
-                f"{self.var_puppet_gen}/etc/httpd/conf/",
-                f"{self.var_puppet_gen}/etc/httpd/conf.d/",
-                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
-                f"{self.var_puppet_gen}/var/spool/cron/",
-                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/keystone/default_catalog.templates",
+            "/etc/keystone/keystone.conf",
+            "/etc/keystone/logging.conf",
+            "/etc/keystone/policy.json",
+            f"{self.var_puppet_gen}/etc/keystone/*.conf",
+            f"{self.var_puppet_gen}/etc/keystone/*.json",
+            f"{self.var_puppet_gen}/etc/httpd/conf/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
+            f"{self.var_puppet_gen}/var/spool/cron/",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+        ])
 
         if self.get_option("all_logs"):
             self.add_copy_spec([

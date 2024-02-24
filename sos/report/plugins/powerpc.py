@@ -78,24 +78,22 @@ class PowerPC(Plugin, IndependentPlugin):
                 "/var/ct/IW/log/mc/IBM.DRM/trace*"
             ])
             ctsnap_path = self.get_cmd_output_path(name="ctsnap", make=True)
-            self.add_cmd_output(
-                [
-                    "servicelog --dump",
-                    "servicelog_notify --list",
-                    "usysattn",
-                    "usysident",
-                    "serv_config -l",
-                    "bootlist -m both -r",
-                    "lparstat -i",
-                    "lparnumascore",
-                    "lparnumascore -c cpu -d 4",
-                    "lparnumascore -c mem -d 3",
-                    f"ctsnap -xrunrpttr -d {ctsnap_path}",
-                    "lsdevinfo",
-                    "lsslot",
-                    "amsstat",
-                ]
-            )
+            self.add_cmd_output([
+                "servicelog --dump",
+                "servicelog_notify --list",
+                "usysattn",
+                "usysident",
+                "serv_config -l",
+                "bootlist -m both -r",
+                "lparstat -i",
+                "lparnumascore",
+                "lparnumascore -c cpu -d 4",
+                "lparnumascore -c mem -d 3",
+                f"ctsnap -xrunrpttr -d {ctsnap_path}",
+                "lsdevinfo",
+                "lsslot",
+                "amsstat",
+            ])
 
             # Due to the lack of options in invscout for generating log files
             # in locations other than /var/adm/invscout/, it is necessary to

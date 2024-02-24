@@ -94,17 +94,21 @@ class Lvm2(Plugin, IndependentPlugin):
         lvs_cols = ('lv_tags,devices,lv_kernel_read_ahead,lv_read_ahead,'
                     'stripes,stripesize')
         self.add_cmd_output(
-            f"lvs -a -o +{lvs_cols} {lvm_opts_foreign}", tags="lvs_headings"
+            f"lvs -a -o +{lvs_cols} {lvm_opts_foreign}",
+            tags="lvs_headings"
         )
         self.add_cmd_output(
-            f"pvs -a -v -o +{pvs_cols} {lvm_opts_foreign}", tags="pvs_headings"
+            f"pvs -a -v -o +{pvs_cols} {lvm_opts_foreign}",
+            tags="pvs_headings"
         )
         self.add_cmd_output(
-            f"vgs -v -o +{vgs_cols} {lvm_opts_foreign}", tags="vgs_headings"
+            f"vgs -v -o +{vgs_cols} {lvm_opts_foreign}",
+            tags="vgs_headings"
         )
-        self.add_cmd_output(
-            [f"pvscan -v {lvm_opts}", f"vgscan -vvv {lvm_opts}"]
-        )
+        self.add_cmd_output([
+            f"pvscan -v {lvm_opts}",
+            f"vgscan -vvv {lvm_opts}"
+        ])
 
         self.add_copy_spec("/etc/lvm")
         self.add_copy_spec("/run/lvm")

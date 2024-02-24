@@ -87,21 +87,21 @@ class OpenStackPlacement(Plugin):
                 f"/var/log/{self.apachepkg}*/placement*.log",
             ])
 
-        self.add_copy_spec(
-            [
-                "/etc/placement/",
-                f"{self.var_puppet_gen}/etc/placement/",
-                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
-                f"{self.var_puppet_gen}/etc/httpd/conf/",
-                f"{self.var_puppet_gen}/etc/httpd/conf.d/",
-                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/placement/",
+            f"{self.var_puppet_gen}/etc/placement/",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+            f"{self.var_puppet_gen}/etc/httpd/conf/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
+        ])
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/placement/*", regexp, subst)
         self.do_path_regex_sub(
-            f"{self.var_puppet_gen}/etc/placement/*", regexp, subst
+            f"{self.var_puppet_gen}/etc/placement/*",
+            regexp,
+            subst
         )
 
     def postproc(self):

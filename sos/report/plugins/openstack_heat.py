@@ -78,26 +78,22 @@ class OpenStackHeat(Plugin):
                 "/var/log/heat/*.log",
             ])
 
-        self.add_copy_spec(
-            [
-                "/etc/heat/",
-                f"{self.var_puppet_gen}/etc/heat/",
-                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
-                f"{self.var_puppet_gen}_api/etc/heat/",
-                f"{self.var_puppet_gen}_api/etc/httpd/conf/",
-                f"{self.var_puppet_gen}_api/etc/httpd/conf.d/",
-                f"{self.var_puppet_gen}_api/etc/httpd/conf.modules.d/*.conf",
-                f"{self.var_puppet_gen}_api/var/spool/cron/heat",
-                f"{self.var_puppet_gen}_api_cfn/etc/heat/",
-                f"{self.var_puppet_gen}_api_cfn/etc/httpd/conf/",
-                f"{self.var_puppet_gen}_api_cfn/etc/httpd/conf.d/",
-                (
-                    f"{self.var_puppet_gen}_api_cfn/etc/httpd/conf.modules.d/"
-                    "*.conf"
-                ),
-                f"{self.var_puppet_gen}_api_cfn/var/spool/cron/heat",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/heat/",
+            f"{self.var_puppet_gen}/etc/heat/",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+            f"{self.var_puppet_gen}_api/etc/heat/",
+            f"{self.var_puppet_gen}_api/etc/httpd/conf/",
+            f"{self.var_puppet_gen}_api/etc/httpd/conf.d/",
+            f"{self.var_puppet_gen}_api/etc/httpd/conf.modules.d/*.conf",
+            f"{self.var_puppet_gen}_api/var/spool/cron/heat",
+            f"{self.var_puppet_gen}_api_cfn/etc/heat/",
+            f"{self.var_puppet_gen}_api_cfn/etc/httpd/conf/",
+            f"{self.var_puppet_gen}_api_cfn/etc/httpd/conf.d/",
+            f"{self.var_puppet_gen}_api_cfn/etc/httpd/conf.modules.d/"
+            "*.conf",
+            f"{self.var_puppet_gen}_api_cfn/var/spool/cron/heat",
+        ])
 
         self.add_file_tags({
             "/var/log/heat/heat-engine.log": "heat_engine_log"
@@ -108,13 +104,19 @@ class OpenStackHeat(Plugin):
             "/etc/heat/*",
             regexp, subst)
         self.do_path_regex_sub(
-            f"{self.var_puppet_gen}/etc/heat/*", regexp, subst
+            f"{self.var_puppet_gen}/etc/heat/*",
+            regexp,
+            subst
         )
         self.do_path_regex_sub(
-            f"{self.var_puppet_gen}_api/etc/heat/*", regexp, subst
+            f"{self.var_puppet_gen}_api/etc/heat/*",
+            regexp,
+            subst
         )
         self.do_path_regex_sub(
-            f"{self.var_puppet_gen}_api_cfn/etc/heat/*", regexp, subst
+            f"{self.var_puppet_gen}_api_cfn/etc/heat/*",
+            regexp,
+            subst
         )
 
     def postproc(self):

@@ -32,15 +32,13 @@ class OpenStackSwift(Plugin):
                 "/var/log/swift/*.log",
             ])
 
-        self.add_copy_spec(
-            [
-                "/etc/swift/",
-                f"{self.var_puppet_gen}/swift/etc/*",
-                f"{self.var_puppet_gen}/swift/etc/swift/*",
-                f"{self.var_puppet_gen}/swift/etc/xinetd.d/*",
-                f"{self.var_puppet_gen}/memcached/etc/sysconfig/memcached",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/swift/",
+            f"{self.var_puppet_gen}/swift/etc/*",
+            f"{self.var_puppet_gen}/swift/etc/swift/*",
+            f"{self.var_puppet_gen}/swift/etc/xinetd.d/*",
+            f"{self.var_puppet_gen}/memcached/etc/sysconfig/memcached",
+        ])
 
         self.add_file_tags({
             "/etc/swift/swift.conf": "swift_conf",

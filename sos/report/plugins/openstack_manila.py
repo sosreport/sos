@@ -28,16 +28,14 @@ class OpenStackManila(Plugin):
         manila_cmd = f"manila-manage --config-dir {config_dir} db version"
         self.add_cmd_output(manila_cmd, suggest_filename="manila_db_version")
 
-        self.add_copy_spec(
-            [
-                "/etc/manila/",
-                f"{self.var_puppet_gen}/etc/manila/",
-                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
-                f"{self.var_puppet_gen}/etc/httpd/conf/",
-                f"{self.var_puppet_gen}/etc/httpd/conf.d/",
-                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/manila/",
+            f"{self.var_puppet_gen}/etc/manila/",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+            f"{self.var_puppet_gen}/etc/httpd/conf/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
+        ])
 
         if self.get_option("all_logs"):
             self.add_copy_spec([
@@ -55,7 +53,9 @@ class OpenStackManila(Plugin):
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/manila/*", regexp, subst)
         self.do_path_regex_sub(
-            f"{self.var_puppet_gen}/etc/manila/*", regexp, subst
+            f"{self.var_puppet_gen}/etc/manila/*",
+            regexp,
+            subst
         )
 
     def postproc(self):

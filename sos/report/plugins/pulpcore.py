@@ -104,9 +104,10 @@ class PulpCore(Plugin, IndependentPlugin):
         task_days = self.get_option('task-days')
         for table in ['core_task', 'core_taskgroup',
                       'core_groupprogressreport', 'core_progressreport']:
-            _query = "select * from %s where pulp_last_updated > NOW() - " \
-                         "interval '%s days' order by pulp_last_updated" % \
-                         (table, task_days)
+            _query = (
+                f"select * from {table} where pulp_last_updated > NOW()"
+                f" - interval '{task_days} days' order by pulp_last_updated"
+            )
             _cmd = self.build_query_cmd(_query)
             self.add_cmd_output(_cmd, env=self.env, suggest_filename=table)
 

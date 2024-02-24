@@ -45,14 +45,12 @@ class QpidDispatch(Plugin, RedHatPlugin):
             if self.get_option(option):
                 options = f"{options} --{option}={self.get_option(option)}"
 
-        self.add_cmd_output(
-            [
-                f"qdstat -a{options}",
-                f"qdstat -n{options}",
-                f"qdstat -c{options}",
-                f"qdstat -m{options}",
-            ]
-        )
+        self.add_cmd_output([
+            f"qdstat -a{options}",
+            f"qdstat -n{options}",
+            f"qdstat -c{options}",
+            f"qdstat -m{options}",
+        ])
 
         self.add_copy_spec([
             "/etc/qpid-dispatch/qdrouterd.conf"

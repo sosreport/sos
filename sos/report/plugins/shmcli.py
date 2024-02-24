@@ -68,7 +68,8 @@ class SHMcli(Plugin, IndependentPlugin):
         ]
 
         result = self.collect_cmd_output(
-            f'{cmd} list enclosures', suggest_filename='shmcli_list_enclosures'
+            f'{cmd} list enclosures',
+            suggest_filename='shmcli_list_enclosures'
         )
         if result['status'] == 0:
             for line in result['output'].splitlines()[2:-2]:
@@ -96,7 +97,8 @@ class SHMcli(Plugin, IndependentPlugin):
                         )
 
         result = self.collect_cmd_output(
-            f'{cmd} list drives', suggest_filename='shmcli_list_drives'
+            f'{cmd} list drives',
+            suggest_filename='shmcli_list_drives'
         )
         if result['status'] == 0:
             for line in result['output'].splitlines():

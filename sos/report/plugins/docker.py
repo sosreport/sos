@@ -87,11 +87,13 @@ class Docker(Plugin, CosPlugin):
 
         for container in containers:
             self.add_cmd_output(
-                f"docker inspect {container}", subdir="containers"
+                f"docker inspect {container}",
+                subdir="containers"
             )
             if self.get_option('logs'):
                 self.add_cmd_output(
-                    f"docker logs -t {container}", subdir="containers"
+                    f"docker logs -t {container}",
+                    subdir="containers"
                 )
 
         for img in images:
@@ -105,7 +107,8 @@ class Docker(Plugin, CosPlugin):
 
         for vol in volumes:
             self.add_cmd_output(
-                f"docker volume inspect {vol}", subdir="volumes"
+                f"docker volume inspect {vol}",
+                subdir="volumes"
             )
 
     def postproc(self):

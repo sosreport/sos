@@ -770,7 +770,8 @@ third party.
             # don't run the obfuscation on the link, but on the actual file
             # at some other point.
             self.log_debug(
-                f"Obfuscating {short_name}" or filename, caller=arc_name
+                f"Obfuscating {short_name}" or filename,
+                caller=arc_name
             )
             tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
             _parsers = [
@@ -796,8 +797,10 @@ third party.
             tfile.close()
 
         _ob_short_name = self.obfuscate_string(short_name.split('/')[-1])
-        _ob_filename = short_name.replace(short_name.split('/')[-1],
-                                          _ob_short_name)
+        _ob_filename = short_name.replace(
+            short_name.split('/')[-1],
+            _ob_short_name
+        )
 
         if _ob_filename != short_name:
             arc_path = filename.split(short_name)[0]
@@ -835,7 +838,8 @@ third party.
                 # relative name of the symlink in the archive
                 _sym = symlink.split(archive.extracted_path)[1].lstrip('/')
                 self.log_debug(
-                    f"Obfuscating symlink {_sym}", caller=archive.archive_name
+                    f"Obfuscating symlink {_sym}",
+                    caller=archive.archive_name
                 )
                 # current target of symlink, again relative to the archive
                 _target = os.readlink(symlink)

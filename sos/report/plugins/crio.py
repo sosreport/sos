@@ -82,7 +82,8 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
 
         for container in containers:
             self.add_cmd_output(
-                f"crictl inspect {container}", subdir="containers"
+                f"crictl inspect {container}",
+                subdir="containers"
             )
             if self.get_option('logs'):
                 self.add_cmd_output(

@@ -228,37 +228,33 @@ class OpenVSwitch(Plugin):
         dp_list_result = self.collect_cmd_output('ovs-appctl dpctl/dump-dps')
         if dp_list_result['status'] == 0:
             for dp in dp_list_result['output'].splitlines():
-                self.add_cmd_output(
-                    [
-                        f"{actl} dpctl/show -s {dp}",
-                        f"{actl} dpctl/dump-flows -m {dp}",
-                        f"{actl} dpctl/dump-conntrack -m {dp}",
-                        f"{actl} dpctl/ct-stats-show -m {dp}",
-                        f"{actl} dpctl/ipf-get-status {dp}",
-                    ]
-                )
+                self.add_cmd_output([
+                    f"{actl} dpctl/show -s {dp}",
+                    f"{actl} dpctl/dump-flows -m {dp}",
+                    f"{actl} dpctl/dump-conntrack -m {dp}",
+                    f"{actl} dpctl/ct-stats-show -m {dp}",
+                    f"{actl} dpctl/ipf-get-status {dp}",
+                ])
 
         # Gather additional output for each OVS bridge on the host.
         br_list_result = self.collect_cmd_output("ovs-vsctl -t 5 list-br")
         ofp_ver_result = self.collect_cmd_output("ovs-ofctl -t 5 --version")
         if br_list_result['status'] == 0:
             for br in br_list_result['output'].splitlines():
-                self.add_cmd_output(
-                    [
-                        f"{actl} bridge/dump-flows --offload-stats {br}",
-                        f"{actl} dpif/show-dp-features {br}",
-                        f"{actl} fdb/show {br}",
-                        f"{actl} fdb/stats-show {br}",
-                        f"{actl} mdb/show {br}",
-                        f"ovs-ofctl dump-flows {br}",
-                        f"ovs-ofctl dump-ports-desc {br}",
-                        f"ovs-ofctl dump-ports {br}",
-                        f"ovs-ofctl queue-get-config {br}",
-                        f"ovs-ofctl queue-stats {br}",
-                        f"ovs-ofctl show {br}",
-                        f"ovs-ofctl dump-groups {br}",
-                    ]
-                )
+                self.add_cmd_output([
+                    f"{actl} bridge/dump-flows --offload-stats {br}",
+                    f"{actl} dpif/show-dp-features {br}",
+                    f"{actl} fdb/show {br}",
+                    f"{actl} fdb/stats-show {br}",
+                    f"{actl} mdb/show {br}",
+                    f"ovs-ofctl dump-flows {br}",
+                    f"ovs-ofctl dump-ports-desc {br}",
+                    f"ovs-ofctl dump-ports {br}",
+                    f"ovs-ofctl queue-get-config {br}",
+                    f"ovs-ofctl queue-stats {br}",
+                    f"ovs-ofctl show {br}",
+                    f"ovs-ofctl dump-groups {br}",
+                ])
 
                 # Flow protocols currently supported
                 flow_versions = [
@@ -308,30 +304,26 @@ class OpenVSwitch(Plugin):
                 # Collect flow information for relevant protocol versions only
                 for flow in flow_versions:
                     if flow in br_protos:
-                        self.add_cmd_output(
-                            [
-                                f"ovs-ofctl -O {flow} show {br}",
-                                f"ovs-ofctl -O {flow} dump-groups {br}",
-                                f"ovs-ofctl -O {flow} dump-group-stats {br}",
-                                f"ovs-ofctl -O {flow} dump-flows {br}",
-                                f"ovs-ofctl -O {flow} dump-tlv-map {br}",
-                                f"ovs-ofctl -O {flow} dump-ports-desc {br}",
-                            ]
-                        )
+                        self.add_cmd_output([
+                            f"ovs-ofctl -O {flow} show {br}",
+                            f"ovs-ofctl -O {flow} dump-groups {br}",
+                            f"ovs-ofctl -O {flow} dump-group-stats {br}",
+                            f"ovs-ofctl -O {flow} dump-flows {br}",
+                            f"ovs-ofctl -O {flow} dump-tlv-map {br}",
+                            f"ovs-ofctl -O {flow} dump-ports-desc {br}",
+                        ])
 
                 port_list_result = self.exec_cmd(
                     f"ovs-vsctl -t 5 list-ports {br}"
                 )
                 if port_list_result['status'] == 0:
                     for port in port_list_result['output'].splitlines():
-                        self.add_cmd_output(
-                            [
-                                f"ovs-appctl cfm/show {port}",
-                                f"ovs-appctl qos/show {port}",
-                                f"ovs-appctl bond/show {port}",
-                                f"ovs-vsctl get Interface {port} options",
-                            ]
-                        )
+                        self.add_cmd_output([
+                            f"ovs-appctl cfm/show {port}",
+                            f"ovs-appctl qos/show {port}",
+                            f"ovs-appctl bond/show {port}",
+                            f"ovs-vsctl get Interface {port} options",
+                        ])
 
                         if check_dpdk:
                             self.add_cmd_output(
@@ -350,15 +342,13 @@ class OpenVSwitch(Plugin):
                                 f" {iface}"
                             )
                 if check_6wind:
-                    self.add_cmd_output(
-                        [
-                            f"{actl} evpn/vip-list-show {br}",
-                            f"{actl} bridge/dump-conntracks-summary {br}",
-                            f"{actl} bridge/acl-table ingress/egress {br}",
-                            f"{actl} bridge/acl-table {br}",
-                            f"{actl} ofproto/show {br}",
-                        ]
-                    )
+                    self.add_cmd_output([
+                        f"{actl} evpn/vip-list-show {br}",
+                        f"{actl} bridge/dump-conntracks-summary {br}",
+                        f"{actl} bridge/acl-table ingress/egress {br}",
+                        f"{actl} bridge/acl-table {br}",
+                        f"{actl} ofproto/show {br}",
+                    ])
 
                     vrf_list = self.collect_cmd_output(f"{actl} vrf/list {br}")
                     if vrf_list['status'] == 0:
@@ -374,26 +364,20 @@ class OpenVSwitch(Plugin):
                     if evpn_list['status'] == 0:
                         evpns = evpn_list['output'].split()[1:]
                         for evpn in evpns:
-                            self.add_cmd_output(
-                                [
-                                    f"{actl} evpn/mac-table {evpn}",
-                                    f"{actl} evpn/arp-table {evpn}",
-                                    f"{actl} evpn/dump-flows {br} {evpn}",
-                                    f"{actl} evpn/dhcp-pool-show {br} {evpn}",
-                                    f"{actl} evpn/dhcp-relay-show {br} {evpn}",
-                                    (
-                                        f"{actl} evpn/dhcp-static-show"
-                                        f" {br} {evpn}"
-                                    ),
-                                    f"{actl} evpn/dhcp-table-show {br} {evpn}",
-                                    (
-                                        f"{actl} evpn/proxy-arp-filter-list"
-                                        f" {br} {evpn}"
-                                    ),
-                                    f"{actl} evpn/show {br} {evpn}",
-                                    f"{actl} port/dscp-table {br} {evpn}",
-                                ]
-                            )
+                            self.add_cmd_output([
+                                f"{actl} evpn/mac-table {evpn}",
+                                f"{actl} evpn/arp-table {evpn}",
+                                f"{actl} evpn/dump-flows {br} {evpn}",
+                                f"{actl} evpn/dhcp-pool-show {br} {evpn}",
+                                f"{actl} evpn/dhcp-relay-show {br} {evpn}",
+                                f"{actl} evpn/dhcp-static-show"
+                                f" {br} {evpn}",
+                                f"{actl} evpn/dhcp-table-show {br} {evpn}",
+                                f"{actl} evpn/proxy-arp-filter-list"
+                                f" {br} {evpn}",
+                                f"{actl} evpn/show {br} {evpn}",
+                                f"{actl} port/dscp-table {br} {evpn}",
+                            ])
 
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):

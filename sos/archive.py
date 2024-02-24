@@ -754,7 +754,9 @@ class TarFileArchive(FileCacheArchive):
         else:
             kwargs = {'preset': 3}
         tar = tarfile.open(
-            self._archive_name, mode=f"w:{_comp_mode}", **kwargs
+            self._archive_name,
+            mode=f"w:{_comp_mode}",
+            **kwargs
         )
         # add commonly reviewed files first, so that they can be more easily
         # read from memory without needing to extract the whole archive

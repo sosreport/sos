@@ -138,7 +138,8 @@ class ContainerRuntime():
         vols = []
         if self.active:
             out = sos_get_command_output(
-                f"{self.binary} volume ls", chroot=self.policy.sysroot
+                f"{self.binary} volume ls",
+                chroot=self.policy.sysroot
             )
             if out['status'] == 0:
                 for ent in out['output'].splitlines()[1:]:

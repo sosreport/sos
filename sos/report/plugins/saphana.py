@@ -32,7 +32,8 @@ class saphana(Plugin, RedHatPlugin):
                 prefix = f'su - {sidadm} -c'
 
                 self.add_cmd_output(
-                    f'{prefix} "HDB info"', suggest_filename=f"{sid}_HDB_info"
+                    f'{prefix} "HDB info"',
+                    suggest_filename=f"{sid}_HDB_info"
                 )
 
                 self.add_cmd_output(
@@ -41,14 +42,13 @@ class saphana(Plugin, RedHatPlugin):
                 )
 
                 self.add_cmd_output(
-                    '%s \'hdbcons "mm l -s -S -p"\'' % prefix,
+                    f'{prefix} \'hdbcons "mm l -s -S -p"\'',
                     suggest_filename=f"{sid}_memusage",
                 )
 
                 self.add_cmd_output(
-                    '%s \'hdbcons -e hdbindexserver \
-                                    "replication info"\''
-                    % prefix,
+                    f'{prefix} \'hdbcons -e hdbindexserver'
+                    ' "replication info"\'',
                     suggest_filename=f"{sid}_replicainfo",
                 )
 

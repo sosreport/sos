@@ -40,12 +40,10 @@ class SMcli(Plugin, IndependentPlugin):
 
         # Collect status of each storage array
         for ssname in ssnames:
-            self.add_cmd_output(
-                [
-                    f"SMcli localhost -n {ssname} -c '{subcmd}'"
-                    for subcmd in subcmds
-                ]
-            )
+            self.add_cmd_output([
+                f"SMcli localhost -n {ssname} -c '{subcmd}'"
+                for subcmd in subcmds
+            ])
 
         if self.get_option("debug"):
             self.do_debug(ssnames)

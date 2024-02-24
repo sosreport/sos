@@ -62,8 +62,10 @@ class MsSQL(Plugin, RedHatPlugin):
             return
 
         # Collect AD authentication configuratoin
-        keytab_err = ('keytab file is specfieid in mssql_conf'
-                      ' but not found in %s' % kerberoskeytabfile)
+        keytab_err = (
+            'keytab file is specfieid in mssql_conf but not found in'
+            f' {kerberoskeytabfile}'
+        )
         if kerberoskeytabfile is not None:
             if self.path_isfile(kerberoskeytabfile):
                 self.add_cmd_output(f'ls -l {kerberoskeytabfile}')
@@ -72,9 +74,11 @@ class MsSQL(Plugin, RedHatPlugin):
                 self._log_error(keytab_err)
 
         # Expecting mssql_conf doesn't includeno sensitive information.
-        self.add_copy_spec(
-            [mssql_conf, f"{errorlogfile}/*", sqlagent_errorlogfile]
-        )
+        self.add_copy_spec([
+            mssql_conf,
+            f"{errorlogfile}/*",
+            sqlagent_errorlogfile
+        ])
 
         if not self.get_option('all_logs'):
             self.add_copy_spec(f'{errorlogfile}/*')

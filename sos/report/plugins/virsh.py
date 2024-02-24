@@ -46,7 +46,8 @@ class LibvirtClient(Plugin, IndependentPlugin):
             self.add_cmd_output(f'{cmd} {subcmd}', foreground=True)
 
         self.add_cmd_output(
-            f"{cmd} list --all", tags="virsh_list_all", foreground=True
+            f"{cmd} list --all", tags="virsh_list_all",
+            foreground=True
         )
 
         # get network, pool and nwfilter elements
@@ -65,7 +66,8 @@ class LibvirtClient(Plugin, IndependentPlugin):
                 for j in filter(lambda x: x, k_lines[2:]):
                     n = j.split()[pos]
                     self.add_cmd_output(
-                        f"{cmd} {k}-dumpxml {n}", foreground=True
+                        f"{cmd} {k}-dumpxml {n}",
+                        foreground=True
                     )
 
         # cycle through the VMs/domains list, ignore 2 header lines and latest

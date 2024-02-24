@@ -40,7 +40,7 @@ class MissingCollect(SoSComponent):
         the functionality is unavailable
         """
         msg = (
-            "{'WARNING: `collect` is not available with this installation!'}"
+            "WARNING: `collect` is not available with this installation!"
             f" {cls.missing_msg}"
         )
         parser.epilog = msg

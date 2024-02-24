@@ -32,9 +32,10 @@ class OpenStackCeilometer(Plugin):
             self.add_copy_spec([
                 "/var/log/ceilometer/*.log",
             ])
-        self.add_copy_spec(
-            ["/etc/ceilometer/*", f"{self.var_puppet_gen}/etc/ceilometer/*"]
-        )
+        self.add_copy_spec([
+            "/etc/ceilometer/*",
+            f"{self.var_puppet_gen}/etc/ceilometer/*"
+        ])
 
         self.add_file_tags({
             "/var/log/ceilometer/central.log":
@@ -44,7 +45,9 @@ class OpenStackCeilometer(Plugin):
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/ceilometer/*", regexp, subst)
         self.do_path_regex_sub(
-            f"{self.var_puppet_gen}/etc/ceilometer/*", regexp, subst
+            f"{self.var_puppet_gen}/etc/ceilometer/*",
+            regexp,
+            subst
         )
 
     def postproc(self):

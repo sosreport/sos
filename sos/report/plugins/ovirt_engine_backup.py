@@ -29,10 +29,12 @@ class oVirtEngineBackup(Plugin, RedHatPlugin):
     def setup(self):
         now = datetime.now().strftime("%Y%m%d%H%M%S")
         backup_filename = self.path_join(
-            self.get_option("backupdir"), f"engine-db-backup-{now}.tar.gz"
+            self.get_option("backupdir"),
+            f"engine-db-backup-{now}.tar.gz"
         )
         log_filename = self.path_join(
-            self.get_option("backupdir"), f"engine-db-backup-{now}.log"
+            self.get_option("backupdir"),
+            f"engine-db-backup-{now}.log"
         )
         cmd = ("engine-backup --mode=backup --scope=db"
                " --file=%s --log=%s --tmpdir=%s") % (

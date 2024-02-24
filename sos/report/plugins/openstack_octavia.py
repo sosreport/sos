@@ -35,18 +35,16 @@ class OpenStackOctavia(Plugin):
 
     def setup(self):
         # configs
-        self.add_copy_spec(
-            [
-                "/etc/sysconfig/network-scripts/ifcfg-o-hm0",
-                "/etc/logrotate.d/openstack-octavia",
-                "/etc/octavia/*",
-                "/var/lib/octavia",
-                f"{self.var_config_data}/octavia/etc/octavia",
-                f"{self.var_puppet_gen}/etc/octavia",
-                f"{self.var_puppet_gen}/etc/rsyslog.d",
-                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/sysconfig/network-scripts/ifcfg-o-hm0",
+            "/etc/logrotate.d/openstack-octavia",
+            "/etc/octavia/*",
+            "/var/lib/octavia",
+            f"{self.var_config_data}/octavia/etc/octavia",
+            f"{self.var_puppet_gen}/etc/octavia",
+            f"{self.var_puppet_gen}/etc/rsyslog.d",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+        ])
 
         self.add_file_tags({
             ".*/etc/octavia/octavia.conf": "octavia_conf"
@@ -126,7 +124,8 @@ class OpenStackOctavia(Plugin):
 
         self.do_path_regex_sub("/etc/octavia/*", regexp, r"\1*********")
         self.do_path_regex_sub(
-            f"{self.var_puppet_gen}/etc/octavia/*", regexp, r"\1*********"
+            f"{self.var_puppet_gen}/etc/octavia/*",
+            regexp, r"\1*********"
         )
 
 

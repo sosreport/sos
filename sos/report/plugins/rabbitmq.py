@@ -51,14 +51,12 @@ class RabbitMQ(Plugin, IndependentPlugin):
                 "rabbitmqctl eval 'rabbit_diagnostics:maybe_stuck().'",
                 timeout=10)
 
-        self.add_copy_spec(
-            [
-                "/etc/rabbitmq/*",
-                f"{self.var_puppet_gen}/etc/rabbitmq/*",
-                f"{self.var_puppet_gen}/etc/security/limits.d/",
-                f"{self.var_puppet_gen}/etc/systemd/",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/rabbitmq/*",
+            f"{self.var_puppet_gen}/etc/rabbitmq/*",
+            f"{self.var_puppet_gen}/etc/security/limits.d/",
+            f"{self.var_puppet_gen}/etc/systemd/",
+        ])
         self.add_copy_spec([
             "/var/log/rabbitmq/*",
         ])

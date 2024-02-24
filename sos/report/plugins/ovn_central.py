@@ -179,7 +179,8 @@ class OVNCentral(Plugin):
                 if os.path.exists(dbfilepath):
                     self.add_copy_spec(dbfilepath)
                     self.add_cmd_output(
-                        f"ls -lan {dbfilepath}", foreground=True
+                        f"ls -lan {dbfilepath}",
+                        foreground=True
                     )
             if ovs_dbdir:
                 self.add_copy_spec(self.path_join(ovs_dbdir, dbfile))

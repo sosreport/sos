@@ -22,7 +22,8 @@ class Opensvc(Plugin, IndependentPlugin):
         if getobjs['status'] == 0:
             for line in getobjs['output'].splitlines():
                 self.add_cmd_output(
-                    f"om {line} print status --color=no", subdir=dirname
+                    f"om {line} print status --color=no",
+                    subdir=dirname
                 )
 
     def setup(self):

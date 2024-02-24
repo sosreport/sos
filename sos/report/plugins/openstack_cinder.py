@@ -137,7 +137,9 @@ class OpenStackCinder(Plugin):
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/cinder/*", regexp, subst)
         self.do_path_regex_sub(
-            f"{self.var_puppet_gen}/etc/cinder/*", regexp, subst
+            f"{self.var_puppet_gen}/etc/cinder/*",
+            regexp,
+            subst
         )
 
     def postproc(self):

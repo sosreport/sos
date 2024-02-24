@@ -155,15 +155,11 @@ class OpenShiftOrigin(Plugin):
                 'openshift-console'
             ]
 
-            self.add_cmd_output(
-                [
-                    (
-                        f"{oc_cmd_admin} get -o json"
-                        f" deploymentconfig,deployment,daemonsets -n {n}"
-                    )
-                    for n in nmsps
-                ]
-            )
+            self.add_cmd_output([
+                f"{oc_cmd_admin} get -o json"
+                f" deploymentconfig,deployment,daemonsets -n {n}"
+                for n in nmsps
+            ])
 
             if not self.is_static_pod_compatible():
                 self.add_journal(units=["atomic-openshift-master",

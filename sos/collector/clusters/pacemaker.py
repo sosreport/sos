@@ -68,7 +68,8 @@ class pacemaker(Cluster):
         else:
             return
         _out = self.exec_primary_cmd(
-            f"crm_mon --one-shot --inactive {xmlopt}", need_root=True
+            f"crm_mon --one-shot --inactive {xmlopt}",
+            need_root=True
         )
         if _out['status'] == 0:
             self.parse_crm_xml(_out['output'])

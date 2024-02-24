@@ -34,7 +34,8 @@ class Ubuntu(Plugin, UbuntuPlugin):
             self.add_cmd_output(ua_tools_status,
                                 pred=ua_pred, changes=True)
             self.add_cmd_output(
-                f"{ua_tools_status} --format json", pred=ua_pred, changes=True
+                f"{ua_tools_status} --format json",
+                pred=ua_pred, changes=True
             )
 
             if not self.get_option("all_logs"):

@@ -35,30 +35,26 @@ class OpenStackIronic(Plugin):
                 f"{self.ins_puppet_gen}/etc/ironic-inspector/*",
                 f"{self.ins_puppet_gen}/var/lib/httpboot/inspector.ipxe",
             ]
-            self.add_copy_spec(
-                [
-                    "/var/lib/ironic-inspector/",
-                    "/var/log/containers/ironic-inspector/ramdisk/",
-                    f"{self.var_puppet_gen}/etc/xinetd.conf",
-                    f"{self.var_puppet_gen}/etc/xinetd.d/",
-                    f"{self.var_puppet_gen}/etc/ironic/",
-                    f"{self.var_puppet_gen}/etc/ironic-inspector/",
-                    f"{self.var_puppet_gen}/etc/httpd/conf/",
-                    f"{self.var_puppet_gen}/etc/httpd/conf.d/",
-                    f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
-                    f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
-                    f"{self.var_puppet_gen}_api/etc/ironic/",
-                    f"{self.var_puppet_gen}_api/etc/httpd/conf/",
-                    f"{self.var_puppet_gen}_api/etc/httpd/conf.d/",
-                    (
-                        f"{self.var_puppet_gen}_api/etc/httpd/conf.modules.d/"
-                        "*.conf"
-                    ),
-                    f"{self.var_puppet_gen}_api/etc/my.cnf.d/tripleo.cnf",
-                    f"{self.ins_puppet_gen}/etc/ironic-inspector/*",
-                    f"{self.ins_puppet_gen}/var/lib/httpboot/inspector.ipxe",
-                ]
-            )
+            self.add_copy_spec([
+                "/var/lib/ironic-inspector/",
+                "/var/log/containers/ironic-inspector/ramdisk/",
+                f"{self.var_puppet_gen}/etc/xinetd.conf",
+                f"{self.var_puppet_gen}/etc/xinetd.d/",
+                f"{self.var_puppet_gen}/etc/ironic/",
+                f"{self.var_puppet_gen}/etc/ironic-inspector/",
+                f"{self.var_puppet_gen}/etc/httpd/conf/",
+                f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
+                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+                f"{self.var_puppet_gen}_api/etc/ironic/",
+                f"{self.var_puppet_gen}_api/etc/httpd/conf/",
+                f"{self.var_puppet_gen}_api/etc/httpd/conf.d/",
+                f"{self.var_puppet_gen}_api/etc/httpd/conf.modules.d/"
+                "*.conf",
+                f"{self.var_puppet_gen}_api/etc/my.cnf.d/tripleo.cnf",
+                f"{self.ins_puppet_gen}/etc/ironic-inspector/*",
+                f"{self.ins_puppet_gen}/var/lib/httpboot/inspector.ipxe",
+            ])
 
             if self.get_option("all_logs"):
                 self.add_copy_spec([

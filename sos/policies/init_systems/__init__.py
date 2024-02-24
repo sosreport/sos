@@ -118,7 +118,8 @@ class InitSystem():
         if self.query_cmd:
             try:
                 return sos_get_command_output(
-                    f"{self.query_cmd} {name}", chroot=self.chroot
+                    f"{self.query_cmd} {name}",
+                    chroot=self.chroot
                 )
             except Exception:
                 return None

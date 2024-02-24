@@ -109,7 +109,9 @@ class SoS():
         # for the component subparsers
         for comp in self._components:
             _com_subparser = self.subparsers.add_parser(
-                comp, aliases=self._components[comp][1], prog=f"sos {comp}"
+                comp,
+                aliases=self._components[comp][1],
+                prog=f"sos {comp}"
             )
             _com_subparser.usage = f"sos {comp} [options]"
             _com_subparser.register('action', 'extend', SosListOption)

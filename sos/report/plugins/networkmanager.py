@@ -101,7 +101,8 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                     self.add_cmd_output(f'{nmcli_con_details_cmd} "{con}"')
 
             self.add_device_cmd(
-                f'{nmcli_dev_details_cmd} "%(dev)s"', devices="ethernet"
+                f'{nmcli_dev_details_cmd} "%(dev)s"',
+                devices="ethernet"
             )
 
         self.add_cmd_tags({

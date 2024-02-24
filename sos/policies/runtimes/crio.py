@@ -50,7 +50,8 @@ class CrioContainerRuntime(ContainerRuntime):
         images = []
         if self.active:
             out = sos_get_command_output(
-                f"{self.binary} images -o json", chroot=self.policy.sysroot
+                f"{self.binary} images -o json",
+                chroot=self.policy.sysroot
             )
             if out['status'] == 0:
                 out_json = json.loads(out["output"])

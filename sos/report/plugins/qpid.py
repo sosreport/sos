@@ -44,28 +44,26 @@ class Qpid(Plugin, RedHatPlugin):
                 + f'localhost:{self.get_option("port")}'
             )
 
-        self.add_cmd_output(
-            [
-                f"qpid-stat -g{options}",
-                f"qpid-stat -b{options}",
-                f"qpid-stat -c{options}",
-                f"qpid-stat -e{options}",
-                f"qpid-stat -q{options}",
-                f"qpid-stat -u{options}",
-                f"qpid-stat -m{options}",
-                f"qpid-config exchanges{options}",
-                f"qpid-config queues{options}",
-                f"qpid-config exchanges -b{options}",
-                f"qpid-config queues -b{options}",
-                f"qpid-config exchanges -r{options}",
-                f"qpid-config queues -r{options}",
-                f"qpid-route link list{options}",
-                f"qpid-route route list{options}",
-                f"qpid-cluster{options}",
-                f"qpid-ha query{options}",
-                "ls -lanR /var/lib/qpidd",
-            ]
-        )
+        self.add_cmd_output([
+            f"qpid-stat -g{options}",
+            f"qpid-stat -b{options}",
+            f"qpid-stat -c{options}",
+            f"qpid-stat -e{options}",
+            f"qpid-stat -q{options}",
+            f"qpid-stat -u{options}",
+            f"qpid-stat -m{options}",
+            f"qpid-config exchanges{options}",
+            f"qpid-config queues{options}",
+            f"qpid-config exchanges -b{options}",
+            f"qpid-config queues -b{options}",
+            f"qpid-config exchanges -r{options}",
+            f"qpid-config queues -r{options}",
+            f"qpid-route link list{options}",
+            f"qpid-route route list{options}",
+            f"qpid-cluster{options}",
+            f"qpid-ha query{options}",
+            "ls -lanR /var/lib/qpidd",
+        ])
 
         self.add_copy_spec([
             "/etc/qpidd.conf",  # applies to pre-0.22 versions

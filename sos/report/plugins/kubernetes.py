@@ -98,9 +98,9 @@ class Kubernetes(Plugin):
             'projects',
             'pvs'
         ]
-        self.add_cmd_output(
-            [f"{self.kube_cmd} get {res}" for res in global_resources]
-        )
+        self.add_cmd_output([
+            f"{self.kube_cmd} get {res}" for res in global_resources
+        ])
 
         # Get detailed node information
         nodes = self.collect_cmd_output(f"{self.kube_cmd} get nodes")
@@ -112,7 +112,8 @@ class Kubernetes(Plugin):
                     continue
                 node = words[0]
                 self.add_cmd_output(
-                    f"{self.kube_cmd} describe node {node}", subdir="nodes"
+                    f"{self.kube_cmd} describe node {node}",
+                    subdir="nodes"
                 )
 
         # Also collect master metrics
@@ -144,7 +145,8 @@ class Kubernetes(Plugin):
                         for k in k_list:
                             k_cmd = f'{self.kube_cmd} {knsp}'
                             self.add_cmd_output(
-                                f"{k_cmd} describe {res} {k}", subdir=res
+                                f"{k_cmd} describe {res} {k}",
+                                subdir=res
                             )
 
             if self.get_option('podlogs'):
@@ -160,7 +162,8 @@ class Kubernetes(Plugin):
                         if reg and not re.match(reg, pod):
                             continue
                         self.add_cmd_output(
-                            f"{k_cmd} logs {pod}", subdir="pods"
+                            f"{k_cmd} logs {pod}",
+                            subdir="pods"
                         )
 
         if not self.get_option('all'):

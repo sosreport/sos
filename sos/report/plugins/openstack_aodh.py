@@ -22,16 +22,14 @@ class OpenStackAodh(Plugin):
     var_puppet_gen = "/var/lib/config-data/puppet-generated/aodh"
 
     def setup(self):
-        self.add_copy_spec(
-            [
-                "/etc/aodh/",
-                f"{self.var_puppet_gen}/etc/aodh/*",
-                f"{self.var_puppet_gen}/etc/httpd/conf/*",
-                f"{self.var_puppet_gen}/etc/httpd/conf.d/*",
-                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/wsgi.conf",
-                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/aodh/",
+            f"{self.var_puppet_gen}/etc/aodh/*",
+            f"{self.var_puppet_gen}/etc/httpd/conf/*",
+            f"{self.var_puppet_gen}/etc/httpd/conf.d/*",
+            f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/wsgi.conf",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+        ])
 
         if self.get_option("all_logs"):
             self.add_copy_spec([

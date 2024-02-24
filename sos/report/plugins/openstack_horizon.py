@@ -32,19 +32,15 @@ class OpenStackHorizon(Plugin):
                 "/var/log/horizon/*.log",
             ])
 
-        self.add_copy_spec(
-            [
-                "/etc/openstack-dashboard/",
-                f"{self.var_puppet_gen}/horizon/etc/openstack-dashboard/",
-                f"{self.var_puppet_gen}/horizon/etc/httpd/conf/",
-                f"{self.var_puppet_gen}/horizon/etc/httpd/conf.d/",
-                (
-                    f"{self.var_puppet_gen}/horizon/etc/httpd/conf.modules.d/"
-                    "*.conf"
-                ),
-                f"{self.var_puppet_gen}/memcached/etc/sysconfig/memcached",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/openstack-dashboard/",
+            f"{self.var_puppet_gen}/horizon/etc/openstack-dashboard/",
+            f"{self.var_puppet_gen}/horizon/etc/httpd/conf/",
+            f"{self.var_puppet_gen}/horizon/etc/httpd/conf.d/",
+            f"{self.var_puppet_gen}/horizon/etc/httpd/conf.modules.d/"
+            "*.conf",
+            f"{self.var_puppet_gen}/memcached/etc/sysconfig/memcached",
+        ])
         self.add_forbidden_path(
             "/etc/openstack-dashboard/local_settings.d/*.py[co]"
         )

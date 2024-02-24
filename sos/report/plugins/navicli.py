@@ -42,24 +42,22 @@ class Navicli(Plugin, RedHatPlugin):
         """ EMC Navisphere Host Agent NAVICLI specific
         information - CLARiiON - commands
         """
-        self.add_cmd_output(
-            [
-                f"navicli -h {SP_address} getall",
-                f"navicli -h {SP_address} getsptime -spa",
-                f"navicli -h {SP_address} getsptime -spb",
-                f"navicli -h {SP_address} getlog",
-                f"navicli -h {SP_address} getdisk",
-                f"navicli -h {SP_address} getcache",
-                f"navicli -h {SP_address} getlun",
-                "navicli -h %s getlun -rg -type -default -owner -crus "
-                "-capacity" % SP_address,
-                f"navicli -h {SP_address} lunmapinfo",
-                f"navicli -h {SP_address} getcrus",
-                f"navicli -h {SP_address} port -list -all",
-                f"navicli -h {SP_address} storagegroup -list",
-                f"navicli -h {SP_address} spportspeed -get",
-            ]
-        )
+        self.add_cmd_output([
+            f"navicli -h {SP_address} getall",
+            f"navicli -h {SP_address} getsptime -spa",
+            f"navicli -h {SP_address} getsptime -spb",
+            f"navicli -h {SP_address} getlog",
+            f"navicli -h {SP_address} getdisk",
+            f"navicli -h {SP_address} getcache",
+            f"navicli -h {SP_address} getlun",
+            f"navicli -h {SP_address} getlun -rg -type -default -owner -crus"
+            " -capacity",
+            f"navicli -h {SP_address} lunmapinfo",
+            f"navicli -h {SP_address} getcrus",
+            f"navicli -h {SP_address} port -list -all",
+            f"navicli -h {SP_address} storagegroup -list",
+            f"navicli -h {SP_address} spportspeed -get",
+        ])
 
     def setup(self):
         self.get_navicli_config()

@@ -29,16 +29,14 @@ class OpenStackDesignate(Plugin):
         )
 
         # configs
-        self.add_copy_spec(
-            [
-                "/etc/designate/*",
-                f"{self.var_puppet_gen}/etc/designate/designate.conf",
-                f"{self.var_puppet_gen}/etc/designate/pools.yaml",
-                f"{self.var_ansible_gen}/designate/etc/designate/named.conf",
-                f"{self.var_ansible_gen}/designate/etc/designate/named/*",
-                f"{self.var_ansible_gen}/unbound/*",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/designate/*",
+            f"{self.var_puppet_gen}/etc/designate/designate.conf",
+            f"{self.var_puppet_gen}/etc/designate/pools.yaml",
+            f"{self.var_ansible_gen}/designate/etc/designate/named.conf",
+            f"{self.var_ansible_gen}/designate/etc/designate/named/*",
+            f"{self.var_ansible_gen}/unbound/*",
+        ])
 
         # logs
         if self.get_option("all_logs"):

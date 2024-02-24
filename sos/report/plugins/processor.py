@@ -22,21 +22,15 @@ class Processor(Plugin, IndependentPlugin):
 
         cpupath = '/sys/devices/system/cpu'
 
-        self.add_file_tags(
-            {
-                f"{cpupath}/smt/control": 'cpu_smt_control',
-                f"{cpupath}/smt/active": 'cpu_smt_active',
-                f"{cpupath}/vulnerabilities/.*": 'cpu_vulns',
-                f"{cpupath}/vulnerabilities/spectre_v2": (
-                    'cpu_vulns_spectre_v2'
-                ),
-                f"{cpupath}/vulnerabilities/meltdown": 'cpu_vulns_meltdown',
-                f"{cpupath}/cpu.*/online": 'cpu_cores',
-                f"{cpupath}/cpu/cpu0/cpufreq/cpuinfo_max_freq": (
-                    'cpuinfo_max_freq'
-                ),
-            }
-        )
+        self.add_file_tags({
+            f"{cpupath}/smt/control": 'cpu_smt_control',
+            f"{cpupath}/smt/active": 'cpu_smt_active',
+            f"{cpupath}/vulnerabilities/.*": 'cpu_vulns',
+            f"{cpupath}/vulnerabilities/spectre_v2": 'cpu_vulns_spectre_v2',
+            f"{cpupath}/vulnerabilities/meltdown": 'cpu_vulns_meltdown',
+            f"{cpupath}/cpu.*/online": 'cpu_cores',
+            f"{cpupath}/cpu/cpu0/cpufreq/cpuinfo_max_freq": 'cpuinfo_max_freq',
+        })
 
         self.add_copy_spec([
             "/proc/cpuinfo",

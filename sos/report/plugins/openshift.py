@@ -289,7 +289,9 @@ class Openshift(Plugin, RedHatPlugin):
             _subdir = f"cluster_resources/{resource}"
             _tag = [f"ocp_{resource}"]
             _res = self.collect_cmd_output(
-                f"{self.oc_cmd} {resource}", subdir=_subdir, tags=_tag
+                f"{self.oc_cmd} {resource}",
+                subdir=_subdir,
+                tags=_tag
             )
             if _res['status'] == 0:
                 for _res_name in _res['output'].splitlines()[1:]:
@@ -346,7 +348,8 @@ class Openshift(Plugin, RedHatPlugin):
 
         # namespace-specific non-resource collections
         self.add_cmd_output(
-            f"oc describe namespace {namespace}", subdir=subdir
+            f"oc describe namespace {namespace}",
+            subdir=subdir
         )
 
         for res in resources:
@@ -395,7 +398,10 @@ class Openshift(Plugin, RedHatPlugin):
             if regex and not re.match(regex, pod):
                 continue
             _log_cmd = f"oc logs --namespace={namespace} {pod}"
-            self.add_cmd_output([_log_cmd, f"{_log_cmd} -p"], subdir=_log_dir)
+            self.add_cmd_output([
+                _log_cmd,
+                f"{_log_cmd} -p"
+            ], subdir=_log_dir)
 
     def postproc(self):
 

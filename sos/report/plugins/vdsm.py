@@ -94,9 +94,9 @@ class Vdsm(Plugin, RedHatPlugin):
         qemu_pids = self.get_process_pids('qemu-kvm')
         if qemu_pids:
             files = ["cmdline", "status", "mountstats"]
-            self.add_copy_spec(
-                [f"/proc/{pid}/{name}" for pid in qemu_pids for name in files]
-            )
+            self.add_copy_spec([
+                f"/proc/{pid}/{name}" for pid in qemu_pids for name in files
+            ])
         self.add_cmd_output([
             "ls -ldZ /etc/vdsm",
             "su vdsm -s /bin/sh -c 'tree -l /rhev/data-center'",

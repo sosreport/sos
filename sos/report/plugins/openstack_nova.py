@@ -142,7 +142,9 @@ class OpenStackNova(Plugin):
         self.do_path_regex_sub("/etc/nova/*", regexp, subst)
         for p in ['', '_libvirt', '_metadata', '_placement']:
             self.do_path_regex_sub(
-                f"{self.var_puppet_gen}{p}/etc/nova/*", regexp, subst
+                f"{self.var_puppet_gen}{p}/etc/nova/*",
+                regexp,
+                subst
             )
 
     def postproc(self):
