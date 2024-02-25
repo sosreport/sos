@@ -38,10 +38,10 @@ class Libraries(Plugin, IndependentPlugin):
             # Collect library directories from ldconfig's cache
             dirs = set()
             for lib in ldconfig['output'].splitlines():
-                s = lib.split(" => ", 2)
-                if len(s) != 2:
+                fqlib = lib.split(" => ", 2)
+                if len(fqlib) != 2:
                     continue
-                dirs.add(s[1].rsplit('/', 1)[0])
+                dirs.add(fqlib[1].rsplit('/', 1)[0])
 
             if dirs:
                 self.add_cmd_output("ls -lanH %s" % " ".join(dirs),

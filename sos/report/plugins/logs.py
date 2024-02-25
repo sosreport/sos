@@ -18,13 +18,14 @@ class LogsBase(Plugin):
     profiles = ('system', 'hardware', 'storage')
 
     def setup(self):
-        confs = ['/etc/syslog.conf', '/etc/rsyslog.conf']
+        rsyslog = 'etc/rsyslog.conf'
+        confs = ['/etc/syslog.conf', rsyslog]
         logs = []
 
         since = self.get_option("since")
 
-        if self.path_exists('/etc/rsyslog.conf'):
-            with open(self.path_join('/etc/rsyslog.conf'), 'r') as conf:
+        if self.path_exists(rsyslog):
+            with open(self.path_join(rsyslog), 'r', encoding='UTF-8') as conf:
                 for line in conf.readlines():
                     if line.startswith('$IncludeConfig'):
                         confs += glob.glob(line.split()[1])
@@ -61,8 +62,8 @@ class LogsBase(Plugin):
         # - there is some data present, either persistent or runtime only
         # - systemd-journald service exists
         # otherwise fallback to collecting few well known logfiles directly
-        journal = any([self.path_exists(self.path_join(p, "log/journal/"))
-                       for p in ["/var", "/run"]])
+        journal = any(self.path_exists(self.path_join(p, "log/journal/"))
+                      for p in ["/var", "/run"])
         if journal and self.is_service("systemd-journald"):
             self.add_journal(since=since, tags=['journal_full', 'journal_all'],
                              priority=100)
@@ -126,7 +127,7 @@ class CosLogs(LogsBase, CosPlugin):
     ]
 
     def setup(self):
-        super(CosLogs, self).setup()
+        super().setup()
         if self.get_option("all_logs"):
             self.add_cmd_output("journalctl -o export")
         else:

@@ -43,40 +43,36 @@ class Infiniband(Plugin, IndependentPlugin):
             "sminfo",
             "perfquery"
         ]
-        IB_SYS_DIR = "/sys/class/infiniband/"
-        ibs = self.listdir(IB_SYS_DIR) if self.path_isdir(IB_SYS_DIR) else []
-        for ib in ibs:
-            """
-            Skip OPA hardware, as infiniband-diags tools does not understand
-            OPA specific MAD sent by opa-fm. Intel provides OPA specific tools
-            for OPA fabric diagnose.
-            """
-            if ib.startswith("hfi"):
+        ib_sysdir = "/sys/class/infiniband/"
+        ib_devs = self.listdir(ib_sysdir) if self.path_isdir(ib_sysdir) else []
+        for ibdev in ib_devs:
+            # Skip OPA hardware, as infiniband-diags tools does not understand
+            # OPA specific MAD sent by opa-fm. Intel provides OPA specific
+            # tools for OPA fabric diagnose.
+            if ibdev.startswith("hfi"):
                 continue
 
-            for port in self.listdir(IB_SYS_DIR + ib + "/ports"):
+            for port in self.listdir(ib_sysdir + ibdev + "/ports"):
                 # skip IWARP and RoCE devices
+                lfile = ib_sysdir + ibdev + "/ports/" + port + "/link_layer"
                 try:
-                    p = open(IB_SYS_DIR + ib + "/ports/" + port +
-                             "/link_layer")
+                    with open(lfile, 'r', encoding='UTF-8') as link_fp:
+                        link_layer = link_fp.readline()
+                        if link_layer != "InfiniBand\n":
+                            continue
                 except IOError:
                     continue
-                link_layer = p.readline()
-                p.close()
-                if link_layer != "InfiniBand\n":
-                    continue
 
+                sfile = ib_sysdir + ibdev + "/ports/" + port + "/state"
                 try:
-                    s = open(IB_SYS_DIR + ib + "/ports/" + port + "/state")
+                    with open(sfile, 'r', encoding='UTF-8') as state_fp:
+                        state = state_fp.readline()
+                        if not state.endswith(": ACTIVE\n"):
+                            continue
                 except IOError:
                     continue
-                state = s.readline()
-                s.close()
 
-                if not state.endswith(": ACTIVE\n"):
-                    continue
-
-                opts = "-C %s -P %s" % (ib, port)
+                opts = "-C %s -P %s" % (ibdev, port)
                 self.add_cmd_output(["%s %s" % (c, opts) for c in ports_cmds])
 
 # vim: set et ts=4 sw=4 :

@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin
 from re import match
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin
 
 try:
     from urllib.parse import urlparse
@@ -48,7 +48,8 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
         matched = None
         provision_ip = None
         try:
-            with open("/etc/haproxy/haproxy.cfg", 'r') as hfile:
+            _haproxy_file = "/etc/haproxy/haproxy.cfg"
+            with open(_haproxy_file, 'r', encoding='UTF-8') as hfile:
                 for line in hfile.read().splitlines():
                     if matched:
                         provision_ip = line.split()[1]

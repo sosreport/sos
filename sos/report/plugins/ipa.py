@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, SoSPredicate
 from glob import glob
+from sos.report.plugins import Plugin, RedHatPlugin, SoSPredicate
 
 
 class Ipa(Plugin, RedHatPlugin):
@@ -25,17 +25,24 @@ class Ipa(Plugin, RedHatPlugin):
     files = ('/etc/ipa',)
     packages = ('ipa-server', 'ipa-client', 'freeipa-server', 'freeipa-client')
 
+    pki_tomcat_dir_v4 = None
+    pki_tomcat_dir_v3 = None
+    pki_tomcat_conf_dir_v4 = None
+    pki_tomcat_conf_dir_v3 = None
+
     def check_ipa_server_version(self):
+        """ Get IPA server version """
         if self.is_installed("pki-server") \
                 or self.path_exists("/var/lib/pki") \
                 or self.path_exists("/usr/share/doc/ipa-server-4.2.0"):
             return "v4"
-        elif self.is_installed("pki-common") \
+        if self.is_installed("pki-common") \
                 or self.path_exists("/var/lib/pki-ca/"):
             return "v3"
         return None
 
     def ca_installed(self):
+        """ Check if any CA is installed """
         # Follow the same checks as IPA CA installer code
         return any(
             self.path_exists(path) for path in [
@@ -45,11 +52,13 @@ class Ipa(Plugin, RedHatPlugin):
         )
 
     def ipa_server_installed(self):
+        """ Check if IPA server is installed """
         return any(
             self.is_installed(pkg) for pkg in ['ipa-server', 'freeipa-server']
         )
 
-    def retrieve_pki_logs(self, ipa_version):
+    def collect_pki_logs(self, ipa_version):
+        """ Collect PKI logs """
         if ipa_version == "v4":
             self.add_copy_spec([
                "/var/log/pki/pki-tomcat/ca/debug*",
@@ -99,7 +108,7 @@ class Ipa(Plugin, RedHatPlugin):
 
         if self.ca_installed():
             self._log_debug("CA is installed: retrieving PKI logs")
-            self.retrieve_pki_logs(ipa_version)
+            self.collect_pki_logs(ipa_version)
 
         self.add_copy_spec([
             "/var/log/ipaclient-install.log",
@@ -130,14 +139,14 @@ class Ipa(Plugin, RedHatPlugin):
 
         #  Make sure to use the right PKI config and NSS DB folders
         if ipa_version == "v4":
-            self.pki_tomcat_dir = self.pki_tomcat_dir_v4
-            self.pki_tomcat_conf_dir = self.pki_tomcat_conf_dir_v4
+            pki_tomcat_dir = self.pki_tomcat_dir_v4
+            pki_tomcat_conf_dir = self.pki_tomcat_conf_dir_v4
         else:
-            self.pki_tomcat_dir = self.pki_tomcat_dir_v3
-            self.pki_tomcat_conf_dir = self.pki_tomcat_conf_dir_v3
+            pki_tomcat_dir = self.pki_tomcat_dir_v3
+            pki_tomcat_conf_dir = self.pki_tomcat_conf_dir_v3
 
-        self.add_cmd_output("certutil -L -d %s/alias" % self.pki_tomcat_dir)
-        self.add_copy_spec("%s/CS.cfg" % self.pki_tomcat_conf_dir)
+        self.add_cmd_output("certutil -L -d %s/alias" % pki_tomcat_dir)
+        self.add_copy_spec("%s/CS.cfg" % pki_tomcat_conf_dir)
 
         self.add_forbidden_path([
             "/etc/pki/nssdb/key*",
@@ -149,9 +158,9 @@ class Ipa(Plugin, RedHatPlugin):
             "/etc/httpd/alias/pin.txt",
             "/etc/httpd/alias/pwdfile.txt",
             "/etc/named.keytab",
-            "%s/alias/key*" % self.pki_tomcat_dir,
-            "%s/flatfile.txt" % self.pki_tomcat_conf_dir,
-            "%s/password.conf" % self.pki_tomcat_conf_dir,
+            "%s/alias/key*" % pki_tomcat_dir,
+            "%s/flatfile.txt" % pki_tomcat_conf_dir,
+            "%s/password.conf" % pki_tomcat_conf_dir,
         ])
 
         self.add_cmd_output([
@@ -177,8 +186,6 @@ class Ipa(Plugin, RedHatPlugin):
             "/var/log/ipa/healthcheck/healthcheck.log":
                 "freeipa_healthcheck_log"
         })
-
-        return
 
     def postproc(self):
         match = r"(\s*arg \"password )[^\"]*"

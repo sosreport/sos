@@ -6,9 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
-import os
 
 
 class Mysql(Plugin):
@@ -30,7 +30,7 @@ class Mysql(Plugin):
     ]
 
     def setup(self):
-        super(Mysql, self).setup()
+        super().setup()
 
         self.add_copy_spec([
             self.mysql_cnf,
@@ -96,7 +96,7 @@ class RedHatMysql(Mysql, RedHatPlugin):
     )
 
     def setup(self):
-        super(RedHatMysql, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/ld.so.conf.d/mysql-*.conf",
             "/etc/ld.so.conf.d/mariadb-*.conf",
@@ -116,7 +116,7 @@ class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
     )
 
     def setup(self):
-        super(DebianMysql, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/mysql/",
             "/var/log/mysql/error.log",

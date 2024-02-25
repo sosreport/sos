@@ -47,6 +47,8 @@ class Maas(Plugin, UbuntuPlugin):
                   desc='Credentials, or the API key')
     ]
 
+    is_snap = False
+
     def _has_login_options(self):
         return self.get_option("url") and self.get_option("credentials") \
             and self.get_option("profile-name")
@@ -69,8 +71,8 @@ class Maas(Plugin, UbuntuPlugin):
         return False
 
     def setup(self):
-        self._is_snap = self._is_snap_installed()
-        if self._is_snap:
+        self.is_snap = self._is_snap_installed()
+        if self.is_snap:
             self.add_cmd_output([
                 'snap info maas',
                 'maas status'
@@ -130,7 +132,7 @@ class Maas(Plugin, UbuntuPlugin):
                     "Cannot login into MAAS remote API with provided creds.")
 
     def postproc(self):
-        if self._is_snap:
+        if self.is_snap:
             regiond_path = "/var/snap/maas/current/maas/regiond.conf"
         else:
             regiond_path = "/etc/maas/regiond.conf"

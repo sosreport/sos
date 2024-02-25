@@ -19,6 +19,7 @@ class ForemanProxy(Plugin):
     plugin_name = 'foreman_proxy'
     profiles = ('sysmgmt',)
     packages = ('foreman-proxy',)
+    apachepkg = None
 
     def setup(self):
         self.add_file_tags({

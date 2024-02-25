@@ -90,8 +90,8 @@ class Jars(Plugin, RedHatPlugin):
         """
         if os.path.isfile(path) and zipfile.is_zipfile(path):
             try:
-                with zipfile.ZipFile(path) as f:
-                    if "META-INF/MANIFEST.MF" in f.namelist():
+                with zipfile.ZipFile(path) as file:
+                    if "META-INF/MANIFEST.MF" in file.namelist():
                         return True
             except (IOError, zipfile.BadZipfile):
                 pass
@@ -107,12 +107,12 @@ class Jars(Plugin, RedHatPlugin):
         """
         props = {}
         try:
-            with zipfile.ZipFile(jar_path) as f:
-                r = re.compile("META-INF/maven/[^/]+/[^/]+/pom.properties$")
-                result = [x for x in f.namelist() if r.match(x)]
+            with zipfile.ZipFile(jar_path) as file:
+                rgx = re.compile("META-INF/maven/[^/]+/[^/]+/pom.properties$")
+                result = [x for x in file.namelist() if rgx.match(x)]
                 if len(result) != 1:
                     return None
-                with f.open(result[0]) as props_f:
+                with file.open(result[0]) as props_f:
                     for line in props_f.readlines():
                         line = line.strip()
                         if not line.startswith(b"#"):
@@ -135,11 +135,11 @@ class Jars(Plugin, RedHatPlugin):
         """
         jar_id = ""
         try:
-            with open(jar_path, mode="rb") as f:
-                m = hashlib.sha1()
-                for buf in iter(partial(f.read, 4096), b''):
-                    m.update(buf)
-            jar_id = m.hexdigest()
+            with open(jar_path, mode="rb") as file:
+                digest = hashlib.sha1()
+                for buf in iter(partial(file.read, 4096), b''):
+                    digest.update(buf)
+            jar_id = digest.hexdigest()
         except IOError:
             pass
         return jar_id

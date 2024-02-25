@@ -23,6 +23,7 @@ class Krb5(Plugin):
     short_desc = 'Kerberos authentication'
     plugin_name = 'krb5'
     profiles = ('identity', 'system')
+    kdcdir = None
 
     def setup(self):
         self.add_copy_spec([

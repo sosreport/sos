@@ -13,7 +13,7 @@
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class mvCLI(Plugin, IndependentPlugin):
+class MvCLI(Plugin, IndependentPlugin):
 
     short_desc = 'mvCLI Integrated RAID adapter information'
 

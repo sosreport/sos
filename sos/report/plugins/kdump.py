@@ -43,27 +43,31 @@ class RedHatKDump(KDump, RedHatPlugin):
     packages = ('kexec-tools',)
 
     def fstab_parse_fs(self, device):
-        with open(self.path_join('/etc/fstab'), 'r') as fp:
-            for line in fp:
+        """ Parse /etc/fstab file """
+        fstab = self.path_join('/etc/fstab')
+        with open(fstab, 'r', encoding='UTF-8') as file:
+            for line in file:
                 if line.startswith((device)):
                     return line.split()[1].rstrip('/')
         return ""
 
     def read_kdump_conffile(self):
-        fs = ""
+        """ Parse /etc/kdump file """
+        fsys = ""
         path = "/var/crash"
 
-        with open(self.path_join('/etc/kdump.conf'), 'r') as fp:
-            for line in fp:
+        kdump = '/etc/kdump.conf'
+        with open(kdump, 'r', encoding='UTF-8') as file:
+            for line in file:
                 if line.startswith("path"):
                     path = line.split()[1]
                 elif line.startswith(("ext2", "ext3", "ext4", "xfs")):
                     device = line.split()[1]
-                    fs = self.fstab_parse_fs(device)
-        return fs + path
+                    fsys = self.fstab_parse_fs(device)
+        return fsys + path
 
     def setup(self):
-        super(RedHatKDump, self).setup()
+        super().setup()
 
         initramfs_img = "/boot/initramfs-" + platform.release() \
                         + "kdump.img"
@@ -80,7 +84,7 @@ class RedHatKDump(KDump, RedHatPlugin):
                            tags="vmcore_dmesg")
         try:
             path = self.read_kdump_conffile()
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             # set no filesystem and default path
             path = "/var/crash"
 
@@ -94,7 +98,7 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
     packages = ('kdump-tools',)
 
     def setup(self):
-        super(DebianKDump, self).setup()
+        super().setup()
 
         initramfs_img = "/var/lib/kdump/initrd.img-" + platform.release()
         if self.path_exists(initramfs_img):
@@ -115,7 +119,7 @@ class CosKDump(KDump, CosPlugin):
     ]
 
     def setup(self):
-        super(CosKDump, self).setup()
+        super().setup()
         self.add_cmd_output('ls -alRh /var/kdump*')
         if self.get_option("collect-kdumps"):
             self.add_copy_spec(["/var/kdump-*"])

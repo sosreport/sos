@@ -44,11 +44,11 @@ class IprConfig(Plugin, IndependentPlugin):
 
         devices = []
         if show_ioas['output']:
-            p = re.compile('sg')
+            dev = re.compile('sg')
             for line in show_ioas['output'].splitlines():
                 temp = line.split(' ')
                 # temp[0] holds the device name
-                if p.search(temp[0]):
+                if dev.search(temp[0]):
                     devices.append(temp[0])
 
         for device in devices:
@@ -79,10 +79,7 @@ class IprConfig(Plugin, IndependentPlugin):
 
         show_alt_config = "iprconfig -c show-alt-config"
         altconfig = self.collect_cmd_output(show_alt_config)
-        if not (altconfig['status'] == 0):
-            return
-
-        if not altconfig['output']:
+        if (altconfig['status'] != 0) or not altconfig['output']:
             return
 
 # iprconfig -c show-alt-config
@@ -102,7 +99,7 @@ class IprConfig(Plugin, IndependentPlugin):
             if "Enclosure" in line:
                 temp = re.split(r'\s+', line)
                 # temp[1] holds the PCI/SCSI location
-                pci, scsi = temp[1].split('/')
+                _, scsi = temp[1].split('/')
                 for alt_line in altconfig['output'].splitlines():
                     if scsi in alt_line:
                         temp = alt_line.split(' ')

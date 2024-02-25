@@ -25,7 +25,7 @@ class RedHatIscsiTarget(IscsiTarget, RedHatPlugin):
     packages = ('scsi-target-utils',)
 
     def setup(self):
-        super(RedHatIscsiTarget, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/tgt/targets.conf")
         self.add_cmd_output("tgtadm --lld iscsi --op show --mode target")
 
@@ -35,7 +35,7 @@ class DebianIscsiTarget(IscsiTarget, DebianPlugin, UbuntuPlugin):
     packages = ('iscsitarget',)
 
     def setup(self):
-        super(DebianIscsiTarget, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/iet",
             "/etc/sysctl.d/30-iscsitarget.conf",

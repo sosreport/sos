@@ -9,10 +9,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+from re import match
+from shlex import quote
 from sos.report.plugins import (Plugin, RedHatPlugin, SCLPlugin,
                                 DebianPlugin, UbuntuPlugin, PluginOpt)
-from pipes import quote
-from re import match
 from sos.utilities import is_executable
 
 
@@ -24,6 +24,10 @@ class Foreman(Plugin):
     plugin_timeout = 1800
     profiles = ('sysmgmt',)
     packages = ('foreman',)
+    apachepkg = None
+    dbhost = "localhost"
+    dbpasswd = ""
+    env = {"PGPASSWORD": ""}
     option_list = [
         PluginOpt('days', default=14,
                   desc='number of days for dynflow output'),
@@ -40,10 +44,9 @@ class Foreman(Plugin):
         # ..
         #   host: some.hostname
         production_scope = False
-        self.dbhost = "localhost"
-        self.dbpasswd = ""
         try:
-            with open('/etc/foreman/database.yml', 'r') as dfile:
+            foreman_db = '/etc/foreman/database.yml'
+            with open(foreman_db, 'r', encoding='UTF-8') as dfile:
                 foreman_lines = dfile.read().splitlines()
             for line in foreman_lines:
                 # skip empty lines and lines with comments
@@ -176,7 +179,11 @@ class Foreman(Plugin):
         )
         self.add_cmd_output(_cmd, suggest_filename='foreman_db_tables_sizes',
                             env=self.env)
+        self.collect_foreman_db()
+        self.collect_proxies()
 
+    def collect_foreman_db(self):
+        """ Collect foreman db and dynflow data """
         days = '%s days' % self.get_option('days')
 
         # Construct the DB queries, using the days option to limit the range
@@ -185,11 +192,6 @@ class Foreman(Plugin):
         scmd = (
             "select id,name,value from settings where name not similar to "
             "'%(pass|key|secret)%'"
-        )
-
-        authcmd = (
-            'select id,type,name,host,port,account,base_dn,attr_login,'
-            'onthefly_register,tls from auth_sources'
         )
 
         dyncmd = (
@@ -231,7 +233,9 @@ class Foreman(Plugin):
         foremandb = {
             'foreman_settings_table': scmd,
             'foreman_schema_migrations': 'select * from schema_migrations',
-            'foreman_auth_table': authcmd,
+            'foreman_auth_table': 'select id,type,name,host,port,account,'
+                                  'base_dn,attr_login,onthefly_register,tls '
+                                  'from auth_sources',
             'dynflow_schema_info': 'select * from dynflow_schema_info',
             'audits_table_count': 'select count(*) from audits',
             'logs_table_count': 'select count(*) from logs',
@@ -249,8 +253,8 @@ class Foreman(Plugin):
             'dynflow_steps': dstepscmd,
         }
 
-        for table in foremandb:
-            _cmd = self.build_query_cmd(foremandb[table])
+        for table, val in foremandb.items():
+            _cmd = self.build_query_cmd(val)
             self.add_cmd_output(_cmd, suggest_filename=table, timeout=600,
                                 sizelimit=100, env=self.env)
 
@@ -258,15 +262,16 @@ class Foreman(Plugin):
         # case, psql-msgpack-decode wrapper tool from dynflow-utils (any
         # version) must be used instead of plain psql command
         dynutils = self.is_installed('dynflow-utils')
-        for dyn in foremancsv:
+        for dyn, val in foremancsv.items():
             binary = "psql"
             if dyn != 'foreman_tasks_tasks' and dynutils:
                 binary = "/usr/libexec/psql-msgpack-decode"
-            _cmd = self.build_query_cmd(foremancsv[dyn], csv=True,
-                                        binary=binary)
+            _cmd = self.build_query_cmd(val, csv=True, binary=binary)
             self.add_cmd_output(_cmd, suggest_filename=dyn, timeout=600,
                                 sizelimit=100, env=self.env)
 
+    def collect_proxies(self):
+        """ Collect foreman proxies """
         if self.get_option('proxyfeatures'):
             # get a list of proxy names and URLs, and query for their features
             # store results in smart_proxies_features subdirectory
@@ -331,7 +336,7 @@ class RedHatForeman(Foreman, SCLPlugin, RedHatPlugin):
         if self.policy.dist_version() == 7 and is_executable('scl'):
             self.pumactl = "scl enable tfm '%s'" % self.pumactl
 
-        super(RedHatForeman, self).setup()
+        super().setup()
         self.add_cmd_output('gem list')
 
 

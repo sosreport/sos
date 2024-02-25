@@ -36,9 +36,9 @@ class KernelRT(Plugin, RedHatPlugin):
         # note: rhbz#1059685 'tuna - NameError: global name 'cgroups' is not
         # defined this command throws an exception on versions prior to
         # 0.10.4-5.
-        co = {'cmd': 'tuna --help', 'output': '-P'}
+        cout = {'cmd': 'tuna --help', 'output': '-P'}
         option_present = self.test_predicate(
-            self, pred=SoSPredicate(self, cmd_outputs=co)
+            self, pred=SoSPredicate(self, cmd_outputs=cout)
         )
         self.add_cmd_output(
             f"tuna {'-CP' if option_present else 'show_threads -C'}"

@@ -43,7 +43,7 @@ class MsSQL(Plugin, RedHatPlugin):
         sqlagent_errorlogfile = '/var/opt/mssql/log/sqlagentstartup.log'
         kerberoskeytabfile = None
         try:
-            with open(mssql_conf, 'r') as mfile:
+            with open(mssql_conf, 'r', encoding='UTF-8') as mfile:
                 for line in mfile.read().splitlines():
                     if line.startswith('['):
                         section = line
@@ -54,9 +54,9 @@ class MsSQL(Plugin, RedHatPlugin):
                             errorlogfile = words[1].strip()
                         elif section == '[sqlagent]':
                             sqlagent_errorlogfile = words[1].strip()
-                    elif words[0].strip() == 'kerberoskeytabfile':
-                        if section == '[network]':
-                            kerberoskeytabfile = words[1].strip()
+                    elif (words[0].strip() == 'kerberoskeytabfile') and \
+                         (section == '[network]'):
+                        kerberoskeytabfile = words[1].strip()
         except IOError as ex:
             self._log_error('Could not open conf file %s: %s' %
                             (mssql_conf, ex))

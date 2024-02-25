@@ -31,6 +31,7 @@ class GCP(Plugin, IndependentPlugin):
     METADATA_QUERY = "http://metadata.google.internal/computeMetadata/v1/" \
                      "?recursive=true"
     REDACTED = "[--REDACTED--]"
+    metadata = None
 
     # A line we will be looking for in the dmesg output. If it's there,
     # that means we're running on a Google Cloud Compute instance.
@@ -89,15 +90,17 @@ class GCP(Plugin, IndependentPlugin):
         """
         try:
             req = request.Request(url, headers={'Metadata-Flavor': 'Google'})
-            response = request.urlopen(req)
+            with request.urlopen(req) as response:
+                if response.code != 200:
+                    raise RuntimeError(
+                        f"Failed to communicate with Metadata Server "
+                        f"(code: {response.code}): " +
+                        response.read().decode())
+                return response
         except URLError as err:
             raise RuntimeError(
-                "Failed to communicate with Metadata Server: " + str(err))
-        if response.code != 200:
-            raise RuntimeError(
-                f"Failed to communicate with Metadata Server "
-                f"(code: {response.code}): " + response.read().decode())
-        return response
+                "Failed to communicate with Metadata Server: " + str(err)) \
+                from err
 
     def scrub_metadata(self):
         """
@@ -122,12 +125,12 @@ class GCP(Plugin, IndependentPlugin):
                     # tokens, but you can't be too careful.
                     data['token'] = self.REDACTED
                 return {scrub(k): scrub(v) for k, v in data.items()}
-            elif isinstance(data, list):
+            if isinstance(data, list):
                 return [scrub(value) for value in data]
-            elif isinstance(data, str):
+            if isinstance(data, str):
                 return data.replace(project_number, self.REDACTED)\
                            .replace(project_id, self.REDACTED)
-            elif isinstance(data, int):
+            if isinstance(data, int):
                 return self.REDACTED if data == project_number_int else data
             return data
 
@@ -140,5 +143,6 @@ class GCP(Plugin, IndependentPlugin):
 
     @classmethod
     def safe_redact_key(cls, dict_obj: dict, key: str):
+        """ Redact keys """
         if key in dict_obj:
             dict_obj[key] = cls.REDACTED

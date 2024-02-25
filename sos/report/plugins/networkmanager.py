@@ -38,7 +38,7 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
         # NetworkManager >= 0.9.9 will use the long names of
         # "nmcli" objects.
 
-        # All versions conform to the following templates with differnt
+        # All versions conform to the following templates with different
         # strings for the object being operated on.
         nmcli_con_details_template = "nmcli con %s id"
         nmcli_dev_details_template = "nmcli dev %s"
@@ -91,7 +91,7 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                     # nm names may contain embedded quotes (" and '). These
                     # will cause an exception in shlex.split() if the quotes
                     # are unbalanced. This may happen with names like:
-                    # "Foobar's Wireless Network". Although the problen will
+                    # "Foobar's Wireless Network". Although the problem will
                     # occur for both single and double quote characters the
                     # former is considerably more likely in object names since
                     # it is syntactically valid in many human languages.

@@ -9,7 +9,7 @@
 from sos.report.plugins import (Plugin, IndependentPlugin, SoSPredicate)
 
 
-class firewall_tables(Plugin, IndependentPlugin):
+class FirewallTables(Plugin, IndependentPlugin):
     """Collects information about local firewall tables, such as iptables,
     and nf_tables (via nft). Note that this plugin does _not_ collect firewalld
     information, which is handled by a separate plugin.
@@ -70,14 +70,15 @@ class firewall_tables(Plugin, IndependentPlugin):
         for line in nft_lines.splitlines():
             words = line.split()[0:3]
             if len(words) == 3 and words[0] == 'table' and \
-                    words[1] in nft_ip_tables.keys():
+                    words[1] in nft_ip_tables:
                 nft_ip_tables[words[1]].append(words[2])
         # collect iptables -t for any existing table, if we can't read the
         # tables, collect 2 default ones (mangle, filter)
         # do collect them only when relevant nft list ruleset exists
         default_ip_tables = "mangle\nfilter\nnat\n"
         try:
-            with open('/proc/net/ip_tables_names', 'r') as ifile:
+            proc_net_ip_tables = '/proc/net/ip_tables_names'
+            with open(proc_net_ip_tables, 'r', encoding='UTF-8') as ifile:
                 ip_tables_names = ifile.read()
         except IOError:
             ip_tables_names = default_ip_tables
@@ -86,7 +87,8 @@ class firewall_tables(Plugin, IndependentPlugin):
                 self.collect_iptable(table)
         # collect the same for ip6tables
         try:
-            with open('/proc/net/ip6_tables_names', 'r') as ipfile:
+            proc_net_ip6_tables = '/proc/net/ip6_tables_names'
+            with open(proc_net_ip6_tables, 'r', encoding='UTF-8') as ipfile:
                 ip_tables_names = ipfile.read()
         except IOError:
             ip_tables_names = default_ip_tables

@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
 import glob
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class Libvirt(Plugin, IndependentPlugin):
@@ -78,10 +78,11 @@ class Libvirt(Plugin, IndependentPlugin):
 
         # get details of processes of KVM hosts
         for pidfile in glob.glob("/run/libvirt/*/*.pid"):
-            with open(pidfile, 'r') as pfile:
+            with open(pidfile, 'r', encoding='UTF-8') as pfile:
                 pid = pfile.read().splitlines()[0]
-                for pf in ["environ", "cgroup", "maps", "numa_maps", "limits"]:
-                    self.add_copy_spec("/proc/%s/%s" % (pid, pf))
+                pr_files = ["environ", "cgroup", "maps", "numa_maps", "limits"]
+                for file in pr_files:
+                    self.add_copy_spec("/proc/%s/%s" % (pid, file))
 
         self.add_file_tags({
             "/run/libvirt/qemu/*.xml": "var_qemu_xml",
