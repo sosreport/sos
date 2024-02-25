@@ -56,18 +56,13 @@ class Iscsi(Plugin):
 
 
 class RedHatIscsi(Iscsi, RedHatPlugin):
+    """ RedHatPlugin's setup() will be invoked """
 
     packages = ('iscsi-initiator-utils',)
-
-    def setup(self):
-        super(RedHatIscsi, self).setup()
 
 
 class DebianIscsi(Iscsi, DebianPlugin, UbuntuPlugin):
 
     packages = ('open-iscsi',)
-
-    def setup(self):
-        super(DebianIscsi, self).setup()
 
 # vim: set et ts=4 sw=4 :

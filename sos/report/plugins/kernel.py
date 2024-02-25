@@ -6,9 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
-from sos.policies.distros.redhat import RedHatPolicy
 import glob
+from sos.policies.distros.redhat import RedHatPolicy
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Kernel(Plugin, IndependentPlugin):
@@ -82,7 +82,6 @@ class Kernel(Plugin, IndependentPlugin):
 
         clocksource_path = "/sys/devices/system/clocksource/clocksource0/"
 
-        # FIXME: provide a a long-term solution for #1299
         self.add_forbidden_path([
             '/sys/kernel/debug/tracing/trace_pipe',
             '/sys/kernel/debug/tracing/README',

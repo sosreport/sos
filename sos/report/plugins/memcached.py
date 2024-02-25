@@ -25,7 +25,7 @@ class RedHatMemcached(Memcached, RedHatPlugin):
     files = ('/etc/sysconfig/memcached',)
 
     def setup(self):
-        super(RedHatMemcached, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/sysconfig/memcached",
                            tags="sysconfig_memcached")
 
@@ -35,7 +35,7 @@ class DebianMemcached(Memcached, DebianPlugin, UbuntuPlugin):
     files = ('/etc/default/memcached',)
 
     def setup(self):
-        super(DebianMemcached, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/memcached.conf",
             "/etc/default/memcached"

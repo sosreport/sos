@@ -37,10 +37,10 @@ class MongoDb(Plugin, DebianPlugin, UbuntuPlugin):
         self.add_cmd_output("du -sh /var/lib/mongodb/")
 
     def postproc(self):
-        for f in ["/etc/mongodb.conf",
-                  self.var_puppet_gen + "/etc/mongodb.conf"]:
+        for file in ["/etc/mongodb.conf",
+                     self.var_puppet_gen + "/etc/mongodb.conf"]:
             self.do_file_sub(
-                f,
+                file,
                 r"(mms-token)\s*=\s*(.*)",
                 r"\1 = ********"
             )
@@ -56,7 +56,7 @@ class RedHatMongoDb(MongoDb, RedHatPlugin):
     )
 
     def setup(self):
-        super(RedHatMongoDb, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/sysconfig/mongodb",
             "/etc/rh-mongodb*-mongo*.conf",

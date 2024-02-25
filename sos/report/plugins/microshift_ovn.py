@@ -33,13 +33,13 @@ class MicroshiftOVN(Plugin, RedHatPlugin):
             'memory/show',
             'ovsdb-server/sync-status'
         ]
-        for file, db in [('ovnnb_db.ctl', 'OVN_Northbound'),
-                         ('ovnsb_db.ctl', 'OVN_Southbound')]:
+        for file, dbn in [('ovnnb_db.ctl', 'OVN_Northbound'),
+                          ('ovnsb_db.ctl', 'OVN_Southbound')]:
             self.add_cmd_output(
                 [f"{_ovs_cmd}{file} {cmd}" for cmd in _subcmds],
                 timeout=MicroshiftOVN.plugin_timeout)
             self.add_cmd_output(
-                f"{_ovs_cmd}{file} ovsdb-server/get-db-storage-status {db}",
+                f"{_ovs_cmd}{file} ovsdb-server/get-db-storage-status {dbn}",
                 timeout=MicroshiftOVN.plugin_timeout)
 
         self.add_cmd_output(

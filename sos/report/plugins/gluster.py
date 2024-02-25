@@ -6,10 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import time
-import os
 import glob
-import string
+import os
+import time
 from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
@@ -29,6 +28,7 @@ class Gluster(Plugin, RedHatPlugin):
     ]
 
     def wait_for_statedump(self, name_dir):
+        """ Wait until state dump is done """
         statedumps_present = 0
         statedump_entries = [
                 f for f in self.listdir(name_dir) if self.path_isfile(f)
@@ -38,9 +38,9 @@ class Gluster(Plugin, RedHatPlugin):
             _spath = self.path_join(name_dir, statedump_file)
             ret = -1
             while ret == -1:
-                with open(_spath, 'r') as sfile:
+                with open(_spath, 'r', encoding='UTF-8') as sfile:
                     last_line = sfile.readlines()[-1]
-                    ret = string.count(last_line, 'DUMP_END_TIME')
+                    ret = last_line.count('DUMP_END_TIME')
 
     def postproc(self):
         if self.get_option("dump"):
@@ -104,7 +104,7 @@ class Gluster(Plugin, RedHatPlugin):
                                      "glusterd processes")
             else:
                 self.soslog.warning("Unable to generate statedumps, no such "
-                                    "directory: %s" % self.statedump_dir)
+                                    "directory: %s", self.statedump_dir)
             state = self.exec_cmd("gluster get-state")
             if state['status'] == 0:
                 state_file = state['output'].split()[-1]

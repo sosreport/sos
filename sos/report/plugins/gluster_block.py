@@ -28,7 +28,7 @@ class GlusterBlock(Plugin, RedHatPlugin):
             limit = 0
 
         if limit:
-            for f in glob.glob("/var/log/gluster-block/*.log"):
-                self.add_copy_spec(f, limit)
+            for file in glob.glob("/var/log/gluster-block/*.log"):
+                self.add_copy_spec(file, limit)
         else:
             self.add_copy_spec("/var/log/gluster-block")

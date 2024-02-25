@@ -9,8 +9,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
 from glob import glob
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Monit(Plugin, RedHatPlugin):
@@ -21,7 +21,6 @@ class Monit(Plugin, RedHatPlugin):
     plugin_name = 'monit'
 
     # Define configuration files
-    # FIXME: direct globs will fail in container environments.
     monit_conf = glob("/etc/monit.d/*")
     monit_conf.append("/etc/monit.conf")
     monit_conf.append("/etc/monitrc")

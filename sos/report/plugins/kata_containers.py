@@ -18,11 +18,6 @@ class KataContainers(Plugin, IndependentPlugin):
     packages = ('kata-containers',)
 
     def setup(self):
-        self.limit = self.get_option('log_size')
-
-        if self.get_option('all_logs'):
-            # no limit on amount of data recorded
-            self.limit = None
 
         self.add_cmd_output('kata-runtime kata-env')
 

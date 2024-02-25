@@ -7,8 +7,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 import re
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class Microshift(Plugin, RedHatPlugin):
@@ -47,7 +47,7 @@ class Microshift(Plugin, RedHatPlugin):
         allow for end users to specify namespace regexes of their own.
         """
         if self.get_option('only-namespaces'):
-            return [n for n in self.get_option('only-namespaces').split(':')]
+            return list(self.get_option('only-namespaces').split(':'))
 
         collect_regexes = [
             r'^openshift\-.+$',
@@ -68,21 +68,21 @@ class Microshift(Plugin, RedHatPlugin):
             :param nsps list:            Namespace names from oc output
         """
 
-        def _match_namespace(namespace):
+        def _match_namespace(namespace, regexes):
             """Match a particular namespace for inclusion (or not) in the
             collection phases
 
                 :param namespace str:   The name of a namespace
             """
 
-            for regex in self.collect_regexes:
+            for regex in regexes:
                 if re.match(regex, namespace):
                     return True
             return False
 
-        self.collect_regexes = self._setup_namespace_regexes()
+        regexes = self._setup_namespace_regexes()
 
-        return list(set([n for n in nsps if _match_namespace(n)]))
+        return list(set(n for n in nsps if _match_namespace(n, regexes)))
 
     def _get_namespaces(self):
         res = self.exec_cmd(

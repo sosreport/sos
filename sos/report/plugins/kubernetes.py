@@ -9,10 +9,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, PluginOpt)
 from fnmatch import translate
 import re
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 
 
 class Kubernetes(Plugin):
@@ -34,9 +34,22 @@ class Kubernetes(Plugin):
     ]
 
     kube_cmd = "kubectl"
+    resources = [
+        'deployments',
+        'ingresses',
+        'limitranges',
+        'pods',
+        'policies',
+        'pvc',
+        'rc',
+        'resourcequotas',
+        'routes',
+        'services'
+    ]
 
     def check_is_master(self):
-        return any([self.path_exists(f) for f in self.files])
+        """ Check if this is the master node """
+        return any(self.path_exists(f) for f in self.files)
 
     def setup(self):
         self.add_copy_spec("/etc/kubernetes")
@@ -69,28 +82,8 @@ class Kubernetes(Plugin):
         if not self.check_is_master():
             return
 
-        kube_get_cmd = "get -o json "
         for subcmd in ['version', 'config view']:
             self.add_cmd_output('%s %s' % (self.kube_cmd, subcmd))
-
-        # get all namespaces in use
-        kn = self.collect_cmd_output('%s get namespaces' % self.kube_cmd)
-        # namespace is the 1st word on line, until the line has spaces only
-        kn_output = kn['output'].splitlines()[1:]
-        knsps = [n.split()[0] for n in kn_output if n and len(n.split())]
-
-        resources = [
-            'deployments',
-            'ingresses',
-            'limitranges',
-            'pods',
-            'policies',
-            'pvc',
-            'rc',
-            'resourcequotas',
-            'routes',
-            'services'
-        ]
 
         # these are not namespaced, must pull separately.
         global_resources = [
@@ -121,40 +114,51 @@ class Kubernetes(Plugin):
 
         # CNV is not part of the base installation, but can be added
         if self.is_installed('kubevirt-virtctl'):
-            resources.extend(['vms', 'vmis'])
+            self.resources.extend(['vms', 'vmis'])
             self.add_cmd_output('virtctl version')
 
-        for n in knsps:
-            knsp = '--namespace=%s' % n
+        self.collect_per_resource_details()
+        self.collect_all_resources()
+
+    def collect_per_resource_details(self):
+        """ Collect details about each resource in all namespaces """
+        # get all namespaces in use
+        kns = self.collect_cmd_output('%s get namespaces' % self.kube_cmd)
+        # namespace is the 1st word on line, until the line has spaces only
+        kn_output = kns['output'].splitlines()[1:]
+        knsps = [n.split()[0] for n in kn_output if n and len(n.split())]
+
+        for nspace in knsps:
+            knsp = '--namespace=%s' % nspace
             if self.get_option('all'):
-                k_cmd = '%s %s %s' % (self.kube_cmd, kube_get_cmd, knsp)
+                k_cmd = '%s %s %s' % (self.kube_cmd, "get -o json", knsp)
 
                 self.add_cmd_output('%s events' % k_cmd)
 
-                for res in resources:
+                for res in self.resources:
                     self.add_cmd_output('%s %s' % (k_cmd, res), subdir=res)
 
             if self.get_option('describe'):
                 # need to drop json formatting for this
                 k_cmd = '%s %s' % (self.kube_cmd, knsp)
-                for res in resources:
-                    r = self.exec_cmd('%s get %s' % (k_cmd, res))
-                    if r['status'] == 0:
+                for res in self.resources:
+                    ret = self.exec_cmd('%s get %s' % (k_cmd, res))
+                    if ret['status'] == 0:
                         k_list = [k.split()[0] for k in
-                                  r['output'].splitlines()[1:]]
-                        for k in k_list:
+                                  ret['output'].splitlines()[1:]]
+                        for item in k_list:
                             k_cmd = '%s %s' % (self.kube_cmd, knsp)
                             self.add_cmd_output(
-                                '%s describe %s %s' % (k_cmd, res, k),
+                                '%s describe %s %s' % (k_cmd, res, item),
                                 subdir=res
                             )
 
             if self.get_option('podlogs'):
                 k_cmd = '%s %s' % (self.kube_cmd, knsp)
-                r = self.exec_cmd('%s get pods' % k_cmd)
-                if r['status'] == 0:
+                ret = self.exec_cmd('%s get pods' % k_cmd)
+                if ret['status'] == 0:
                     pods = [p.split()[0] for p in
-                            r['output'].splitlines()[1:]]
+                            ret['output'].splitlines()[1:]]
                     # allow shell-style regex
                     reg = (translate(self.get_option('podlogs-filter')) if
                            self.get_option('podlogs-filter') else None)
@@ -164,9 +168,11 @@ class Kubernetes(Plugin):
                         self.add_cmd_output('%s logs %s' % (k_cmd, pod),
                                             subdir='pods')
 
+    def collect_all_resources(self):
+        """ Collect details about all resources """
         if not self.get_option('all'):
             k_cmd = '%s get --all-namespaces=true' % self.kube_cmd
-            for res in resources:
+            for res in self.resources:
                 self.add_cmd_output('%s %s' % (k_cmd, res), subdir=res)
 
     def postproc(self):
@@ -203,7 +209,7 @@ class RedHatKubernetes(Kubernetes, RedHatPlugin):
         # other changes the `oc` binary may implement
         if self.path_exists('/etc/origin/master/admin.kubeconfig'):
             self.kube_cmd = 'oc'
-        super(RedHatKubernetes, self).setup()
+        super().setup()
 
 
 class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
@@ -232,7 +238,7 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
         if self.is_installed('microk8s'):
             self.kube_cmd = 'microk8s kubectl'
 
-        super(UbuntuKubernetes, self).setup()
+        super().setup()
 
 
 # vim: et ts=5 sw=4

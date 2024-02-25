@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
-class fcoe(Plugin, RedHatPlugin):
+class FCoE(Plugin, RedHatPlugin):
 
     short_desc = 'Fibre Channel over Ethernet'
 

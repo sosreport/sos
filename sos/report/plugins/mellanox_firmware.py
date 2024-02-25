@@ -8,9 +8,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
 import os
 import time
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class MellanoxFirmware(Plugin, IndependentPlugin):
@@ -39,24 +39,22 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
                            "enable this collection.")
             return
 
-        """
-        Run only if mft package is installed.
-        flint is available from the mft package.
-        """
-        co = self.exec_cmd('flint --version')
-        if co['status'] != 0:
+        # Run only if mft package is installed.
+        # flint is available from the mft package.
+        cout = self.exec_cmd('flint --version')
+        if cout['status'] != 0:
             return
 
-        co = self.collect_cmd_output('mst start')
-        if co['status'] != 0:
+        cout = self.collect_cmd_output('mst start')
+        if cout['status'] != 0:
             return
 
         self.collect_cmd_output('mst cable add')
         self.collect_cmd_output("mst status -v", timeout=10)
         self.collect_cmd_output("mlxcables", timeout=10)
-        co = os.listdir("/dev/mst")
+        cout = os.listdir("/dev/mst")
         mlxcables = []
-        for device in co:
+        for device in cout:
             if 'cable' in device:
                 mlxcables.append(device)
         for mlxcable in mlxcables:
@@ -70,39 +68,30 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
         # Get all devices which have the vendor Mellanox Technologies
         devices = []
         device_list = self.collect_cmd_output('lspci -D -d 15b3::0200')
-        """
-        Will return a string of the following format:
-        0000:08:00.0 Ethernet controller: Mellanox Technologies MT2892
-        Family
-        """
+        # Will return a string of the following format:
+        # 0000:08:00.0 Ethernet controller: Mellanox Technologies MT2892 Family
         if device_list['status'] != 0:
             # bail out if there no Mellanox PCI devices
             return
 
         for line in device_list["output"].splitlines():
-            """
-            Should return 0000:08:00.0
-            from the following string
-            0000:08:00.0 Ethernet controller: Mellanox Technologies MT2892
-            Family
-            """
+            # Should return 0000:08:00.0
+            # from the following string
+            # 0000:08:00.0 Ethernet controller: Mellanox Technologies MT2892
+            # Family
             devices.append(line[0:8]+'00.0')
 
         devices = set(devices)
 
-        """
         # Mft package is present if OFED is installed
         # mstflint package is part of the distro and can be installed.
-        """
         commands = []
 
         # mft package is installed if flint command is available
-        co = self.exec_cmd('flint --version')
-        if co['status'] != 0:
-            """
-            mstflint package commands
-            the commands do not support position independent arguments
-            """
+        cout = self.exec_cmd('flint --version')
+        if cout['status'] != 0:
+            # mstflint package commands
+            # the commands do not support position independent arguments
             commands = [
                 ["mstconfig -d ", " -e q"],
                 ["mstflint -d ", " dc"],
@@ -111,10 +100,8 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
                 ["mstlink -d ", ""],
             ]
         else:
-            """
-            mft package commands
-            the commands do not support position independent arguments
-            """
+            # mft package commands
+            # the commands do not support position independent arguments
             commands = [
                 ["mlxdump -d ", " pcie_uc --all"],
                 ["mstconfig -d ", " -e q"],
@@ -129,12 +116,10 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
                 self.add_cmd_output(f"{command[0]} {device} "
                                     f"{command[1]}", timeout=30)
 
-            """
-            Dump the output of the mstdump command three times
-            waiting for one second. This output is useful to check
-            if certain registers changed
-            """
-            for i in range(3):
+            # Dump the output of the mstdump command three times
+            # waiting for one second. This output is useful to check
+            # if certain registers changed
+            for _ in range(3):
                 self.add_cmd_output(f"mstdump {device}")
                 time.sleep(1)
 

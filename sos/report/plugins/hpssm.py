@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 import re
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Hpssm(Plugin, IndependentPlugin):
@@ -75,6 +75,7 @@ class Hpssm(Plugin, IndependentPlugin):
             self.do_debug(logpath)
 
     def do_debug(self, logpath):
+        """ Collect debug logs """
         self.add_cmd_output(
             'ilorest serverlogs --selectlog=AHS --directorypath=%s' % logpath,
             runat=logpath, suggest_filename='ilorest.log'

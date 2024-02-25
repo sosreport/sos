@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
 import re
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Kpatch(Plugin, RedHatPlugin):
@@ -28,7 +28,7 @@ class Kpatch(Plugin, RedHatPlugin):
         for patch in kpatches:
             if not re.match(r"^kpatch-.*\(.*\)", patch):
                 continue
-            (module, version) = patch.split()
+            (module, _) = patch.split()
             self.add_cmd_output("kpatch info " + module)
 
 

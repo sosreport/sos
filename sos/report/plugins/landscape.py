@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, UbuntuPlugin
 import os
+from sos.report.plugins import Plugin, UbuntuPlugin
 
 
 class Landscape(Plugin, UbuntuPlugin):
@@ -27,7 +27,7 @@ class Landscape(Plugin, UbuntuPlugin):
                         'LANDSCAPE_API_URI',
                     ]]
 
-        if not (all(vars_all)):
+        if not all(vars_all):
             self.soslog.warning("Not all environment variables set. "
                                 "Source the environment file for the user "
                                 "intended to connect to the Landscape "

@@ -18,7 +18,7 @@ class Ldap(Plugin):
     ldap_conf = "/etc/openldap/ldap.conf"
 
     def setup(self):
-        super(Ldap, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/ldap.conf")
 
     def postproc(self):
@@ -31,7 +31,7 @@ class RedHatLdap(Ldap, RedHatPlugin):
     files = ('/etc/ldap.conf', '/etc/pam_ldap.conf')
 
     def setup(self):
-        super(RedHatLdap, self).setup()
+        super().setup()
         self.add_forbidden_path([
             "/etc/openldap/certs/password",
             "/etc/openldap/certs/pwfile.txt",
@@ -50,10 +50,10 @@ class RedHatLdap(Ldap, RedHatPlugin):
         self.add_cmd_output("certutil -L -d /etc/openldap")
 
     def postproc(self):
-        super(RedHatLdap, self).postproc()
-        for f in ["/etc/nslcd.conf", "/etc/pam_ldap.conf"]:
+        super().postproc()
+        for file in ["/etc/nslcd.conf", "/etc/pam_ldap.conf"]:
             self.do_file_sub(
-                f,
+                file,
                 r"(\s*bindpw\s*)\S+",
                 r"\1********"
             )
@@ -65,7 +65,7 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
     packages = ('slapd', 'ldap-utils')
 
     def setup(self):
-        super(DebianLdap, self).setup()
+        super().setup()
 
         ldap_search = "ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// "
 
@@ -88,7 +88,7 @@ class DebianLdap(Ldap, DebianPlugin, UbuntuPlugin):
             suggest_filename="access_control_lists")
 
     def postproc(self):
-        super(DebianLdap, self).postproc()
+        super().postproc()
         self.do_file_sub(
             "/etc/nslcd.conf",
             r"(\s*bindpw\s*)\S+",
