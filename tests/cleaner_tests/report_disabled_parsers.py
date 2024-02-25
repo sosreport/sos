@@ -40,7 +40,8 @@ class ReportDisabledParsersTest(StageOneReportTest):
         for line in content.splitlines():
             if line.strip().startswith('link'):
                 mac = line.strip().split()[1]
-                assert mac.startswith('53:4f:53'), "Found unobfuscated mac addr %s" % mac
+                assert mac.startswith('53:4f:53'), ("Found unobfuscated mac "
+                                                    f"addr {mac}")
 
 
 class NativeCleanDisabledParsersTest(StageTwoReportTest):

@@ -73,7 +73,8 @@ class JournalSizeLimitTest(StageTwoReportTest):
         journ = 'sos_commands/logs/journalctl_--no-pager'
         self.assertFileCollected(journ)
         jsize = os.stat(self.get_name_in_archive(journ)).st_size
-        assert jsize <= 20971520, "Collected journal is larger than 20MB (size: %s)" % jsize
+        assert (jsize <= 20971520
+                ), f"Collected journal is larger than 20MB (size: {jsize})"
 
     def test_journal_tailed_and_linked(self):
         tailed = self.get_name_in_archive('sos_strings/logs/journalctl_--no-pager.tailed')

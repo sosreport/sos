@@ -77,7 +77,8 @@ class BaseSoSTest(Test):
     @property
     def klass_name(self):
         if not self._klass_name:
-            self._klass_name = os.path.basename(__file__) + '.' + self.__class__.__name__
+            self._klass_name = (f'{os.path.basename(__file__)}."
+                                f"{self.__class__.__name__}')
         return self._klass_name
 
     @property
@@ -146,8 +147,8 @@ class BaseSoSTest(Test):
                 if err.result.interrupted:
                     raise Exception("Timeout exceeded, see output above")
                 else:
-                    raise Exception("Command failed, see output above: '%s'"
-                                    % err.command.split('bin/')[1])
+                    raise Exception("Command failed, see output above: "
+                                    f"'{err.command.split('bin/')[1]}'")
         with open(os.path.join(self.tmpdir, 'output'), 'wb') as pfile:
             pickle.dump(self.cmd_output, pfile)
         self.cmd_output.stdout = self.cmd_output.stdout.decode()
@@ -321,11 +322,11 @@ class BaseSoSTest(Test):
 
     def assertFileExists(self, fname):
         """Asserts that fname exists on the filesystem"""
-        assert os.path.exists(fname), "%s does not exist" % fname
+        assert os.path.exists(fname), f"{fname} does not exist"
 
     def assertFileNotExists(self, fname):
         """Asserts that fname does not exist on the filesystem"""
-        assert not os.path.exists(fname), "%s exists" % fname
+        assert not os.path.exists(fname), f"{fname} exists"
 
     def assertOutputContains(self, content):
         """Ensure that stdout did contain the given content string
@@ -333,8 +334,9 @@ class BaseSoSTest(Test):
         :param content:  The string that should not be in stdout
         :type content:  ``str``
         """
-        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout + self.cmd_output.stderr)
-        assert found, "Content string '%s' not in output" % content
+        found = re.search(f"(.*)?{content}(.*)?",
+                          self.cmd_output.stdout + self.cmd_output.stderr)
+        assert found, f"Content string '{content}' not in output"
 
     def assertOutputNotContains(self, content):
         """Ensure that stdout did NOT contain the given content string
@@ -342,8 +344,9 @@ class BaseSoSTest(Test):
         :param content:  The string that should not be in stdout
         :type content:  ``str``
         """
-        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout + self.cmd_output.stderr)
-        assert not found, "String '%s' present in stdout" % content
+        found = re.search(f"(.*)?{content}(.*)?",
+                          self.cmd_output.stdout + self.cmd_output.stderr)
+        assert not found, f"String '{content}' present in stdout"
 
 
 class BaseSoSReportTest(BaseSoSTest):
@@ -378,8 +381,8 @@ class BaseSoSReportTest(BaseSoSTest):
 
     def _decrypt_archive(self, archive):
         _archive = archive.strip('.gpg')
-        cmd = ("gpg --batch --passphrase %s -o %s --decrypt %s"
-               % (self.encrypt_pass, _archive, archive))
+        cmd = (f"gpg --batch --passphrase {self.encrypt_pass} -o {_archive} "
+               f"--decrypt {archive}")
         try:
             res = process.run(cmd, timeout=10)
         except Exception as err:
@@ -399,7 +402,7 @@ class BaseSoSReportTest(BaseSoSTest):
                        means "grep -F")
         """
         fixed_opt = "" if regexp else "F"
-        cmd = "grep -ril%s '%s' %s" % (fixed_opt, search, self.archive_path)
+        cmd = f"grep -ril{fixed_opt} '{search}' {self.archive_path}"
         try:
             out = process.run(cmd)
             rc = out.exit_status
@@ -438,16 +441,18 @@ class BaseSoSReportTest(BaseSoSTest):
             archive.extract(arc_path, _extract_path)
             self.archive_path = self._get_archive_path()
         except Exception as err:
-            self.cancel("Could not extract archive: %s" % err)
+            self.cancel(f"Could not extract archive: {err}")
 
     def _get_extracted_tarball_path(self):
         """Based on the klass id setup earlier, provide a name to extract the
         archive to within the tmpdir
         """
-        return os.path.join(self.tmpdir, "sosreport-%s" % self.__class__.__name__)
+        return os.path.join(self.tmpdir,
+                            f"sosreport-{self.__class__.__name__}")
         
     def _generate_sos_command(self):
-        return "%s %s -v --batch --tmp-dir %s %s" % (self.sos_bin, self.sos_component, self.tmpdir, self.sos_cmd)
+        return (f"{self.sos_bin} {self.sos_component} -v --batch --tmp-dir "
+                f"{self.tmpdir} {self.sos_cmd}")
 
     def _execute_sos_cmd(self):
         super(BaseSoSReportTest, self)._execute_sos_cmd()
@@ -457,7 +462,7 @@ class BaseSoSReportTest(BaseSoSTest):
             self._extract_archive(self.archive)
 
     def _get_archive_path(self):
-        path = glob.glob(self._get_extracted_tarball_path() + '/sosreport*')
+        path = glob.glob(f'{self._get_extracted_tarball_path()}/sosreport*')
         if path:
             return path[0]
         return None
@@ -520,7 +525,7 @@ class BaseSoSReportTest(BaseSoSTest):
             files = True
         else:
             files = glob.glob(os.path.join(self.archive_path, fname.lstrip('/')))
-        assert files, "No files matching %s found" % fname
+        assert files, f"No files matching {fname} found"
 
     def assertFileGlobNotInArchive(self, fname):
         """Ensure that there are NO files in the archive matching a given fname
@@ -531,7 +536,7 @@ class BaseSoSReportTest(BaseSoSTest):
         """
         files = glob.glob(os.path.join(self.tmpdir, fname.lstrip('/')))
         self.log.debug(files)
-        assert not files, "Found files in archive matching %s: %s" % (fname, files)
+        assert not files, f"Found files in archive matching {fname}: {files}"
 
     def assertFileHasContent(self, fname, content):
         """Ensure that the given file fname contains the given content
@@ -548,7 +553,7 @@ class BaseSoSReportTest(BaseSoSTest):
         with open(fname, 'r') as lfile:
             _contents = lfile.read()
             for line in _contents.splitlines():
-                if re.match(".*%s.*" % content, line, re.I):
+                if re.match(f".*{content}.*", line, re.I):
                     matched = True
                     break
         assert matched, "Content '%s' does not appear in %s\n%s" % (content, fname, _contents)
@@ -566,10 +571,10 @@ class BaseSoSReportTest(BaseSoSTest):
         fname = self.get_name_in_archive(fname)
         with open(fname, 'r') as mfile:
             for line in mfile.read().splitlines():
-                if re.match(".*%s.*" % content, line, re.I):
+                if re.match(f".*{content}.*", line, re.I):
                     matched = True
                     break
-        assert not matched, "Content '%s' appears in file %s" % (content, fname)
+        assert not matched, f"Content '{content}' appears in file {fname}"
 
     def assertSosLogContains(self, content):
         """Ensure that the given content string exists in sos.log
@@ -600,11 +605,13 @@ class BaseSoSReportTest(BaseSoSTest):
         :type plugin:  `` str``
         """
         if not self.manifest:
-            self.error("No manifest found, cannot check for %s execution" % plugin)
+            self.error(f"No manifest found, cannot check for {plugin} execution")
         if isinstance(plugin, str):
             plugin = [plugin]
         for plug in plugin:
-            assert plug in self.manifest['components']['report']['plugins'].keys(), "Plugin '%s' not recorded in manifest" % plug
+            assert (
+                plug in self.manifest['components']['report']['plugins'].keys()
+            ), f"Plugin '{plug}' not recorded in manifest"
 
     def assertPluginNotIncluded(self, plugin):
         """Ensure that the specified plugin did NOT run for the sos execution
@@ -614,11 +621,15 @@ class BaseSoSReportTest(BaseSoSTest):
         :type plugin:  `` str``
         """
         if not self.manifest:
-            self.error("No manifest found, cannot check for %s execution" % plugin)
+            self.error(f"No manifest found, cannot check for {plugin} "
+                       "execution")
         if isinstance(plugin, str):
             plugin = [plugin]
         for plug in plugin:
-            assert plug not in self.manifest['components']['report']['plugins'].keys(), "Plugin '%s' is recorded in manifest" % plug
+            assert (
+                plug not in
+                self.manifest['components']['report']['plugins'].keys()
+                ), f"Plugin '{plug}' is recorded in manifest"
 
     def assertOnlyPluginsIncluded(self, plugins):
         """Ensure that only the specified plugins are in the manifest
@@ -627,18 +638,18 @@ class BaseSoSReportTest(BaseSoSTest):
         :type plugins:  ``str`` or ``list`` of strings
         """
         if not self.manifest:
-            self.error("No manifest found, cannot check for %s execution" % plugins)
+            self.error(f"No manifest found, cannot check for {plugins} execution")
         if isinstance(plugins, str):
             plugins = [plugins]
         _executed = self.manifest['components']['report']['plugins'].keys()
 
         # test that all requested plugins did run
         for i in plugins:
-            assert i in _executed, "Requested plugin '%s' did not run" % i
+            assert i in _executed, f"Requested plugin '{i}' did not run"
 
         # test that no unrequested plugins ran
         for j in _executed:
-            assert j in plugins, "Unrequested plugin '%s' ran as well" % j
+            assert j in plugins, f"Unrequested plugin '{j}' ran as well"
 
     def get_plugin_manifest(self, plugin):
         """Get the manifest data for the specified plugin
@@ -650,7 +661,7 @@ class BaseSoSReportTest(BaseSoSTest):
         :rtype:   ``dict``
         """
         if not self.manifest['components']['report']['plugins'][plugin]:
-            raise Exception("Manifest for %s not present" % plugin)
+            raise Exception(f"Manifest for {plugin} not present")
         return self.manifest['components']['report']['plugins'][plugin]
 
 
@@ -686,7 +697,9 @@ class StageOneReportTest(BaseSoSReportTest):
         _chk = re.findall('sha256\t.*\n', self.cmd_output.stdout)
         _chk = _chk[0].split('sha256\t')[1].strip()
         assert _chk, "No checksum reported"
-        _found = process.run("sha256sum %s" % (self.encrypted_path or self.archive)).stdout.decode().split()[0]
+        _found = (process.run(
+            f"sha256sum {self.encrypted_path or self.archive}").stdout.decode()
+            .split()[0])
         self.assertEqual(_chk, _found)
 
     def test_no_new_kmods_loaded(self):
@@ -845,8 +858,8 @@ class StageTwoReportTest(BaseSoSReportTest):
             installed = self.installer.install_distro_packages(self.packages)
             if not installed:
                 raise Exception(
-                    "Unable to install requested packages %s"
-                    % ', '.join(self.packages[self.local_distro])
+                    "Unable to install requested packages "
+                    f"{', '.join(self.packages[self.local_distro])}"
                 )
             # save installed package list to our tmpdir to be removed later
             self._write_file_to_tmpdir('mocked_packages', json.dumps(self.packages[self.local_distro]))
@@ -879,7 +892,7 @@ class StageTwoReportTest(BaseSoSReportTest):
         src, dest = filetup
         dir_added = False
         if os.path.exists(dest):
-            os.rename(dest, dest + '.sostesting')
+            os.rename(dest, f'{dest}.sostesting')
         _dir = os.path.dirname(dest)
         if not os.path.exists(_dir):
             os.makedirs(_dir)
@@ -918,8 +931,8 @@ class StageTwoReportTest(BaseSoSReportTest):
                 shutil.rmtree(mocked)
             else:
                 os.remove(mocked)
-            if os.path.exists(mocked + '.sostesting'):
-                os.rename(mocked + '.sostesting', mocked)
+            if os.path.exists(f'{mocked}.sostesting'):
+                os.rename(f'{mocked}.sostesting', mocked)
 
     def test_archive_created(self):
         """Ensure that the archive tarball was created and has the right owner
@@ -976,16 +989,20 @@ class StageOneOutputTest(BaseSoSTest):
     sos_cmd = ''
 
     def _generate_sos_command(self):
-        return "%s %s" % (self.sos_bin, self.sos_cmd)
+        return f"{self.sos_bin} {self.sos_cmd}"
 
     @skipIf(lambda x: x._exception_expected, "Non-zero exit code expected")
     def test_help_output_successful(self):
         self.assertTrue(self.cmd_output.exit_status == 0)
         assert self.cmd_output.stdout, "No stdout output generated"
-        assert not self.cmd_output.stderr, "stderr received, but not expected: %s" % self.cmd_output.stderr
+        assert (not self.cmd_output.stderr
+                ), ("stderr received, but not expected: "
+                    f"{self.cmd_output.stderr}")
 
     @skipIf(lambda x: not x._exception_expected, "Not anticipating stderr output")
     def test_help_error_reported(self):
         self.assertTrue(self.cmd_output.exit_status != 0)
-        assert not self.cmd_output.stdout, "stdout received, but not expected: %s" % self.cmd_output.stdout
+        assert (not self.cmd_output.stdout
+                ), ("stdout received, but not expected: "
+                    f"{self.cmd_output.stdout}")
         assert self.cmd_output.stderr, "No stderr output generated"

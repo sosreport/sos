@@ -36,6 +36,5 @@ class NetworkingPluginTest(StageOneReportTest):
             # some file(s) in the dir might not be real netdevs, see e.g.
             # https://lwn.net/Articles/142330/
             if not dev.startswith('bonding_'):
-                self.assertFileGlobInArchive(
-                    "sos_commands/networking/ethtool_*_%s" % dev
-                )
+                self.assertFileGlobInArchive("sos_commands/networking/"
+                                             f"ethtool_*_{dev}")

@@ -74,8 +74,8 @@ class FullCleanTest(StageTwoReportTest):
             map_json = json.load(mf)
         for mapping in map_json:
             for key, val in map_json[mapping].items():
-                assert key, "Empty key found in %s" % mapping
-                assert val, "%s mapping for '%s' empty" % (mapping, key)
+                assert key, f"Empty key found in {mapping}"
+                assert val, f"{mapping} mapping for '{key}' empty"
 
     def test_ip_not_in_any_file(self):
         ip = self.sysinfo['pre']['networking']['ip_addr']

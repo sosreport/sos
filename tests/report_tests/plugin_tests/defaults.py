@@ -39,4 +39,5 @@ class DefaultCollectionsTest(StageTwoReportTest):
                 ent = cmd
         assert ent, "No manifest entry for journalctl cups"
 
-        assert 'journal_cups' in ent['tags'], "Journal tags not correct: %s" % ent['tags']
+        assert ('journal_cups' in ent['tags']
+                ), f"Journal tags not correct: {ent['tags']}"

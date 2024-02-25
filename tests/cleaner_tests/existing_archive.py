@@ -26,28 +26,34 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
     sos_component = 'clean'
 
     def test_obfuscation_log_created(self):
-        self.assertFileExists(os.path.join(self.tmpdir, '%s-obfuscation.log' % ARCHIVE))
+        self.assertFileExists(os.path.join(self.tmpdir, f'{ARCHIVE}-obfuscation.log'))
 
     def test_archive_type_correct(self):
-        with open(os.path.join(self.tmpdir, '%s-obfuscation.log' % ARCHIVE), 'r') as log:
+        with open(os.path.join(self.tmpdir, f'{ARCHIVE}-obfuscation.log'), 'r') as log:
             for line in log:
-                if "Loaded %s" % ARCHIVE in line:
-                    assert 'as type sos report archive' in line, "Incorrect archive type detected: %s" % line
+                if f"Loaded {ARCHIVE}" in line:
+                    assert ('as type sos report archive' in line
+                            ), f"Incorrect archive type detected: {line}"
                     break
 
     def test_from_cmdline_logged(self):
-        with open(os.path.join(self.tmpdir, '%s-obfuscation.log' % ARCHIVE), 'r') as log:
+        with open(os.path.join(self.tmpdir,
+                               f'{ARCHIVE}-obfuscation.log'), 'r') as log:
             for line in log:
                 if 'From cmdline' in line:
                     assert 'From cmdline: True' in line, "Did not properly log cmdline run"
                     break
 
     def test_extraction_completed_successfully(self):
-        with open(os.path.join(self.tmpdir, '%s-obfuscation.log' % ARCHIVE), 'r') as log:
+        with open(os.path.join(self.tmpdir,
+                               f'{ARCHIVE}-obfuscation.log'), 'r') as log:
             for line in log:
                 if 'Extracted path is' in line:
                     path = line.split('Extracted path is')[-1].strip()
-                    assert path.startswith(self.tmpdir), "Extracted path appears wrong: %s (tmpdir: %s)" % (path, self.tmpdir)
+                    assert path.startswith(
+                        self.tmpdir
+                    ), (f"Extracted path appears wrong: {path} (tmpdir: "
+                        f"{self.tmpdir})")
                     return
             self.fail("Extracted path not logged")
 
@@ -75,8 +81,8 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
             map_json = json.load(mf)
         for mapping in map_json:
             for key, val in map_json[mapping].items():
-                assert key, "Empty key found in %s" % mapping
-                assert val, "%s mapping for '%s' empty" % (mapping, key)
+                assert key, f"Empty key found in {mapping}"
+                assert val, f"{mapping} mapping for '{key}' empty"
 
     def test_ip_not_in_any_file(self):
         content = self.grep_for_content('10.0.0.15')

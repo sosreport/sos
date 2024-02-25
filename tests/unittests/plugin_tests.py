@@ -378,7 +378,7 @@ class AddCopySpecTests(unittest.TestCase):
         tmpdir = tempfile.mkdtemp()
         create_file(2, dir=tmpdir)
         create_file(2, dir=tmpdir)
-        self.mp.add_copy_spec(tmpdir + "/*")
+        self.mp.add_copy_spec(f"{tmpdir}/*")
         self.assertEqual(len(self.mp.copy_paths), 2)
         shutil.rmtree(tmpdir)
 
@@ -387,7 +387,7 @@ class AddCopySpecTests(unittest.TestCase):
         tmpdir = tempfile.mkdtemp()
         create_file(2, dir=tmpdir)
         create_file(2, dir=tmpdir)
-        self.mp.add_copy_spec(tmpdir + "/*", 1)
+        self.mp.add_copy_spec(f"{tmpdir}/*", 1)
         self.assertEqual(len(self.mp._tail_files_list), 1)
         fname, _size = self.mp._tail_files_list[0]
         self.assertEqual(1024 * 1024, _size)
