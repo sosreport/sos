@@ -26,10 +26,10 @@ class sapnw(Plugin, RedHatPlugin):
             return
 
         # set the common strings that will be formatted later in each a_c_s
-        prof_cmd = "env -i %s %s/sappfpar all pf=/usr/sap/%s/SYS/profile/%s"
-        inst_cmd = "env -i %s %s/sapcontrol -nr %s -function GetProcessList"
-        vers_cmd = "env -i %s %s/sapcontrol -nr %s -function GetVersionInfo"
-        user_cmd = 'su - %sadm -c "sapcontrol -nr %s -function GetEnvironment"'
+        prof_cmd = "env -i {} {}/sappfpar all pf=/usr/sap/{}/SYS/profile/{}"
+        inst_cmd = "env -i {} {}/sapcontrol -nr {} -function GetProcessList"
+        vers_cmd = "env -i {} {}/sapcontrol -nr {} -function GetVersionInfo"
+        user_cmd = 'su - {}adm -c "sapcontrol -nr {} -function GetEnvironment"'
 
         sidsunique = set()
         # Cycle through all the instances, get 'sid', 'instance_number'
@@ -57,19 +57,19 @@ class sapnw(Plugin, RedHatPlugin):
 
                         # collect profiles
                         self.add_cmd_output(
-                            prof_cmd % (ldenv, pt, sid, profile),
+                            prof_cmd.format(ldenv, pt, sid, profile),
                             suggest_filename=f"{profile}_parameters",
                         )
 
                         # collect instance status
                         self.add_cmd_output(
-                            inst_cmd % (ldenv, pt, inst),
+                            inst_cmd.format(ldenv, pt, inst),
                             suggest_filename=f"{sid}_{inst}_GetProcList",
                         )
 
                         # collect version info for the various components
                         self.add_cmd_output(
-                            vers_cmd % (ldenv, pt, inst),
+                            vers_cmd.format(ldenv, pt, inst),
                             suggest_filename=f"{sid}_{inst}_GetVersInfo",
                         )
 
@@ -77,7 +77,7 @@ class sapnw(Plugin, RedHatPlugin):
                         lowsid = sid.lower()
                         fname = f"{sid}_{lowsid}adm_{inst}_userenv"
                         self.add_cmd_output(
-                            user_cmd % (lowsid, inst),
+                            user_cmd.format(lowsid, inst),
                             suggest_filename=fname
                         )
 
@@ -105,7 +105,7 @@ class sapnw(Plugin, RedHatPlugin):
                 if dbtype == 'db6':
                     # IBM DB2
                     self.add_cmd_output(
-                        "su - %s -c \"db2 get dbm cfg\"" % dbadm,
+                        f"su - {dbadm} -c \"db2 get dbm cfg\"",
                         suggest_filename=f"{sid}_{dbadm}_db2_info",
                     )
 

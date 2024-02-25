@@ -148,9 +148,8 @@ class FileCacheArchive(Archive):
         self._archive_root = os.path.join(tmpdir, name)
         with self._path_lock:
             os.makedirs(self._archive_root, 0o700)
-        self.log_info(
-            f"initialised empty FileCacheArchive at '{self._archive_root}'"
-        )
+        self.log_info("initialised empty FileCacheArchive at "
+                      f"'{self._archive_root}'")
 
     def dest_path(self, name):
         if os.path.isabs(name):
@@ -246,9 +245,8 @@ class FileCacheArchive(Archive):
                     if os.path.isabs(target):
                         target = os.path.relpath(target, target_dir)
 
-                    self.log_debug(
-                        f"Making symlink '{abs_path}' -> '{target}'"
-                    )
+                    self.log_debug("Making symlink "
+                                   f"'{abs_path}' -> '{target}'")
                     os.symlink(target, abs_path)
                 else:
                     self.log_debug(f"Making directory {abs_path}")
@@ -298,9 +296,8 @@ class FileCacheArchive(Archive):
 
         # Check containing directory presence and path type
         if os.path.exists(dest_dir) and not os.path.isdir(dest_dir):
-            raise ValueError(
-                f"path '{dest_dir}' exists and is not a directory"
-            )
+            raise ValueError(f"path '{dest_dir}' exists and is not a "
+                             "directory")
         if not os.path.exists(dest_dir):
             src_dir = src if path_type == P_DIR else os.path.split(src)[0]
             self._make_leading_paths(src_dir)
@@ -320,15 +317,23 @@ class FileCacheArchive(Archive):
         if os.path.exists(dest):
             # Use lstat: we care about the current object, not the referent.
             st = os.lstat(dest)
-            ve_msg = "path '%s' exists and is not a %s"
+            ve_msg = "path '{path}' exists and is not a {path_type}"
             if path_type == P_FILE and not stat.S_ISREG(st.st_mode):
-                raise ValueError(ve_msg % (dest, "regular file"))
+                raise ValueError(
+                    f"{ve_msg.format(path=dest, path_type='regular file')}"
+                )
             if path_type == P_LINK and not stat.S_ISLNK(st.st_mode):
-                raise ValueError(ve_msg % (dest, "symbolic link"))
+                raise ValueError(
+                    f"{ve_msg.format(path=dest, path_type='symbolic link')}"
+                )
             if path_type == P_NODE and not is_special(st.st_mode):
-                raise ValueError(ve_msg % (dest, "special file"))
+                raise ValueError(
+                    f"{ve_msg.format(path=dest, path_type='special file')}"
+                )
             if path_type == P_DIR and not stat.S_ISDIR(st.st_mode):
-                raise ValueError(ve_msg % (dest, "directory"))
+                raise ValueError(
+                    f"{ve_msg.format(path=dest, path_type='directory')}"
+                )
             # Path has already been copied: skip
             return None
         return dest
@@ -379,9 +384,8 @@ class FileCacheArchive(Archive):
                         f.write(line)
                 file_name = "open file"
 
-            self.log_debug(
-                f"added {file_name} to FileCacheArchive '{self._archive_root}'"
-            )
+            self.log_debug(f"added {file_name} to FileCacheArchive "
+                           f"'{self._archive_root}'")
 
     def add_string(self, content, dest, mode='w'):
         with self._path_lock:
@@ -399,10 +403,8 @@ class FileCacheArchive(Archive):
                 f.write(content)
                 if os.path.exists(src):
                     self._copy_attributes(src, dest)
-                self.log_debug(
-                    f"added string at '{src}' to FileCacheArchive"
-                    f" '{self._archive_root}'"
-                )
+                self.log_debug(f"added string at '{src}' to FileCacheArchive"
+                               f" '{self._archive_root}'")
 
     def add_binary(self, content, dest):
         with self._path_lock:
@@ -412,10 +414,8 @@ class FileCacheArchive(Archive):
 
             with codecs.open(dest, 'wb', encoding=None) as f:
                 f.write(content)
-            self.log_debug(
-                f"added binary content at '{dest}' to archive"
-                f" '{self._archive_root}'"
-            )
+            self.log_debug(f"added binary content at '{dest}' to archive"
+                           f" '{self._archive_root}'")
 
     def add_link(self, source, link_name):
         self.log_debug(f"adding symlink at '{link_name}' -> '{source}'")
@@ -426,10 +426,8 @@ class FileCacheArchive(Archive):
 
             if not os.path.lexists(dest):
                 os.symlink(source, dest)
-                self.log_debug(
-                    f"added symlink at '{dest}' to '{source}' in archive"
-                    f" '{self._archive_root}'"
-                )
+                self.log_debug(f"added symlink at '{dest}' to '{source}' in "
+                               f"archive '{self._archive_root}'")
 
         # Follow-up must be outside the path lock: we recurse into
         # other monitor methods that will attempt to reacquire it.
@@ -476,13 +474,11 @@ class FileCacheArchive(Archive):
                 source = os.path.join(dest_dir, os.readlink(host_path_name))
                 source = os.path.relpath(source, dest_dir)
                 if is_loop(link_name, source):
-                    self.log_debug(
-                        f"Link '{link_name}' - '{source}' loops: skipping..."
-                    )
+                    self.log_debug(f"Link '{link_name}' - '{source}' loops: "
+                                   "skipping...")
                     return
-                self.log_debug(
-                    f"Adding link {link_name} -> {source} for link follow up"
-                )
+                self.log_debug(f"Adding link {link_name} -> {source} for "
+                               "link follow up")
                 self.add_link(source, link_name)
             elif os.path.isdir(host_path_name):
                 self.log_debug(f"Adding dir {source} for link follow up")
@@ -491,9 +487,8 @@ class FileCacheArchive(Archive):
                 self.log_debug(f"Adding file {source} for link follow up")
                 self.add_file(host_path_name)
             else:
-                self.log_debug(
-                    f"No link follow up: source={source} link_name={link_name}"
-                )
+                self.log_debug(f"No link follow up: source={source} "
+                               f"link_name={link_name}")
 
     def add_dir(self, path):
         """Create a directory in the archive.
@@ -539,10 +534,8 @@ class FileCacheArchive(Archive):
             Used by sos.sosreport to set up sos_* directories.
         """
         os.makedirs(os.path.join(self._archive_root, path), mode=mode)
-        self.log_debug(
-            f"created directory at '{path}' in FileCacheArchive"
-            f" '{self._archive_root}'"
-        )
+        self.log_debug(f"created directory at '{path}' in FileCacheArchive"
+                       f" '{self._archive_root}'")
 
     def open_file(self, path):
         path = self.dest_path(path)
@@ -624,8 +617,10 @@ class FileCacheArchive(Archive):
             return self.name()
 
         self.cleanup()
-        self.log_info("built archive at '%s' (size=%d)" % (self._archive_name,
-                      os.stat(self._archive_name).st_size))
+        self.log_info(
+            f"built archive at '{self._archive_name}'"
+            f" (size={os.stat(self._archive_name).st_size})"
+        )
 
         if self.enc_opts['encrypt']:
             try:
@@ -661,10 +656,11 @@ class FileCacheArchive(Archive):
         if self.enc_opts["password"]:
             # prevent change of gpg options using a long password, but also
             # prevent the addition of quote characters to the passphrase
-            passwd = "%s" % self.enc_opts["password"].replace('\'"', '')
+            replaced_password = self.enc_opts['password'].replace('\'\"', '')
+            passwd = f"{replaced_password}"
             env = {"sos_gpg": passwd}
             enc_cmd += "-c --passphrase-fd 0 "
-            enc_cmd = "/bin/bash -c \"echo $sos_gpg | %s\"" % enc_cmd
+            enc_cmd = f"/bin/bash -c \"echo $sos_gpg | {enc_cmd}\""
             enc_cmd += archive
         r = sos_get_command_output(enc_cmd, timeout=0, env=env)
         if r["status"] == 0:
@@ -753,11 +749,8 @@ class TarFileArchive(FileCacheArchive):
             kwargs = {'compresslevel': 6}
         else:
             kwargs = {'preset': 3}
-        tar = tarfile.open(
-            self._archive_name,
-            mode=f"w:{_comp_mode}",
-            **kwargs
-        )
+        tar = tarfile.open(self._archive_name,
+                           mode=f"w:{_comp_mode}", **kwargs)
         # add commonly reviewed files first, so that they can be more easily
         # read from memory without needing to extract the whole archive
         for _content in ['version.txt', 'sos_reports', 'sos_logs']:

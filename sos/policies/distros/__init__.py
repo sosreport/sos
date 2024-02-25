@@ -317,7 +317,7 @@ class LinuxPolicy(Policy):
                 else:
                     self.commons['cmdlineopts'].case_id = input(
                         _("Optionally, please enter the case id that you are "
-                          "generating this report for [%s]: ") % caseid
+                          f"generating this report for [{caseid}]: ")
                     )
             except KeyboardInterrupt:
                 raise

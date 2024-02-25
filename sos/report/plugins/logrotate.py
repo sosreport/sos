@@ -20,10 +20,8 @@ class LogRotate(Plugin, IndependentPlugin):
     var_ansible_gen = "/var/lib/config-data/ansible-generated/crond"
 
     def setup(self):
-        self.add_cmd_output(
-            "logrotate --debug /etc/logrotate.conf",
-            suggest_filename="logrotate_debug"
-        )
+        self.add_cmd_output("logrotate --debug /etc/logrotate.conf",
+                            suggest_filename="logrotate_debug")
         self.add_copy_spec([
             "/etc/logrotate*",
             "/var/lib/logrotate.status",

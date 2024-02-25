@@ -55,17 +55,13 @@ class PostgreSQL(Plugin):
                     os.environ["PGPASSWORD"] = self.get_option("password")
 
                 if self.get_option("dbhost"):
-                    cmd = (
-                        f'pg_dump -U {self.get_option("username")} -h'
-                        f' {self.get_option("dbhost")} -p'
-                        f' {self.get_option("dbport")} -w -F t'
-                        f' {self.get_option("dbname")}'
-                    )
+                    cmd = (f'pg_dump -U {self.get_option("username")} -h'
+                           f' {self.get_option("dbhost")} -p'
+                           f' {self.get_option("dbport")} -w -F t'
+                           f' {self.get_option("dbname")}')
                 else:
-                    cmd = (
-                        f'pg_dump -C -U {self.get_option("username")} -w -F t'
-                        f' {self.get_option("dbname")} '
-                    )
+                    cmd = (f'pg_dump -C -U {self.get_option("username")} -w '
+                           f'-F t {self.get_option("dbname")} ')
 
                 if scl is not None:
                     cmd = self.convert_cmd_scl(scl, cmd)

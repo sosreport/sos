@@ -224,11 +224,8 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                 cmd_env.pop(key, None)
     # use /usr/bin/timeout to implement a timeout
     if timeout and is_executable("timeout"):
-        command = "timeout %s %ds %s" % (
-            '--foreground' if foreground else '',
-            timeout,
-            command
-        )
+        command = (f"timeout {'--foreground' if foreground else ''}"
+                   f" {timeout} {command}")
 
     args = shlex.split(command)
     # Expand arguments that are wildcard root paths.
@@ -338,7 +335,7 @@ def get_human_readable(size, precision=2):
     while size > 1024 and suffixindex < 4:
         suffixindex += 1
         size = size/1024.0
-    return "%.*f%s" % (precision, size, suffixes[suffixindex])
+    return f"{size:.{precision}f}{suffixes[suffixindex]}"
 
 
 def _os_wrapper(path, sysroot, method, module=os.path):

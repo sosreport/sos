@@ -176,22 +176,21 @@ class SoSHelper(SoSComponent):
             'SoS - officially pronounced "ess-oh-ess" - is a diagnostic and '
             'supportability utility used by several Linux distributions as an '
             'easy-to-use tool for standardized data collection. The most known'
-            ' component of which is %s (formerly sosreport) which is used to '
-            'collect troubleshooting information into an archive for review '
-            'by sysadmins or technical support teams.'
-            % bold('sos report')
+            f' component of which is {bold("sos report")} (formerly '
+            'sosreport) which is used to collect troubleshooting information '
+            'into an archive for review by sysadmins or technical support '
+            'teams.'
         )
 
         subsect = self_help.add_section('How to search using sos help')
         usage = bold('$component.$topic.$subtopic')
-        subsect.add_text(
-            'To get more information on a given topic, use the form \'%s\'.'
-            % usage
-        )
+        subsect.add_text('To get more information on a given topic, use the '
+                         f'form \'{usage}\'.')
 
         rep_ex = bold('sos help report.plugins.kernel')
-        subsect.add_text("For example '%s' will provide more information on "
-                         "the kernel plugin for the report function." % rep_ex)
+        subsect.add_text(f"For example '{rep_ex}' will provide more "
+                         "information on the kernel plugin for the report "
+                         "function.")
 
         avail_help = self_help.add_section('Available Help Sections')
         avail_help.add_text(

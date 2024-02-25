@@ -166,7 +166,7 @@ class SoSIPMap(SoSMap):
             _octets = []
             for i in range(0, 4):
                 _octets.append(random.randint(11, 99))
-            return "%s.%s.%s.%s" % tuple(_octets)
+            return f"{_octets[0]}.{_octets[1]}.{_octets[2]}.{_octets[3]}"
 
         _addr = _gen_address()
         if _addr in self.dataset.values():

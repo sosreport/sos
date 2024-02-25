@@ -47,9 +47,8 @@ class ConnectionException(Exception):
     """Raised when an attempt to connect fails"""
 
     def __init__(self, address='', port=''):
-        message = (
-            f"Could not connect to host {address} on specified port {port}"
-        )
+        message = (f"Could not connect to host {address} on specified port "
+                   f"{port}")
         super(ConnectionException, self).__init__(message)
 
 
@@ -100,11 +99,9 @@ class InvalidTransportException(Exception):
     not supported locally"""
 
     def __init__(self, transport=None):
-        message = (
-            f"Connection failed: unknown or unsupported transport {transport}"
-            if transport
-            else ''
-        )
+        message = ("Connection failed: unknown or unsupported transport "
+                   f"{transport}"
+                   if transport else '')
         super(InvalidTransportException, self).__init__(message)
 
 

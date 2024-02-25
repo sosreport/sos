@@ -111,16 +111,15 @@ class Ovirt(Plugin, RedHatPlugin):
             "engine-config -d",
         ])
 
-        self.add_cmd_output(
-            [f"openssl x509 -in {c} -text -noout" for c in certificates]
-        )
+        self.add_cmd_output([
+            # process certificate files
+            f"openssl x509 -in {c} -text -noout" for c in certificates
+        ])
 
-        self.add_cmd_output(
-            [
-                f"keytool -list -storepass {p} -rfc -keystore {c}"
-                for (p, c) in keystores
-            ]
-        )
+        self.add_cmd_output([
+            f"keytool -list -storepass {p} -rfc -keystore {c}"
+            for (p, c) in keystores
+        ])
 
         # 3.x line uses engine-manage-domains, 4.x uses ovirt-aaa-jdbc-tool
         manage_domains = 'engine-manage-domains'
@@ -235,8 +234,9 @@ class Ovirt(Plugin, RedHatPlugin):
         if keys_opt and keys_opt is not True:
             sensitive_keys = keys_opt
         key_list = [x for x in sensitive_keys.split(':') if x]
+        keys = "|".join(key_list)
         self.do_path_regex_sub(
-            self.DB_PASS_FILES, f'({"|".join(key_list)})=(.*)', r'\1=********'
+            self.DB_PASS_FILES, f'({keys})=(.*)', r'\1=********'
         )
 
         # Answer files contain passwords.
@@ -261,7 +261,7 @@ class Ovirt(Plugin, RedHatPlugin):
             "pool.default.ssl.truststore.password",
             "config.datasource.dbpassword"
         ]
-        regexp = r"(^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = rf"(^\s*#*({'|'.join(protect_keys)})\s*=\s*)(.*)"
 
         self.do_path_regex_sub(r"/etc/ovirt-engine/aaa/.*\.properties", regexp,
                                r"\1*********")

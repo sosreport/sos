@@ -28,7 +28,7 @@ class OpenStackCinder(Plugin):
     def setup(self):
         self.add_forbidden_path('/etc/cinder/volumes')
         cinder_config = ""
-        cinder_config_opt = "--config-dir %s/etc/cinder/"
+        cinder_config_opt = f"--config-dir {self.var_puppet_gen}/etc/cinder/"
 
         # check if either standalone (cinder-api) or httpd wsgi (cinder_wsgi)
         # is up and running
@@ -41,8 +41,7 @@ class OpenStackCinder(Plugin):
 
         in_container = self.container_exists('.*cinder_api')
         if in_container:
-            cinder_config = cinder_config_opt % self.var_puppet_gen
-
+            cinder_config = cinder_config_opt
         # collect commands output if the standalone, wsgi or container is up
         if in_ps or in_container:
             self.add_cmd_output(
@@ -111,17 +110,15 @@ class OpenStackCinder(Plugin):
                         self.add_cmd_output(cmd)
 
         self.add_forbidden_path('/etc/cinder/volumes')
-        self.add_copy_spec(
-            [
-                "/etc/cinder/",
-                f"{self.var_puppet_gen}/etc/cinder/",
-                f"{self.var_puppet_gen}/etc/httpd/conf/",
-                f"{self.var_puppet_gen}/etc/httpd/conf.d/",
-                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
-                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
-                f"{self.var_puppet_gen}/etc/sysconfig/",
-            ]
-        )
+        self.add_copy_spec([
+            "/etc/cinder/",
+            f"{self.var_puppet_gen}/etc/cinder/",
+            f"{self.var_puppet_gen}/etc/httpd/conf/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+            f"{self.var_puppet_gen}/etc/sysconfig/",
+        ])
 
         if self.get_option("all_logs"):
             self.add_copy_spec([
@@ -138,8 +135,7 @@ class OpenStackCinder(Plugin):
         self.do_path_regex_sub("/etc/cinder/*", regexp, subst)
         self.do_path_regex_sub(
             f"{self.var_puppet_gen}/etc/cinder/*",
-            regexp,
-            subst
+            regexp, subst
         )
 
     def postproc(self):
@@ -158,12 +154,12 @@ class OpenStackCinder(Plugin):
         connection_keys = ["connection"]
 
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1*********"
         )
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            # flake8: noqa
+            rf"(^\s*({'|'.join(connection_keys)})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

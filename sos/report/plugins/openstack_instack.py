@@ -87,12 +87,10 @@ class OpenStackInstack(Plugin):
             # get status of overcloud stack and resources
             for _sid in stack_ids:
                 sid = _sid[1]
-                self.add_cmd_output(
-                    [
-                        f"openstack stack show {sid}",
-                        f"openstack stack resource list -n 10 {sid}",
-                    ]
-                )
+                self.add_cmd_output([
+                    f"openstack stack show {sid}",
+                    f"openstack stack resource list -n 10 {sid}",
+                ])
 
                 # get details on failed deployments
                 cmd = f"openstack stack resource list -f value -n 5 {sid}"
@@ -107,7 +105,7 @@ class OpenStackInstack(Plugin):
                             continue
                         deploy = deployment.split()[1]
                         cmd = ("openstack software deployment "
-                               "show --long %s" % (deployment))
+                               f"show --long {deployment}")
                         fname = f"failed-deployment-{deploy}.log"
                         self.add_cmd_output(cmd, suggest_filename=fname)
 
@@ -135,13 +133,15 @@ class OpenStackInstack(Plugin):
             "undercloud_swift_password",
             "undercloud_tuskar_password",
         ]
-        regexp = f'(({"|".join(protected_keys)})=)(.*)'
+        keys = "|".join(protected_keys)
+        regexp = f'(({keys})=)(.*)'
         self.do_file_sub("/home/stack/.instack/install-undercloud.log",
                          regexp, r"\1*********")
         self.do_file_sub(UNDERCLOUD_CONF_PATH, regexp, r"\1*********")
 
         protected_json_keys = ["pm_password", "ssh-key", "password"]
-        json_regexp = f'("({"|".join(protected_json_keys)})": )(".*?")'
+        keys = "|".join(protected_json_keys)
+        json_regexp = f'("({keys})": )(".*?")'
         self.do_file_sub("/home/stack/instackenv.json", json_regexp,
                          r"\1*********")
         self.do_file_sub('/home/stack/.tripleo/history',

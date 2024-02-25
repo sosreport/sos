@@ -132,9 +132,10 @@ class Openshift(Plugin, RedHatPlugin):
         token = self.get_option('token') or os.getenv('SOSOCPTOKEN', None)
 
         if token:
-            oc_res = self.exec_cmd("oc login %s --token=%s "
-                                   "--insecure-skip-tls-verify=True"
-                                   % (self.get_option('host'), token))
+            oc_res = self.exec_cmd(f"oc login {self.get_option('host')} "
+                                   f"--token={token} "
+                                   "--insecure-skip-tls-verify=True")
+
             if oc_res['status'] == 0:
                 if self._check_oc_function():
                     return True
@@ -288,16 +289,14 @@ class Openshift(Plugin, RedHatPlugin):
         for resource in global_resources:
             _subdir = f"cluster_resources/{resource}"
             _tag = [f"ocp_{resource}"]
-            _res = self.collect_cmd_output(
-                f"{self.oc_cmd} {resource}",
-                subdir=_subdir,
-                tags=_tag
-            )
+            _res = self.collect_cmd_output(f"{self.oc_cmd} {resource}",
+                                           subdir=_subdir,
+                                           tags=_tag)
             if _res['status'] == 0:
                 for _res_name in _res['output'].splitlines()[1:]:
                     self.add_cmd_output(
                         f"oc describe {resource} {_res_name.split()[0]}",
-                        subdir=_subdir,
+                        subdir=_subdir
                     )
 
     def collect_from_namespace(self, namespace):
@@ -347,14 +346,16 @@ class Openshift(Plugin, RedHatPlugin):
         subdir = f"namespaces/{namespace}"
 
         # namespace-specific non-resource collections
-        self.add_cmd_output(
-            f"oc describe namespace {namespace}",
-            subdir=subdir
-        )
+        self.add_cmd_output(f"oc describe namespace {namespace}",
+                            subdir=subdir)
 
         for res in resources:
             _subdir = f"{subdir}/{res}"
-            _tags = [f"ocp_{res}", f"ocp_{namespace}_{res}", namespace]
+            _tags = [
+                f"ocp_{res}",
+                f"ocp_{namespace}_{res}",
+                namespace
+            ]
             _get_cmd = f"{self.oc_cmd} --namespace={namespace} {res}"
             # get the 'normal' output first
             _res_out = self.collect_cmd_output(
@@ -421,7 +422,7 @@ class Openshift(Plugin, RedHatPlugin):
             '.*token.*.value'  # don't blind match `.*token.*` and lose names
         ]
 
-        regex = r'(\s*(%s):)(.*)' % '|'.join(_fields)
+        regex = rf'(\s*({"|".join(_fields)}):)(.*)'
 
         self.do_path_regex_sub('/etc/kubernetes/*', regex, r'\1 *******')
         # scrub secret content

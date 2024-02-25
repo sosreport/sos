@@ -64,10 +64,7 @@ class Foreman(Plugin):
             pass
         # strip wrapping ".." or '..' around password
         if (self.dbpasswd.startswith('"') and self.dbpasswd.endswith('"')) or \
-            (
-                self.dbpasswd.startswith('\'') and
-                self.dbpasswd.endswith('\'')
-                ):
+           (self.dbpasswd.startswith('\'') and self.dbpasswd.endswith('\'')):
             self.dbpasswd = self.dbpasswd[1:-1]
         # set the password to os.environ when calling psql commands to prevent
         # printing it in sos logs
@@ -122,20 +119,18 @@ class Foreman(Plugin):
             f"/var/log/{self.apachepkg}*/katello-reverse-proxy_access_ssl.log*"
         ])
 
-        self.add_cmd_output(
-            [
-                'foreman-selinux-relabel -nv',
-                'passenger-status --show pool',
-                'passenger-status --show requests',
-                'passenger-status --show backtraces',
-                'passenger-memory-stats',
-                'ls -lanR /root/ssl-build',
-                'ls -lanR /usr/share/foreman/config/hooks',
-                f'ping -c1 -W1 {_hostname}',
-                f'ping -c1 -W1 {_host_f}',
-                'ping -c1 -W1 localhost',
-            ]
-        )
+        self.add_cmd_output([
+            'foreman-selinux-relabel -nv',
+            'passenger-status --show pool',
+            'passenger-status --show requests',
+            'passenger-status --show backtraces',
+            'passenger-memory-stats',
+            'ls -lanR /root/ssl-build',
+            'ls -lanR /usr/share/foreman/config/hooks',
+            f'ping -c1 -W1 {_hostname}',
+            f'ping -c1 -W1 {_host_f}',
+            'ping -c1 -W1 localhost',
+        ])
         self.add_cmd_output(
             'qpid-stat -b amqps://localhost:5671 -q \
                     --ssl-certificate=/etc/pki/katello/qpid_router_client.crt \
@@ -201,23 +196,21 @@ class Foreman(Plugin):
             'select dynflow_execution_plans.* from foreman_tasks_tasks join '
             'dynflow_execution_plans on (foreman_tasks_tasks.external_id = '
             'dynflow_execution_plans.uuid::varchar) where foreman_tasks_tasks.'
-            'started_at > NOW() - interval %s' % quote(days)
+            f'started_at > NOW() - interval {quote(days)}'
         )
 
         dactioncmd = (
              'select dynflow_actions.* from foreman_tasks_tasks join '
              'dynflow_actions on (foreman_tasks_tasks.external_id = '
              'dynflow_actions.execution_plan_uuid::varchar) where '
-             'foreman_tasks_tasks.started_at > NOW() - interval %s'
-             % quote(days)
+             f'foreman_tasks_tasks.started_at > NOW() - interval {quote(days)}'
         )
 
         dstepscmd = (
             'select dynflow_steps.* from foreman_tasks_tasks join '
             'dynflow_steps on (foreman_tasks_tasks.external_id = '
             'dynflow_steps.execution_plan_uuid::varchar) where '
-            'foreman_tasks_tasks.started_at > NOW() - interval %s'
-            % quote(days)
+            f'foreman_tasks_tasks.started_at > NOW() - interval {quote(days)}'
         )
 
         # counts of fact_names prefixes/types: much of one type suggests
@@ -285,7 +278,7 @@ class Foreman(Plugin):
                     # proxy is now tuple [name, url]
                     _cmd = 'curl -s --key /etc/foreman/client_key.pem ' \
                         '--cert /etc/foreman/client_cert.pem ' \
-                        '%s/v2/features' % proxy[1]
+                        f'{proxy[1]}/v2/features'
                     self.add_cmd_output(_cmd, suggest_filename=proxy[0],
                                         subdir='smart_proxies_features',
                                         timeout=10)
@@ -302,10 +295,11 @@ class Foreman(Plugin):
         a large amount of quoting in sos logs referencing the command being run
         """
         if csv:
-            query = "COPY (%s) TO STDOUT " \
-                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)" % query
-        _dbcmd = "%s --no-password -h %s -p 5432 -U foreman -d foreman -c %s"
-        return _dbcmd % (binary, self.dbhost, quote(query))
+            query = (f"COPY ({query}) TO STDOUT WITH (FORMAT 'csv', "
+                     "DELIMITER ',', HEADER)")
+        _dbcmd = (f"{binary} --no-password -h {self.dbhost} -p 5432 "
+                  f"-U foreman -d foreman -c {quote(query)}")
+        return _dbcmd
 
     def postproc(self):
         self.do_path_regex_sub(

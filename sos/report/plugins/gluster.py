@@ -104,7 +104,7 @@ class Gluster(Plugin, RedHatPlugin):
                                      "glusterd processes")
             else:
                 self.soslog.warning("Unable to generate statedumps, no such "
-                                    "directory: %s" % self.statedump_dir)
+                                    f"directory: {self.statedump_dir}")
             state = self.exec_cmd("gluster get-state")
             if state['status'] == 0:
                 state_file = state['output'].split()[-1]
@@ -117,19 +117,17 @@ class Gluster(Plugin, RedHatPlugin):
                 if not line.startswith("Volume Name:"):
                     continue
                 volname = line[12:]
-                self.add_cmd_output(
-                    [
-                        f"gluster volume get {volname} all",
-                        f"gluster volume geo-replication {volname} status",
-                        f"gluster volume heal {volname} info",
-                        f"gluster volume heal {volname} info split-brain",
-                        f"gluster volume status {volname} clients",
-                        f"gluster snapshot list {volname}",
-                        f"gluster volume quota {volname} list",
-                        f"gluster volume rebalance {volname} status",
-                        f"gluster snapshot info {volname}",
-                        f"gluster snapshot status {volname}",
-                    ]
-                )
+                self.add_cmd_output([
+                    f"gluster volume get {volname} all",
+                    f"gluster volume geo-replication {volname} status",
+                    f"gluster volume heal {volname} info",
+                    f"gluster volume heal {volname} info split-brain",
+                    f"gluster volume status {volname} clients",
+                    f"gluster snapshot list {volname}",
+                    f"gluster volume quota {volname} list",
+                    f"gluster volume rebalance {volname} status",
+                    f"gluster snapshot info {volname}",
+                    f"gluster snapshot status {volname}",
+                ])
 
 # vim: set et ts=4 sw=4 :

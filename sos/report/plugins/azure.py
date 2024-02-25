@@ -54,11 +54,11 @@ class RedHatAzure(Azure, RedHatPlugin):
 
         if self.path_isfile('/etc/yum.repos.d/rh-cloud.repo'):
             curl_cmd = ('curl -s -m 5 -vvv '
-                        'https://rhui-%s.microsoft.com/pulp/repos/%s')
+                        'https://rhui-{}.microsoft.com/pulp/repos/{}')
             self.add_cmd_output([
-                curl_cmd % ('1', 'microsoft-azure-rhel7'),
-                curl_cmd % ('2', 'microsoft-azure-rhel7'),
-                curl_cmd % ('3', 'microsoft-azure-rhel7')
+                curl_cmd.format('1', 'microsoft-azure-rhel7'),
+                curl_cmd.format('2', 'microsoft-azure-rhel7'),
+                curl_cmd.format('3', 'microsoft-azure-rhel7')
             ])
 
         crt_path = '/etc/pki/rhui/product/content.crt'

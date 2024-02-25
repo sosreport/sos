@@ -50,9 +50,8 @@ class Ebpf(Plugin, IndependentPlugin):
         progs = self.collect_cmd_output("bpftool -j prog list")
         for prog_id in self.get_bpftool_prog_ids(progs['output']):
             for dumpcmd in ["xlated", "jited"]:
-                self.add_cmd_output(
-                    f"bpftool prog dump {dumpcmd} id {prog_id}"
-                )
+                self.add_cmd_output(f"bpftool prog dump {dumpcmd} id "
+                                    f"{prog_id}")
 
         maps = self.collect_cmd_output("bpftool -j map list")
         for map_id in self.get_bpftool_map_ids(maps['output']):

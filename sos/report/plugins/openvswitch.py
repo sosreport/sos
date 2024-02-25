@@ -321,7 +321,10 @@ class OpenVSwitch(Plugin):
                         self.add_cmd_output([
                             f"ovs-appctl cfm/show {port}",
                             f"ovs-appctl qos/show {port}",
+                            # Not all ports are "bond"s, but all "bond"s are
+                            # a single port
                             f"ovs-appctl bond/show {port}",
+                            # In the case of IPSec, we should pull the config
                             f"ovs-vsctl get Interface {port} options",
                         ])
 

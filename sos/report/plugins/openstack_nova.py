@@ -131,11 +131,10 @@ class OpenStackNova(Plugin):
             f"{self.var_puppet_gen}_libvirt/etc/nova/migration/",
             f"{self.var_puppet_gen}_libvirt/var/lib/nova/.ssh/config",
         ] + list(
-            filter(
-                re.compile('^((?!libvirt.+httpd).)*$').match,
-                [f'{self.var_puppet_gen}{p}{s}' for p in pp for s in sp],
-            )
-        )
+            filter(re.compile('^((?!libvirt.+httpd).)*$').match,
+                   [f'{self.var_puppet_gen}{p}{s}'
+                    for p in pp for s in sp
+                    ]))
         self.add_copy_spec(specs)
 
     def apply_regex_sub(self, regexp, subst):
@@ -143,9 +142,7 @@ class OpenStackNova(Plugin):
         for p in ['', '_libvirt', '_metadata', '_placement']:
             self.do_path_regex_sub(
                 f"{self.var_puppet_gen}{p}/etc/nova/*",
-                regexp,
-                subst
-            )
+                regexp, subst)
 
     def postproc(self):
         protect_keys = [
@@ -159,13 +156,14 @@ class OpenStackNova(Plugin):
         ]
         connection_keys = ["connection", "sql_connection"]
 
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

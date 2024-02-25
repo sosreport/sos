@@ -31,13 +31,12 @@ class Lvm2(Plugin, IndependentPlugin):
            archives for each physical volume present.
         """
         lvmdump_path = self.get_cmd_output_path(name="lvmdump", make=False)
-        lvmdump_cmd = "lvmdump %s -d '%s'"
         lvmdump_opts = ""
 
         if metadata:
             lvmdump_opts = "-a -m"
 
-        cmd = lvmdump_cmd % (lvmdump_opts, lvmdump_path)
+        cmd = f"lvmdump {lvmdump_opts} -d '{lvmdump_path}'"
 
         self.add_cmd_output(cmd, chroot=self.tmp_in_sysroot())
 
@@ -93,18 +92,12 @@ class Lvm2(Plugin, IndependentPlugin):
         vgs_cols = f'{vgs_cols},vg_tags,systemid'
         lvs_cols = ('lv_tags,devices,lv_kernel_read_ahead,lv_read_ahead,'
                     'stripes,stripesize')
-        self.add_cmd_output(
-            f"lvs -a -o +{lvs_cols} {lvm_opts_foreign}",
-            tags="lvs_headings"
-        )
-        self.add_cmd_output(
-            f"pvs -a -v -o +{pvs_cols} {lvm_opts_foreign}",
-            tags="pvs_headings"
-        )
-        self.add_cmd_output(
-            f"vgs -v -o +{vgs_cols} {lvm_opts_foreign}",
-            tags="vgs_headings"
-        )
+        self.add_cmd_output(f"lvs -a -o +{lvs_cols} {lvm_opts_foreign}",
+                            tags="lvs_headings")
+        self.add_cmd_output(f"pvs -a -v -o +{pvs_cols} {lvm_opts_foreign}",
+                            tags="pvs_headings")
+        self.add_cmd_output(f"vgs -v -o +{vgs_cols} {lvm_opts_foreign}",
+                            tags="vgs_headings")
         self.add_cmd_output([
             f"pvscan -v {lvm_opts}",
             f"vgscan -vvv {lvm_opts}"

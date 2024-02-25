@@ -139,22 +139,20 @@ class Ipa(Plugin, RedHatPlugin):
         self.add_cmd_output(f"certutil -L -d {self.pki_tomcat_dir}/alias")
         self.add_copy_spec(f"{self.pki_tomcat_conf_dir}/CS.cfg")
 
-        self.add_forbidden_path(
-            [
-                "/etc/pki/nssdb/key*",
-                "/etc/dirsrv/slapd-*/key*",
-                "/etc/dirsrv/slapd-*/pin.txt",
-                "/etc/dirsrv/slapd-*/pwdfile.txt",
-                "/etc/httpd/alias/ipasession.key",
-                "/etc/httpd/alias/key*",
-                "/etc/httpd/alias/pin.txt",
-                "/etc/httpd/alias/pwdfile.txt",
-                "/etc/named.keytab",
-                f"{self.pki_tomcat_dir}/alias/key*",
-                f"{self.pki_tomcat_conf_dir}/flatfile.txt",
-                f"{self.pki_tomcat_conf_dir}/password.conf",
-            ]
-        )
+        self.add_forbidden_path([
+            "/etc/pki/nssdb/key*",
+            "/etc/dirsrv/slapd-*/key*",
+            "/etc/dirsrv/slapd-*/pin.txt",
+            "/etc/dirsrv/slapd-*/pwdfile.txt",
+            "/etc/httpd/alias/ipasession.key",
+            "/etc/httpd/alias/key*",
+            "/etc/httpd/alias/pin.txt",
+            "/etc/httpd/alias/pwdfile.txt",
+            "/etc/named.keytab",
+            f"{self.pki_tomcat_dir}/alias/key*",
+            f"{self.pki_tomcat_conf_dir}/flatfile.txt",
+            f"{self.pki_tomcat_conf_dir}/password.conf",
+        ])
 
         self.add_cmd_output([
             "ls -la /etc/dirsrv/slapd-*/schema/",

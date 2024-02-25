@@ -186,9 +186,8 @@ class SoSCollector(SoSComponent):
                 self.parse_node_strings()
                 self.parse_cluster_options()
                 self.log_debug(f"Executing {' '.join(s for s in sys.argv)}")
-                self.log_debug(
-                    f"Found cluster profiles: {self.clusters.keys()}"
-                )
+                self.log_debug("Found cluster profiles: "
+                               f"{self.clusters.keys()}")
                 self.verify_cluster_options()
 
             except KeyboardInterrupt:
@@ -596,11 +595,9 @@ class SoSCollector(SoSComponent):
                             opt.value = self._validate_option(option, opt)
                             break
             if not match:
-                self.exit(
-                    "Unknown cluster option provided:"
-                    f" {opt.cluster}.{opt.name}",
-                    1,
-                )
+                self.exit("Unknown cluster option provided:"
+                          f" {opt.cluster}.{opt.name}",
+                          1)
 
     def _validate_option(self, default, cli):
         """Checks to make sure that the option given on the CLI is valid.
@@ -612,15 +609,16 @@ class SoSCollector(SoSComponent):
         """
         if not default.opt_type == bool:
             if not default.opt_type == cli.opt_type:
-                msg = "Invalid option type for %s. Expected %s got %s"
-                self.exit(msg % (cli.name, default.opt_type, cli.opt_type), 1)
+                msg = (f"Invalid option type for {cli.name}."
+                       f" Expected {default.opt_type} got {cli.opt_type}")
+                self.exit(msg, 1)
             return cli.value
         else:
             val = cli.value.lower()
             if val not in ['true', 'on', 'yes', 'false', 'off', 'no']:
-                msg = ("Invalid value for %s. Accepted values are: 'true', "
-                       "'false', 'on', 'off', 'yes', 'no'.")
-                self.exit(msg % cli.name, 1)
+                msg = (f"Invalid value for {cli.name}. Accepted values are:"
+                       " 'true', 'false', 'on', 'off', 'yes', 'no'.")
+                self.exit(msg, 1)
             else:
                 if val in ['true', 'on', 'yes']:
                     return True
@@ -753,10 +751,8 @@ class SoSCollector(SoSComponent):
             _group = json.load(hf)
             for key in ['primary', 'cluster_type']:
                 if _group[key]:
-                    self.log_debug(
-                        f"Setting option '{key}' to '{_group[key]}' per host"
-                        " group"
-                    )
+                    self.log_debug(f"Setting option '{key}' to "
+                                   f"'{_group[key]}' per host group")
                     setattr(self.opts, key, _group[key])
             if _group['nodes']:
                 self.log_debug(f"Adding {_group['nodes']} to node list")
@@ -802,9 +798,8 @@ class SoSCollector(SoSComponent):
                                         self.opts.primary))
                     and not self.opts.batch):
                 self.log_debug('password specified, not using SSH keys')
-                msg = (
-                    f"Provide the SSH password for user {self.opts.ssh_user}: "
-                )
+                msg = ("Provide the SSH password for user "
+                       f"{self.opts.ssh_user}: ")
                 self.opts.password = getpass(prompt=msg)
 
             if ((self.commons['need_sudo'] and not self.opts.nopasswd_sudo)
@@ -812,9 +807,9 @@ class SoSCollector(SoSComponent):
                 if not self.opts.password and not self.opts.password_per_node:
                     self.log_debug('non-root user specified, will request '
                                    'sudo password')
-                    msg = ('A non-root user has been provided. Provide sudo '
-                           'password for %s on remote nodes: '
-                           % self.opts.ssh_user)
+                    msg = ('A non-root user has been provided. Provide sudo'
+                           f' password for {self.opts.ssh_user} on remote '
+                           'nodes: ')
                     self.opts.sudo_pw = getpass(prompt=msg)
                 else:
                     if not self.opts.nopasswd_sudo:
@@ -830,8 +825,8 @@ class SoSCollector(SoSComponent):
                            "to become root remotely.")
                     self.exit(msg, 1)
                 self.log_debug('non-root user asking to become root remotely')
-                msg = ('User %s will attempt to become root. '
-                       'Provide root password: ' % self.opts.ssh_user)
+                msg = (f'User {self.opts.ssh_user} will attempt to become '
+                       'root. Provide root password: ')
                 self.opts.root_password = getpass(prompt=msg)
                 self.commons['need_sudo'] = False
             else:
@@ -843,9 +838,8 @@ class SoSCollector(SoSComponent):
             try:
                 self._load_group_config()
             except Exception as err:
-                msg = (
-                    f"Could not load specified group {self.opts.group}: {err}"
-                )
+                msg = (f"Could not load specified group {self.opts.group}: "
+                       f"{err}")
                 self.exit(msg, 1)
 
         try:
@@ -885,9 +879,8 @@ class SoSCollector(SoSComponent):
                                        local_sudo=local_sudo,
                                        load_facts=can_run_local)
             except Exception as err:
-                self.log_debug(
-                    f"Unable to determine local installation: {err}"
-                )
+                self.log_debug("Unable to determine local installation: "
+                               f"{err}")
                 self.exit('Unable to determine local installation. Use the '
                           '--no-local option if localhost should not be '
                           'included.\nAborting...\n', 1)
@@ -926,10 +919,9 @@ class SoSCollector(SoSComponent):
             self.cluster.setup()
             if self.cluster.cluster_ssh_key:
                 if not self.opts.ssh_key:
-                    self.log_debug(
-                        "Updating SSH key to"
-                        f" {self.cluster.cluster_ssh_key} per cluster"
-                    )
+                    self.log_debug("Updating SSH key to"
+                                   f" {self.cluster.cluster_ssh_key} per "
+                                   "cluster")
                     self.opts.ssh_key = self.cluster.cluster_ssh_key
 
         self.get_nodes()
@@ -1009,10 +1001,8 @@ class SoSCollector(SoSComponent):
         """
         try:
             self.primary = SosNode(self.opts.primary, self.commons)
-            self.ui_log.info(
-                f"Connected to {self.opts.primary}, determining cluster"
-                " type..."
-            )
+            self.ui_log.info(f"Connected to {self.opts.primary}, determining"
+                             " cluster type...")
         except Exception as e:
             self.log_debug(f'Failed to connect to primary node: {e}')
             self.exit('Could not connect to primary node. Aborting...', 1)
@@ -1032,20 +1022,19 @@ class SoSCollector(SoSComponent):
             cluster.primary = self.primary
             if cluster.check_enabled():
                 cname = cluster.__class__.__name__
-                self.log_debug("Installation matches %s, checking for layered "
-                               "profiles" % cname)
+                self.log_debug(f"Installation matches {cname}, checking for "
+                               "layered profiles")
                 for remaining in checks:
                     if issubclass(remaining.__class__, cluster.__class__):
                         rname = remaining.__class__.__name__
-                        self.log_debug("Layered profile %s found. "
-                                       "Checking installation"
-                                       % rname)
+                        self.log_debug(f"Layered profile {rname} found. "
+                                       "Checking installation")
                         remaining.primary = self.primary
                         if remaining.check_enabled():
                             self.log_debug("Installation matches both layered "
-                                           "profile %s and base profile %s, "
-                                           "setting cluster type to layered "
-                                           "profile" % (rname, cname))
+                                           f"profile {rname} and base profile "
+                                           f"{cname}, setting cluster type to "
+                                           "layered profile")
                             cluster = remaining
                             break
                 self.cluster = cluster
@@ -1090,8 +1079,9 @@ class SoSCollector(SoSComponent):
                 if re.match(regex, node):
                     return True
             except re.error as err:
-                msg = 'Error comparing %s to provided node regex %s: %s'
-                self.log_debug(msg % (node, regex, err))
+                msg = (f'Error comparing {node} to provided node regex '
+                       f'{regex}: {err}')
+                self.log_debug(msg)
         return False
 
     def get_nodes(self):
@@ -1168,13 +1158,14 @@ class SoSCollector(SoSComponent):
         """Print the intro message and prompts for a case ID if one is not
         provided on the command line
         """
-        disclaimer = ("""\
+        disclaimer = (f"""\
 This utility is used to collect sos reports from multiple \
 nodes simultaneously. Remote connections are made and/or maintained \
 to those nodes via well-known transport protocols such as SSH.
 
 An archive of sos report tarballs collected from the nodes will be \
-generated in %s and may be provided to an appropriate support representative.
+generated in {self.tmpdir} and may be provided to an appropriate support \
+representative.
 
 The generated archive may contain data considered sensitive \
 and its content should be reviewed by the originating \
@@ -1183,8 +1174,8 @@ organization before being passed to any third party.
 No configuration changes will be made to the system running \
 this utility or remote systems that it connects to.
 """)
-        self.ui_log.info("\nsos-collector (version %s)\n" % __version__)
-        intro_msg = self._fmt_msg(disclaimer % self.tmpdir)
+        self.ui_log.info(f"\nsos-collector (version {__version__})\n")
+        intro_msg = self._fmt_msg(disclaimer)
         self.ui_log.info(intro_msg)
 
         prompt = "\nPress ENTER to continue, or CTRL-C to quit\n"
@@ -1236,10 +1227,8 @@ this utility or remote systems that it connects to.
         if self.opts.password_per_node:
             _nodes = []
             for node in nodes:
-                msg = (
-                    "Please enter the password for"
-                    f" {self.opts.ssh_user}@{node[0]}: "
-                )
+                msg = ("Please enter the password for"
+                       f" {self.opts.ssh_user}@{node[0]}: ")
                 node_pwd = getpass(msg)
                 _nodes.append((node[0], node_pwd))
             nodes = _nodes
@@ -1267,10 +1256,9 @@ this utility or remote systems that it connects to.
                         "Aborting...", 1
                     )
 
-            self.ui_log.info("\nBeginning collection of sosreports from %s "
-                             "nodes, collecting a maximum of %s "
-                             "concurrently\n"
-                             % (self.report_num, self.opts.jobs))
+            self.ui_log.info("\nBeginning collection of sosreports from "
+                             f"{self.report_num} nodes, collecting a maximum "
+                             f"of {self.opts.jobs} concurrently\n")
 
             npool = ThreadPoolExecutor(self.opts.jobs)
             npool.map(self._finalize_sos_cmd, self.client_list, chunksize=1)
@@ -1290,8 +1278,9 @@ this utility or remote systems that it connects to.
             files = self.cluster._run_extra_cmd()
             if files:
                 self.primary.collect_extra_cmd(files)
-        msg = '\nSuccessfully captured %s of %s sosreports'
-        self.log_info(msg % (self.retrieved, self.report_num))
+        msg = (f'\nSuccessfully captured {self.retrieved} of '
+               f'{self.report_num} sosreports')
+        self.log_info(msg)
         self.close_all_connections()
         if self.retrieved > 0:
             arc_name = self.create_cluster_archive()
@@ -1426,14 +1415,14 @@ this utility or remote systems that it connects to.
                 )
                 os.rename(map_file, map_name)
                 self.ui_log.info("A mapping of obfuscated elements is "
-                                 "available at\n\t%s" % map_name)
+                                 f"available at\n\t{map_name}")
 
             self.soslog.info(f'Archive created as {final_name}')
             self.ui_log.info('\nThe following archive has been created. '
                              'Please provide it to your support team.')
-            self.ui_log.info('\t%s\n' % final_name)
+            self.ui_log.info(f'\t{final_name}\n')
             return final_name
         except Exception as err:
-            msg = ("Could not finalize archive: %s\n\nData may still be "
-                   "available uncompressed at %s" % (err, self.archive_path))
+            msg = (f"Could not finalize archive: {err}\n\nData may still be "
+                   f"available uncompressed at {self.archive_path}")
             self.exit(msg, 2)

@@ -30,11 +30,7 @@ class Lstopo(Plugin, IndependentPlugin):
             cmd = "lstopo"
         else:
             cmd = "lstopo-no-graphics"
-        self.add_cmd_output(
-            f"{cmd} --whole-io --of console",
-            suggest_filename="lstopo.txt"
-        )
-        self.add_cmd_output(
-            f"{cmd} --whole-io --of xml",
-            suggest_filename="lstopo.xml"
-        )
+        self.add_cmd_output(f"{cmd} --whole-io --of console",
+                            suggest_filename="lstopo.txt")
+        self.add_cmd_output(f"{cmd} --whole-io --of xml",
+                            suggest_filename="lstopo.xml")

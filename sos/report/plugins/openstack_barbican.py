@@ -42,7 +42,7 @@ class OpenStackBarbican(Plugin, DebianPlugin, UbuntuPlugin):
         ]
         self.do_file_sub(
             "/etc/barbican/barbican.conf",
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1********"
         )
 
@@ -50,8 +50,8 @@ class OpenStackBarbican(Plugin, DebianPlugin, UbuntuPlugin):
 
         self.do_path_regex_sub(
             "/etc/barbican/barbican.conf",
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            # flake8: noqa
+            rf"(^\s*({'|'.join(connection_keys)})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6")
 
 

@@ -45,8 +45,7 @@ class PercCLI(Plugin, IndependentPlugin):
             self.add_cmd_output(
                 f"{cmd} {subcmd}{json}",
                 suggest_filename=f"perccli64_{subcmd}{json}",
-                runat=logpath,
-            )
+                runat=logpath)
 
         # /call show events need 'file=' option to get adapter info like below
         # "Adapter: # - Number of Events: xxx".
@@ -54,7 +53,6 @@ class PercCLI(Plugin, IndependentPlugin):
         self.add_cmd_output(
             f"{cmd} {subcmd} file=/dev/stdout{json}",
             suggest_filename=f"perccli64_{subcmd}{json}",
-            runat=logpath,
-        )
+            runat=logpath)
 
 # vim: set et ts=4 sw=4 :

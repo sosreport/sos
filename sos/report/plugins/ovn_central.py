@@ -33,7 +33,7 @@ class OVNCentral(Plugin):
             if res['status'] != 0 or '\n' not in res['output']:
                 self._log_error(
                     "Could not retrieve ovn_controller socket path "
-                    "from container %s" % self._container_name
+                    f"from container {self._container_name}"
                 )
             else:
                 pattern = re.compile(regex_name)
@@ -50,7 +50,7 @@ class OVNCentral(Plugin):
                                 container=self._container_name)
             if res['status'] != 0:
                 self._log_error("Could not retrieve DB schema file from "
-                                "container %s" % self._container_name)
+                                f"container {self._container_name}")
                 return None
             try:
                 db = json.loads(res['output'])

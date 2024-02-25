@@ -51,13 +51,14 @@ class OpenStackTrove(Plugin):
         ]
         connection_keys = ["connection"]
 
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

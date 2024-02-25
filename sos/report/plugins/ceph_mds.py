@@ -87,14 +87,11 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
         except Exception:
             cname = None
 
-        self.add_cmd_output(
-            [
-                f"ceph daemon {mdsid} {cmd}"
-                for mdsid in mds_ids
-                for cmd in ceph_cmds
-            ],
-            container=cname,
-        )
+        self.add_cmd_output([
+            f"ceph daemon {mdsid} {cmd}"
+            for mdsid in mds_ids
+            for cmd in ceph_cmds
+            ], container=cname)
 
 
 # vim: set et ts=4 sw=4 :

@@ -54,16 +54,14 @@ class Redis(Plugin, SCLPlugin):
 
     def postproc(self):
 
-        for path in [
-            "/etc/",
-            f"{self.var_puppet_gen}/etc/",
-            "/etc/opt/rh/rh-redis32/",
-            "/etc/opt/rh/rh-redis5/"
-        ]:
+        for path in ["/etc/",
+                     f"{self.var_puppet_gen}/etc/",
+                     "/etc/opt/rh/rh-redis32/",
+                     "/etc/opt/rh/rh-redis5/"]:
             self.do_file_sub(
                 f"{path}redis.conf",
                 r"(masterauth|requirepass)\s.*",
-                r"\1 ********",
+                r"\1 ********"
             )
 
 # vim: set et ts=4 sw=4 :

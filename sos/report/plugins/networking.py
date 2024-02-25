@@ -20,7 +20,7 @@ class Networking(Plugin):
 
     option_list = [
         PluginOpt("traceroute", default=False,
-                  desc="collect a traceroute to %s" % trace_host),
+                  desc=f"collect a traceroute to {trace_host}"),
         PluginOpt("namespace_pattern", default="", val_type=str,
                   desc=("Specific namespace names or patterns to collect, "
                         "whitespace delimited.")),
@@ -88,9 +88,8 @@ class Networking(Plugin):
                             tags=['ip_route', 'iproute_show_table_all'])
         self.add_cmd_output("plotnetcfg")
 
-        self.add_cmd_output(
-            f"netstat {self.ns_wide} -neopa", root_symlink="netstat"
-        )
+        self.add_cmd_output(f"netstat {self.ns_wide} -neopa",
+                            root_symlink="netstat")
 
         self.add_cmd_output([
             "nstat -zas",
@@ -142,10 +141,9 @@ class Networking(Plugin):
         # Get ethtool output for every device that does not exist in a
         # namespace.
         _ecmds = [f"ethtool -{opt}" for opt in self.ethtool_shortopts]
-        self.add_device_cmd(
-            [f"{_cmd} %(dev)s" for _cmd in _ecmds],
-            devices="ethernet"
-        )
+        self.add_device_cmd([
+            f"{_cmd} %(dev)s" for _cmd in _ecmds
+            ], devices="ethernet")
 
         self.add_device_cmd([
             "ethtool %(dev)s",
@@ -175,10 +173,8 @@ class Networking(Plugin):
         ])
 
         if self.get_option("traceroute"):
-            self.add_cmd_output(
-                f"/bin/traceroute -n {self.trace_host}",
-                priority=100
-            )
+            self.add_cmd_output(f"/bin/traceroute -n {self.trace_host}",
+                                priority=100)
 
         # Capture additional data from namespaces; each command is run
         # per-namespace.
@@ -219,21 +215,15 @@ class Networking(Plugin):
                     f"{ns_cmd_prefix}netstat {self.ns_wide} -agn",
                     f"{ns_cmd_prefix}nstat -zas",
                 ],
-                    priority=50,
-                    subdir=_subdir,
-                )
-                self.add_cmd_output(
-                    [f"{ns_cmd_prefix}iptables-save"],
-                    pred=iptables_with_nft,
-                    subdir=_subdir,
-                    priority=50,
-                )
-                self.add_cmd_output(
-                    [f"{ns_cmd_prefix}ip6tables-save"],
-                    pred=ip6tables_with_nft,
-                    subdir=_subdir,
-                    priority=50,
-                )
+                    priority=50, subdir=_subdir)
+                self.add_cmd_output([f"{ns_cmd_prefix}iptables-save"],
+                                    pred=iptables_with_nft,
+                                    subdir=_subdir,
+                                    priority=50)
+                self.add_cmd_output([f"{ns_cmd_prefix}ip6tables-save"],
+                                    pred=ip6tables_with_nft,
+                                    subdir=_subdir,
+                                    priority=50)
 
                 ss_cmd = f"{ns_cmd_prefix}ss -peaonmi"
                 # --allow-system-changes is handled directly in predicate
@@ -251,11 +241,7 @@ class Networking(Plugin):
                         f"{ns_cmd_prefix}ethtool -i %(dev)s",
                         f"{ns_cmd_prefix}ethtool -k %(dev)s",
                         f"{ns_cmd_prefix}ethtool -S %(dev)s",
-                    ],
-                        devices=_devs['ethernet'],
-                        priority=50,
-                        subdir=_subdir,
-                    )
+                    ], devices=_devs['ethernet'], priority=50, subdir=_subdir)
 
         self.add_cmd_tags({
             "ethtool [^-].*": "ethtool",
@@ -321,9 +307,8 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
         ])
 
         if self.get_option("traceroute"):
-            self.add_cmd_output(
-                f"/usr/sbin/traceroute -n {self.trace_host}", priority=100
-            )
+            self.add_cmd_output(f"/usr/sbin/traceroute -n {self.trace_host}",
+                                priority=100)
 
     def postproc(self):
 

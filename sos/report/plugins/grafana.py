@@ -66,5 +66,5 @@ class Grafana(Plugin, IndependentPlugin):
             else "/etc/grafana/grafana.ini"
         )
 
-        regexp = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = rf"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)"
         self.do_path_regex_sub(inifile, regexp, r"\1*********")

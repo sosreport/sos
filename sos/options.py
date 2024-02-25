@@ -70,7 +70,7 @@ class SoSOptions():
             :param literal: print values as Python literals
         """
         args = prefix
-        arg_fmt = "=%s"
+        arg_fmt = "={}"
         for arg in self.arg_names:
             args += arg + arg_fmt + sep
         args.strip(sep)
@@ -83,7 +83,7 @@ class SoSOptions():
             # Only quote strings if quote=False
             vals = [f"'{v}'" if isinstance(v, str) else v for v in vals]
 
-        return (args % tuple(vals)).strip(sep) + suffix
+        return (args.format(*vals)).strip(sep) + suffix
 
     def __str__(self):
         return self.__str()
@@ -167,8 +167,7 @@ class SoSOptions():
             if val is None:
                 raise Exception(
                     f"Value of '{key}' in {conf}"
-                    " must be True or False or analagous"
-                )
+                    " must be True or False or analagous")
             else:
                 return val
         if isinstance(self.arg_defaults[key], int):
@@ -227,14 +226,10 @@ class SoSOptions():
                 with open(config_file) as f:
                     config.read_file(f, config_file)
             except DuplicateOptionError as err:
-                raise exit(
-                    f"Duplicate option '{err.option}' in section"
-                    f" '{err.section}' in file {config_file}"
-                )
+                raise exit(f"Duplicate option '{err.option}' in section"
+                           f" '{err.section}' in file {config_file}")
             except (ParsingError, Error):
-                raise exit(
-                    f'Failed to parse configuration file {config_file}'
-                )
+                raise exit(f'Failed to parse configuration file {config_file}')
         except (OSError, IOError) as e:
             print(
                 'WARNING: Unable to read configuration file'

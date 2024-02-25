@@ -94,9 +94,8 @@ class RemoteTransport():
     def display_help(cls, section):
         if cls is RemoteTransport:
             return cls.display_self_help(section)
-        section.set_title(
-            f"{cls.name.title().replace('_', ' ')} Transport Detailed Help"
-        )
+        section.set_title(f"{cls.name.title().replace('_', ' ')} "
+                          "Transport Detailed Help")
         if cls.__doc__ and cls.__doc__ is not RemoteTransport.__doc__:
             section.add_text(cls.__doc__)
         else:
@@ -110,18 +109,16 @@ class RemoteTransport():
         section.set_title('SoS Remote Transport Help')
         section.add_text(
             "\nTransports define how SoS connects to nodes and executes "
-            "commands on them for the purposes of an %s run. Generally, "
-            "this means transports define how commands are wrapped locally "
-            "so that they are executed on the remote node(s) instead."
-            % bold('sos collect')
-        )
+            f"commands on them for the purposes of an {bold('sos collect')} "
+            "run. Generally, this means transports define how commands are "
+            "wrapped locally so that they are executed on the remote node(s) "
+            "instead.")
 
         section.add_text(
             "Transports are generally selected by the cluster profile loaded "
             "for a given execution, however users may explicitly set one "
-            "using '%s'. Note that not all transports will function for all "
-            "cluster/node types."
-            % bold('--transport=$transport_name')
+            f"using '{bold('--transport=$transport_name')}'. Note that not "
+            "all transports will function for all cluster/node types."
         )
 
         section.add_text(
@@ -154,9 +151,8 @@ class RemoteTransport():
         """Actually perform the connection requirements. Should be overridden
         by specific transports that subclass RemoteTransport
         """
-        raise NotImplementedError(
-            f"Transport {self.name} does not define connect"
-        )
+        raise NotImplementedError(f"Transport {self.name} does not define "
+                                  "connect")
 
     def reconnect(self, password):
         """Attempts to reconnect to the node using the standard connect()
@@ -192,9 +188,8 @@ class RemoteTransport():
             self.log_error(f"Failed to disconnect: {err}")
 
     def _disconnect(self):
-        raise NotImplementedError(
-            f"Transport {self.name} does not define disconnect"
-        )
+        raise NotImplementedError(f"Transport {self.name} does not define "
+                                  "disconnect")
 
     @property
     def _need_shell(self):
@@ -378,14 +373,13 @@ class RemoteTransport():
             self.log_info("File retrieval failed after 5 attempts")
             return False
         except Exception as err:
-            self.log_error("Exception encountered during retrieval attempt %s "
-                           "for %s: %s" % (attempts, fname, err))
+            self.log_error("Exception encountered during retrieval attempt "
+                           f"{attempts} for {fname}: {err}")
             raise err
 
     def _retrieve_file(self, fname, dest):
-        raise NotImplementedError(
-            f"Transport {self.name} does not support file copying"
-        )
+        raise NotImplementedError(f"Transport {self.name} does not support "
+                                  "file copying")
 
     def read_file(self, fname):
         """Read the given file fname and return its contents
@@ -407,9 +401,8 @@ class RemoteTransport():
             if 'No such file' in res['output']:
                 self.log_debug(f"File {fname} does not exist on node")
             else:
-                self.log_error(
-                    f"Error reading {fname}: {res['output'].split(':')[1:]}"
-                )
+                self.log_error(f"Error reading {fname}: "
+                               f"{res['output'].split(':')[1:]}")
             return ''
 
 # vim: set et ts=4 sw=4 :

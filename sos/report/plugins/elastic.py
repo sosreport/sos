@@ -51,16 +51,14 @@ class Elastic(Plugin, IndependentPlugin):
 
         host, port = self.get_hostname_port(els_config_file)
         endpoint = f"{host}:{port}"
-        self.add_cmd_output(
-            [
-                f"curl -X GET '{endpoint}/_cluster/settings?pretty'",
-                f"curl -X GET '{endpoint}/_cluster/health?pretty'",
-                f"curl -X GET '{endpoint}/_cluster/stats?pretty'",
-                f"curl -X GET '{endpoint}/_cat/nodes?v'",
-                f"curl -X GET '{endpoint}/_cat/indices'",
-                f"curl -X GET '{endpoint}/_cat/shards'",
-                f"curl -X GET '{endpoint}/_cat/aliases'",
-            ]
-        )
+        self.add_cmd_output([
+            f"curl -X GET '{endpoint}/_cluster/settings?pretty'",
+            f"curl -X GET '{endpoint}/_cluster/health?pretty'",
+            f"curl -X GET '{endpoint}/_cluster/stats?pretty'",
+            f"curl -X GET '{endpoint}/_cat/nodes?v'",
+            f"curl -X GET '{endpoint}/_cat/indices'",
+            f"curl -X GET '{endpoint}/_cat/shards'",
+            f"curl -X GET '{endpoint}/_cat/aliases'",
+        ])
 
 # vim: set et ts=4 sw=4 :

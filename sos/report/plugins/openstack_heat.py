@@ -32,9 +32,8 @@ class OpenStackHeat(Plugin):
             heat_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
-                heat_config = (
-                    f"--config-dir {self.var_puppet_gen}_api/etc/heat/"
-                )
+                heat_config = ("--config-dir "
+                               f"{self.var_puppet_gen}_api/etc/heat/")
 
             self.add_cmd_output(
                 f"heat-manage {heat_config} db_version",
@@ -127,13 +126,14 @@ class OpenStackHeat(Plugin):
         ]
         connection_keys = ["connection"]
 
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

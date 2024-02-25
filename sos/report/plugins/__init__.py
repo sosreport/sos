@@ -133,28 +133,30 @@ class SoSPredicate(object):
         """Return a string representation of this SoSPredicate with
             optional prefix, suffix and value quoting.
         """
-        quotes = '"%s"'
+        quotes = '"{}"'
         pstr = f"dry_run={self.dry_run}, "
 
-        kmods = self.kmods
-        kmods = [quotes % k for k in kmods] if quote else kmods
-        pstr += f'kmods=[{",".join(kmods)}], '
+        kmods = [
+            quotes.format(k) for k in self.kmods
+        ] if quote else self.kmods
+        pstr += f'kmods={[",".join(kmods)]}, '
 
-        services = self.services
-        services = [quotes % s for s in services] if quote else services
-        pstr += f'services=[{",".join(services)}], '
+        services = [
+            quotes.format(s) for s in self.services
+        ] if quote else self.services
+        pstr += f'services={[",".join(services)]}, '
 
-        pkgs = self.packages
-        pkgs = [quotes % p for p in pkgs] if quote else pkgs
-        pstr += f'packages=[{",".join(pkgs)}], '
+        pkgs = [
+            quotes.format(p) for p in self.packages
+        ] if quote else self.packages
+        pstr += f'packages={[",".join(pkgs)]}, '
 
-        cmdoutputs = [
-            "{ %s: %s, %s: %s }" % (quotes % "cmd",
-                                    quotes % cmdoutput['cmd'],
-                                    quotes % "output",
-                                    quotes % cmdoutput['output'])
-            for cmdoutput in self.cmd_outputs
-        ]
+        cmdoutputs = [f"{{ {quotes.format('cmd')}: "
+                      f"{quotes.format(cmdoutput['cmd'])}, "
+                      f"{quotes.format('output')}: "
+                      f"{quotes.format(cmdoutput['output'])} }}"
+                      for cmdoutput in self.cmd_outputs
+                      ]
         pstr += f'cmdoutputs=[{",".join(cmdoutputs)}], '
 
         arches = self.arch
@@ -296,12 +298,11 @@ class SoSPredicate(object):
         evaluation
         """
         msg = ''
-        _substr = "required %s missing: %s."
         for key, val in self._failed.items():
             if not val:
                 continue
             val = set(val)
-            msg += _substr % (key, ', '.join(v for v in val))
+            msg += f"required {key} missing: {', '.join(v for v in val)}."
         return msg
 
     def _report_forbidden(self):
@@ -309,12 +310,11 @@ class SoSPredicate(object):
         which caused the predicate to fail
         """
         msg = ''
-        _substr = "forbidden %s '%s' found."
         for key, val in self._forbidden.items():
             if not val:
                 continue
             val = set(val)
-            msg += _substr % (key, ', '.join(v for v in val))
+            msg += f"forbidden {key} '{', '.join(v for v in val)}' found."
         return msg
 
     def report_failure(self):
@@ -390,8 +390,8 @@ class SoSCommand(object):
     def __str__(self):
         """Return a human readable string representation of this SoSCommand
         """
-        return ', '.join("%s=%r" % (param, val) for (param, val) in
-                         sorted(self.__dict__.items()))
+        return ', '.join(f"{param}={val!r}"
+                         for param, val in sorted(self.__dict__.items()))
 
 
 class PluginOpt():
@@ -443,7 +443,7 @@ class PluginOpt():
     def __str__(self):
         items = [
             f'name={self.name}',
-            'desc=\'%s\'' % self.desc,
+            f'desc=\'{self.desc}\'',
             f'value={self.value}',
             f'default={self.default}',
         ]
@@ -633,10 +633,8 @@ class Plugin():
                 "Environment variables for Plugin must be specified by dict"
             )
         self.default_environment = env_vars
-        self._log_debug(
-            "Default environment for all commands now set to"
-            f" {self.default_environment}"
-        )
+        self._log_debug("Default environment for all commands now set to"
+                        f" {self.default_environment}")
 
     def add_default_cmd_environment(self, env_vars):
         """
@@ -777,9 +775,8 @@ class Plugin():
     @classmethod
     def display_plugin_help(cls, section):
         from sos.help import TERMSIZE
-        section.set_title(
-            f"{cls.plugin_name.title()} Plugin Information - {cls.short_desc}"
-        )
+        section.set_title(f"{cls.plugin_name.title()} Plugin Information - "
+                          f"{cls.short_desc}")
         missing = '\nDetailed information is not available for this plugin.\n'
 
         # Concatenate the docstrings of distro-specific plugins with their
@@ -794,7 +791,7 @@ class Plugin():
         except Exception:
             _doc = None
 
-        section.add_text('\n    %s' % _doc if _doc else missing)
+        section.add_text(f"\n    {_doc or missing}")
 
         if not any([cls.packages, cls.commands, cls.files, cls.kernel_mods,
                     cls.services, cls.containers]):
@@ -823,8 +820,8 @@ class Plugin():
 
         if hasattr(cls, 'verify_packages'):
             section.add_text(
-                "\nVerfies packages (when using --verify): %s"
-                % ', '.join(pkg for pkg in cls.verify_packages),
+                f"\nVerifies packages (when using --verify): "
+                f"{', '.join(pkg for pkg in cls.verify_packages)}",
                 newline=False,
             )
 
@@ -880,13 +877,13 @@ class Plugin():
     def display_self_help(cls, section):
         section.set_title("SoS Plugin Detailed Help")
         section.add_text(
-            "Plugins are what define what collections occur for a given %s "
-            "execution. Plugins are generally representative of a single "
-            "system component (e.g. kernel), package (e.g. podman), or similar"
-            " construct. Plugins will typically specify multiple files or "
-            "directories to copy, as well as commands to execute and collect "
-            "the output of for further analysis."
-            % bold('sos report')
+            "Plugins are what define what collections occur for a given "
+            f"{bold('sos report')} execution. Plugins are generally "
+            "representative of a single system component (e.g. kernel), "
+            "package (e.g. podman), or similar construct. Plugins will "
+            "typically specify multiple files or directories to copy, as "
+            "well as commands to execute and collect the output of for "
+            "further analysis."
         )
 
         subsec = section.add_section('Plugin Enablement')
@@ -896,30 +893,28 @@ class Plugin():
             'existing, a kernel module being loaded, etc...'
         )
         subsec.add_text(
-            "Plugins may also be enabled or disabled by name using the %s or "
-            "%s options respectively."
-            % (bold('-e $name'), bold('-n $name'))
+            "Plugins may also be enabled or disabled by name using the "
+            f"{bold('-e $name')} or {bold('-n $name')} options respectively."
         )
 
         subsec.add_text(
             "Certain plugins may only be available for specific distributions "
             "or may behave differently on different distributions based on how"
-            " the component for that plugin is installed or how it operates."
-            " When using %s, help will be displayed for the version of the "
-            "plugin appropriate for your distribution."
-            % bold('sos help report.plugins.$plugin')
+            " the component for that plugin is installed or how it operates. "
+            f"When using {bold('sos help report.plugins.$plugin')}, help will"
+            " be displayed for the version of the plugin appropriate for your"
+            " distribution."
         )
 
         optsec = section.add_section('Using Plugin Options')
         optsec.add_text(
             "Many plugins support additional options to enable/disable or in "
             "some other way modify the collections it makes. Plugin options "
-            "are set using the %s syntax. Options that are on/off toggles "
-            "may exclude setting a value, which will be interpreted as "
-            "enabling that option.\n\nSee specific plugin help sections "
-            "or %s for more information on these options"
-            % (bold('-k $plugin_name.$option_name=$value'),
-               bold('sos report -l'))
+            f"are set using the {bold('-k $plugin_name.$option_name=$value')} "
+            "syntax. Options that are on/off toggles may exclude setting a "
+            "value, which will be interpreted as enabling that option.\n\n"
+            f"See specific plugin help sections or {bold('sos report -l')} for"
+            " more information on these options"
         )
 
         seealso = section.add_section('See Also')
@@ -929,16 +924,17 @@ class Plugin():
         }
         seealso.add_text(
             "Additional relevant information may be available in these "
-            "help sections:\n\n%s" % "\n".join(
+            "help sections:\n\n" +
+            "\n".join(
                 f"{' ':>8}{sec:<30}{desc:<30}"
                 for sec, desc in _also.items()
-            ), newline=False
+            ),
+            newline=False
         )
 
     def _format_msg(self, msg):
-        return (
-            f"[plugin:{self.name()}] {msg.encode('utf-8', 'replace').decode()}"
-        )
+        return (f"[plugin:{self.name()}] "
+                f"{msg.encode('utf-8', 'replace').decode()}")
 
     def _log_error(self, msg):
         self.soslog.error(self._format_msg(msg))
@@ -1169,9 +1165,8 @@ class Plugin():
         if not self.executed_commands:
             return 0
 
-        self._log_debug(
-            f"Scrubbing certs and keys for commands matching {cmd}"
-        )
+        self._log_debug("Scrubbing certs and keys for commands matching "
+                        f"{cmd}")
 
         replace = f"{_cert_replace} {desc}" if desc else _cert_replace
 
@@ -1217,7 +1212,7 @@ class Plugin():
                     continue
                 if called['binary'] == 'yes':
                     self._log_warn("Cannot apply regex substitution to binary"
-                                   " output: '%s'" % called['exe'])
+                                   F" output: '{called['exe']}'")
                     continue
                 if fnmatch.fnmatch(called['cmd'], globstr):
                     path = os.path.join(self.commons['cmddir'], called['file'])
@@ -1229,8 +1224,8 @@ class Plugin():
                         self.archive.add_string(result, path)
 
         except Exception as e:
-            msg = "regex substitution failed for '%s' with: '%s'"
-            self._log_error(msg % (called['exe'], e))
+            self._log_error(f"regex substitution failed for '{called['exe']}'"
+                            f" with: '{e}'")
             replacements = None
         return replacements
 
@@ -1281,11 +1276,11 @@ class Plugin():
         try:
             path = self._get_dest_for_srcpath(srcpath)
             self._log_debug(f"substituting scrpath '{srcpath}'")
-            self._log_debug("substituting '%s' for '%s' in '%s'"
-                            % (subst,
-                               regexp.pattern if hasattr(regexp, "pattern")
-                               else regexp,
-                               path))
+            self._log_debug(
+                f"substituting '{subst}' for "
+                f"'{regexp.pattern if hasattr(regexp, 'pattern') else regexp}'"
+                f" in '{path}'"
+            )
             if not path:
                 return 0
             replacements = self.archive.do_file_sub(path, regexp, subst)
@@ -1293,11 +1288,11 @@ class Plugin():
             # if trying to regexp a nonexisting file, dont log it as an
             # error to stdout
             if e.errno == errno.ENOENT:
-                msg = "file '%s' not collected, substitution skipped"
-                self._log_debug(msg % path)
+                self._log_debug(f"file '{path}' not collected, substitution "
+                                "skipped")
             else:
-                msg = "regex substitution failed for '%s' with: '%s'"
-                self._log_error(msg % (path, e))
+                self._log_error(f"regex substitution failed for '{path}' "
+                                f"with: '{e}'")
             replacements = 0
         return replacements
 
@@ -1347,10 +1342,8 @@ class Plugin():
         else:
             reldest = linkdest
 
-        self._log_debug(
-            f"copying link '{srcpath}' pointing to '{linkdest}' with"
-            f" isdir={self.path_isdir(absdest)}"
-        )
+        self._log_debug(f"copying link '{srcpath}' pointing to '{linkdest}' "
+                        f"with isdir={self.path_isdir(absdest)}")
 
         dstpath = self.strip_sysroot(srcpath)
         # use the relative target path in the tarball
@@ -1371,8 +1364,8 @@ class Plugin():
             os.stat(absdest)
         except OSError as e:
             if e.errno == 40:
-                self._log_debug("link '%s' is part of a file system "
-                                "loop, skipping target..." % dstpath)
+                self._log_debug(f"link '{dstpath}' is part of a file system "
+                                "loop, skipping target...")
                 return
 
         # copy the symlink target translating relative targets
@@ -1387,16 +1380,14 @@ class Plugin():
                      self.policy._in_container)
             self._do_copy_path(absdest, force=force)
         else:
-            self._log_debug(
-                f"link '{linkdest}' points to itself, skipping target..."
-            )
+            self._log_debug(f"link '{linkdest}' points to itself, skipping "
+                            "target...")
 
     def _copy_dir(self, srcpath):
         try:
             for name in self.listdir(srcpath):
-                self._log_debug(
-                    f"recursively adding '{name}' from '{srcpath}'"
-                )
+                self._log_debug(f"recursively adding '{name}' from "
+                                f"'{srcpath}'")
                 path = os.path.join(srcpath, name)
                 self._do_copy_path(path)
         except OSError as e:
@@ -1689,8 +1680,8 @@ class Plugin():
         configfile_pattern = re.compile(f'^{self.path_join("etc")}/*')
 
         if not self.test_predicate(pred=pred):
-            self._log_info("skipped copy spec '%s' due to predicate (%s)" %
-                           (copyspecs, self.get_predicate(pred=pred)))
+            self._log_info(f"skipped copy spec '{copyspecs}' due to predicate"
+                           f" ({self.get_predicate(pred=pred)})")
             return None
 
         if sizelimit is None:
@@ -1768,16 +1759,15 @@ class Plugin():
                                     _tail = True
                             except ValueError:
                                 self._log_info(
-                                    "unable to determine size of '%s' in "
-                                    "container '%s'. Skipping collection."
-                                    % (copyspec, con)
+                                    f"unable to determine size of '{copyspec}'"
+                                    f" in container '{con}'. Skipping"
+                                    " collection."
                                 )
                                 continue
                         else:
                             self._log_debug(
-                                "stat of '%s' in container '%s' failed, "
-                                "skipping collection: %s"
-                                % (copyspec, con, ret['output'])
+                                f"stat of '{copyspec}' in container '{con}' "
+                                f"failed, skipping collection: {ret['output']}"
                             )
                             continue
                     self.container_copy_paths.append(
@@ -1860,14 +1850,14 @@ class Plugin():
                     if tailit:
                         if file_is_binary(_file):
                             self._log_info(
-                                "File '%s' is over size limit and is binary. "
-                                "Skipping collection." % _file
+                                f"File '{_file}' is over size limit and is "
+                                "binary. Skipping collection."
                             )
                             continue
 
                         self._log_info(
-                            "File '%s' is over size limit, will instead tail "
-                            "the file during collection phase." % _file
+                            f"File '{_file}' is over size limit, will instead "
+                            "tail the file during collection phase."
                         )
                         add_size = sizelimit + file_size - current_size
                         self._tail_files_list.append((_file, add_size))
@@ -1955,21 +1945,15 @@ class Plugin():
             if isinstance(whitelist, str):
                 whitelist = [whitelist]
 
-            _devs = [
-                d
-                for d in _devs
-                if any(re.match(f"(.*)?{wl}", d) for wl in whitelist)
-            ]
+            _devs = [d for d in _devs if
+                     any(re.match(f"(.*)?{wl}", d) for wl in whitelist)]
 
         if blacklist:
             if isinstance(blacklist, str):
                 blacklist = [blacklist]
 
-            _devs = [
-                d
-                for d in _devs
-                if not any(re.match(f"(.*)?{bl}", d) for bl in blacklist)
-            ]
+            _devs = [d for d in _devs if not
+                     any(re.match(f"(.*)?{bl}", d) for bl in blacklist)]
 
         _dev_tags.extend(tags)
         self._add_device_cmd(cmds, _devs, timeout=timeout,
@@ -2120,9 +2104,9 @@ class Plugin():
                 container_cmd = (ocmd, container)
                 cmd = self.fmt_container_cmd(container, cmd)
                 if not cmd:
-                    self._log_debug("Skipping command '%s' as the requested "
-                                    "container '%s' does not exist."
-                                    % (ocmd, container))
+                    self._log_debug(f"Skipping command '{ocmd}' as the "
+                                    f"requested container '{ocmd, }' does not "
+                                    "exist.")
                     continue
             self._add_cmd_output(cmd=cmd, suggest_filename=suggest_filename,
                                  root_symlink=root_symlink, timeout=timeout,
@@ -2274,8 +2258,8 @@ class Plugin():
         """
 
         if not self.test_predicate(cmd=False, pred=pred):
-            self._log_info("skipped string due to predicate (%s)" %
-                           (self.get_predicate(pred=pred)))
+            self._log_info("skipped string due to predicate "
+                           f"({self.get_predicate(pred=pred)})")
             return
 
         sos_dir = 'sos_commands' if plug_dir else 'sos_strings'
@@ -2378,11 +2362,11 @@ class Plugin():
         run_time = end - start
 
         if result['status'] == 124:
-            warn = "command '%s' timed out after %ds" % (cmd, timeout)
+            warn = f"command '{cmd}' timed out after {timeout}s"
             self._log_warn(warn)
             if to_file:
                 msg = (" - output up until the timeout may be available at "
-                       "%s" % outfn)
+                       f"{outfn}")
                 self._log_debug(f"{warn}{msg}")
 
         manifest_cmd = {
@@ -2404,9 +2388,8 @@ class Plugin():
             # automatically retry chroot'ed commands in the host namespace
             if root and root != '/':
                 if self.commons['cmdlineopts'].chroot != 'always':
-                    self._log_info("command '%s' not found in %s - "
-                                   "re-trying in host root"
-                                   % (cmd.split()[0], root))
+                    self._log_info(f"command '{cmd.split()[0]}' not found in "
+                                   f"{root} - re-trying in host root")
                     result = sos_get_command_output(
                         cmd, timeout=timeout, chroot=False, chdir=runat,
                         env=env, binary=binary, sizelimit=sizelimit,
@@ -2421,15 +2404,12 @@ class Plugin():
                     self.manifest.commands.append(manifest_cmd)
                     return result
 
-        self._log_debug(
-            f"collected output of '{cmd.split()[0]}' in"
-            f" {run_time} (changes={changes})"
-        )
+        self._log_debug(f"collected output of '{cmd.split()[0]}' in"
+                        f" {run_time} (changes={changes})")
 
         if result['truncated']:
-            self._log_info(
-                f"collected output of '{cmd.split()[0]}' was truncated"
-            )
+            self._log_info(f"collected output of '{cmd.split()[0]}' was "
+                           "truncated")
             linkfn = outfn
             outfn = outfn.replace('sos_commands', 'sos_strings') + '.tailed'
 
@@ -2604,15 +2584,14 @@ class Plugin():
 
         if container:
             if self._get_container_runtime() is None:
-                self._log_info("Cannot run cmd '%s' in container %s: no "
-                               "runtime detected on host." % (cmd, container))
+                self._log_info(f"Cannot run cmd '%s' in container {cmd}: no "
+                               "runtime detected on host.")
                 return _default
             if self.container_exists(container):
                 cmd = self.fmt_container_cmd(container, cmd, quotecmd)
             else:
-                self._log_info("Cannot run cmd '%s' in container %s: no such "
-                               "container is running." % (cmd, container))
-
+                self._log_info(f"Cannot run cmd '%s' in container {cmd}: no "
+                               "such container is running.")
         return sos_get_command_output(cmd, timeout=timeout, chroot=root,
                                       chdir=runat, binary=binary, env=_env,
                                       foreground=foreground, stderr=stderr)
@@ -2943,13 +2922,13 @@ class Plugin():
         :type sizelimit: ``int``
         """
         journal_cmd = "journalctl --no-pager "
-        unit_opt = " --unit %s"
-        boot_opt = " --boot %s"
-        since_opt = " --since '%s'"
-        until_opt = " --until %s"
-        lines_opt = " --lines %s"
-        output_opt = " --output %s"
-        identifier_opt = " --identifier %s"
+        unit_opt = " --unit {}"
+        boot_opt = " --boot {}"
+        since_opt = " --since '{}'"
+        until_opt = " --until {}"
+        lines_opt = " --lines {}"
+        output_opt = " --output {}"
+        identifier_opt = " --identifier {}"
         catalog_opt = " --catalog"
 
         if sizelimit == 0 or self.get_option("all_logs"):
@@ -2968,11 +2947,11 @@ class Plugin():
 
         if units:
             for unit in units:
-                journal_cmd += unit_opt % unit
+                journal_cmd += unit_opt.format(unit)
                 tags.append(f"journal_{unit}")
 
         if identifier:
-            journal_cmd += identifier_opt % identifier
+            journal_cmd += identifier_opt.format(identifier)
 
         if catalog:
             journal_cmd += catalog_opt
@@ -2985,19 +2964,19 @@ class Plugin():
                 boot = ""
             if boot == "last":
                 boot = "-1"
-            journal_cmd += boot_opt % boot
+            journal_cmd += boot_opt.format(boot)
 
         if since:
-            journal_cmd += since_opt % since
+            journal_cmd += since_opt.format(since)
 
         if until:
-            journal_cmd += until_opt % until
+            journal_cmd += until_opt.format(until)
 
         if lines:
-            journal_cmd += lines_opt % lines
+            journal_cmd += lines_opt.format(lines)
 
         if output:
-            journal_cmd += output_opt % output
+            journal_cmd += output_opt.format(output)
 
         self._log_debug(f"collecting journal: {journal_cmd}")
         self._add_cmd_output(cmd=journal_cmd, timeout=timeout,
@@ -3093,10 +3072,8 @@ class Plugin():
                     self.archive.add_string(cpret['output'], arcdest)
                 self._add_container_file_to_manifest(con, path, arcdest, tags)
             else:
-                self._log_info(
-                    f"error copying '{path}' from container '{con}':"
-                    f" {cpret['output']}"
-                )
+                self._log_info(f"error copying '{path}' from container "
+                               f"'{con}': {cpret['output']}")
 
     def _collect_cmds(self):
         self.collect_cmds.sort(key=lambda x: x.priority)
@@ -3209,7 +3186,7 @@ class Plugin():
         self._collect_cmds()
         self._collect_manual()
         fields = (self.name(), time() - start)
-        self._log_debug("collected plugin '%s' in %s" % fields)
+        self._log_debug(f"collected plugin '{fields[0]}' in {fields[1]}")
 
     def get_description(self):
         """This function will return the description for the plugin"""
@@ -3513,8 +3490,7 @@ class Plugin():
             if ns_max:
                 if len(out_ns) == ns_max:
                     self._log_warn("Limiting namespace iteration "
-                                   "to first %s namespaces found"
-                                   % ns_max)
+                                   f"to first {ns_max} namespaces found")
                     break
 
         return out_ns
@@ -3592,7 +3568,7 @@ class SCLPlugin(RedHatPlugin):
     def convert_cmd_scl(self, scl, cmd):
         """wrapping command in "scl enable" call
         """
-        scl_cmd = "scl enable %s \"%s\"" % (scl, cmd)
+        scl_cmd = f"scl enable {scl} \"{cmd}\""
         return scl_cmd
 
     # config files for Software Collections are under /etc/${prefix}/${scl} and
@@ -3603,9 +3579,8 @@ class SCLPlugin(RedHatPlugin):
         scl_prefix = self.policy.get_default_scl_prefix()
         for rootdir in ['etc', 'var']:
             p = re.compile(f'^/{rootdir}/')
-            copyspec = os.path.abspath(
-                p.sub(f"/{rootdir}/{scl_prefix}/{scl}/", copyspec)
-            )
+            copyspec = os.path.abspath(p.sub(f"/{rootdir}/{scl_prefix}/{scl}/",
+                                             copyspec))
         return copyspec
 
     def add_copy_spec_scl(self, scl, copyspecs):

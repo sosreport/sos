@@ -105,13 +105,11 @@ class SSHControlPersist(RemoteTransport):
         if self.opts.ssh_key:
             ssh_key = f"-i{self.opts.ssh_key}"
 
-        cmd = ("ssh %s %s -oControlPersist=600 -oControlMaster=auto "
-               "-oStrictHostKeyChecking=no -oControlPath=%s %s@%s "
-               "\"echo Connected\"" % (ssh_key,
-                                       ssh_port,
-                                       self.control_path,
-                                       self.opts.ssh_user,
-                                       self.address))
+        cmd = (f"ssh {ssh_key} {ssh_port} -oControlPersist=600 "
+               "-oControlMaster=auto "
+               "-oStrictHostKeyChecking=no "
+               f"-oControlPath={self.control_path} "
+               f"{self.opts.ssh_user}@{self.address} \"echo Connected\"")
         res = pexpect.spawn(cmd, encoding='utf-8')
 
         connect_expects = [
@@ -160,9 +158,8 @@ class SSHControlPersist(RemoteTransport):
         if connected:
             if not os.path.exists(self.control_path):
                 raise ControlSocketMissingException
-            self.log_debug(
-                f"Successfully created control socket at {self.control_path}"
-            )
+            self.log_debug("Successfully created control socket at "
+                           f"{self.control_path}")
             return True
         return False
 
@@ -200,11 +197,9 @@ class SSHControlPersist(RemoteTransport):
         return self.ssh_cmd
 
     def _retrieve_file(self, fname, dest):
-        cmd = (
-            "/usr/bin/scp -oControlPath="
-            f"{self.control_path} {self.opts.ssh_user}@{self.address}:{fname}"
-            f" {dest}"
-        )
+        cmd = ("/usr/bin/scp -oControlPath="
+               f"{self.control_path} "
+               f"{self.opts.ssh_user}@{self.address}:{fname} {dest}")
         res = sos_get_command_output(cmd)
         return res['status'] == 0
 

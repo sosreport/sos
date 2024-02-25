@@ -100,12 +100,10 @@ class OpenShiftOrigin(Plugin):
             if self.is_static_pod_compatible():
                 self.add_copy_spec(self.path_join(self.static_pod_dir,
                                                   "*.yaml"))
-                self.add_cmd_output(
-                    [
-                        f"{static_pod_logs_cmd} api api",
-                        f"{static_pod_logs_cmd} controllers controllers",
-                    ]
-                )
+                self.add_cmd_output([
+                    f"{static_pod_logs_cmd} api api",
+                    f"{static_pod_logs_cmd} controllers controllers",
+                ])
 
             if self.is_static_etcd():
                 self.add_cmd_output(f"{static_pod_logs_cmd} etcd etcd")
@@ -133,9 +131,9 @@ class OpenShiftOrigin(Plugin):
                 "adm top nodes"
             ]
 
-            self.add_cmd_output(
-                [f"{oc_cmd_admin} {subcmd}" for subcmd in subcmds]
-            )
+            self.add_cmd_output([
+                f"{oc_cmd_admin} {subcmd}" for subcmd in subcmds
+            ])
 
             jcmds = [
                 "hostsubnet",
@@ -143,9 +141,9 @@ class OpenShiftOrigin(Plugin):
                 "netnamespaces"
             ]
 
-            self.add_cmd_output(
-                [f"{oc_cmd_admin} get -o json {jcmd}" for jcmd in jcmds]
-            )
+            self.add_cmd_output([
+                f"{oc_cmd_admin} get -o json {jcmd}" for jcmd in jcmds
+            ])
 
             nmsps = [
                 'default',

@@ -55,7 +55,8 @@ class SMcli(Plugin, IndependentPlugin):
         subcmd = 'save storageArray supportData file='
         for ssname in ssnames:
             self.add_cmd_output(
-                "%s %s -c '%s\"support-%s\";'" % (cmd, ssname, subcmd, ssname),
+                f"{cmd} {ssname} -c '{subcmd}\"support-{ssname}\";'",
                 runat=logpath, timeout=450)
+
 
 # vim: set et ts=4 sw=4 :

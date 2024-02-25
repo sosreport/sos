@@ -92,7 +92,7 @@ class PowerPC(Plugin, IndependentPlugin):
                 f"ctsnap -xrunrpttr -d {ctsnap_path}",
                 "lsdevinfo",
                 "lsslot",
-                "amsstat",
+                "amsstat"
             ])
 
             # Due to the lack of options in invscout for generating log files

@@ -161,10 +161,8 @@ class Kubernetes(Plugin):
                     for pod in pods:
                         if reg and not re.match(reg, pod):
                             continue
-                        self.add_cmd_output(
-                            f"{k_cmd} logs {pod}",
-                            subdir="pods"
-                        )
+                        self.add_cmd_output(f"{k_cmd} logs {pod}",
+                                            subdir="pods")
 
         if not self.get_option('all'):
             k_cmd = f'{self.kube_cmd} get --all-namespaces=true'

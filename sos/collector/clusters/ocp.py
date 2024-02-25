@@ -90,9 +90,8 @@ class ocp(Cluster):
                         "Unable to to determine PATH for 'oc' command, "
                         "node enumeration may fail."
                     )
-                    self.log_debug(
-                        f"Locating 'oc' failed: {_oc_path['output']}"
-                    )
+                    self.log_debug("Locating 'oc' failed: "
+                                   f"{_oc_path['output']}")
             if self.get_option('kubeconfig'):
                 self._oc_cmd += " --kubeconfig " \
                             f"{self.get_option('kubeconfig')}"
@@ -110,9 +109,8 @@ class ocp(Cluster):
         token
         """
         _res = self.exec_primary_cmd(
-            self.fmt_oc_cmd(
-                f"login --insecure-skip-tls-verify=True --token={self.token}"
-            )
+            self.fmt_oc_cmd("login --insecure-skip-tls-verify=True "
+                            f"--token={self.token}")
         )
         return _res['status'] == 0
 
@@ -349,11 +347,9 @@ class ocp(Cluster):
                 # cannot do remotely
                 if node.file_exists('/root/.kube/config', need_root=True):
                     _oc_cmd += ' --kubeconfig /host/root/.kube/config'
-            can_oc = node.run_command(
-                f"{_oc_cmd} whoami",
-                use_container=node.host.containerized,
-                need_root=True,
-            )
+            can_oc = node.run_command(f"{_oc_cmd} whoami",
+                                      use_container=node.host.containerized,
+                                      need_root=True)
             if can_oc['status'] == 0:
                 # the primary node can already access the API
                 self._toggle_api_opt(node, True)
@@ -370,9 +366,9 @@ class ocp(Cluster):
                 self._toggle_api_opt(node, True)
                 self.api_collect_enabled = True
             if self.api_collect_enabled:
-                msg = ("API collections will be performed on %s\nNote: API "
-                       "collections may extend runtime by 10s of minutes\n"
-                       % node.address)
+                msg = ("API collections will be performed on "
+                       f"{node.address}\nNote: API collections may extend "
+                       "runtime by 10s of minutes\n")
                 self.soslog.info(msg)
                 self.ui_log.info(msg)
 

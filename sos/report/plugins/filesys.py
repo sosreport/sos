@@ -47,16 +47,12 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
             "/etc/fstab",
             "/run/mount/utab",
         ])
-        self.add_cmd_output(
-            "mount -l",
-            root_symlink="mount",
-            tags="mount"
-        )
-        self.add_cmd_output(
-            "df -al -x autofs",
-            root_symlink="df",
-            tags='df__al'
-        )
+        self.add_cmd_output("mount -l",
+                            root_symlink="mount",
+                            tags="mount")
+        self.add_cmd_output("df -al -x autofs",
+                            root_symlink="df",
+                            tags='df__al')
         self.add_cmd_output([
             "df -ali -x autofs",
             "findmnt",
@@ -89,10 +85,8 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
         mounts = '/proc/mounts'
         ext_fs_regex = r"^(/dev/\S+).+ext[234]\s+"
         for dev in self.do_regex_find_all(ext_fs_regex, mounts):
-            self.add_cmd_output(
-                f"dumpe2fs {dumpe2fs_opts} {dev}",
-                tags="dumpe2fs_h"
-            )
+            self.add_cmd_output(f"dumpe2fs {dumpe2fs_opts} {dev}",
+                                tags="dumpe2fs_h")
 
             if self.get_option('frag'):
                 self.add_cmd_output(f"e2freefrag {dev}", priority=100)

@@ -26,9 +26,8 @@ class satellite(Cluster):
     packages = ('satellite', 'satellite-installer')
 
     def _psql_cmd(self, query):
-        _cmd = "su postgres -c %s"
-        _dbcmd = "psql foreman -c %s"
-        return _cmd % quote(_dbcmd % quote(query))
+        _dbcmd = f"psql foreman -c {quote(query)}"
+        return f"su postgres -c {quote(_dbcmd)}"
 
     def get_nodes(self):
         cmd = self._psql_cmd('copy (select name from smart_proxies) to stdout')

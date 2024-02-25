@@ -202,21 +202,16 @@ class SosNode():
                 ret = self.run_command(self.host.restart_sos_container(),
                                        need_root=True)
                 if ret['status'] == 0:
-                    self.log_info(
-                        "Temporary container"
-                        f" {self.host.sos_container_name} created"
-                    )
+                    self.log_info("Temporary container"
+                                  f" {self.host.sos_container_name} created")
                     return True
                 else:
-                    self.log_error(
-                        "Could not start container after create:"
-                        f" {ret['output']}"
-                    )
+                    self.log_error("Could not start container after create:"
+                                   f" {ret['output']}")
                     raise Exception
             else:
-                self.log_error(
-                    f"Could not create container on host: {res['output']}"
-                )
+                self.log_error("Could not create container on host: "
+                               f"{res['output']}")
                 raise Exception
         return False
 
@@ -393,9 +388,8 @@ class SosNode():
         distributions
         """
         if self.local:
-            self.log_info(
-                f"using local policy {self.commons['policy'].distro}"
-            )
+            self.log_info("using local policy "
+                          f"{self.commons['policy'].distro}")
             return self.commons['policy']
         host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
                     probe_runtime=True,
@@ -560,9 +554,9 @@ class SosNode():
             if not self.preset:
                 self.preset = self.cluster.sos_preset
             else:
-                self.log_info('Cluster specified preset %s but user has also '
-                              'defined a preset. Using user specification.'
-                              % self.cluster.sos_preset)
+                self.log_info('Cluster specified preset '
+                              f'{self.cluster.sos_preset} but user has also '
+                              'defined a preset. Using user specification.')
         if self.cluster.sos_plugins:
             for plug in self.cluster.sos_plugins:
                 if plug not in self.enable_plugins:
@@ -618,9 +612,8 @@ class SosNode():
         # sos-3.7 added options
         if self.check_sos_version('3.7'):
             if self.opts.plugin_timeout:
-                sos_opts.append(
-                    f"--plugin-timeout={quote(str(self.opts.plugin_timeout))}"
-                )
+                sos_opts.append("--plugin-timeout="
+                                f"{quote(str(self.opts.plugin_timeout))}")
 
         # sos-3.8 added options
         if self.check_sos_version('3.8'):
@@ -635,14 +628,11 @@ class SosNode():
 
         if self.check_sos_version('4.1'):
             if self.opts.skip_commands:
-                sos_opts.append(
-                    "--skip-commands="
-                    f"{quote(','.join(self.opts.skip_commands))}"
-                )
+                sos_opts.append("--skip-commands="
+                                f"{quote(','.join(self.opts.skip_commands))}")
             if self.opts.skip_files:
-                sos_opts.append(
-                    f"--skip-files={quote(','.join(self.opts.skip_files))}"
-                )
+                sos_opts.append("--skip-files="
+                                f"{quote(','.join(self.opts.skip_files))}")
 
         if self.check_sos_version('4.2'):
             if self.opts.cmd_timeout:
@@ -653,9 +643,8 @@ class SosNode():
         # handle downstream versions that backported this option
         if self.check_sos_version('4.3') or self.check_sos_version('4.2-13'):
             if self.opts.container_runtime != 'auto':
-                sos_opts.append(
-                    f"--container-runtime={self.opts.container_runtime}"
-                )
+                sos_opts.append("--container-runtime="
+                                f"{self.opts.container_runtime}")
             if self.opts.namespaces:
                 sos_opts.append(f"--namespaces={self.opts.namespaces}")
 
@@ -687,15 +676,15 @@ class SosNode():
             if self._preset_exists(self.preset):
                 sos_opts.append(f'--preset={quote(self.preset)}')
             else:
-                self.log_debug('Requested to enable preset %s but preset does '
-                               'not exist on node' % self.preset)
+                self.log_debug(f'Requested to enable preset {self.preset} but '
+                               'preset does not exist on node')
 
         if self.only_plugins:
             plugs = [o for o in self.only_plugins if self._plugin_exists(o)]
             if len(plugs) != len(self.only_plugins):
                 not_only = list(set(self.only_plugins) - set(plugs))
-                self.log_debug('Requested plugins %s were requested to be '
-                               'enabled but do not exist' % not_only)
+                self.log_debug(f'Requested plugins {not_only} were requested '
+                               'to be enabled but do not exist')
             only = self._fmt_sos_opt_list(self.only_plugins)
             if only:
                 sos_opts.append(f'--only-plugins={quote(only)}')
@@ -709,8 +698,8 @@ class SosNode():
             skip = [o for o in self.skip_plugins if self._check_enabled(o)]
             if len(skip) != len(self.skip_plugins):
                 not_skip = list(set(self.skip_plugins) - set(skip))
-                self.log_debug('Requested to skip plugins %s, but plugins are '
-                               'already not enabled' % not_skip)
+                self.log_debug(f'Requested to skip plugins {not_skip}, but '
+                               'plugins are already not enabled')
             skipln = self._fmt_sos_opt_list(skip)
             if skipln:
                 sos_opts.append(f'--skip-plugins={quote(skipln)}')
@@ -722,8 +711,8 @@ class SosNode():
                     and self._check_disabled(o) and self._plugin_exists(o)]
             if len(opts) != len(self.enable_plugins):
                 not_on = list(set(self.enable_plugins) - set(opts))
-                self.log_debug('Requested to enable plugins %s, but plugins '
-                               'are already enabled or do not exist' % not_on)
+                self.log_debug(f'Requested to enable plugins {not_on}, but '
+                               'plugins are already enabled or do not exist')
             enable = self._fmt_sos_opt_list(opts)
             if enable:
                 sos_opts.append(f'--enable-plugins={quote(enable)}')
@@ -811,10 +800,8 @@ class SosNode():
                     self.manifest.add_field('checksum_type', 'unknown')
             else:
                 err = self.determine_sos_error(res['status'], res['output'])
-                self.log_debug(
-                    f"Error running sos report. rc = {res['status']} msg ="
-                    f" {res['output']}"
-                )
+                self.log_debug(f"Error running sos report. rc = "
+                               f"{res['status']} msg = {res['output']}")
                 raise Exception(err)
             return path
         except CommandTimeoutException:
@@ -834,8 +821,8 @@ class SosNode():
                 self.log_info(f"Copying remote {path} to local {destdir}")
                 return self._transport.retrieve_file(path, dest)
             else:
-                self.log_debug("Attempting to copy remote file %s, but it "
-                               "does not exist on filesystem" % path)
+                self.log_debug(f"Attempting to copy remote file {path}, but "
+                               "it does not exist on filesystem")
                 return False
         except Exception as err:
             self.log_debug(f"Failed to retrieve {path}: {err}")
@@ -848,8 +835,8 @@ class SosNode():
         path = ''.join(path.split())
         try:
             if len(path.split('/')) <= 2:  # ensure we have a non '/' path
-                self.log_debug("Refusing to remove path %s: appears to be "
-                               "incorrect and possibly dangerous" % path)
+                self.log_debug(f"Refusing to remove path {path}: appears to "
+                               "be incorrect and possibly dangerous")
                 return False
             if self.file_exists(path):
                 self.log_info(f"Removing file {path}")
@@ -857,8 +844,8 @@ class SosNode():
                 res = self.run_command(cmd, need_root=True)
                 return res['status'] == 0
             else:
-                self.log_debug("Attempting to remove remote file %s, but it "
-                               "does not exist on filesystem" % path)
+                self.log_debug(f"Attempting to remove remote file {path}, "
+                               "but it does not exist on filesystem")
                 return False
         except Exception as e:
             self.log_debug(f'Failed to remove {path}: {e}')
@@ -893,9 +880,8 @@ class SosNode():
                 e = self.stderr.read()
             else:
                 e = [x.strip() for x in self.stdout.readlines() if x.strip][-1]
-            self.soslog.error(
-                f"Failed to run sos report on {self.address}: {e}"
-            )
+            self.soslog.error(f"Failed to run sos report on {self.address}:"
+                              f" {e}")
             self.log_error(f'Failed to run sos report. {e}')
             return False
 
@@ -907,8 +893,8 @@ class SosNode():
             # is no archive at the original location to remove
             return
         if 'sosreport' not in self.sos_path:
-            self.log_debug("Node sos report path %s looks incorrect. Not "
-                           "attempting to remove path" % self.sos_path)
+            self.log_debug(f"Node sos report path {self.sos_path} looks "
+                           "incorrect. Not attempting to remove path")
             return
         removed = self.remove_file(self.sos_path)
         if not removed:
@@ -934,9 +920,8 @@ class SosNode():
                         self.make_archive_readable(filename)
                     except Exception as err:
                         self.log_error(f"Unable to retrieve file {filename}")
-                        self.log_debug(
-                            f"Failed to make file {filename} readable: {err}"
-                        )
+                        self.log_debug(f"Failed to make file {filename} "
+                                       f"readable: {err}")
                         continue
                 ret = self.retrieve_file(filename)
                 if ret:
@@ -945,8 +930,8 @@ class SosNode():
                 else:
                     self.log_error(f"Unable to retrieve file {filename}")
             except Exception as e:
-                msg = f'Error collecting additional data from primary: {e}'
-                self.log_error(msg)
+                self.log_error('Error collecting additional data from '
+                               f'primary: {e}')
 
     def make_archive_readable(self, filepath):
         """Used to make the given archive world-readable, which is slightly
@@ -959,8 +944,8 @@ class SosNode():
         if res['status'] == 0:
             return True
         else:
-            msg = "Exception while making %s readable. Return code was %s"
-            self.log_error(msg % (filepath, res['status']))
+            self.log_error(f"Exception while making {filepath} readable. "
+                           f"Return code was {res['status']}")
             raise Exception
 
 # vim: set et ts=4 sw=4 :

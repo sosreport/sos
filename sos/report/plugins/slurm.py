@@ -121,7 +121,8 @@ class Slurm(Plugin, UbuntuPlugin, RedHatPlugin):
             'AccountingStoragePass',
             'JobCompPass',
         ]
-        slurm_keys_regex = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(slurm_keys)
+        keys = "|".join(slurm_keys)
+        slurm_keys_regex = rf"(^\s*({keys})\s*=\s*)(.*)"
         slurmdbd_key_regex = r'(^\s*(StoragePass)\s*=\s*)(.*)'
 
         sub = r'\1********'

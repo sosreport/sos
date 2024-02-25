@@ -70,12 +70,9 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
             # collect user-status
             self.add_cmd_output(f'loginctl user-status {user}')
             # collect the user's related commands
-            self.add_cmd_output(
-                [
-                    f'machinectl -q shell {user}@ /usr/bin/{cmd}'
-                    for cmd in user_subcmds
-                ],
-                foreground=True,
-            )
+            self.add_cmd_output([
+                f'machinectl -q shell {user}@ /usr/bin/{cmd}'
+                for cmd in user_subcmds
+                ], foreground=True)
 
 # vim: set et ts=4 sw=4 :

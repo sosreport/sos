@@ -49,9 +49,9 @@ class OvirtNode(Plugin, RedHatPlugin):
         ])
 
         # Collect certificate info
-        self.add_cmd_output(
-            [f'openssl x509 -in {c} -text -noout' for c in certificates]
-        )
+        self.add_cmd_output([
+            f'openssl x509 -in {c} -text -noout' for c in certificates
+        ])
 
 
 # vim: expandtab tabstop=4 shiftwidth=4

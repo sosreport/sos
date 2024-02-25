@@ -100,21 +100,21 @@ class OpenStackPlacement(Plugin):
         self.do_path_regex_sub("/etc/placement/*", regexp, subst)
         self.do_path_regex_sub(
             f"{self.var_puppet_gen}/etc/placement/*",
-            regexp,
-            subst
+            regexp, subst
         )
 
     def postproc(self):
         protect_keys = ["password", "memcache_secret_key"]
         connection_keys = ["database_connection", "slave_connection"]
 
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

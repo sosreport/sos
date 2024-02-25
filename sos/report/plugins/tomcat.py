@@ -47,9 +47,10 @@ class Tomcat(Plugin, RedHatPlugin):
     def postproc(self):
         serverXmlPasswordAttributes = ['keyPass', 'keystorePass',
                                        'truststorePass', 'SSLPassword']
+        attributes = "|".join(serverXmlPasswordAttributes)
         self.do_path_regex_sub(
             r"\/etc\/tomcat.*\/server.xml",
-            r"(%s)=(\S*)" % "|".join(serverXmlPasswordAttributes),
+            rf"({attributes})=(\S*)",
             r'\1="********"'
         )
         self.do_path_regex_sub(

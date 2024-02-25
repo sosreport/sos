@@ -45,16 +45,14 @@ class LibvirtClient(Plugin, IndependentPlugin):
         for subcmd in subcmds:
             self.add_cmd_output(f'{cmd} {subcmd}', foreground=True)
 
-        self.add_cmd_output(
-            f"{cmd} list --all", tags="virsh_list_all",
-            foreground=True
-        )
+        self.add_cmd_output(f"{cmd} list --all", tags="virsh_list_all",
+                            foreground=True)
 
         # get network, pool and nwfilter elements
         for k in ['net', 'nwfilter', 'pool']:
-            k_list = self.collect_cmd_output('%s %s-list %s' % (cmd, k, '--all'
-                                             if k in ['net', 'pool'] else ''),
-                                             foreground=True)
+            k_list = self.collect_cmd_output(
+                f"{cmd} {k}-list {'--all' if k in ['net', 'pool'] else ''}",
+                foreground=True)
             if k_list['status'] == 0:
                 k_lines = k_list['output'].splitlines()
                 # the 'Name' column position changes between virsh cmds
@@ -65,10 +63,8 @@ class LibvirtClient(Plugin, IndependentPlugin):
                     continue
                 for j in filter(lambda x: x, k_lines[2:]):
                     n = j.split()[pos]
-                    self.add_cmd_output(
-                        f"{cmd} {k}-dumpxml {n}",
-                        foreground=True
-                    )
+                    self.add_cmd_output(f"{cmd} {k}-dumpxml {n}",
+                                        foreground=True)
 
         # cycle through the VMs/domains list, ignore 2 header lines and latest
         # empty line, and dumpxml domain name in 2nd column

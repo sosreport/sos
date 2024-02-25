@@ -49,10 +49,8 @@ class CrioContainerRuntime(ContainerRuntime):
         """
         images = []
         if self.active:
-            out = sos_get_command_output(
-                f"{self.binary} images -o json",
-                chroot=self.policy.sysroot
-            )
+            out = sos_get_command_output(f"{self.binary} images -o json",
+                                         chroot=self.policy.sysroot)
             if out['status'] == 0:
                 out_json = json.loads(out["output"])
                 for image in out_json["images"]:
@@ -88,10 +86,8 @@ class CrioContainerRuntime(ContainerRuntime):
         else:
             quoted_cmd = cmd
         container_id = self.get_container_by_name(container)
-        return (
-            f"{self.run_cmd} {container_id} {quoted_cmd}"
-            if container_id is not None
-            else ''
-        )
+        msg = (f"{self.run_cmd} {container_id} {quoted_cmd}"
+               ) if container_id is not None else ''
+        return msg
 
 # vim: set et ts=4 sw=4 :

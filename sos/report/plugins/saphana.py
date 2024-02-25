@@ -31,26 +31,18 @@ class saphana(Plugin, RedHatPlugin):
                 sidadm = f'{sid.lower()}adm'
                 prefix = f'su - {sidadm} -c'
 
-                self.add_cmd_output(
-                    f'{prefix} "HDB info"',
-                    suggest_filename=f"{sid}_HDB_info"
-                )
+                self.add_cmd_output(f'{prefix} "HDB info"',
+                                    suggest_filename=f"{sid}_HDB_info")
 
-                self.add_cmd_output(
-                    f'{prefix} "hdbsrvutil -v"',
-                    suggest_filename=f"{sid}_version",
-                )
+                self.add_cmd_output(f'{prefix} "hdbsrvutil -v"',
+                                    suggest_filename=f"{sid}_version")
 
-                self.add_cmd_output(
-                    f'{prefix} \'hdbcons "mm l -s -S -p"\'',
-                    suggest_filename=f"{sid}_memusage",
-                )
+                self.add_cmd_output(f'{prefix} \'hdbcons "mm l -s -S -p"\'',
+                                    suggest_filename=f"{sid}_memusage")
 
-                self.add_cmd_output(
-                    f'{prefix} \'hdbcons -e hdbindexserver'
-                    ' "replication info"\'',
-                    suggest_filename=f"{sid}_replicainfo",
-                )
+                self.add_cmd_output(f'{prefix} \'hdbcons -e hdbindexserver'
+                                    ' "replication info"\'',
+                                    suggest_filename=f"{sid}_replicainfo")
 
                 if self.path_isdir(f"/hana/shared/{sid}/"):
                     for inst in self.listdir(f"/hana/shared/{sid}/"):
@@ -59,7 +51,8 @@ class saphana(Plugin, RedHatPlugin):
                             self.get_inst_info(sid, sidadm, inst)
 
     def get_inst_info(self, sid, sidadm, inst):
-        proc_cmd = 'su - %s -c "sapcontrol -nr %s -function GetProcessList"'
+        proc_cmd = (f'su - {sid} -c "sapcontrol -nr {inst} -function '
+                    'GetProcessList"')
         status_fname = f"{sid}_{inst}_status"
         self.add_cmd_output(
             proc_cmd % (sidadm, inst),
@@ -68,10 +61,11 @@ class saphana(Plugin, RedHatPlugin):
 
         path = f"/usr/sap/{sid}/HDB{inst}/exe/python_support"
         if self.path_isdir(path):
-            py_cmd = 'su - %s -c "python %s/landscapeHostConfiguration.py"'
+            py_cmd = (f'su - {sidadm} -c "python '
+                      f'{path}/landscapeHostConfiguration.py"')
             py_fname = f"{sid}_{inst}_landscapeConfig"
             self.add_cmd_output(
-                py_cmd % (sidadm, path),
+                py_cmd,
                 suggest_filename=py_fname
             )
 

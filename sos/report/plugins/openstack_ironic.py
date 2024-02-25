@@ -66,13 +66,9 @@ class OpenStackIronic(Plugin):
                     "/var/log/containers/ironic/*.log",
                     "/var/log/containers/ironic-inspector/*.log",
                 ])
-            for path in [
-                '/var/lib/ironic',
-                '/httpboot',
-                '/tftpboot',
-                f'{self.ins_puppet_gen}/var/lib/httpboot/',
-                f'{self.ins_puppet_gen}/var/lib/tftpboot/'
-            ]:
+            for path in ['/var/lib/ironic', '/httpboot', '/tftpboot',
+                         f'{self.ins_puppet_gen}/var/lib/httpboot/',
+                         f'{self.ins_puppet_gen}/var/lib/tftpboot/']:
                 self.add_cmd_output(f'ls -laRt {path}')
                 self.add_cmd_output(f'ls -laRt {self.var_puppet_gen + path}')
 
@@ -146,14 +142,14 @@ class OpenStackIronic(Plugin):
             "os_password", "transport_url"
         ]
         connection_keys = ["connection", "sql_connection"]
-
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 
@@ -188,7 +184,7 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
                  if uuid.strip()]
         for uuid in uuids:
             self.add_cmd_output('openstack baremetal introspection '
-                                'data save %s' % uuid)
+                                f'data save {uuid}')
 
     def setup(self):
         super(RedHatIronic, self).setup()

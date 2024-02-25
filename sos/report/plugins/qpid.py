@@ -39,10 +39,8 @@ class Qpid(Plugin, RedHatPlugin):
                 amqps_prefix = "amqps://"
                 options = f"{options} --{option}={self.get_option(option)}"
         if self.get_option("port"):
-            options = (
-                f"{options} -b {amqps_prefix}"
-                + f'localhost:{self.get_option("port")}'
-            )
+            options = (f"{options} -b {amqps_prefix}"
+                       f'localhost:{self.get_option("port")}')
 
         self.add_cmd_output([
             f"qpid-stat -g{options}",

@@ -75,8 +75,8 @@ class ovirt(Cluster):
 
         invalid_chars = ['\x00', '\\', '\n', '\r', '\032', '"', '\'']
         if any(x in invalid_chars for x in val):
-            self.log_warn("WARNING: Cluster option \'%s\' contains invalid "
-                          "characters. Using '%%' instead." % val)
+            self.log_warn(f"WARNING: Cluster option \'{val}\' contains "
+                          "invalid characters. Using '%%' instead.")
             return '%'
 
         return val
@@ -109,9 +109,9 @@ class ovirt(Cluster):
         cluster = self._sql_scrub(self.get_option('cluster'))
         datacenter = self._sql_scrub(self.get_option('datacenter'))
         self.dbquery = ("SELECT host_name from vds where cluster_id in "
-                        "(select cluster_id FROM cluster WHERE name like '%s'"
-                        " and storage_pool_id in (SELECT id FROM storage_pool "
-                        "WHERE name like '%s'))" % (cluster, datacenter))
+                        "(select cluster_id FROM cluster WHERE name like "
+                        f"'{cluster}' and storage_pool_id in (SELECT id FROM "
+                        f"storage_pool WHERE name like '{datacenter}'))")
         if self.get_option('spm-only'):
             # spm_status is an integer with the following meanings
             # 0 - Normal (not SPM)
@@ -128,9 +128,8 @@ class ovirt(Cluster):
             nodes = res['output'].splitlines()[2:-1]
             return [n.split('(')[0].strip() for n in nodes]
         else:
-            raise Exception(
-                f"database query failed, return code: {res['status']}"
-            )
+            raise Exception("database query failed, return code: "
+                            f"{res['status']}")
 
     def run_extra_cmd(self):
         if not self.get_option('no-database') and self.conf:

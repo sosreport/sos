@@ -80,9 +80,8 @@ class Sar(Plugin):
                                 continue
                         except Exception as err:
                             self._log_warn(
-                                "Could not determine age of '%s' - skipping "
-                                "converting to sar format: %s"
-                                % (sa_data_path, err)
+                                f"Could not determine age of '{sa_data_path}' "
+                                f"- skipping converting to sar format: {err}"
                             )
                             continue
                     sar_cmd = f"sar -A -f {sa_data_path}"

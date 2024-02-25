@@ -45,9 +45,9 @@ class SoSMacMap(SoSMap):
         '00:00:00:00:00:00'
     ]
 
-    mac_template = '53:4f:53:%s:%s:%s'
-    mac6_template = '53:4f:53:ff:fe:%s:%s:%s'
-    mac6_quad_template = '534f:53ff:fe%s:%s%s'
+    mac_template = '53:4f:53:{}:{}:{}'
+    mac6_template = '53:4f:53:ff:fe:{}:{}:{}'
+    mac6_quad_template = '534f:53ff:fe{}:{}{}'
     compile_regexes = False
 
     def add(self, item):
@@ -70,11 +70,11 @@ class SoSMacMap(SoSMap):
         hextets = tuple(hextets)
         # match 64-bit IPv6 MAC addresses matching MM:MM:MM:FF:FE:SS:SS:SS
         if re.match('(([0-9a-fA-F]{2}:){7}[0-9a-fA-F]{2})', item):
-            return self.mac6_template % hextets
+            return self.mac6_template.format(*hextets)
         # match 64-bit IPv6 MAC addresses matching MMMM:MMFF:FESS:SSSS
         if re.match('(([0-9a-fA-F]{4}:){3}([0-9a-fA-F]){4})', item):
-            return self.mac6_quad_template % hextets
+            return self.mac6_quad_template.format(*hextets)
         # match 48-bit IPv4 MAC addresses
         if re.match('([0-9a-fA-F][:_]?){12}', item):
-            return self.mac_template % hextets
+            return self.mac_template.format(*hextets)
         return None

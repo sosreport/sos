@@ -85,20 +85,20 @@ class Pulp(Plugin, RedHatPlugin):
         num_tasks = self.get_option('tasks')
 
         mtasks = self.build_mongo_cmd(
-            '\"DBQuery.shellBatchSize=%s;; '
+            f'\"DBQuery.shellBatchSize={num_tasks};; '
             'db.task_status.find().sort({finish_time: -1})'
-            '.pretty().shellPrint()\"' % num_tasks
+            '.pretty().shellPrint()\"'
         )
 
         mres = self.build_mongo_cmd(
-            '\"DBQuery.shellBatchSize=%s;; '
-            'db.reserved_resources.find().pretty().shellPrint()\"' % num_tasks
+            f'\"DBQuery.shellBatchSize={num_tasks};; '
+            'db.reserved_resources.find().pretty().shellPrint()\"'
         )
 
         prun = self.build_mongo_cmd(
-            r'"DBQuery.shellBatchSize=%s;; '
+            rf'"DBQuery.shellBatchSize={num_tasks};; '
             r'db.task_status.find({state:{\$ne: \"finished\"}}).pretty()'
-            r'.shellPrint()"' % num_tasks
+            r'.shellPrint()"'
         )
 
         # prints mongo collection sizes sorted from biggest and in human
@@ -147,13 +147,11 @@ class Pulp(Plugin, RedHatPlugin):
         )
 
     def build_mongo_cmd(self, query):
-        _cmd = "bash -c %s"
-        _mondb = (
-            f"--host {self.dbhost} --port"
-            f" {self.dbport} {self.dbuser} {self.dbpassword}"
-        )
-        _moncmd = "mongo pulp_database %s --eval %s"
-        return _cmd % quote(_moncmd % (_mondb, query))
+        _cmd = "bash -c {}"
+        _mondb = (f"--host {self.dbhost} --port"
+                  f" {self.dbport} {self.dbuser} {self.dbpassword}")
+        _moncmd = "mongo pulp_database {} --eval {}"
+        return f"{_cmd.format(quote(_moncmd.format(_mondb, query)))}"
 
     def postproc(self):
 

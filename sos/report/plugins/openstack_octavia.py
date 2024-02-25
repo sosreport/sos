@@ -73,8 +73,8 @@ class OpenStackOctavia(Plugin):
                         'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
 
         if not (all(vars_all) and any(vars_any)) and not \
-                (self.is_installed("python2-octaviaclient") or
-                    self.is_installed("python3-octaviaclient")):
+               (self.is_installed("python2-octaviaclient") or
+                self.is_installed("python3-octaviaclient")):
             self.soslog.warning("Not all environment variables set or "
                                 "octavia client package not installed."
                                 "Source the environment file for the "
@@ -87,10 +87,8 @@ class OpenStackOctavia(Plugin):
 
             for res in self.resources:
                 # get a list for each resource type
-                self.add_cmd_output(
-                    f'openstack loadbalancer {res} list',
-                    subdir=res
-                )
+                self.add_cmd_output(f'openstack loadbalancer {res} list',
+                                    subdir=res)
 
                 # get details from each resource
                 cmd = f"openstack loadbalancer {res} list -f value -c id"
@@ -98,10 +96,9 @@ class OpenStackOctavia(Plugin):
                 if ret['status'] == 0:
                     for ent in ret['output'].splitlines():
                         ent = ent.split()[0]
-                        self.add_cmd_output(
-                            f"openstack loadbalancer {res} show {ent}",
-                            subdir=res
-                        )
+                        self.add_cmd_output(f"openstack loadbalancer {res} "
+                                            f"show {ent}",
+                                            subdir=res)
 
             # get capability details from each provider
             cmd = "openstack loadbalancer provider list -f value -c name"
@@ -111,7 +108,7 @@ class OpenStackOctavia(Plugin):
                     p = p.split()[0]
                     self.add_cmd_output(
                        "openstack loadbalancer provider capability list"
-                       " %s" % p,
+                       f" {p}",
                        subdir='provider_capability')
 
     def postproc(self):
@@ -120,7 +117,7 @@ class OpenStackOctavia(Plugin):
             "connection", "transport_url", "server_certs_key_passphrase",
             "memcache_secret_key"
         ]
-        regexp = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = rf"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)"
 
         self.do_path_regex_sub("/etc/octavia/*", regexp, r"\1*********")
         self.do_path_regex_sub(

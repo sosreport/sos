@@ -50,9 +50,8 @@ class OpenStackGlance(Plugin):
             glance_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
-                glance_config = (
-                    f"--config-dir {self.var_puppet_gen}/etc/glance/"
-                )
+                glance_config = (f"--config-dir {self.var_puppet_gen}"
+                                 "/etc/glance/")
 
             self.add_cmd_output(
                 f"glance-manage {glance_config} db_version",
@@ -93,8 +92,7 @@ class OpenStackGlance(Plugin):
         self.do_path_regex_sub("/etc/glance/*", regexp, subst)
         self.do_path_regex_sub(
             f"{self.var_puppet_gen}/etc/glance/*",
-            regexp,
-            subst
+            regexp, subst
         )
 
     def postproc(self):
@@ -106,13 +104,14 @@ class OpenStackGlance(Plugin):
         ]
         connection_keys = ["connection"]
 
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

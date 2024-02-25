@@ -172,9 +172,8 @@ class SoSObfuscationArchive():
             try:
                 return self.tarobj.extractfile(filename).read().decode('utf-8')
             except KeyError:
-                self.log_debug(
-                    f"Unable to retrieve {fname}: no such file in archive"
-                )
+                self.log_debug(f"Unable to retrieve {fname}: no such file in"
+                               " archive")
                 return ''
         else:
             try:
@@ -212,10 +211,9 @@ class SoSObfuscationArchive():
                             continue
                         if (not os.access(fname, os.R_OK) or not
                                 os.access(fname, os.W_OK)):
-                            self.log_debug(
-                                "Adding owner rw permissions to"
-                                f" {fname.split(self.archive_path)[-1]}"
-                            )
+                            file_name = fname.split(self.archive_path)[-1]
+                            self.log_debug("Adding owner rw permissions to"
+                                           f" {file_name}")
                             os.chmod(fname, stat.S_IRUSR | stat.S_IWUSR)
                 except Exception as err:
                     self.log_debug(f"Error while trying to set perms: {err}")

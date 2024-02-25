@@ -82,10 +82,9 @@ class Process(Plugin, IndependentPlugin):
         ])
 
         if self.get_option("samples"):
-            self.add_cmd_output(
-                f'iotop -b -o -d 0.5 -t -n {self.get_option("samples")}',
-                priority=100,
-            )
+            self.add_cmd_output(f'iotop -b -o -d 0.5 -t -n '
+                                f'{self.get_option("samples")}',
+                                priority=100)
 
         self.add_cmd_output([
             "pidstat -p ALL -rudvwsRU --human -h",

@@ -108,6 +108,6 @@ class IprConfig(Plugin, IndependentPlugin):
                         temp = alt_line.split(' ')
                         # temp[0] holds device name
                         self.add_cmd_output("iprconfig -c "
-                                            "query-ses-mode %s" % temp[0])
+                                            f"query-ses-mode {temp[0]}")
 
 # vim: set et ts=4 sw=4 :

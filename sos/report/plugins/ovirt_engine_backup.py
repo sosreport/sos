@@ -37,11 +37,8 @@ class oVirtEngineBackup(Plugin, RedHatPlugin):
             f"engine-db-backup-{now}.log"
         )
         cmd = ("engine-backup --mode=backup --scope=db"
-               " --file=%s --log=%s --tmpdir=%s") % (
-            backup_filename,
-            log_filename,
-            self.get_option("tmpdir")
-        )
+               f" --file={backup_filename} --log={log_filename} "
+               f"--tmpdir={self.get_option('tmpdir')}")
         res = self.collect_cmd_output(cmd, suggest_filename="engine-backup")
         if res['status'] == 0:
             self.add_copy_spec([

@@ -373,15 +373,15 @@ any third party.
         )
 
         section.add_text(
-            "When SoS intializes most functions, for example %s and %s, one "
-            "of the first operations is to determine the correct policy to "
-            "load for the local system. Policies will determine the proper "
+            "When SoS intializes most functions, for example "
+            f"{bold('sos report')} and {bold('sos collect')}, one of the "
+            "first operations is to determine the correct policy to load "
+            "for the local system. Policies will determine the proper "
             "package manager to use, any applicable container runtime(s), and "
             "init systems so that SoS and report plugins can properly function"
             " for collections. Generally speaking a single policy will map to"
             " a single distribution; for example there are separate policies "
             "for Debian, Ubuntu, RHEL, and Fedora."
-            % (bold('sos report'), bold('sos collect'))
         )
 
         section.add_text(

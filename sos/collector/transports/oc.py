@@ -50,7 +50,10 @@ class OCTransport(RemoteTransport):
         """Format and run a command with `oc` in the project defined for our
         execution
         """
-        return sos_get_command_output(f"oc -n {self.project} {cmd}", **kwargs)
+        return sos_get_command_output(
+            f"oc -n {self.project} {cmd}",
+            **kwargs
+        )
 
     @property
     def connected(self):
@@ -69,47 +72,72 @@ class OCTransport(RemoteTransport):
             "apiVersion": "v1",
             "metadata": {
                 "name": f"{self.address.split('.')[0]}-sos-collector",
-                "namespace": self.project,
+                "namespace": self.project
             },
             "priorityClassName": "system-cluster-critical",
             "spec": {
                 "volumes": [
                     {
                         "name": "host",
-                        "hostPath": {"path": "/", "type": "Directory"},
+                        "hostPath": {
+                            "path": "/",
+                            "type": "Directory"
+                        }
                     },
                     {
                         "name": "run",
-                        "hostPath": {"path": "/run", "type": "Directory"},
+                        "hostPath": {
+                            "path": "/run",
+                            "type": "Directory"
+                        }
                     },
                     {
                         "name": "varlog",
-                        "hostPath": {"path": "/var/log", "type": "Directory"},
+                        "hostPath": {
+                            "path": "/var/log",
+                            "type": "Directory"
+                        }
                     },
                     {
                         "name": "machine-id",
                         "hostPath": {
-                            "path": "/etc/machine-id", "type": "File"
-                        },
-                    },
+                            "path": "/etc/machine-id",
+                            "type": "File"
+                        }
+                    }
                 ],
                 "containers": [
                     {
                         "name": "sos-collector-tmp",
                         "image": "registry.redhat.io/rhel8/support-tools"
-                        if not self.opts.image
-                        else self.opts.image,
-                        "command": ["/bin/bash"],
-                        "env": [{"name": "HOST", "value": "/host"}],
+                                if not self.opts.image else self.opts.image,
+                        "command": [
+                            "/bin/bash"
+                        ],
+                        "env": [
+                            {
+                                "name": "HOST",
+                                "value": "/host"
+                            }
+                        ],
                         "resources": {},
                         "volumeMounts": [
-                            {"name": "host", "mountPath": "/host"},
-                            {"name": "run", "mountPath": "/run"},
-                            {"name": "varlog", "mountPath": "/var/log"},
+                            {
+                                "name": "host",
+                                "mountPath": "/host"
+                            },
+                            {
+                                "name": "run",
+                                "mountPath": "/run"
+                            },
+                            {
+                                "name": "varlog",
+                                "mountPath": "/var/log"
+                            },
                             {
                                 "name": "machine-id",
                                 "mountPath": "/etc/machine-id"
-                            },
+                            }
                         ],
                         "securityContext": {
                             "privileged": True,
@@ -117,18 +145,17 @@ class OCTransport(RemoteTransport):
                         },
                         "stdin": True,
                         "stdinOnce": True,
-                        "tty": True,
+                        "tty": True
                     }
                 ],
-                "imagePullPolicy": "Always"
-                if self.opts.force_pull_image
-                else "IfNotPresent",
+                "imagePullPolicy":
+                    "Always" if self.opts.force_pull_image else "IfNotPresent",
                 "restartPolicy": "Never",
                 "nodeName": self.address,
                 "hostNetwork": True,
                 "hostPID": True,
-                "hostIPC": True,
-            },
+                "hostIPC": True
+            }
         }
 
     def _connect(self, password):
@@ -144,24 +171,23 @@ class OCTransport(RemoteTransport):
             json.dump(podconf, cfile)
         self.log_debug(f"Starting sos collector container '{self.pod_name}'")
         # this specifically does not need to run with a project definition
-        out = sos_get_command_output(f"oc create -f {self.pod_tmp_conf}")
-        if (
-            out['status'] != 0
-            or f"pod/{self.pod_name} created" not in out['output']
-        ):
+        out = sos_get_command_output(
+            f"oc create -f {self.pod_tmp_conf}"
+        )
+        if (out['status'] != 0 or f"pod/{self.pod_name} created" not in
+                out['output']):
             self.log_error("Unable to deploy sos collect pod")
             self.log_debug(f"Debug pod deployment failed: {out['output']}")
             return False
-        self.log_debug("Pod '%s' successfully deployed, waiting for pod to "
-                       "enter ready state" % self.pod_name)
+        self.log_debug(f"Pod '{self.pod_name}' successfully deployed, waiting"
+                       " for pod to enter ready state")
 
         # wait for the pod to report as running
         try:
-            up = self.run_oc(
-                "wait --for=condition=Ready"
-                f" pod/{self.pod_name} --timeout=30s",
-                timeout=40,
-            )
+            up = self.run_oc(f"wait --for=condition=Ready pod/{self.pod_name}"
+                             " --timeout=30s",
+                             # timeout is for local safety, not oc
+                             timeout=40)
             if not up['status'] == 0:
                 self.log_error("Pod not available after 30 seconds")
                 return False
@@ -176,10 +202,8 @@ class OCTransport(RemoteTransport):
 
     def _format_cmd_for_exec(self, cmd):
         if cmd.startswith('oc'):
-            return (
-                f"oc -n {self.project} exec --request-timeout=0"
-                f" {self.pod_name} -- chroot /host {cmd}"
-            )
+            return (f"oc -n {self.project} exec --request-timeout=0"
+                    f" {self.pod_name} -- chroot /host {cmd}")
         return super(OCTransport, self)._format_cmd_for_exec(cmd)
 
     def run_command(self, cmd, timeout=180, need_root=False, env=None,
@@ -198,18 +222,15 @@ class OCTransport(RemoteTransport):
             os.unlink(self.pod_tmp_conf)
         removed = self.run_oc(f"delete pod {self.pod_name}")
         if "deleted" not in removed['output']:
-            self.log_debug(
-                f"Calling delete on pod '{self.pod_name}' failed: {removed}"
-            )
+            self.log_debug(f"Calling delete on pod '{self.pod_name}' failed:"
+                           f" {removed}")
             return False
         return True
 
     @property
     def remote_exec(self):
-        return (
-            f"oc -n {self.project} exec --request-timeout=0 {self.pod_name} --"
-            " /bin/bash -c"
-        )
+        return (f"oc -n {self.project} exec --request-timeout=0"
+                f" {self.pod_name} -- /bin/bash -c")
 
     def _retrieve_file(self, fname, dest):
         # check if --retries flag is available for given version of oc

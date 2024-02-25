@@ -105,9 +105,8 @@ class RedHatPython(Python, RedHatPlugin):
                                 'sha256': digest
                             })
                     except IOError:
-                        self._log_error(
-                            f"Unable to read python file at {filepath}"
-                        )
+                        self._log_error("Unable to read python file at "
+                                        f"{filepath}")
         return digests
 
 # vim: set et ts=4 sw=4 :

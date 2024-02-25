@@ -39,9 +39,8 @@ class Collectd(Plugin, IndependentPlugin):
             with open(self.path_join("/etc/collectd.conf"), 'r') as f:
                 for line in f:
                     if p.match(line):
-                        self.add_alert(
-                            f"Active Plugin found: {line.split()[-1]}"
-                        )
+                        self.add_alert("Active Plugin found: "
+                                       f"{line.split()[-1]}")
         except IOError as e:
             self._log_warn(f"could not open /etc/collectd.conf: {e}")
 
@@ -52,7 +51,7 @@ class Collectd(Plugin, IndependentPlugin):
             "Password", "User",
             "[<]*URL", "Address"
         ]
-        regexp = r"(^[#]*\s*(%s)\s* \s*)(.*)" % "|".join(protect_keys)
+        regexp = rf"(^[#]*\s*({'|'.join(protect_keys)})\s* \s*)(.*)"
         self.do_path_regex_sub(
             "/etc/collectd.d/*.conf",
             regexp, r'\1"*********"'
