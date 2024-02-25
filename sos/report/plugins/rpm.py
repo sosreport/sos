@@ -30,10 +30,10 @@ class Rpm(Plugin, RedHatPlugin):
         self.add_cmd_output("ls -lanR /var/lib/rpm")
 
         if self.get_option("rpmq"):
+            rpmq = "rpm --nodigest -qa --qf=%s"
             # basic installed-rpms
             nvra = '"%-59{NVRA} %{INSTALLTIME:date}\n"'
-            rpmq = f"rpm --nodigest -qa --qf={nvra}"
-            irpms = f"sh -c '{rpmq} | sort -V'"
+            irpms = "sh -c '%s | sort -V'" % rpmq % nvra
 
             self.add_cmd_output(irpms, root_symlink='installed-rpms',
                                 tags='installed_rpms')
