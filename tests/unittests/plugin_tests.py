@@ -13,7 +13,8 @@ import random
 
 from io import StringIO
 
-from sos.report.plugins import Plugin, regex_findall, _mangle_command, PluginOpt
+from sos.report.plugins import (Plugin, regex_findall,
+                                _mangle_command, PluginOpt)
 from sos.archive import TarFileArchive
 from sos.policies.distros import LinuxPolicy
 from sos.policies.init_systems import InitSystem
@@ -213,7 +214,7 @@ class PluginTests(unittest.TestCase):
             'devices': {}
         })
         self.assertEqual(p.get_description(),
-                          "This plugin has a description.")
+                         "This plugin has a description.")
 
     def test_set_plugin_option(self):
         p = MockPlugin({
@@ -394,11 +395,17 @@ class AddCopySpecTests(unittest.TestCase):
         shutil.rmtree(tmpdir)
 
     def test_multiple_files_no_limit(self):
-        self.mp.add_copy_spec(['tests/unittests/tail_test.txt', 'tests/unittests/test.txt'])
+        self.mp.add_copy_spec([
+            'tests/unittests/tail_test.txt',
+            'tests/unittests/test.txt',
+        ])
         self.assertEqual(len(self.mp.copy_paths), 2)
 
     def test_multiple_files_under_limit(self):
-        self.mp.add_copy_spec(['tests/unittests/tail_test.txt', 'tests/unittests/test.txt'], 1)
+        self.mp.add_copy_spec([
+            'tests/unittests/tail_test.txt',
+            'tests/unittests/test.txt',
+        ], 1)
         self.assertEqual(len(self.mp.copy_paths), 2)
 
 

@@ -26,7 +26,8 @@ class PluginConformance(unittest.TestCase):
 
     def test_plugin_tuples_set_correctly(self):
         for plug in self.plug_classes:
-            for tup in ['packages', 'commands', 'files', 'profiles', 'kernel_mods', 'containers']:
+            for tup in ['packages', 'commands', 'files', 'profiles',
+                        'kernel_mods', 'containers']:
                 _attr = getattr(plug, tup)
                 self.assertIsInstance(
                     _attr,
@@ -44,9 +45,8 @@ class PluginConformance(unittest.TestCase):
 
     def test_plugin_name_is_str(self):
         for plug in self.plug_classes:
-            self.assertIsInstance(
-                plug.plugin_name, str, f"{plug.__name__} name not string"
-            )
+            self.assertIsInstance(plug.plugin_name, str,
+                                  f"{plug.__name__} name not string")
             self.assertNotEqual(plug.plugin_name, '',
                                 f"{plug.__name__} name unset")
 
