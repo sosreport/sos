@@ -2203,7 +2203,7 @@ class Plugin():
             inc = 1
             name_max = self.archive.name_max()
             while True:
-                suffix = ".%d" % inc
+                suffix = f".{inc}"
                 newfn = outfn
                 if name_max < len(newfn)+len(suffix):
                     newfn = newfn[:(name_max-len(newfn)-len(suffix))]

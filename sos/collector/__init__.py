@@ -947,11 +947,12 @@ class SoSCollector(SoSComponent):
         if self.primary.connected and self.primary.hostname is not None:
             if not ((self.primary.local and self.opts.no_local)
                     or self.cluster.strict_node_list):
-                self.ui_log.info('\t%-*s' % (self.commons['hostlen'],
-                                             self.primary.hostname))
+                self.ui_log.info(
+                    f"\t{self.primary.hostname:<{self.commons['hostlen']}}"
+                )
 
         for node in sorted(self.node_list):
-            self.ui_log.info("\t%-*s" % (self.commons['hostlen'], node))
+            self.ui_log.info(f"\t{node:<{self.commons['hostlen']}}")
 
         self.ui_log.info('')
         if not self.opts.batch:

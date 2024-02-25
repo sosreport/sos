@@ -988,11 +988,11 @@ class SoSReport(SoSComponent):
     def _report_profiles_and_plugins(self):
         self.ui_log.info("")
         if len(self.loaded_plugins):
-            self.ui_log.info(" %d profiles, %d plugins"
-                             % (len(self.profiles), len(self.loaded_plugins)))
+            self.ui_log.info(f" {len(self.profiles)} profiles, "
+                             f"{len(self.loaded_plugins)} plugins")
         else:
             # no valid plugins for this profile
-            self.ui_log.info(" %d profiles" % len(self.profiles))
+            self.ui_log.info(f" {len(self.profiles)} profiles")
         self.ui_log.info("")
 
     def list_plugins(self):
@@ -1084,7 +1084,7 @@ class SoSReport(SoSComponent):
             for name, plugin in self.loaded_plugins:
                 if _has_prof(plugin) and profile in plugin.profiles:
                     plugins.append(name)
-            lines = _format_list("%-15s " % profile, plugins, indent=True)
+            lines = _format_list(f"{profile:<15s} ", plugins, indent=True)
             for line in lines:
                 self.ui_log.info(f" {line}")
         self._report_profiles_and_plugins()

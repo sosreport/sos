@@ -98,15 +98,15 @@ def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
     """Converts a number of bytes to a shorter, more human friendly format"""
     fn = float(bytes_)
     if bytes_ >= T:
-        return '%.1fT' % (fn / T)
+        return f'{fn / T:.1f}T'
     elif bytes_ >= G:
-        return '%.1fG' % (fn / G)
+        return f'{fn / G:.1f}G'
     elif bytes_ >= M:
-        return '%.1fM' % (fn / M)
+        return f'{fn / M:.1f}M'
     elif bytes_ >= K:
-        return '%.1fK' % (fn / K)
+        return f'{fn / K:.1f}K'
     else:
-        return '%d' % bytes_
+        return f'{bytes_}d'
 
 
 def file_is_binary(fname):

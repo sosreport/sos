@@ -73,8 +73,10 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                 "nmcli con",
                 "nmcli con status",
                 "nmcli dev"])
-            nmcli_con_details_cmd = nmcli_con_details_template % "list id"
-            nmcli_dev_details_cmd = nmcli_dev_details_template % "list iface"
+            nmcli_con_details_cmd = nmcli_con_details_template.format(
+                "list id")
+            nmcli_dev_details_cmd = nmcli_dev_details_template.format(
+                "list iface")
 
         # No grokkable NetworkManager version present
         else:

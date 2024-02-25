@@ -32,7 +32,7 @@ class Foreman(Plugin):
         PluginOpt('puma-gc', default=False,
                   desc='collect Puma GC stats')
     ]
-    pumactl = 'pumactl %s -S /usr/share/foreman/tmp/puma.state'
+    pumactl = 'pumactl {} -S /usr/share/foreman/tmp/puma.state'
 
     def setup(self):
         # for external DB, search in /etc/foreman/database.yml for:
@@ -152,9 +152,9 @@ class Foreman(Plugin):
         # and optionally also gc-stats
         # if on RHEL with Software Collections, wrap the commands accordingly
         if self.get_option('puma-gc'):
-            self.add_cmd_output(self.pumactl % 'gc-stats',
+            self.add_cmd_output(self.pumactl.format('gc-stats'),
                                 suggest_filename='pumactl_gc-stats')
-        self.add_cmd_output(self.pumactl % 'stats',
+        self.add_cmd_output(self.pumactl.format('stats'),
                             suggest_filename='pumactl_stats')
         self.add_cmd_output('/usr/sbin/foreman-puma-status')
 

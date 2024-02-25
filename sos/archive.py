@@ -694,8 +694,8 @@ class TarFileArchive(FileCacheArchive):
 
     def set_tarinfo_from_stat(self, tar_info, fstat, mode=None):
         tar_info.mtime = fstat.st_mtime
-        tar_info.pax_headers['atime'] = "%.9f" % fstat.st_atime
-        tar_info.pax_headers['ctime'] = "%.9f" % fstat.st_ctime
+        tar_info.pax_headers['atime'] = f"{fstat.st_atime:.9f}"
+        tar_info.pax_headers['ctime'] = f"{fstat.st_ctime:.9f}"
         if mode:
             tar_info.mode = mode
         else:

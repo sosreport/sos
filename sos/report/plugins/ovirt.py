@@ -77,7 +77,7 @@ class Ovirt(Plugin, RedHatPlugin):
                     # backtrace written to '/var/log/ovirt-engine/console.log
                     os.kill(pid, signal.SIGQUIT)
                 except OSError as e:
-                    self.soslog.error('Unable to send signal to %d' % pid, e)
+                    self.soslog.error(f'Unable to send signal to {pid}', e)
 
         self.add_forbidden_path([
             '/etc/ovirt-engine/.pgpass',
