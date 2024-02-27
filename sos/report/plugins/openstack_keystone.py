@@ -91,17 +91,22 @@ class OpenStackKeystone(Plugin):
             self.var_puppet_gen + "/etc/keystone/*",
             regexp, subst
         )
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/httpd/conf.d/",
+            regexp, subst
+        )
 
     def postproc(self):
         protect_keys = [
             "password", "qpid_password", "rabbit_password", "ssl_key_password",
             "ldap_dns_password", "neutron_admin_password", "host_password",
-            "admin_password", "admin_token", "ca_password", "transport_url"
+            "admin_password", "admin_token", "ca_password", "transport_url",
+            "OIDCClientSecret",
         ]
         connection_keys = ["connection"]
 
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            r"(^\s*(%s)\s*(=\s*)?)(.*)" % "|".join(protect_keys),
             r"\1*********"
         )
         self.apply_regex_sub(
