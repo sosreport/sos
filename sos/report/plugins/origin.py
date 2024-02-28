@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
 import os.path
+from sos.report.plugins import Plugin, RedHatPlugin
 
 # This plugin collects static configuration and runtime information
 # about OpenShift Origin based environments, like OpenShift Enterprise 3
@@ -107,7 +107,8 @@ class OpenShiftOrigin(Plugin):
             if self.is_static_etcd():
                 self.add_cmd_output("%s etcd etcd" % static_pod_logs_cmd)
 
-            # TODO: some thoughts about information that might also be useful
+            # Possible enhancements:
+            # some thoughts about information that might also be useful
             # to collect. However, these are maybe not needed in general
             # and/or present some challenges (scale, sensitive, ...) and need
             # some more thought. For now just leaving this comment here until

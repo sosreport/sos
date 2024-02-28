@@ -37,6 +37,7 @@ class OpenStackSahara(Plugin):
             ])
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub("/etc/sahara/*", regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + "/etc/sahara/*",
@@ -73,9 +74,6 @@ class DebianSahara(OpenStackSahara, DebianPlugin, UbuntuPlugin):
         'python3-sahara',
     )
 
-    def setup(self):
-        super(DebianSahara, self).setup()
-
 
 class RedHatSahara(OpenStackSahara, RedHatPlugin):
 
@@ -83,7 +81,7 @@ class RedHatSahara(OpenStackSahara, RedHatPlugin):
     packages = ('openstack-selinux',)
 
     def setup(self):
-        super(RedHatSahara, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/sudoers.d/sahara*")
 
 

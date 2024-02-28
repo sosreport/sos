@@ -46,6 +46,7 @@ class OpenStackSwift(Plugin):
         })
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub(r"/etc/swift/.*\.conf.*", regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + r"/swift/etc/swift/.*\.conf.*",

@@ -34,7 +34,5 @@ class RedHatNovajoin(OpenStackNovajoin, RedHatPlugin):
 
     packages = ('python-novajoin',)
 
-    def setup(self):
-        super(RedHatNovajoin, self).setup()
 
 # vim: set et ts=4 sw=4 :

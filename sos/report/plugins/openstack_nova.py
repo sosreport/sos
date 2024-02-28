@@ -13,9 +13,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
 import re
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackNova(Plugin):
@@ -28,6 +28,7 @@ class OpenStackNova(Plugin):
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/nova"
     service_name = "openstack-nova-api.service"
+    apachepkg = None
 
     def setup(self):
 
@@ -114,8 +115,8 @@ class OpenStackNova(Plugin):
                 f"/var/log/{self.apachepkg}*/placement*.log",
             ])
 
-        pp = ['', '_libvirt', '_metadata', '_placement']
-        sp = [
+        npaths = ['', '_libvirt', '_metadata', '_placement']
+        syspaths = [
             '/etc/nova/',
             '/etc/my.cnf.d/tripleo.cnf',
             '/etc/httpd/conf/',
@@ -133,16 +134,17 @@ class OpenStackNova(Plugin):
             self.var_puppet_gen + "_libvirt/var/lib/nova/.ssh/config"
         ] + list(
             filter(re.compile('^((?!libvirt.+httpd).)*$').match,
-                   ['%s%s%s' % (
-                       self.var_puppet_gen, p, s) for p in pp for s in sp
+                   ['%s%s%s' % (self.var_puppet_gen, p, s)
+                    for p in npaths for s in syspaths
                     ]))
         self.add_copy_spec(specs)
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub("/etc/nova/*", regexp, subst)
-        for p in ['', '_libvirt', '_metadata', '_placement']:
+        for npath in ['', '_libvirt', '_metadata', '_placement']:
             self.do_path_regex_sub(
-                "%s%s/etc/nova/*" % (self.var_puppet_gen, p),
+                "%s%s/etc/nova/*" % (self.var_puppet_gen, npath),
                 regexp, subst)
 
     def postproc(self):
@@ -198,7 +200,7 @@ class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
     service_name = "nova-api.service"
 
     def setup(self):
-        super(DebianNova, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/sudoers.d/nova_sudoers",
             "/usr/share/polkit-1/rules.d/60-libvirt.rules",
@@ -212,7 +214,7 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
     packages = ('openstack-selinux',)
 
     def setup(self):
-        super(RedHatNova, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/logrotate.d/openstack-nova",
             "/etc/polkit-1/localauthority/50-local.d/50-nova.pkla",

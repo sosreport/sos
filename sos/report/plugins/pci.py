@@ -17,6 +17,7 @@ class Pci(Plugin, IndependentPlugin):
     profiles = ('hardware', 'system')
 
     def check_for_bus_devices(self):
+        """ Check whether PCI devices present """
         if not self.path_isdir('/proc/bus/pci'):
             return False
         # ensure that more than just the 'devices' file, which can be empty,

@@ -9,8 +9,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackIronic(Plugin):
@@ -22,6 +22,8 @@ class OpenStackIronic(Plugin):
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/ironic"
     ins_puppet_gen = var_puppet_gen + "_inspector"
+    conf_list = []
+    osc_available = False
 
     def setup(self):
 
@@ -133,6 +135,7 @@ class OpenStackIronic(Plugin):
             self.add_cmd_output("openstack baremetal port group list --long")
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         for conf in self.conf_list:
             self.do_path_regex_sub(conf, regexp, subst)
 
@@ -159,9 +162,6 @@ class DebianIronic(OpenStackIronic, DebianPlugin, UbuntuPlugin):
 
     packages = ('ironic-api', 'ironic-common', 'ironic-conductor')
 
-    def setup(self):
-        super(DebianIronic, self).setup()
-
 
 class RedHatIronic(OpenStackIronic, RedHatPlugin):
 
@@ -173,6 +173,7 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
     ]
 
     def collect_introspection_data(self):
+        """ Capture baremetal introspection data """
         uuids_result = self.collect_cmd_output(
             'openstack baremetal node list -f value -c UUID'
         )
@@ -188,11 +189,11 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
                                 'data save %s' % uuid)
 
     def setup(self):
-        super(RedHatIronic, self).setup()
+        super().setup()
 
         # ironic-discoverd was renamed to ironic-inspector in Liberty
         # is the optional ironic-discoverd service installed?
-        if any([self.is_installed(p) for p in self.discoverd_packages]):
+        if any(self.is_installed(p) for p in self.discoverd_packages):
             self.conf_list.append('/etc/ironic-discoverd/*')
             self.add_copy_spec('/etc/ironic-discoverd/')
             self.add_copy_spec('/var/lib/ironic-discoverd/')

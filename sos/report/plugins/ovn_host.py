@@ -12,30 +12,29 @@ import os
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-pidfile = 'ovn-controller.pid'
-pid_paths = [
-        '/var/lib/openvswitch/ovn',
-        '/usr/local/var/run/openvswitch',
-        '/run/openvswitch'
-]
-
-
 class OVNHost(Plugin):
 
     short_desc = 'OVN Controller'
     plugin_name = "ovn_host"
     profiles = ('network', 'virt', 'openstack_edpm')
+    pidfile = 'ovn-controller.pid'
+    pid_paths = [
+        '/var/lib/openvswitch/ovn',
+        '/usr/local/var/run/openvswitch',
+        '/run/openvswitch',
+    ]
 
     def setup(self):
         if os.environ.get('OVS_RUNDIR'):
-            pid_paths.append(os.environ.get('OVS_RUNDIR'))
+            self.pid_paths.append(os.environ.get('OVS_RUNDIR'))
 
         if self.get_option("all_logs"):
             self.add_copy_spec("/var/log/ovn/")
         else:
             self.add_copy_spec("/var/log/ovn/*.log")
 
-        self.add_copy_spec([self.path_join(pp, pidfile) for pp in pid_paths])
+        self.add_copy_spec([self.path_join(pp, self.pidfile)
+                           for pp in self.pid_paths])
 
         self.add_copy_spec('/etc/sysconfig/ovn-controller')
 
@@ -48,9 +47,8 @@ class OVNHost(Plugin):
         self.add_journal(units="ovn-controller")
 
     def check_enabled(self):
-        return (any([self.path_isfile(
-            self.path_join(pp, pidfile)) for pp in pid_paths]) or
-            super(OVNHost, self).check_enabled())
+        return (any(self.path_isfile(self.path_join(pid_path, self.pidfile))
+                for pid_path in self.pid_paths) or super().check_enabled())
 
 
 class RedHatOVNHost(OVNHost, RedHatPlugin):
@@ -59,7 +57,7 @@ class RedHatOVNHost(OVNHost, RedHatPlugin):
     var_ansible_gen = "/var/lib/config-data/ansible-generated/ovn-bgp-agent"
 
     def setup(self):
-        super(RedHatOVNHost, self).setup()
+        super().setup()
         self.add_copy_spec([
             self.var_ansible_gen,
         ])

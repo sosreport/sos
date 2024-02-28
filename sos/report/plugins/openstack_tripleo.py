@@ -18,6 +18,7 @@ class OpenStackTripleO(Plugin, IndependentPlugin):
     plugin_name = 'openstack_tripleo'
     profiles = ('openstack', 'openstack_controller', 'openstack_compute')
     packages = ('openstack-selinux',)
+    tripleo_log_paths = []
 
     def setup(self):
         # Notes: recursion is max 2 for container-puppet and tripleo-config

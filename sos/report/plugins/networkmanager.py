@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 import os
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
 class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -112,7 +112,7 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
         })
 
     def postproc(self):
-        for root, dirs, files in os.walk(
+        for _, _, files in os.walk(
                 "/etc/NetworkManager/system-connections"):
             for net_conf in files:
                 self.do_file_sub(

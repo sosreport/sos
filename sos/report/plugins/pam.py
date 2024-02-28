@@ -40,15 +40,12 @@ class RedHatPam(Pam, RedHatPlugin):
     security_libs = "/lib*/security"
 
     def setup(self):
-        super(RedHatPam, self).setup()
+        super().setup()
         self.add_cmd_output(["authselect current"])
 
 
 class DebianPam(Pam, DebianPlugin, UbuntuPlugin):
     security_libs = "/lib/x86_64-linux-gnu/security"
-
-    def setup(self):
-        super(DebianPam, self).setup()
 
 
 # vim: set et ts=4 sw=4 :

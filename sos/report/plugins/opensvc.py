@@ -17,6 +17,7 @@ class Opensvc(Plugin, IndependentPlugin):
     packages = ('opensvc',)
 
     def get_status(self, kind):
+        """ Get the status of opensvc management service """
         getobjs = self.collect_cmd_output("om %s ls --color=no" % kind)
         dirname = kind + '_status'
         if getobjs['status'] == 0:

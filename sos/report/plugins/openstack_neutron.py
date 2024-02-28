@@ -9,8 +9,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackNeutron(Plugin):
@@ -82,6 +82,7 @@ class OpenStackNeutron(Plugin):
         })
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub("/etc/neutron/*", regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + "/etc/neutron/*",
@@ -131,7 +132,7 @@ class DebianNeutron(OpenStackNeutron, DebianPlugin, UbuntuPlugin):
         return self.is_installed("neutron-common")
 
     def setup(self):
-        super(DebianNeutron, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/sudoers.d/neutron_sudoers")
 
 
@@ -141,7 +142,7 @@ class RedHatNeutron(OpenStackNeutron, RedHatPlugin):
     var_ansible_gen = "/var/lib/config-data/ansible-generated/"
 
     def setup(self):
-        super(RedHatNeutron, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/sudoers.d/neutron-rootwrap",
             self.var_ansible_gen + "/neutron-dhcp-agent/",

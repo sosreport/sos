@@ -43,6 +43,7 @@ class OpenStackCeilometer(Plugin):
         })
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub("/etc/ceilometer/*", regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + "/etc/ceilometer/*",
@@ -89,7 +90,7 @@ class RedHatCeilometer(OpenStackCeilometer, RedHatPlugin):
     packages = ('openstack-selinux',)
 
     def setup(self):
-        super(RedHatCeilometer, self).setup()
+        super().setup()
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/containers/ceilometer/*",

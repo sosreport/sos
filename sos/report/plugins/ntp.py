@@ -39,7 +39,7 @@ class Ntp(Plugin):
 class RedHatNtp(Ntp, RedHatPlugin):
 
     def setup(self):
-        super(RedHatNtp, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/sysconfig/ntpd")
         self.add_cmd_output("ntpstat")
 
@@ -47,7 +47,7 @@ class RedHatNtp(Ntp, RedHatPlugin):
 class DebianNtp(Ntp, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
-        super(DebianNtp, self).setup()
+        super().setup()
         self.add_copy_spec('/etc/default/ntp')
 
 

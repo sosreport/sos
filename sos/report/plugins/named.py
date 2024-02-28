@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 from os.path import join, normpath
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Named(Plugin):
@@ -42,8 +42,8 @@ class Named(Plugin):
                                                 config_file)
         if directory_list:
             return normpath(directory_list[0])
-        else:
-            return ""
+
+        return ""
 
     def postproc(self):
         match = r"(\s*arg \"password )[^\"]*"
@@ -60,12 +60,11 @@ class RedHatNamed(Named, RedHatPlugin):
     packages = ('bind',)
 
     def setup(self):
-        super(RedHatNamed, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/named/")
         self.add_copy_spec("/etc/sysconfig/named")
         self.add_cmd_output("klist -ket /etc/named.keytab")
         self.add_forbidden_path("/etc/named.keytab")
-        return
 
 
 class DebianNamed(Named, DebianPlugin, UbuntuPlugin):
@@ -78,9 +77,8 @@ class DebianNamed(Named, DebianPlugin, UbuntuPlugin):
                     "/etc/bind/named.conf.local")
 
     def setup(self):
-        super(DebianNamed, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/bind/")
-        return
 
 
 # vim: set et ts=4 sw=4 :

@@ -57,7 +57,4 @@ class NpmViaNodeJS(Npm):
     # also in Fedora 24+ it is just nodejs, no npm package
     packages = ('nodejs', )
 
-# TODO: in RHEL npm and nodejs is available via software collections
-#       this should be handled separately
-
 # vim: set et ts=4 sw=4 :

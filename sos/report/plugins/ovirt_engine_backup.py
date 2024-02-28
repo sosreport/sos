@@ -8,11 +8,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 from datetime import datetime
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
-class oVirtEngineBackup(Plugin, RedHatPlugin):
+class OVirtEngineBackup(Plugin, RedHatPlugin):
 
     short_desc = 'oVirt Engine database backup'
 

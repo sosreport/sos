@@ -35,7 +35,5 @@ class NfsGanesha(Plugin, IndependentPlugin):
             "org.ganesha.nfsd.exportmgr.ShowExports"
         ])
 
-        return
-
 
 # vim: set et ts=4 sw=4 :

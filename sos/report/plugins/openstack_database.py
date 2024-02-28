@@ -61,16 +61,16 @@ class OpenStackDatabase(Plugin):
                                 sizelimit=0, container=cname)
 
     def get_mysql_db_string(self, container=None):
-
+        """ Get mysql DB command to be dumped """
         if self.get_option('dumpall'):
             return '--all-databases'
 
         collect = []
         dbs = self.exec_cmd('mysql -e "show databases;"', container=container)
 
-        for db in dbs['output'].splitlines():
-            if any([re.match(db, reg) for reg in self.databases]):
-                collect.append(db)
+        for database in dbs['output'].splitlines():
+            if any(re.match(database, reg) for reg in self.databases):
+                collect.append(database)
 
         return '-B ' + ' '.join(d for d in collect)
 

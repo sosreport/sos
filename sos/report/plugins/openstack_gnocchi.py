@@ -19,6 +19,7 @@ class Gnocchi(Plugin):
     plugin_name = "openstack_gnocchi"
 
     profiles = ('openstack', 'openstack_controller')
+    apachepkg = None
 
     def setup(self):
         self.add_copy_spec([
@@ -76,7 +77,7 @@ class RedHatGnocchi(Gnocchi, RedHatPlugin):
     )
 
     def setup(self):
-        super(RedHatGnocchi, self).setup()
+        super().setup()
         self.add_copy_spec([
             self.var_puppet_gen + "/etc/gnocchi/*",
             self.var_puppet_gen + "/etc/httpd/conf/*",
@@ -86,7 +87,7 @@ class RedHatGnocchi(Gnocchi, RedHatPlugin):
         ])
 
     def postproc(self):
-        super(RedHatGnocchi, self).postproc()
+        super().postproc()
         self.do_file_sub(
             self.var_puppet_gen + "/etc/gnocchi/"
             "gnocchi.conf",
