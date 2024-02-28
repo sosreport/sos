@@ -9,10 +9,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
 import configparser
 import os
 import re
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 NON_CONTAINERIZED_DEPLOY = [
@@ -61,19 +61,7 @@ class OpenStackInstack(Plugin):
         vars_any = [p in os.environ for p in [
                     'OS_TENANT_NAME', 'OS_PROJECT_NAME']]
 
-        # capture yaml files to define overrides
-        uc_config = configparser.ConfigParser()
-        try:
-            uc_config.read(UNDERCLOUD_CONF_PATH)
-            override_opts = ['hieradata_override', 'net_config_override']
-            for opt in override_opts:
-                p = uc_config.get(opt)
-                if p:
-                    if not os.path.isabs(p):
-                        p = self.path_join('/home/stack', p)
-                    self.add_copy_spec(p)
-        except Exception:
-            pass
+        self.capture_undercloud_yamls()
 
         if not (all(vars_all) and any(vars_any)):
             self.soslog.warning("Not all environment variables set. Source "
@@ -111,6 +99,21 @@ class OpenStackInstack(Plugin):
 
             self.add_cmd_output("openstack object save "
                                 "tripleo-ui-logs tripleo-ui.logs --file -")
+
+    def capture_undercloud_yamls(self):
+        """ capture yaml files to define overrides """
+        uc_config = configparser.ConfigParser()
+        try:
+            uc_config.read(UNDERCLOUD_CONF_PATH)
+            override_opts = ['hieradata_override', 'net_config_override']
+            for opt in override_opts:
+                path = uc_config.get('DEFAULT', opt)
+                if path:
+                    if not os.path.isabs(path):
+                        path = self.path_join('/home/stack', path)
+                    self.add_copy_spec(path)
+        except Exception:  # pylint: disable=broad-except
+            pass
 
     def postproc(self):
         # do_file_sub is case insensitive, so protected_keys can be lowercase
@@ -150,8 +153,5 @@ class OpenStackInstack(Plugin):
 class RedHatRDOManager(OpenStackInstack, RedHatPlugin):
 
     packages = ('openstack-selinux',)
-
-    def setup(self):
-        super(RedHatRDOManager, self).setup()
 
 # vim: set et ts=4 sw=4 :

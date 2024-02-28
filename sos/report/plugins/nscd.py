@@ -23,10 +23,10 @@ class Nscd(Plugin, IndependentPlugin):
     def setup(self):
         self.add_copy_spec("/etc/nscd.conf")
 
-        opt = self.file_grep(r"^\s*logfile", "/etc/nscd.conf")
-        if (len(opt) > 0):
-            for o in opt:
-                f = o.split()
-                self.add_copy_spec(f[1])
+        options = self.file_grep(r"^\s*logfile", "/etc/nscd.conf")
+        if len(options) > 0:
+            for opt in options:
+                fields = opt.split()
+                self.add_copy_spec(fields[1])
 
 # vim: set et ts=4 sw=4 :

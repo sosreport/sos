@@ -104,11 +104,11 @@ class OpenStackOctavia(Plugin):
             cmd = "openstack loadbalancer provider list -f value -c name"
             ret = self.exec_cmd(cmd)
             if ret['status'] == 0:
-                for p in ret['output'].splitlines():
-                    p = p.split()[0]
+                for provider in ret['output'].splitlines():
+                    provider = provider.split()[0]
                     self.add_cmd_output(
                        "openstack loadbalancer provider capability list"
-                       " %s" % p,
+                       " %s" % provider,
                        subdir='provider_capability')
 
     def postproc(self):
@@ -135,7 +135,7 @@ class DebianOctavia(OpenStackOctavia, DebianPlugin, UbuntuPlugin):
     )
 
     def setup(self):
-        super(DebianOctavia, self).setup()
+        super().setup()
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/apache2/octavia*",

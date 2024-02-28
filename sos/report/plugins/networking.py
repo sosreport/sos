@@ -45,11 +45,7 @@ class Networking(Plugin):
     ethtool_shortopts = "acdgiklmPST"
 
     def setup(self):
-        super(Networking, self).setup()
-        for opt in self.ethtool_shortopts:
-            self.add_cmd_tags({
-                'ethtool -%s .*' % opt: 'ethool_%s' % opt
-            })
+        super().setup()
 
         self.add_file_tags({
             '/proc/net/bonding/bond.*': 'bond',
@@ -57,20 +53,20 @@ class Networking(Plugin):
         })
 
         self.add_copy_spec([
-            "/proc/net/",
-            "/etc/nsswitch.conf",
-            "/etc/yp.conf",
+            "/etc/dnsmasq*",
+            "/etc/host*",
             "/etc/inetd.conf",
+            "/etc/iproute2",
+            "/etc/network*",
+            "/etc/nsswitch.conf",
+            "/etc/resolv.conf",
             "/etc/xinetd.conf",
             "/etc/xinetd.d",
-            "/etc/host*",
-            "/etc/resolv.conf",
-            "/etc/network*",
-            "/etc/dnsmasq*",
+            "/etc/yp.conf",
+            "/proc/net/",
             "/sys/class/net/*/device/numa_node",
             "/sys/class/net/*/flags",
             "/sys/class/net/*/statistics/",
-            "/etc/iproute2"
         ])
 
         self.add_forbidden_path([
@@ -136,6 +132,39 @@ class Networking(Plugin):
         macsec_pred = SoSPredicate(self, kmods=['macsec'])
         self.add_cmd_output(ip_macsec_show_cmd, pred=macsec_pred, changes=True)
 
+        self.collect_ss_ip_ethtool_info()
+        self.collect_bridge_info()
+
+    def add_command_tags(self):
+        """ Command tags for ip/ethtool/netstat """
+        for opt in self.ethtool_shortopts:
+            self.add_cmd_tags({
+                'ethtool -%s .*' % opt: 'ethool_%s' % opt
+            })
+
+        self.add_cmd_tags({
+            "ethtool [^-].*": "ethtool",
+            "ip -d address": "ip_addr",
+            "ip -s -s neigh show": "ip_neigh_show",
+            "ip -s -d link": "ip_s_link",
+            "netstat.*-neopa": "netstat",
+            "netstat.*-agn": "netstat_agn",
+            "netstat -s": "netstat_s"
+        })
+
+    def collect_bridge_info(self):
+        """ Collect information about bridges (some data already collected via
+        "ip .." commands)
+        """
+        self.add_cmd_output([
+            "bridge -s -s -d link show",
+            "bridge -s -s -d -t fdb show",
+            "bridge -s -s -d -t mdb show",
+            "bridge -d vlan show"
+        ])
+
+    def collect_ss_ip_ethtool_info(self):
+        """ Collect ss, ip and ethtool cmd outputs """
         ss_cmd = "ss -peaonmi"
         ss_pred = SoSPredicate(self, kmods=self.ss_kmods,
                                required={'kmods': 'all'})
@@ -166,15 +195,6 @@ class Networking(Plugin):
                            "interrupt device operation")
             self.add_device_cmd(cmd, devices="ethernet")
 
-        # Collect information about bridges (some data already collected via
-        # "ip .." commands)
-        self.add_cmd_output([
-            "bridge -s -s -d link show",
-            "bridge -s -s -d -t fdb show",
-            "bridge -s -s -d -t mdb show",
-            "bridge -d vlan show"
-        ])
-
         if self.get_option("traceroute"):
             self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host,
                                 priority=100)
@@ -190,11 +210,11 @@ class Networking(Plugin):
             # 'ip netns exec <foo> iptables-save' must be guarded by nf_tables
             # kmod, if 'iptables -V' output contains 'nf_tables'
             # analogously for ip6tables
-            co = {'cmd': 'iptables -V', 'output': 'nf_tables'}
+            cout = {'cmd': 'iptables -V', 'output': 'nf_tables'}
             co6 = {'cmd': 'ip6tables -V', 'output': 'nf_tables'}
             iptables_with_nft = (SoSPredicate(self, kmods=['nf_tables'])
                                  if self.test_predicate(self,
-                                 pred=SoSPredicate(self, cmd_outputs=co))
+                                 pred=SoSPredicate(self, cmd_outputs=cout))
                                  else None)
             ip6tables_with_nft = (SoSPredicate(self, kmods=['nf_tables'])
                                   if self.test_predicate(self,
@@ -245,22 +265,7 @@ class Networking(Plugin):
                         ns_cmd_prefix + "ethtool -S %(dev)s"
                     ], devices=_devs['ethernet'], priority=50, subdir=_subdir)
 
-        self.add_cmd_tags({
-            "ethtool [^-].*": "ethtool",
-            "ethtool -S.*": "ethtool_S",
-            "ethtool -T.*": "ethtool_T",
-            "ethtool -a.*": "ethtool_a",
-            "ethtool -c.*": "ethtool_c",
-            "ethtool -g.*": "ethtool_g",
-            "ethtool -i.*": "ethtool_i",
-            "ethtool -k.*": "ethtool_k",
-            "ip -d address": "ip_addr",
-            "ip -s -s neigh show": "ip_neigh_show",
-            "ip -s -d link": "ip_s_link",
-            "netstat.*-neopa": "netstat",
-            "netstat.*-agn": "netstat_agn",
-            "netstat -s": "netstat_s"
-        })
+        self.add_command_tags()
 
 
 class RedHatNetworking(Networking, RedHatPlugin):
@@ -273,11 +278,11 @@ class RedHatNetworking(Networking, RedHatPlugin):
             # major version
             if int(netstat_pkg['version'][0]) < 2:
                 self.ns_wide = "-T"
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             # default to upstream option
             pass
 
-        super(RedHatNetworking, self).setup()
+        super().setup()
 
 
 class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
@@ -295,22 +300,18 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
         if self.policy.dist_version() in ubuntu_ss_kmods:
             self.ss_kmods = ubuntu_ss_kmods[self.policy.dist_version()]
 
-        super(UbuntuNetworking, self).setup()
+        super().setup()
 
         self.add_copy_spec([
-            "/etc/resolvconf",
+            "/etc/netplan/*.yaml",
             "/etc/network/interfaces",
             "/etc/network/interfaces.d",
             "/etc/resolv.conf",
-            "/run/netplan/*.yaml",
-            "/etc/netplan/*.yaml",
+            "/etc/resolvconf",
             "/lib/netplan/*.yaml",
+            "/run/netplan/*.yaml",
             "/run/systemd/network"
         ])
-
-        if self.get_option("traceroute"):
-            self.add_cmd_output("/usr/sbin/traceroute -n %s" % self.trace_host,
-                                priority=100)
 
     def postproc(self):
 

@@ -36,6 +36,7 @@ class OpenStackTrove(Plugin):
         ])
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub("/etc/trove/*", regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + "/etc/trove/*",
@@ -71,15 +72,9 @@ class DebianTrove(OpenStackTrove, DebianPlugin, UbuntuPlugin):
         'python3-trove',
     )
 
-    def setup(self):
-        super(DebianTrove, self).setup()
-
 
 class RedHatTrove(OpenStackTrove, RedHatPlugin):
 
     packages = ('openstack-selinux',)
-
-    def setup(self):
-        super(RedHatTrove, self).setup()
 
 # vim: set et ts=4 sw=4 :

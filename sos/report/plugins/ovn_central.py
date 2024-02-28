@@ -8,15 +8,15 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
+import os
+import re
 from sos.report.plugins import (
     Plugin,
     RedHatPlugin,
     DebianPlugin,
     UbuntuPlugin,
 )
-import json
-import os
-import re
 
 
 class OVNCentral(Plugin):
@@ -25,15 +25,21 @@ class OVNCentral(Plugin):
     plugin_name = "ovn_central"
     profiles = ('network', 'virt')
     containers = ('ovn-dbs-bundle.*', 'ovn_cluster_north_db_server')
+    container_name = ""
+    ovn_nbdb_sock_path = ""
+    ovn_sbdb_sock_path = ""
+    ovn_sock_path = ""
+    ovn_controller_sock_regex = ""
+    ovn_northd_sock_regex = ""
 
     def _find_sock(self, path, regex_name):
         _sfile = os.path.join(path, regex_name)
-        if self._container_name:
-            res = self.exec_cmd("ls %s" % path, container=self._container_name)
+        if self.container_name:
+            res = self.exec_cmd("ls %s" % path, container=self.container_name)
             if res['status'] != 0 or '\n' not in res['output']:
                 self._log_error(
                     "Could not retrieve ovn_controller socket path "
-                    "from container %s" % self._container_name
+                    "from container %s" % self.container_name
                 )
             else:
                 pattern = re.compile(regex_name)
@@ -43,26 +49,28 @@ class OVNCentral(Plugin):
         # File not found, return the regex full path
         return _sfile
 
-    def get_tables_from_schema(self, filename, skip=[]):
-        if self._container_name:
+    def get_tables_from_schema(self, filename, skip=None):
+        """ Get tables from schema """
+        if self.container_name:
             cmd = "cat %s" % filename
             res = self.exec_cmd(cmd, timeout=None, foreground=True,
-                                container=self._container_name)
+                                container=self.container_name)
             if res['status'] != 0:
                 self._log_error("Could not retrieve DB schema file from "
-                                "container %s" % self._container_name)
+                                "container %s" % self.container_name)
                 return None
             try:
-                db = json.loads(res['output'])
-            except Exception:
+                db_schema = json.loads(res['output'])
+            except Exception:  # pylint: disable=broad-except
                 self._log_error("Cannot parse JSON file %s" % filename)
                 return None
         else:
             try:
-                with open(self.path_join(filename), 'r') as f:
+                fname = self.path_join(filename)
+                with open(fname, 'r', encoding='UTF-8') as file:
                     try:
-                        db = json.load(f)
-                    except Exception:
+                        db_schema = json.load(file)
+                    except Exception:  # pylint: disable=broad-except
                         self._log_error(
                             "Cannot parse JSON file %s" % filename)
                         return None
@@ -72,12 +80,13 @@ class OVNCentral(Plugin):
                 return None
         try:
             return [table for table in dict.keys(
-                db['tables']) if table not in skip]
+                db_schema['tables']) if table not in skip]
         except AttributeError:
             self._log_error("DB schema %s has no 'tables' key" % filename)
         return None
 
     def add_database_output(self, tables, cmds, ovn_cmd):
+        """ Collect OVN database output """
         if not tables:
             return
         for table in tables:
@@ -86,10 +95,10 @@ class OVNCentral(Plugin):
     def setup(self):
         # check if env is a clustered or non-clustered one
         if self.container_exists(self.containers[1]):
-            self._container_name = self.get_container_by_name(
+            self.container_name = self.get_container_by_name(
                 self.containers[1])
         else:
-            self._container_name = self.get_container_by_name(
+            self.container_name = self.get_container_by_name(
                 self.containers[0])
 
         ovs_rundir = os.environ.get('OVS_RUNDIR')
@@ -122,7 +131,7 @@ class OVNCentral(Plugin):
             f"ovn-appctl -t {northd_sock_path} status",
             f"ovn-appctl -t {northd_sock_path} debug/chassis-features-list",
             f"ovn-appctl -t {ovn_controller_sock_path} connection-status",
-        ], foreground=True, container=self._container_name, timeout=30
+        ], foreground=True, container=self.container_name, timeout=30
         )
 
         # Some user-friendly versions of DB output
@@ -160,7 +169,7 @@ class OVNCentral(Plugin):
         # failing on collecting output to file on container running commands
         cmds = list(set(cmds))
         self.add_cmd_output(
-            cmds, foreground=True, container=self._container_name
+            cmds, foreground=True, container=self.container_name
         )
 
         self.add_copy_spec("/etc/sysconfig/ovn-northd")

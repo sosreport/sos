@@ -9,9 +9,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
-import os
 
 
 class OpenStackKeystone(Plugin):
@@ -25,6 +25,8 @@ class OpenStackKeystone(Plugin):
                   desc='do not collect keystone passwords')
     ]
     var_puppet_gen = "/var/lib/config-data/puppet-generated/keystone"
+    apachepkg = None
+    domain_config_dir = ""
 
     def setup(self):
         self.add_copy_spec([
@@ -59,7 +61,7 @@ class OpenStackKeystone(Plugin):
                 "identity domain_config_dir")
         self.domain_config_dir = exec_out['output']
         if exec_out['status'] != 0 or \
-                not (self.path_isdir(self.domain_config_dir)):
+                not self.path_isdir(self.domain_config_dir):
             self.domain_config_dir = "/etc/keystone/domains"
         self.add_copy_spec(self.domain_config_dir)
 
@@ -83,6 +85,7 @@ class OpenStackKeystone(Plugin):
         })
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub("/etc/keystone/*", regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + "/etc/keystone/*",

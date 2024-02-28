@@ -51,6 +51,7 @@ class OpenStackManila(Plugin):
         })
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub("/etc/manila/*", regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + "/etc/manila/*",
@@ -87,7 +88,7 @@ class DebianManila(OpenStackManila, DebianPlugin, UbuntuPlugin):
     )
 
     def setup(self):
-        super(DebianManila, self).setup()
+        super().setup()
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/apache2/manila*",
@@ -104,7 +105,7 @@ class RedHatManila(OpenStackManila, RedHatPlugin):
     packages = ('openstack-selinux',)
 
     def setup(self):
-        super(RedHatManila, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/sudoers.d/manila")
 
         if self.get_option("all_logs"):

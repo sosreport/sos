@@ -20,6 +20,7 @@ class OpenStackAodh(Plugin):
     profiles = ('openstack', 'openstack_controller')
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/aodh"
+    apachepkg = None
 
     def setup(self):
         self.add_copy_spec([
@@ -62,6 +63,7 @@ class OpenStackAodh(Plugin):
             ])
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub(
             "/etc/aodh/aodh.conf",
             regexp, subst
@@ -110,7 +112,7 @@ class RedHatOpenStackAodh(OpenStackAodh, RedHatPlugin):
     packages = ('openstack-selinux',)
 
     def setup(self):
-        super(RedHatOpenStackAodh, self).setup()
+        super().setup()
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/var/log/containers/httpd/aodh-api/*",

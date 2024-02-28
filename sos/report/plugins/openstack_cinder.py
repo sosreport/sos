@@ -12,8 +12,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackCinder(Plugin):
@@ -24,6 +24,7 @@ class OpenStackCinder(Plugin):
     containers = ('.*cinder_api',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/cinder"
+    apachepkg = None
 
     def setup(self):
         self.add_forbidden_path('/etc/cinder/volumes')
@@ -133,6 +134,7 @@ class OpenStackCinder(Plugin):
             ])
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub("/etc/cinder/*", regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + "/etc/cinder/*",
@@ -187,7 +189,7 @@ class RedHatCinder(OpenStackCinder, RedHatPlugin):
     packages = ('openstack-selinux',)
 
     def setup(self):
-        super(RedHatCinder, self).setup()
+        super().setup()
         self.add_copy_spec(["/etc/sudoers.d/cinder"])
 
 

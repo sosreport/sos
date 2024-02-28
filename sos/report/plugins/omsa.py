@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class omsa(Plugin, IndependentPlugin):
+class OMSA(Plugin, IndependentPlugin):
 
     short_desc = 'Dell OpenManage Server Administrator (OMSA)'
 

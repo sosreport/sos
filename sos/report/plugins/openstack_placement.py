@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackPlacement(Plugin):
@@ -21,6 +21,7 @@ class OpenStackPlacement(Plugin):
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/placement"
     service_name = 'openstack-placement-api'
+    apachepkg = None
 
     def setup(self):
 
@@ -96,6 +97,7 @@ class OpenStackPlacement(Plugin):
         ])
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub("/etc/placement/*", regexp, subst)
         self.do_path_regex_sub(
             self.var_puppet_gen + "/etc/placement/*",

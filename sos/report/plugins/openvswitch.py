@@ -8,11 +8,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-
 from os import environ
-
 import re
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenVSwitch(Plugin):
@@ -20,6 +18,9 @@ class OpenVSwitch(Plugin):
     short_desc = 'OpenVSwitch networking'
     plugin_name = "openvswitch"
     profiles = ('network', 'virt')
+    actl = "ovs-appctl"
+    check_dpdk = False
+    check_6wind = False
 
     def setup(self):
 
@@ -32,33 +33,10 @@ class OpenVSwitch(Plugin):
 
         dpdk_enabled = self.collect_cmd_output(
             "ovs-vsctl -t 5 get Open_vSwitch . other_config:dpdk-init")
-        check_dpdk = (dpdk_enabled["status"] == 0 and
-                      dpdk_enabled["output"].startswith('"true"'))
-        check_6wind = any([self.is_installed(p) for p in
-                           ['6windgate-fp', 'nuage-openvswitch']])
-        actl = "ovs-appctl"
-
-        files_6wind = [
-            "/etc/systemd/system/multi-user.target.wants/openvswitch.service",
-            "/etc/sysctl.d/60-6wind-system-auto-reboot.conf",
-            "/etc/openvswitch/system-id.conf",
-            "/etc/openvswitch/*.db",
-            "/etc/ld.so.conf.d/linux-fp-sync-fptun.conf",
-            "/etc/NetworkManager/conf.d/fpn0.conf",
-            "/etc/default/openvswitch",
-            "/etc/logrotate.d/openvswitch",
-            "/etc/linux-fp-sync.env",
-            "/etc/fp-daemons.env",
-            "/etc/fp-vdev.ini",
-            "/etc/fpm.env",
-            "/etc/6WINDGate/fp.config",
-            "/etc/6WINDGate/fpnsdk.config",
-            "/etc/dms.d/fp-dms.conf",
-            "/etc/dms.d/fpmd-dms.conf",
-            "/etc/dms.d/fpsd-dms.conf",
-            "/etc/fast-path.env",
-            "/etc/fps-fp.env",
-        ]
+        self.check_dpdk = (dpdk_enabled["status"] == 0 and
+                           dpdk_enabled["output"].startswith('"true"'))
+        self.check_6wind = any(self.is_installed(p) for p in
+                               ['6windgate-fp', 'nuage-openvswitch'])
 
         if environ.get('OVS_LOGDIR'):
             log_dirs.append(environ.get('OVS_LOGDIR'))
@@ -179,8 +157,36 @@ class OpenVSwitch(Plugin):
         self.add_journal(units="ovsdb-server")
         self.add_journal(units="ovs-configuration")
         self.add_journal(units="openvswitch-ipsec")
+        self.collect_ovs_info()
+        self.collect_datapath()
+        self.collect_ovs_bridge_info()
 
-        if check_6wind:
+    def collect_ovs_info(self):
+        """ Collect output of OVS commands """
+
+        files_6wind = [
+            "/etc/systemd/system/multi-user.target.wants/openvswitch.service",
+            "/etc/sysctl.d/60-6wind-system-auto-reboot.conf",
+            "/etc/openvswitch/system-id.conf",
+            "/etc/openvswitch/*.db",
+            "/etc/ld.so.conf.d/linux-fp-sync-fptun.conf",
+            "/etc/NetworkManager/conf.d/fpn0.conf",
+            "/etc/default/openvswitch",
+            "/etc/logrotate.d/openvswitch",
+            "/etc/linux-fp-sync.env",
+            "/etc/fp-daemons.env",
+            "/etc/fp-vdev.ini",
+            "/etc/fpm.env",
+            "/etc/6WINDGate/fp.config",
+            "/etc/6WINDGate/fpnsdk.config",
+            "/etc/dms.d/fp-dms.conf",
+            "/etc/dms.d/fpmd-dms.conf",
+            "/etc/dms.d/fpsd-dms.conf",
+            "/etc/fast-path.env",
+            "/etc/fps-fp.env",
+        ]
+
+        if self.check_6wind:
             self.add_copy_spec(files_6wind)
             self.add_cmd_output([
                 # Various fast-path stats
@@ -217,172 +223,181 @@ class OpenVSwitch(Plugin):
             port_list = self.collect_cmd_output("fp-cli fp-vswitch-ports")
             if port_list['status'] == 0:
                 for port in port_list['output'].splitlines():
-                    m = re.match(r'^([\d]+):[\s]+([^\s]+)', port)
-                    if m:
-                        port_name = m.group(2)
+                    mport = re.match(r'^([\d]+):[\s]+([^\s]+)', port)
+                    if mport:
+                        port_name = mport.group(2)
                         self.add_cmd_output([
                             "fp-cli dpdk-cp-filter-budget %s" % port_name,
                         ])
 
-        # Gather the datapath information for each datapath
+    def collect_datapath(self):
+        """ Gather the datapath information for each datapath """
         dp_list_result = self.collect_cmd_output('ovs-appctl dpctl/dump-dps')
         if dp_list_result['status'] == 0:
-            for dp in dp_list_result['output'].splitlines():
+            for dps in dp_list_result['output'].splitlines():
                 self.add_cmd_output([
-                    "%s dpctl/show -s %s" % (actl, dp),
-                    "%s dpctl/dump-flows -m %s" % (actl, dp),
-                    "%s dpctl/dump-conntrack -m %s" % (actl, dp),
-                    "%s dpctl/ct-stats-show -m %s" % (actl, dp),
-                    "%s dpctl/ipf-get-status %s" % (actl, dp),
+                    "%s dpctl/show -s %s" % (self.actl, dps),
+                    "%s dpctl/dump-flows -m %s" % (self.actl, dps),
+                    "%s dpctl/dump-conntrack -m %s" % (self.actl, dps),
+                    "%s dpctl/ct-stats-show -m %s" % (self.actl, dps),
+                    "%s dpctl/ipf-get-status %s" % (self.actl, dps),
                 ])
 
-        # Gather additional output for each OVS bridge on the host.
+    def collect_ovs_bridge_info(self):
+        """ Gather additional output for each OVS bridge on the host. """
+
         br_list_result = self.collect_cmd_output("ovs-vsctl -t 5 list-br")
-        ofp_ver_result = self.collect_cmd_output("ovs-ofctl -t 5 --version")
-        if br_list_result['status'] == 0:
-            for br in br_list_result['output'].splitlines():
+        if br_list_result['status'] != 0:
+            return
+
+        for bri in br_list_result['output'].splitlines():
+            self.add_cmd_output([
+                "%s bridge/dump-flows --offload-stats %s" % (self.actl, bri),
+                "%s dpif/show-dp-features %s" % (self.actl, bri),
+                "%s fdb/show %s" % (self.actl, bri),
+                "%s fdb/stats-show %s" % (self.actl, bri),
+                "%s mdb/show %s" % (self.actl, bri),
+                "ovs-ofctl dump-flows %s" % bri,
+                "ovs-ofctl dump-ports-desc %s" % bri,
+                "ovs-ofctl dump-ports %s" % bri,
+                "ovs-ofctl queue-get-config %s" % bri,
+                "ovs-ofctl queue-stats %s" % bri,
+                "ovs-ofctl show %s" % bri,
+                "ovs-ofctl dump-groups %s" % bri,
+            ])
+
+            self.get_flow_versions(bri)
+
+            self.get_port_list(bri)
+
+            if self.check_dpdk:
+                iface_list_result = self.exec_cmd(
+                    "ovs-vsctl -t 5 list-ifaces %s" % bri
+                )
+                if iface_list_result['status'] == 0:
+                    for iface in iface_list_result['output'].splitlines():
+                        self.add_cmd_output(
+                            "ovs-appctl netdev-dpdk/get-mempool-info %s" %
+                            iface)
+            if self.check_6wind:
                 self.add_cmd_output([
-                    "%s bridge/dump-flows --offload-stats %s" % (actl, br),
-                    "%s dpif/show-dp-features %s" % (actl, br),
-                    "%s fdb/show %s" % (actl, br),
-                    "%s fdb/stats-show %s" % (actl, br),
-                    "%s mdb/show %s" % (actl, br),
-                    "ovs-ofctl dump-flows %s" % br,
-                    "ovs-ofctl dump-ports-desc %s" % br,
-                    "ovs-ofctl dump-ports %s" % br,
-                    "ovs-ofctl queue-get-config %s" % br,
-                    "ovs-ofctl queue-stats %s" % br,
-                    "ovs-ofctl show %s" % br,
-                    "ovs-ofctl dump-groups %s" % br,
+                    "%s evpn/vip-list-show %s" % (self.actl, bri),
+                    "%s bridge/dump-conntracks-summary %s" % (self.actl, bri),
+                    "%s bridge/acl-table ingress/egress %s" % (self.actl, bri),
+                    "%s bridge/acl-table %s" % (self.actl, bri),
+                    "%s ofproto/show %s" % (self.actl, bri),
                 ])
 
-                # Flow protocols currently supported
-                flow_versions = [
-                    "OpenFlow10",
-                    "OpenFlow11",
-                    "OpenFlow12",
-                    "OpenFlow13",
-                    "OpenFlow14",
-                    "OpenFlow15"
-                ]
-
-                # Flow protocol hex identifiers
-                ofp_versions = {
-                    0x01: "OpenFlow10",
-                    0x02: "OpenFlow11",
-                    0x03: "OpenFlow12",
-                    0x04: "OpenFlow13",
-                    0x05: "OpenFlow14",
-                    0x06: "OpenFlow15",
-                }
-
-                # List protocols currently in use, if any
-                ovs_list_bridge_cmd = "ovs-vsctl -t 5 list bridge %s" % br
-                br_info = self.collect_cmd_output(ovs_list_bridge_cmd)
-
-                br_protos = []
-                for line in br_info['output'].splitlines():
-                    if "protocols" in line:
-                        br_protos_ln = line[line.find("[")+1:line.find("]")]
-                        br_protos = br_protos_ln.replace('"', '').split(", ")
-
-                # If 'list bridge' yeilded no protocols, use the range of
-                # protocols enabled by default on this version of ovs.
-                if br_protos == [''] and ofp_ver_result['output']:
-                    ofp_version_range = ofp_ver_result['output'].splitlines()
-                    ver_range = []
-
-                    for line in ofp_version_range:
-                        if "OpenFlow versions" in line:
-                            v = line.split("OpenFlow versions ")[1].split(":")
-                            ver_range = range(int(v[0], 16), int(v[1], 16)+1)
-
-                    for protocol in ver_range:
-                        if protocol in ofp_versions:
-                            br_protos.append(ofp_versions[protocol])
-
-                # Collect flow information for relevant protocol versions only
-                for flow in flow_versions:
-                    if flow in br_protos:
+                vrf_list = self.collect_cmd_output(
+                    "%s vrf/list %s" % (self.actl, bri))
+                if vrf_list['status'] == 0:
+                    vrfs = vrf_list['output'].split()[1:]
+                    for vrf in vrfs:
                         self.add_cmd_output([
-                            "ovs-ofctl -O %s show %s" % (flow, br),
-                            "ovs-ofctl -O %s dump-groups %s" % (flow, br),
-                            "ovs-ofctl -O %s dump-group-stats %s" % (flow, br),
-                            "ovs-ofctl -O %s dump-flows %s" % (flow, br),
-                            "ovs-ofctl -O %s dump-tlv-map %s" % (flow, br),
-                            "ovs-ofctl -O %s dump-ports-desc %s" % (flow, br)
+                            "%s vrf/route-table %s" % (self.actl, vrf),
                         ])
 
-                port_list_result = self.exec_cmd(
-                    "ovs-vsctl -t 5 list-ports %s" % br
-                )
-                if port_list_result['status'] == 0:
-                    for port in port_list_result['output'].splitlines():
+                evpn_list = self.collect_cmd_output(
+                    "ovs-appctl evpn/list %s" % bri)
+                if evpn_list['status'] == 0:
+                    evpns = evpn_list['output'].split()[1:]
+                    for evpn in evpns:
                         self.add_cmd_output([
-                            "ovs-appctl cfm/show %s" % port,
-                            "ovs-appctl qos/show %s" % port,
-                            # Not all ports are "bond"s, but all "bond"s are
-                            # a single port
-                            "ovs-appctl bond/show %s" % port,
-                            # In the case of IPSec, we should pull the config
-                            "ovs-vsctl get Interface %s options" % port,
+                            f"{self.actl} evpn/mac-table {evpn}",
+                            f"{self.actl} evpn/arp-table {evpn}",
+                            f"{self.actl} evpn/dump-flows {bri} {evpn}",
+                            f"{self.actl} evpn/dhcp-pool-show {bri} {evpn}",
+                            f"{self.actl} evpn/dhcp-relay-show {bri} {evpn}",
+                            f"{self.actl} evpn/dhcp-static-show {bri} {evpn}",
+                            f"{self.actl} evpn/dhcp-table-show {bri} {evpn}",
+                            f"{self.actl} evpn/proxy-arp-filter-list "
+                            f"{bri} {evpn}",
+                            f"{self.actl} evpn/show {bri} {evpn}",
+                            f"{self.actl} port/dscp-table {bri} {evpn}",
                         ])
 
-                        if check_dpdk:
-                            self.add_cmd_output(
-                                "ovs-appctl netdev-dpdk/get-mempool-info %s" %
-                                port
-                            )
+    def get_flow_versions(self, bridge):
+        """ Collect flow version of the given bridge """
+        # Flow protocols currently supported
+        flow_versions = [
+            "OpenFlow10",
+            "OpenFlow11",
+            "OpenFlow12",
+            "OpenFlow13",
+            "OpenFlow14",
+            "OpenFlow15"
+        ]
 
-                if check_dpdk:
-                    iface_list_result = self.exec_cmd(
-                        "ovs-vsctl -t 5 list-ifaces %s" % br
-                    )
-                    if iface_list_result['status'] == 0:
-                        for iface in iface_list_result['output'].splitlines():
-                            self.add_cmd_output(
-                                "ovs-appctl netdev-dpdk/get-mempool-info %s" %
-                                iface)
-                if check_6wind:
-                    self.add_cmd_output([
-                        "%s evpn/vip-list-show %s" % (actl, br),
-                        "%s bridge/dump-conntracks-summary %s" % (actl, br),
-                        "%s bridge/acl-table ingress/egress %s" % (actl, br),
-                        "%s bridge/acl-table %s" % (actl, br),
-                        "%s ofproto/show %s" % (actl, br),
+        # Flow protocol hex identifiers
+        ofp_versions = {
+            0x01: "OpenFlow10",
+            0x02: "OpenFlow11",
+            0x03: "OpenFlow12",
+            0x04: "OpenFlow13",
+            0x05: "OpenFlow14",
+            0x06: "OpenFlow15",
+        }
+
+        ofp_ver_result = self.collect_cmd_output("ovs-ofctl -t 5 --version")
+
+        # List protocols currently in use, if any
+        br_info = self.collect_cmd_output(f"ovs-vsctl -t 5 list "
+                                          f"bridge {bridge}")
+
+        br_protos = []
+        for line in br_info['output'].splitlines():
+            if "protocols" in line:
+                br_protos_ln = line[line.find("[")+1:line.find("]")]
+                br_protos = br_protos_ln.replace('"', '').split(", ")
+
+        # If 'list bridge' yeilded no protocols, use the range of
+        # protocols enabled by default on this version of ovs.
+        if br_protos == [''] and ofp_ver_result['output']:
+            ofp_version_range = ofp_ver_result['output'].splitlines()
+            ver_range = []
+
+            for line in ofp_version_range:
+                if "OpenFlow versions" in line:
+                    ver_sp = line.split("OpenFlow versions ")
+                    ver = ver_sp[1].split(":")
+                    ver_range = range(int(ver[0], 16),
+                                      int(ver[1], 16)+1)
+
+            for protocol in ver_range:
+                if protocol in ofp_versions:
+                    br_protos.append(ofp_versions[protocol])
+
+        # Collect flow information for relevant protocol versions only
+        for flow in flow_versions:
+            if flow in br_protos:
+                self.add_cmd_output([
+                    f"ovs-ofctl -O {flow} show {bridge}",
+                    f"ovs-ofctl -O {flow} dump-groups {bridge}",
+                    f"ovs-ofctl -O {flow} dump-group-stats {bridge}",
+                    f"ovs-ofctl -O {flow} dump-flows {bridge}",
+                    f"ovs-ofctl -O {flow} dump-tlv-map {bridge}",
+                    f"ovs-ofctl -O {flow}  dump-ports-desc {bridge}",
+                ])
+
+    def get_port_list(self, bridge):
+        """ Collect port list of the given bridge """
+        port_list_result = self.exec_cmd(f"ovs-vsctl -t 5 list-ports {bridge}")
+
+        if port_list_result['status'] == 0:
+            for port in port_list_result['output'].splitlines():
+                self.add_cmd_output([
+                    "ovs-appctl cfm/show %s" % port,
+                    "ovs-appctl qos/show %s" % port,
+                    # Not all ports are "bond"s, but all "bond"s are
+                    # a single port
+                    "ovs-appctl bond/show %s" % port,
+                    # In the case of IPSec, we should pull the config
+                    "ovs-vsctl get Interface %s options" % port,
                     ])
 
-                    vrf_list = self.collect_cmd_output(
-                        "%s vrf/list %s" % (actl, br))
-                    if vrf_list['status'] == 0:
-                        vrfs = vrf_list['output'].split()[1:]
-                        for vrf in vrfs:
-                            self.add_cmd_output([
-                                "%s vrf/route-table %s" % (actl, vrf),
-                            ])
-
-                    evpn_list = self.collect_cmd_output(
-                        "ovs-appctl evpn/list %s" % br)
-                    if evpn_list['status'] == 0:
-                        evpns = evpn_list['output'].split()[1:]
-                        for evpn in evpns:
-                            self.add_cmd_output([
-                                "%s evpn/mac-table %s" % (actl, evpn),
-                                "%s evpn/arp-table %s" % (actl, evpn),
-                                "%s evpn/dump-flows %s %s" % (actl, br, evpn),
-                                "%s evpn/dhcp-pool-show %s %s" % (
-                                    actl, br, evpn),
-                                "%s evpn/dhcp-relay-show %s %s" % (
-                                    actl, br, evpn),
-                                "%s evpn/dhcp-static-show %s %s" % (
-                                    actl, br, evpn),
-                                "%s evpn/dhcp-table-show %s %s" % (
-                                    actl, br, evpn),
-                                "%s evpn/proxy-arp-filter-list %s %s" % (
-                                    actl, br, evpn),
-                                "%s evpn/show %s %s" % (actl, br, evpn),
-                                "%s port/dscp-table %s %s" % (actl, br, evpn),
-                            ])
+                if self.check_dpdk:
+                    self.add_cmd_output(
+                        "ovs-appctl netdev-dpdk/get-mempool-info %s" % port)
 
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):

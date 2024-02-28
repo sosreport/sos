@@ -67,8 +67,8 @@ class Ovirt(Plugin, RedHatPlugin):
         if self.get_option('jbosstrace') and self.is_installed('ovirt-engine'):
             engine_pattern = r"^ovirt-engine\ -server.*jboss-modules.jar"
             pgrep = "pgrep -f '%s'" % engine_pattern
-            r = self.exec_cmd(pgrep)
-            engine_pids = [int(x) for x in r['output'].splitlines()]
+            res = self.exec_cmd(pgrep)
+            engine_pids = [int(x) for x in res['output'].splitlines()]
             if not engine_pids:
                 self.soslog.error('Unable to get ovirt-engine pid')
                 self.add_alert('Unable to get ovirt-engine pid')
@@ -76,8 +76,8 @@ class Ovirt(Plugin, RedHatPlugin):
                 try:
                     # backtrace written to '/var/log/ovirt-engine/console.log
                     os.kill(pid, signal.SIGQUIT)
-                except OSError as e:
-                    self.soslog.error('Unable to send signal to %d' % pid, e)
+                except OSError:
+                    self.soslog.error(f'Unable to send signal to {pid}')
 
         self.add_forbidden_path([
             '/etc/ovirt-engine/.pgpass',
@@ -188,10 +188,10 @@ class Ovirt(Plugin, RedHatPlugin):
         """
         Obfuscate sensitive keys.
         """
-        for f in ["/etc/ovirt-engine/engine-config/engine-config.properties",
-                  "/etc/rhevm/rhevm-config/rhevm-config.properties"]:
+        for pro in ["/etc/ovirt-engine/engine-config/engine-config.properties",
+                    "/etc/rhevm/rhevm-config/rhevm-config.properties"]:
             self.do_file_sub(
-                f,
+                pro,
                 r"(Password.type)=(.*)",
                 r"\1=********"
             )

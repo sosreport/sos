@@ -9,8 +9,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 import os
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class OpenStackHeat(Plugin):
@@ -98,6 +98,7 @@ class OpenStackHeat(Plugin):
         })
 
     def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
         self.do_path_regex_sub(
             "/etc/heat/*",
             regexp, subst)
