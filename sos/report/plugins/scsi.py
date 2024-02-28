@@ -63,6 +63,7 @@ class Scsi(Plugin, IndependentPlugin):
 
         scsi_hosts = glob("/sys/class/scsi_host/*")
         self.add_device_cmd("udevadm info -a %(dev)s", devices=scsi_hosts)
+        self.add_device_cmd("udevadm info -a %(dev)s", devices="tape")
 
         self.add_device_cmd([
             "sg_persist --in -k -d %(dev)s",
