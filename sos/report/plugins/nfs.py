@@ -36,6 +36,11 @@ class Nfs(Plugin, IndependentPlugin):
             "nfsstat -o all",
             "exportfs -v",
             "nfsdclnts",
+            "nfsconf -d",
+            "mountstats -n",
+            "mountstats -r",
+            "mountstats -x",
+            "rpcctl xprt show",
         ])
 
 
