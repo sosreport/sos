@@ -30,7 +30,7 @@ class Pam(Plugin):
             "/etc/security"
         ])
         self.add_cmd_output([
-            "ls -lanF %s" % self.security_libs,
+            f"ls -lanF {self.security_libs}",
             "pam_tally2",
             "faillock"
         ])

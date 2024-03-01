@@ -34,10 +34,10 @@ class OpenStackSwift(Plugin):
 
         self.add_copy_spec([
             "/etc/swift/",
-            self.var_puppet_gen + "/swift/etc/*",
-            self.var_puppet_gen + "/swift/etc/swift/*",
-            self.var_puppet_gen + "/swift/etc/xinetd.d/*",
-            self.var_puppet_gen + "/memcached/etc/sysconfig/memcached"
+            f"{self.var_puppet_gen}/swift/etc/*",
+            f"{self.var_puppet_gen}/swift/etc/swift/*",
+            f"{self.var_puppet_gen}/swift/etc/xinetd.d/*",
+            f"{self.var_puppet_gen}/memcached/etc/sysconfig/memcached",
         ])
 
         self.add_file_tags({
@@ -61,13 +61,14 @@ class OpenStackSwift(Plugin):
         ]
         connection_keys = ["connection", "sql_connection"]
 
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

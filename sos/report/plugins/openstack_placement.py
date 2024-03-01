@@ -33,11 +33,12 @@ class OpenStackPlacement(Plugin):
             placement_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
-                placement_config = "--config-dir " + self.var_puppet_gen + \
-                                "/etc/placement/"
+                placement_config = (
+                    f"--config-dir {self.var_puppet_gen}/etc/placement/"
+                )
             self.add_cmd_output(
-                "placement-manage " + placement_config + " db version",
-                suggest_filename="placement-manage_db_version"
+                f"placement-manage {placement_config} db version",
+                suggest_filename="placement-manage_db_version",
             )
 
             vars_all = [p in os.environ for p in [
@@ -88,17 +89,17 @@ class OpenStackPlacement(Plugin):
 
         self.add_copy_spec([
             "/etc/placement/",
-            self.var_puppet_gen + "/etc/placement/",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
-            self.var_puppet_gen + "/etc/httpd/conf/",
-            self.var_puppet_gen + "/etc/httpd/conf.d/",
-            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
+            f"{self.var_puppet_gen}/etc/placement/",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+            f"{self.var_puppet_gen}/etc/httpd/conf/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
         ])
 
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/placement/*", regexp, subst)
         self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/placement/*",
+            f"{self.var_puppet_gen}/etc/placement/*",
             regexp, subst
         )
 
@@ -106,13 +107,14 @@ class OpenStackPlacement(Plugin):
         protect_keys = ["password", "memcache_secret_key"]
         connection_keys = ["database_connection", "slave_connection"]
 
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

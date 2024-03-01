@@ -59,7 +59,7 @@ class Kernel(Plugin, IndependentPlugin):
                                 suggest_filename="modinfo_ALL_MODULES",
                                 tags='modinfo_all')
         except OSError:
-            self._log_warn("could not list %s" % self.sys_module)
+            self._log_warn(f"could not list {self.sys_module}")
 
         # find /lib/modules/*/{extras,updates,weak-updates} -ls
         extra_mod_patterns = [
@@ -72,7 +72,7 @@ class Kernel(Plugin, IndependentPlugin):
             extra_mod_paths.extend(glob.glob(pattern))
 
         if extra_mod_paths:
-            self.add_cmd_output("find %s -ls" % " ".join(extra_mod_paths))
+            self.add_cmd_output(f'find {" ".join(extra_mod_paths)} -ls')
 
         self.add_cmd_output([
             "dmesg",
@@ -112,7 +112,7 @@ class Kernel(Plugin, IndependentPlugin):
             "/proc/buddyinfo",
             "/proc/slabinfo",
             "/proc/zoneinfo",
-            "/lib/modules/%s/modules.dep" % self.policy.kernel_version(),
+            f"/lib/modules/{self.policy.kernel_version()}/modules.dep",
             "/etc/conf.modules",
             "/etc/modules.conf",
             "/etc/modprobe.conf",
@@ -135,9 +135,9 @@ class Kernel(Plugin, IndependentPlugin):
             "/sys/kernel/debug/dynamic_debug/control",
             "/sys/kernel/debug/extfrag/unusable_index",
             "/sys/kernel/debug/extfrag/extfrag_index",
-            clocksource_path + "available_clocksource",
-            clocksource_path + "current_clocksource",
-            "/proc/pressure/"
+            f"{clocksource_path}available_clocksource",
+            f"{clocksource_path}current_clocksource",
+            "/proc/pressure/",
         ])
 
         if self.get_option("with-timer"):

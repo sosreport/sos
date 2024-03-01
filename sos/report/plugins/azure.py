@@ -54,17 +54,15 @@ class RedHatAzure(Azure, RedHatPlugin):
 
         if self.path_isfile('/etc/yum.repos.d/rh-cloud.repo'):
             curl_cmd = ('curl -s -m 5 -vvv '
-                        'https://rhui-%s.microsoft.com/pulp/repos/%s')
+                        'https://rhui-{}.microsoft.com/pulp/repos/{}')
             self.add_cmd_output([
-                curl_cmd % ('1', 'microsoft-azure-rhel7'),
-                curl_cmd % ('2', 'microsoft-azure-rhel7'),
-                curl_cmd % ('3', 'microsoft-azure-rhel7')
+                curl_cmd.format('1', 'microsoft-azure-rhel7'),
+                curl_cmd.format('2', 'microsoft-azure-rhel7'),
+                curl_cmd.format('3', 'microsoft-azure-rhel7')
             ])
 
         crt_path = '/etc/pki/rhui/product/content.crt'
         if self.path_isfile(crt_path):
-            self.add_cmd_output([
-                'openssl x509 -noout -text -in ' + crt_path
-            ])
+            self.add_cmd_output([f'openssl x509 -noout -text -in {crt_path}'])
 
 # vim: set et ts=4 sw=4 :

@@ -30,7 +30,7 @@ class CrioContainerRuntime(ContainerRuntime):
         :type get_all: ``bool``
         """
         containers = []
-        _cmd = "%s ps %s -o json" % (self.binary, '-a' if get_all else '')
+        _cmd = f"{self.binary} ps {'-a' if get_all else ''} -o json"
         if self.active:
             out = sos_get_command_output(_cmd, chroot=self.policy.sysroot)
             if out["status"] == 0:
@@ -49,7 +49,7 @@ class CrioContainerRuntime(ContainerRuntime):
         """
         images = []
         if self.active:
-            out = sos_get_command_output("%s images -o json" % self.binary,
+            out = sos_get_command_output(f"{self.binary} images -o json",
                                          chroot=self.policy.sysroot)
             if out['status'] == 0:
                 out_json = json.loads(out["output"])
@@ -63,7 +63,7 @@ class CrioContainerRuntime(ContainerRuntime):
                             image_name = "<none>"
                         else:
                             image_name = image["repoDigests"][0].split("@")[0]
-                        images.append((image_name + ":<none>", image["id"]))
+                        images.append((f"{image_name}:<none>", image["id"]))
         return images
 
     def fmt_container_cmd(self, container, cmd, quotecmd):
@@ -86,7 +86,8 @@ class CrioContainerRuntime(ContainerRuntime):
         else:
             quoted_cmd = cmd
         container_id = self.get_container_by_name(container)
-        return "%s %s %s" % (self.run_cmd, container_id,
-                             quoted_cmd) if container_id is not None else ''
+        msg = (f"{self.run_cmd} {container_id} {quoted_cmd}"
+               ) if container_id is not None else ''
+        return msg
 
 # vim: set et ts=4 sw=4 :

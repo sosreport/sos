@@ -95,9 +95,7 @@ class Vdsm(Plugin, RedHatPlugin):
         if qemu_pids:
             files = ["cmdline", "status", "mountstats"]
             self.add_copy_spec([
-                "/proc/%s/%s" % (pid, name)
-                for pid in qemu_pids
-                for name in files
+                f"/proc/{pid}/{name}" for pid in qemu_pids for name in files
             ])
         self.add_cmd_output([
             "ls -ldZ /etc/vdsm",
@@ -105,9 +103,9 @@ class Vdsm(Plugin, RedHatPlugin):
             "su vdsm -s /bin/sh -c 'ls -lR /rhev/data-center'"
         ])
         self.add_cmd_output([
-            "lvm vgs -v -o +tags --config \'%s\'" % LVM_CONFIG,
-            "lvm lvs -v -o +tags --config \'%s\'" % LVM_CONFIG,
-            "lvm pvs -v -o +all --config \'%s\'" % LVM_CONFIG
+            f"lvm vgs -v -o +tags --config \'{LVM_CONFIG}\'"
+            f"lvm lvs -v -o +tags --config \'{LVM_CONFIG}\'"
+            f"lvm pvs -v -o +all --config \'{LVM_CONFIG}\'"
         ])
 
         self.add_cmd_output([
@@ -133,22 +131,18 @@ class Vdsm(Plugin, RedHatPlugin):
                         f"storagepoolID={pool}"
                     )
         except ValueError as e:
-            self._log_error(
-                'vdsm-client Host getConnectedStoragePools: %s' % (e)
-            )
+            self._log_error(f'vdsm-client Host getConnectedStoragePools: {e}')
 
         try:
             res = self.collect_cmd_output('vdsm-client Host getStorageDomains')
             if res['status'] == 0:
                 sd_uuids = json.loads(res['output'])
-                dump_volume_chains_cmd = 'vdsm-tool dump-volume-chains %s'
+                dump_volume_chains_cmd = 'vdsm-tool dump-volume-chains {}'
                 self.add_cmd_output([
-                    dump_volume_chains_cmd % uuid for uuid in sd_uuids
+                    dump_volume_chains_cmd.format(uuid) for uuid in sd_uuids
                 ])
         except ValueError as e:
-            self._log_error(
-                'vdsm-client Host getStorageDomains: %s' % (e)
-            )
+            self._log_error(f'vdsm-client Host getStorageDomains: {e}')
 
     def _add_vdsm_forbidden_paths(self):
         """Add confidential sysprep vfds under /run/vdsm to

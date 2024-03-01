@@ -40,8 +40,8 @@ class SHMcli(Plugin, IndependentPlugin):
 
         for subcmd in subcmds:
             self.add_cmd_output(
-                "%s %s" % (cmd, subcmd),
-                suggest_filename="shmcli_%s" % (subcmd))
+                f"{cmd} {subcmd}", suggest_filename=f"shmcli_{subcmd}"
+            )
 
         models = []
 
@@ -68,7 +68,7 @@ class SHMcli(Plugin, IndependentPlugin):
         ]
 
         result = self.collect_cmd_output(
-            '%s list enclosures' % (cmd),
+            f'{cmd} list enclosures',
             suggest_filename='shmcli_list_enclosures'
         )
         if result['status'] == 0:
@@ -78,23 +78,23 @@ class SHMcli(Plugin, IndependentPlugin):
                     adapt_index = _line[-1]
                     enc_index = _line[0]
                     for subcmd in subcmds:
-                        _cmd = ("%s %s -a=%s -enc=%s"
-                                % (cmd, subcmd, adapt_index, enc_index))
+                        _cmd = (f"{cmd} {subcmd} -a={adapt_index} "
+                                f"-enc={enc_index}")
                         _fname = _cmd.replace(cmd, 'shmcli')
                         self.add_cmd_output(_cmd, suggest_filename=_fname)
                     if self.get_option('debug'):
                         logpath = self.get_cmd_output_path(make=False)
-                        _dcmd = ("%s getdebugcli -a=%s -enc=%s"
-                                 % (cmd, adapt_index, enc_index))
+                        _dcmd = (f"{cmd} getdebugcli -a={adapt_index} "
+                                 f"-enc={enc_index}")
                         _dname = _dcmd.replace(cmd, 'shmcli')
-                        _odir = (" -outputdir=%s" % (logpath))
+                        _odir = f" -outputdir={logpath}"
                         self.add_cmd_output(
                             _dcmd + _odir, suggest_filename=_dname,
                             timeout=300
                         )
 
         result = self.collect_cmd_output(
-            '%s list drives' % (cmd),
+            f'{cmd} list drives',
             suggest_filename='shmcli_list_drives'
         )
         if result['status'] == 0:
@@ -102,8 +102,7 @@ class SHMcli(Plugin, IndependentPlugin):
                 words = line.split()
                 if (len(words) > 6):
                     if (words[0] not in ['WWN', '---']):
-                        _cmd = ("%s info drive -d=%s"
-                                % (cmd, words[0]))
+                        _cmd = f"{cmd} info drive -d={words[0]}"
                         _fname = _cmd.replace(cmd, 'shmcli')
                         self.add_cmd_output(_cmd, suggest_filename=_fname)
 

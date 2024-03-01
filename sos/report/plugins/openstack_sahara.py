@@ -21,7 +21,7 @@ class OpenStackSahara(Plugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/sahara/",
-            self.var_puppet_gen + "/etc/sahara/"
+            f"{self.var_puppet_gen}/etc/sahara/"
         ])
         self.add_journal(units="openstack-sahara-all")
         self.add_journal(units="openstack-sahara-api")
@@ -39,8 +39,9 @@ class OpenStackSahara(Plugin):
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/sahara/*", regexp, subst)
         self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/sahara/*",
-            regexp, subst
+            f"{self.var_puppet_gen}/etc/sahara/*",
+            regexp,
+            subst
         )
 
     def postproc(self):
@@ -51,13 +52,14 @@ class OpenStackSahara(Plugin):
         ]
         connection_keys = ["connection"]
 
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

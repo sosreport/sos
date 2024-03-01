@@ -94,7 +94,7 @@ def _get_index(model_name):
                         for sub_key, sub_value in unit_info.get(
                             "subordinates", {}
                         ).items():
-                            if sub_key.startswith(app + "/"):
+                            if sub_key.startswith(f"{app}/"):
                                 self.units[sub_key] = [node]
 
         def add_machines(self, juju_status):

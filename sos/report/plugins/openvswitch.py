@@ -210,7 +210,7 @@ class OpenVSwitch(Plugin):
             ])
             self.add_journal(units="virtual-accelerator")
             for table in ['filter', 'mangle', 'raw', 'nat']:
-                self.add_cmd_output(["fpcmd nf4-rules %s" % table])
+                self.add_cmd_output([f"fpcmd nf4-rules {table}"])
 
             # 6wind doesn't care on which bridge the ports are, there's only
             # one bridge and it's alubr0
@@ -220,20 +220,20 @@ class OpenVSwitch(Plugin):
                     m = re.match(r'^([\d]+):[\s]+([^\s]+)', port)
                     if m:
                         port_name = m.group(2)
-                        self.add_cmd_output([
-                            "fp-cli dpdk-cp-filter-budget %s" % port_name,
-                        ])
+                        self.add_cmd_output(
+                            [f"fp-cli dpdk-cp-filter-budget {port_name}"]
+                        )
 
         # Gather the datapath information for each datapath
         dp_list_result = self.collect_cmd_output('ovs-appctl dpctl/dump-dps')
         if dp_list_result['status'] == 0:
             for dp in dp_list_result['output'].splitlines():
                 self.add_cmd_output([
-                    "%s dpctl/show -s %s" % (actl, dp),
-                    "%s dpctl/dump-flows -m %s" % (actl, dp),
-                    "%s dpctl/dump-conntrack -m %s" % (actl, dp),
-                    "%s dpctl/ct-stats-show -m %s" % (actl, dp),
-                    "%s dpctl/ipf-get-status %s" % (actl, dp),
+                    f"{actl} dpctl/show -s {dp}",
+                    f"{actl} dpctl/dump-flows -m {dp}",
+                    f"{actl} dpctl/dump-conntrack -m {dp}",
+                    f"{actl} dpctl/ct-stats-show -m {dp}",
+                    f"{actl} dpctl/ipf-get-status {dp}",
                 ])
 
         # Gather additional output for each OVS bridge on the host.
@@ -242,18 +242,18 @@ class OpenVSwitch(Plugin):
         if br_list_result['status'] == 0:
             for br in br_list_result['output'].splitlines():
                 self.add_cmd_output([
-                    "%s bridge/dump-flows --offload-stats %s" % (actl, br),
-                    "%s dpif/show-dp-features %s" % (actl, br),
-                    "%s fdb/show %s" % (actl, br),
-                    "%s fdb/stats-show %s" % (actl, br),
-                    "%s mdb/show %s" % (actl, br),
-                    "ovs-ofctl dump-flows %s" % br,
-                    "ovs-ofctl dump-ports-desc %s" % br,
-                    "ovs-ofctl dump-ports %s" % br,
-                    "ovs-ofctl queue-get-config %s" % br,
-                    "ovs-ofctl queue-stats %s" % br,
-                    "ovs-ofctl show %s" % br,
-                    "ovs-ofctl dump-groups %s" % br,
+                    f"{actl} bridge/dump-flows --offload-stats {br}",
+                    f"{actl} dpif/show-dp-features {br}",
+                    f"{actl} fdb/show {br}",
+                    f"{actl} fdb/stats-show {br}",
+                    f"{actl} mdb/show {br}",
+                    f"ovs-ofctl dump-flows {br}",
+                    f"ovs-ofctl dump-ports-desc {br}",
+                    f"ovs-ofctl dump-ports {br}",
+                    f"ovs-ofctl queue-get-config {br}",
+                    f"ovs-ofctl queue-stats {br}",
+                    f"ovs-ofctl show {br}",
+                    f"ovs-ofctl dump-groups {br}",
                 ])
 
                 # Flow protocols currently supported
@@ -277,7 +277,7 @@ class OpenVSwitch(Plugin):
                 }
 
                 # List protocols currently in use, if any
-                ovs_list_bridge_cmd = "ovs-vsctl -t 5 list bridge %s" % br
+                ovs_list_bridge_cmd = f"ovs-vsctl -t 5 list bridge {br}"
                 br_info = self.collect_cmd_output(ovs_list_bridge_cmd)
 
                 br_protos = []
@@ -305,83 +305,81 @@ class OpenVSwitch(Plugin):
                 for flow in flow_versions:
                     if flow in br_protos:
                         self.add_cmd_output([
-                            "ovs-ofctl -O %s show %s" % (flow, br),
-                            "ovs-ofctl -O %s dump-groups %s" % (flow, br),
-                            "ovs-ofctl -O %s dump-group-stats %s" % (flow, br),
-                            "ovs-ofctl -O %s dump-flows %s" % (flow, br),
-                            "ovs-ofctl -O %s dump-tlv-map %s" % (flow, br),
-                            "ovs-ofctl -O %s dump-ports-desc %s" % (flow, br)
+                            f"ovs-ofctl -O {flow} show {br}",
+                            f"ovs-ofctl -O {flow} dump-groups {br}",
+                            f"ovs-ofctl -O {flow} dump-group-stats {br}",
+                            f"ovs-ofctl -O {flow} dump-flows {br}",
+                            f"ovs-ofctl -O {flow} dump-tlv-map {br}",
+                            f"ovs-ofctl -O {flow} dump-ports-desc {br}",
                         ])
 
                 port_list_result = self.exec_cmd(
-                    "ovs-vsctl -t 5 list-ports %s" % br
+                    f"ovs-vsctl -t 5 list-ports {br}"
                 )
                 if port_list_result['status'] == 0:
                     for port in port_list_result['output'].splitlines():
                         self.add_cmd_output([
-                            "ovs-appctl cfm/show %s" % port,
-                            "ovs-appctl qos/show %s" % port,
+                            f"ovs-appctl cfm/show {port}",
+                            f"ovs-appctl qos/show {port}",
                             # Not all ports are "bond"s, but all "bond"s are
                             # a single port
-                            "ovs-appctl bond/show %s" % port,
+                            f"ovs-appctl bond/show {port}",
                             # In the case of IPSec, we should pull the config
-                            "ovs-vsctl get Interface %s options" % port,
+                            f"ovs-vsctl get Interface {port} options",
                         ])
 
                         if check_dpdk:
                             self.add_cmd_output(
-                                "ovs-appctl netdev-dpdk/get-mempool-info %s" %
-                                port
+                                "ovs-appctl netdev-dpdk/get-mempool-info"
+                                f" {port}"
                             )
 
                 if check_dpdk:
                     iface_list_result = self.exec_cmd(
-                        "ovs-vsctl -t 5 list-ifaces %s" % br
+                        f"ovs-vsctl -t 5 list-ifaces {br}"
                     )
                     if iface_list_result['status'] == 0:
                         for iface in iface_list_result['output'].splitlines():
                             self.add_cmd_output(
-                                "ovs-appctl netdev-dpdk/get-mempool-info %s" %
-                                iface)
+                                "ovs-appctl netdev-dpdk/get-mempool-info"
+                                f" {iface}"
+                            )
                 if check_6wind:
                     self.add_cmd_output([
-                        "%s evpn/vip-list-show %s" % (actl, br),
-                        "%s bridge/dump-conntracks-summary %s" % (actl, br),
-                        "%s bridge/acl-table ingress/egress %s" % (actl, br),
-                        "%s bridge/acl-table %s" % (actl, br),
-                        "%s ofproto/show %s" % (actl, br),
+                        f"{actl} evpn/vip-list-show {br}",
+                        f"{actl} bridge/dump-conntracks-summary {br}",
+                        f"{actl} bridge/acl-table ingress/egress {br}",
+                        f"{actl} bridge/acl-table {br}",
+                        f"{actl} ofproto/show {br}",
                     ])
 
-                    vrf_list = self.collect_cmd_output(
-                        "%s vrf/list %s" % (actl, br))
+                    vrf_list = self.collect_cmd_output(f"{actl} vrf/list {br}")
                     if vrf_list['status'] == 0:
                         vrfs = vrf_list['output'].split()[1:]
                         for vrf in vrfs:
-                            self.add_cmd_output([
-                                "%s vrf/route-table %s" % (actl, vrf),
-                            ])
+                            self.add_cmd_output(
+                                [f"{actl} vrf/route-table {vrf}"]
+                            )
 
                     evpn_list = self.collect_cmd_output(
-                        "ovs-appctl evpn/list %s" % br)
+                        f"ovs-appctl evpn/list {br}"
+                    )
                     if evpn_list['status'] == 0:
                         evpns = evpn_list['output'].split()[1:]
                         for evpn in evpns:
                             self.add_cmd_output([
-                                "%s evpn/mac-table %s" % (actl, evpn),
-                                "%s evpn/arp-table %s" % (actl, evpn),
-                                "%s evpn/dump-flows %s %s" % (actl, br, evpn),
-                                "%s evpn/dhcp-pool-show %s %s" % (
-                                    actl, br, evpn),
-                                "%s evpn/dhcp-relay-show %s %s" % (
-                                    actl, br, evpn),
-                                "%s evpn/dhcp-static-show %s %s" % (
-                                    actl, br, evpn),
-                                "%s evpn/dhcp-table-show %s %s" % (
-                                    actl, br, evpn),
-                                "%s evpn/proxy-arp-filter-list %s %s" % (
-                                    actl, br, evpn),
-                                "%s evpn/show %s %s" % (actl, br, evpn),
-                                "%s port/dscp-table %s %s" % (actl, br, evpn),
+                                f"{actl} evpn/mac-table {evpn}",
+                                f"{actl} evpn/arp-table {evpn}",
+                                f"{actl} evpn/dump-flows {br} {evpn}",
+                                f"{actl} evpn/dhcp-pool-show {br} {evpn}",
+                                f"{actl} evpn/dhcp-relay-show {br} {evpn}",
+                                f"{actl} evpn/dhcp-static-show"
+                                f" {br} {evpn}",
+                                f"{actl} evpn/dhcp-table-show {br} {evpn}",
+                                f"{actl} evpn/proxy-arp-filter-list"
+                                f" {br} {evpn}",
+                                f"{actl} evpn/show {br} {evpn}",
+                                f"{actl} port/dscp-table {br} {evpn}",
                             ])
 
 

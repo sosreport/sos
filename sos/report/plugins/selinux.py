@@ -55,7 +55,7 @@ class SELinux(Plugin, RedHatPlugin, UbuntuPlugin):
             ]
 
             for subcmd in subcmds:
-                self.add_cmd_output("semanage %s -l" % subcmd)
+                self.add_cmd_output(f"semanage {subcmd} -l")
 
             if self.get_option('fixfiles'):
                 self.add_cmd_output("restorecon -Rvn /", stderr=False,

@@ -34,7 +34,7 @@ class LocalTransport(RemoteTransport):
         return True
 
     def _retrieve_file(self, fname, dest):
-        self.log_debug("Moving %s to %s" % (fname, dest))
+        self.log_debug(f"Moving {fname} to {dest}")
         shutil.copy(fname, dest)
         return True
 
@@ -45,7 +45,7 @@ class LocalTransport(RemoteTransport):
         if os.path.exists(fname):
             with open(fname, 'r') as rfile:
                 return rfile.read()
-        self.log_debug("No such file: %s" % fname)
+        self.log_debug(f"No such file: {fname}")
         return ''
 
 # vim: set et ts=4 sw=4 :

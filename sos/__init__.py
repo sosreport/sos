@@ -111,9 +111,9 @@ class SoS():
             _com_subparser = self.subparsers.add_parser(
                 comp,
                 aliases=self._components[comp][1],
-                prog="sos %s" % comp
+                prog=f"sos {comp}"
             )
-            _com_subparser.usage = "sos %s [options]" % comp
+            _com_subparser.usage = f"sos {comp} [options]"
             _com_subparser.register('action', 'extend', SosListOption)
             self._add_common_options(_com_subparser)
             self._components[comp][0].add_parser_options(parser=_com_subparser)
@@ -174,7 +174,7 @@ class SoS():
         """
         _com = self.args.component
         if _com not in self._components.keys():
-            print("Unknown subcommand '%s' specified" % _com)
+            print(f"Unknown subcommand '{_com}' specified")
         try:
             _to_load = self._components[_com][0]
             if _to_load.root_required and not os.getuid() == 0:
@@ -182,7 +182,7 @@ class SoS():
             self._component = _to_load(self.parser, self.args, self.cmdline)
 
         except Exception as err:
-            print("Could not initialize '%s': %s" % (_com, err))
+            print(f"Could not initialize '{_com}': {err}")
             if self.args.debug:
                 raise err
             sys.exit(1)

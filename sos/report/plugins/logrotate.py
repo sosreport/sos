@@ -26,10 +26,10 @@ class LogRotate(Plugin, IndependentPlugin):
             "/etc/logrotate*",
             "/var/lib/logrotate.status",
             "/var/lib/logrotate/logrotate.status",
-            self.var_puppet_gen + "/etc/logrotate-crond.conf",
-            self.var_puppet_gen + "/var/spool/cron/root",
-            self.var_ansible_gen + "/etc/logrotate-crond.conf",
-            self.var_ansible_gen + "/var/spool/cron/root"
+            f"{self.var_puppet_gen}/etc/logrotate-crond.conf",
+            f"{self.var_puppet_gen}/var/spool/cron/root",
+            f"{self.var_ansible_gen}/etc/logrotate-crond.conf",
+            f"{self.var_ansible_gen}/var/spool/cron/root",
         ])
 
 # vim: set et ts=4 sw=4 :

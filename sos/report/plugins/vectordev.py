@@ -31,8 +31,9 @@ class VectorDev(Plugin, IndependentPlugin):
             "tls.key_pass",
         ]
 
+        keys = "|".join(protect_keys)
         # Redact yaml and ini style "key (:|=) value".
-        keys_regex = r"(^\s*(%s)\s*(:|=)\s*)(.*)" % "|".join(protect_keys)
+        keys_regex = rf"(^\s*({keys})\s*(:|=)\s*)(.*)"
         sub_regex = r"\1*********"
         self.do_path_regex_sub(vector_config_path, keys_regex, sub_regex)
         # Redact certificates

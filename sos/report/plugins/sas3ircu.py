@@ -32,7 +32,7 @@ class SAS3ircu(Plugin, IndependentPlugin):
             # for each adapter get some basic info
             for sas_info in sas_lst:
                 sas_num = sas_info.split()[0]
-                self.add_cmd_output("sas3ircu %s display" % sas_num, timeout=5)
-                self.add_cmd_output("sas3ircu %s status" % sas_num, timeout=5)
+                self.add_cmd_output(f"sas3ircu {sas_num} display", timeout=5)
+                self.add_cmd_output(f"sas3ircu {sas_num} status", timeout=5)
 
 # vim: et ts=4 sw=4

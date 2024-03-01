@@ -58,14 +58,15 @@ class PulpCore(Plugin, IndependentPlugin):
                         continue
                     # example HOST line to parse:
                     #         'HOST': 'localhost',
-                    pattern = r"\s*['|\"]%s['|\"]\s*:\s*\S+"
-                    if databases_scope and match(pattern % 'HOST', line):
+                    pattern = r"\s*['|\"]{}['|\"]\s*:\s*\S+"
+                    if databases_scope and match(pattern.format('HOST'), line):
                         self.dbhost = separate_value(line)
-                    if databases_scope and match(pattern % 'PORT', line):
+                    if databases_scope and match(pattern.format('PORT'), line):
                         self.dbport = separate_value(line)
-                    if databases_scope and match(pattern % 'NAME', line):
+                    if databases_scope and match(pattern.format('NAME'), line):
                         self.dbname = separate_value(line)
-                    if databases_scope and match(pattern % 'PASSWORD', line):
+                    if databases_scope and match(pattern.format('PASSWORD'),
+                                                 line):
                         self.dbpasswd = separate_value(line)
                     # if line contains closing '}' database_scope end
                     if databases_scope and '}' in line:
@@ -99,14 +100,14 @@ class PulpCore(Plugin, IndependentPlugin):
                         "DJANGO_SETTINGS_MODULE": "pulpcore.app.settings"}
         self.add_cmd_output("dynaconf list", env=dynaconf_env)
         for _dir in [self.staticroot, self.uploaddir]:
-            self.add_cmd_output("ls -l %s" % _dir)
+            self.add_cmd_output(f"ls -l {_dir}")
 
         task_days = self.get_option('task-days')
         for table in ['core_task', 'core_taskgroup',
                       'core_groupprogressreport', 'core_progressreport']:
-            _query = "select * from %s where pulp_last_updated > NOW() - " \
-                     "interval '%s days' order by pulp_last_updated" % \
-                     (table, task_days)
+            _query = (f"select * from {table} where pulp_last_updated > NOW()"
+                      f" - interval '{task_days} days' order by "
+                      "pulp_last_updated")
             _cmd = self.build_query_cmd(_query)
             self.add_cmd_output(_cmd, env=self.env, suggest_filename=table)
 
@@ -138,10 +139,11 @@ class PulpCore(Plugin, IndependentPlugin):
         a large amount of quoting in sos logs referencing the command being run
         """
         if csv:
-            query = "COPY (%s) TO STDOUT " \
-                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)" % query
-        _dbcmd = "psql --no-password -h %s -p %s -U pulp -d %s -c %s"
-        return _dbcmd % (self.dbhost, self.dbport, self.dbname, quote(query))
+            query = (f"COPY ({query}) TO STDOUT "
+                     "WITH (FORMAT 'csv', DELIMITER ',', HEADER)")
+        _dbcmd = (f"psql --no-password -h {self.dbhost} -p {self.dbport} "
+                  f"-U pulp -d {self.dbname} -c {quote(query)}")
+        return _dbcmd
 
     def postproc(self):
         # obfuscate from /etc/pulp/settings.py and "dynaconf list":

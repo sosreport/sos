@@ -29,7 +29,7 @@ class Rpmostree(Plugin, RedHatPlugin):
             '--version'
         ]
 
-        self.add_cmd_output(["rpm-ostree %s" % subcmd for subcmd in subcmds])
+        self.add_cmd_output([f"rpm-ostree {subcmd}" for subcmd in subcmds])
 
         units = [
             'rpm-ostreed',

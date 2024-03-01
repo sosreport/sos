@@ -53,15 +53,16 @@ class PresetDefaults():
         """Return a human readable string representation of this
             ``PresetDefaults`` object.
         """
-        return ("name=%s desc=%s note=%s opts=(%s)" %
-                (self.name, self.desc, self.note, str(self.opts)))
+        return (f"name={self.name} desc={self.desc}"
+                f" note={self.note}  opts=({str(self.opts)})")
 
     def __repr__(self):
         """Return a machine readable string representation of this
             ``PresetDefaults`` object.
         """
-        return ("PresetDefaults(name='%s' desc='%s' note='%s' opts=(%s)" %
-                (self.name, self.desc, self.note, repr(self.opts)))
+        return (f"PresetDefaults(name='{self.name}'"
+                f" desc='{self.desc}' note='{self.note}'"
+                f" opts=({repr(self.opts)})")
 
     def __init__(self, name="", desc="", note=None, opts=SoSOptions()):
         """Initialise a new ``PresetDefaults`` object with the specified

@@ -32,7 +32,7 @@ class Dmraid(Plugin, IndependentPlugin):
 
     def setup(self):
         for opt in self.dmraid_options:
-            self.add_cmd_output("dmraid -%s" % (opt,))
+            self.add_cmd_output(f"dmraid -{opt}")
         if self.get_option("metadata"):
             metadata_path = self.get_cmd_output_path("metadata")
             self.add_cmd_output("dmraid -rD", runat=metadata_path,

@@ -27,7 +27,7 @@ class SoSUsernameMap(SoSMap):
     def sanitize_item(self, username):
         """Obfuscate a new username not currently found in the map
         """
-        ob_name = "obfuscateduser%s" % self.name_count
+        ob_name = f"obfuscateduser{self.name_count}"
         self.name_count += 1
         if ob_name in self.dataset.values():
             return self.sanitize_item(username.lower())

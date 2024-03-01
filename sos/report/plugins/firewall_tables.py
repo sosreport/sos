@@ -33,8 +33,8 @@ class firewall_tables(Plugin, IndependentPlugin):
         of the table name (for kernel <= 3), or nf_tables (for kernel >= 4).
         If neither module is present, the rules must be empty."""
 
-        modname = "iptable_" + tablename
-        cmd = "iptables -t " + tablename + " -nvL"
+        modname = f"iptable_{tablename}"
+        cmd = f"iptables -t {tablename} -nvL"
         self.add_cmd_output(
             cmd,
             pred=SoSPredicate(self, kmods=[modname, 'nf_tables']))
@@ -42,8 +42,8 @@ class firewall_tables(Plugin, IndependentPlugin):
     def collect_ip6table(self, tablename):
         """ Same as function above, but for ipv6 """
 
-        modname = "ip6table_" + tablename
-        cmd = "ip6tables -t " + tablename + " -nvL"
+        modname = f"ip6table_{tablename}"
+        cmd = f"ip6tables -t {tablename} -nvL"
         self.add_cmd_output(
             cmd,
             pred=SoSPredicate(self, kmods=[modname, 'nf_tables']))

@@ -38,8 +38,8 @@ class OpenStackGlance(Plugin):
 
         self.add_copy_spec([
             "/etc/glance/",
-            self.var_puppet_gen + "/etc/glance/",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
+            f"{self.var_puppet_gen}/etc/glance/",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
         ])
 
         # collect commands output only if the openstack-glance-api service
@@ -50,12 +50,12 @@ class OpenStackGlance(Plugin):
             glance_config = ""
             # if containerized we need to pass the config to the cont.
             if in_container:
-                glance_config = "--config-dir " + self.var_puppet_gen + \
-                                "/etc/glance/"
+                glance_config = (f"--config-dir {self.var_puppet_gen}"
+                                 "/etc/glance/")
 
             self.add_cmd_output(
-                "glance-manage " + glance_config + " db_version",
-                suggest_filename="glance_db_version"
+                f"glance-manage {glance_config} db_version",
+                suggest_filename="glance_db_version",
             )
 
             vars_all = [p in os.environ for p in [
@@ -91,7 +91,7 @@ class OpenStackGlance(Plugin):
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/glance/*", regexp, subst)
         self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/glance/*",
+            f"{self.var_puppet_gen}/etc/glance/*",
             regexp, subst
         )
 
@@ -104,13 +104,14 @@ class OpenStackGlance(Plugin):
         ]
         connection_keys = ["connection"]
 
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

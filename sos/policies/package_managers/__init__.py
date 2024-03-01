@@ -276,7 +276,7 @@ class PackageManager():
                 if len(verify_packages):
                     verify_packages += " "
                 verify_packages += package
-        return self.verify_command + " " + verify_packages
+        return f"{self.verify_command} {verify_packages}"
 
 
 class MultiPackageManager(PackageManager):

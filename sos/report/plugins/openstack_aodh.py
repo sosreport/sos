@@ -24,11 +24,11 @@ class OpenStackAodh(Plugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/aodh/",
-            self.var_puppet_gen + "/etc/aodh/*",
-            self.var_puppet_gen + "/etc/httpd/conf/*",
-            self.var_puppet_gen + "/etc/httpd/conf.d/*",
-            self.var_puppet_gen + "/etc/httpd/conf.modules.d/wsgi.conf",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
+            f"{self.var_puppet_gen}/etc/aodh/*",
+            f"{self.var_puppet_gen}/etc/httpd/conf/*",
+            f"{self.var_puppet_gen}/etc/httpd/conf.d/*",
+            f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/wsgi.conf",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
         ])
 
         if self.get_option("all_logs"):
@@ -67,8 +67,7 @@ class OpenStackAodh(Plugin):
             regexp, subst
         )
         self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/aodh/aodh.conf",
-            regexp, subst
+            f"{self.var_puppet_gen}/etc/aodh/aodh.conf", regexp, subst
         )
 
     def postproc(self):
@@ -80,12 +79,12 @@ class OpenStackAodh(Plugin):
         connection_keys = ["connection", "backend_url", "transport_url"]
 
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1*********"
         )
+        # flake8: noqa
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({'|'.join(connection_keys)})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

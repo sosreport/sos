@@ -38,8 +38,8 @@ class SuSEPolicy(LinuxPolicy):
             sys.exit(1)
 
         self.PATH = "/usr/sbin:/usr/bin:/root/bin:/sbin"
-        self.PATH += os.pathsep + "/usr/local/bin"
-        self.PATH += os.pathsep + "/usr/local/sbin"
+        self.PATH += f"{os.pathsep}/usr/local/bin"
+        self.PATH += f"{os.pathsep}/usr/local/sbin"
         self.set_exec_path()
 
     @classmethod

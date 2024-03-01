@@ -105,11 +105,11 @@ class CertificateSystem(Plugin, RedHatPlugin):
             # Get logs and configs for each subsystem if installed
             for subsystem in ('ca', 'kra', 'ocsp', 'tks', 'tps'):
                 self.add_copy_spec([
-                    "/var/lib/pki/*/" + subsystem + "/conf/CS.cfg",
-                    "/var/lib/pki/*/logs/" + subsystem + "/system",
-                    "/var/lib/pki/*/logs/" + subsystem + "/transactions",
-                    "/var/lib/pki/*/logs/" + subsystem + "/debug",
-                    "/var/lib/pki/*/logs/" + subsystem + "/selftests.log"
+                    f"/var/lib/pki/*/{subsystem}/conf/CS.cfg",
+                    f"/var/lib/pki/*/logs/{subsystem}/system",
+                    f"/var/lib/pki/*/logs/{subsystem}/transactions",
+                    f"/var/lib/pki/*/logs/{subsystem}/debug",
+                    f"/var/lib/pki/*/logs/{subsystem}/selftests.log",
                 ])
 
             # Common log files

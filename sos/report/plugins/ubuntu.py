@@ -33,7 +33,7 @@ class Ubuntu(Plugin, UbuntuPlugin):
             ua_pred = SoSPredicate(self, kmods=['tls'])
             self.add_cmd_output(ua_tools_status,
                                 pred=ua_pred, changes=True)
-            self.add_cmd_output("%s --format json" % ua_tools_status,
+            self.add_cmd_output(f"{ua_tools_status} --format json",
                                 pred=ua_pred, changes=True)
 
             if not self.get_option("all_logs"):

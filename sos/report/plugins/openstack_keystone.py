@@ -32,13 +32,13 @@ class OpenStackKeystone(Plugin):
             "/etc/keystone/keystone.conf",
             "/etc/keystone/logging.conf",
             "/etc/keystone/policy.json",
-            self.var_puppet_gen + "/etc/keystone/*.conf",
-            self.var_puppet_gen + "/etc/keystone/*.json",
-            self.var_puppet_gen + "/etc/httpd/conf/",
-            self.var_puppet_gen + "/etc/httpd/conf.d/",
-            self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
-            self.var_puppet_gen + "/var/spool/cron/",
-            self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
+            f"{self.var_puppet_gen}/etc/keystone/*.conf",
+            f"{self.var_puppet_gen}/etc/keystone/*.json",
+            f"{self.var_puppet_gen}/etc/httpd/conf/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+            f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
+            f"{self.var_puppet_gen}/var/spool/cron/",
+            f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
         ])
 
         if self.get_option("all_logs"):
@@ -85,8 +85,9 @@ class OpenStackKeystone(Plugin):
     def apply_regex_sub(self, regexp, subst):
         self.do_path_regex_sub("/etc/keystone/*", regexp, subst)
         self.do_path_regex_sub(
-            self.var_puppet_gen + "/etc/keystone/*",
-            regexp, subst
+            f"{self.var_puppet_gen}/etc/keystone/*",
+            regexp,
+            subst
         )
 
     def postproc(self):
@@ -96,21 +97,22 @@ class OpenStackKeystone(Plugin):
             "admin_password", "admin_token", "ca_password", "transport_url"
         ]
         connection_keys = ["connection"]
-
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 
         # obfuscate LDAP plaintext passwords in domain config dir
+        keys = "|".join(protect_keys)
         self.do_path_regex_sub(
             self.domain_config_dir,
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1********"
         )
 

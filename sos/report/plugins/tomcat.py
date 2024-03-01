@@ -33,7 +33,7 @@ class Tomcat(Plugin, RedHatPlugin):
             # get today's date in iso format so that days/months below 10
             # prepend 0
             today = datetime.date(datetime.now()).isoformat()
-            log_glob = "/var/log/tomcat*/catalina.%s.log" % today
+            log_glob = f"/var/log/tomcat*/catalina.{today}.log"
             self.add_copy_spec(log_glob)
         else:
             self.add_copy_spec("/var/log/tomcat*/*")
@@ -47,9 +47,10 @@ class Tomcat(Plugin, RedHatPlugin):
     def postproc(self):
         serverXmlPasswordAttributes = ['keyPass', 'keystorePass',
                                        'truststorePass', 'SSLPassword']
+        attributes = "|".join(serverXmlPasswordAttributes)
         self.do_path_regex_sub(
             r"\/etc\/tomcat.*\/server.xml",
-            r"(%s)=(\S*)" % "|".join(serverXmlPasswordAttributes),
+            rf"({attributes})=(\S*)",
             r'\1="********"'
         )
         self.do_path_regex_sub(

@@ -65,6 +65,6 @@ class Block(Plugin, IndependentPlugin):
             for line in lsblk['output'].splitlines():
                 if 'crypto_LUKS' in line:
                     dev = line.split()[0]
-                    self.add_cmd_output('cryptsetup luksDump /dev/%s' % dev)
+                    self.add_cmd_output(f'cryptsetup luksDump /dev/{dev}')
 
 # vim: set et ts=4 sw=4 :

@@ -32,5 +32,5 @@ class InsightsArchive(SoSObfuscationArchive):
     def get_archive_root(self):
         top = self.archive_path.split('/')[-1].split('.tar')[0]
         if self.tarobj.firstmember.name == '.':
-            top = './' + top
+            top = f'./{top}'
         return top

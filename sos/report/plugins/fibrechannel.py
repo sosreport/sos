@@ -45,8 +45,8 @@ class Fibrechannel(Plugin, RedHatPlugin):
                 if 'Port WWN' in line:
                     dev = line.split()[3]
                     self.add_cmd_output([
-                        "hbacmd HbaAttributes %s" % dev,
-                        "hbacmd PortAttributes %s" % dev,
-                        "hbacmd GetXcvrData %s" % dev
+                        f"hbacmd HbaAttributes {dev}",
+                        f"hbacmd PortAttributes {dev}",
+                        f"hbacmd GetXcvrData {dev}",
                     ])
 # vim: set et ts=4 sw=4 :

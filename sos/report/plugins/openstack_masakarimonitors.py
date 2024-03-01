@@ -47,9 +47,10 @@ class OpenStackMasakariMonitors(Plugin, UbuntuPlugin):
     def postproc(self):
         protect_keys = [".*password.*"]
 
+        keys = "|".join(protect_keys)
         self.do_path_regex_sub(
             f"{self.config_dir}/*",
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
 

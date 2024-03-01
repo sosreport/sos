@@ -17,12 +17,12 @@ class Opensvc(Plugin, IndependentPlugin):
     packages = ('opensvc',)
 
     def get_status(self, kind):
-        getobjs = self.collect_cmd_output("om %s ls --color=no" % kind)
-        dirname = kind + '_status'
+        getobjs = self.collect_cmd_output(f"om {kind} ls --color=no")
+        dirname = f'{kind}_status'
         if getobjs['status'] == 0:
             for line in getobjs['output'].splitlines():
                 self.add_cmd_output(
-                    "om %s print status --color=no" % line,
+                    f"om {line} print status --color=no",
                     subdir=dirname
                 )
 

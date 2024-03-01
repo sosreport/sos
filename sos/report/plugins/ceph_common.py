@@ -31,9 +31,9 @@ class Ceph_Common(Plugin, RedHatPlugin, UbuntuPlugin):
 
     services = (
         'ceph-nfs@pacemaker',
-        'ceph-mds@%s' % ceph_hostname,
-        'ceph-mon@%s' % ceph_hostname,
-        'ceph-mgr@%s' % ceph_hostname,
+        f'ceph-mds@{ceph_hostname}',
+        f'ceph-mon@{ceph_hostname}',
+        f'ceph-mgr@{ceph_hostname}',
         'ceph-radosgw@*',
         'ceph-osd@*'
     )

@@ -50,7 +50,7 @@ class OvirtNode(Plugin, RedHatPlugin):
 
         # Collect certificate info
         self.add_cmd_output([
-            'openssl x509 -in %s -text -noout' % c for c in certificates
+            f'openssl x509 -in {c} -text -noout' for c in certificates
         ])
 
 

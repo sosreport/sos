@@ -40,17 +40,18 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
 
         # All versions conform to the following templates with differnt
         # strings for the object being operated on.
-        nmcli_con_details_template = "nmcli con %s id"
-        nmcli_dev_details_template = "nmcli dev %s"
+        nmcli_con_details_template = "nmcli con {} id"
+        nmcli_dev_details_template = "nmcli dev {}"
 
         # test NetworkManager status for the specified major version
         def test_nm_status(version=1):
-            status_template = "nmcli --terse --fields RUNNING %s status"
             obj_table = [
                 "nm",        # <  0.9.9
                 "general"    # >= 0.9.9
             ]
-            status = self.exec_cmd(status_template % obj_table[version])
+            status_template = ("nmcli --terse --fields RUNNING "
+                               f"{obj_table[version]} status")
+            status = self.exec_cmd(status_template)
             return (status['status'] == 0 and
                     status['output'].lower().startswith("running"))
 
@@ -62,8 +63,8 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                 "nmcli -f all con",
                 "nmcli con show --active",
                 "nmcli dev"])
-            nmcli_con_details_cmd = nmcli_con_details_template % "show"
-            nmcli_dev_details_cmd = nmcli_dev_details_template % "show"
+            nmcli_con_details_cmd = nmcli_con_details_template.format("show")
+            nmcli_dev_details_cmd = nmcli_dev_details_template.format("show")
 
         # NetworkManager < 0.9.9 (Use short name of objects for nmcli)
         elif test_nm_status(version=0):
@@ -72,8 +73,10 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                 "nmcli con",
                 "nmcli con status",
                 "nmcli dev"])
-            nmcli_con_details_cmd = nmcli_con_details_template % "list id"
-            nmcli_dev_details_cmd = nmcli_dev_details_template % "list iface"
+            nmcli_con_details_cmd = nmcli_con_details_template.format(
+                "list id")
+            nmcli_dev_details_cmd = nmcli_dev_details_template.format(
+                "list iface")
 
         # No grokkable NetworkManager version present
         else:
@@ -98,12 +101,11 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                     #
                     # Reverse the normal sos quoting convention here and place
                     # double quotes around the innermost quoted string.
-                    self.add_cmd_output('%s "%s"' %
-                                        (nmcli_con_details_cmd, con))
+                    self.add_cmd_output(f'{nmcli_con_details_cmd} "{con}"')
 
             self.add_device_cmd(
-                nmcli_dev_details_cmd + ' "%(dev)s"',
-                devices='ethernet'
+                f'{nmcli_dev_details_cmd} "%(dev)s"',
+                devices="ethernet"
             )
 
         self.add_cmd_tags({
@@ -116,7 +118,7 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                 "/etc/NetworkManager/system-connections"):
             for net_conf in files:
                 self.do_file_sub(
-                    "/etc/NetworkManager/system-connections/"+net_conf,
+                    f"/etc/NetworkManager/system-connections/{net_conf}",
                     r"(password|psk|mka-cak|password-raw|pin|preshared-key"
                     r"|private-key|secrets|wep-key[0-9])=(.*)",
                     r"\1=***",

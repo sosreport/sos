@@ -118,9 +118,9 @@ class Candlepin(Plugin, RedHatPlugin):
         a large amount of quoting in sos logs referencing the command being run
         """
         csvformat = "-A -F , -X" if csv else ""
-        _dbcmd = "psql --no-password -h %s -p 5432 -U candlepin \
-                  -d candlepin %s -c %s"
-        return _dbcmd % (self.dbhost, csvformat, quote(query))
+        _dbcmd = (f"psql --no-password -h {self.dbhost} -p 5432 -U candlepin"
+                  f" -d candlepin {csvformat} -c {quote(query)}")
+        return _dbcmd
 
     def postproc(self):
         reg = r"(((.*)(pass|token|secret)(.*))=)(.*)"
@@ -130,7 +130,7 @@ class Candlepin(Plugin, RedHatPlugin):
         self.do_file_sub("/var/log/candlepin/cpdb.log", cpdbreg, repl)
         for key in ["trustStorePassword", "keyStorePassword"]:
             self.do_file_sub("/etc/candlepin/broker.xml",
-                             r"(%s)=(\w*)([;<])" % key,
+                             rf"({key})=(\w*)([;<])",
                              r"\1=********\3")
 
 # vim: set et ts=4 sw=4 :

@@ -76,7 +76,7 @@ class ManageIQ(Plugin, RedHatPlugin):
     def setup(self):
         if self.get_option("all_logs"):
             # turn all log files to a glob to include logrotated ones
-            self.miq_log_files = map(lambda x: x + '*', self.miq_log_files)
+            self.miq_log_files = map(lambda x: f'{x}*', self.miq_log_files)
 
         self.add_copy_spec(list(self.files))
 

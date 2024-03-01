@@ -88,8 +88,8 @@ class Landscape(Plugin, UbuntuPlugin):
         ]
         self.do_path_regex_sub(
             "/etc/landscape/service.conf*",
-            r"(%s) = (.*)" % "|".join(keys),
-            r"\1 = [********]"
+            f'({"|".join(keys)}) = (.*)',
+            r"\1 = [********]",
         )
 
 # vim: set et ts=4 sw=4 :

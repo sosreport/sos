@@ -78,7 +78,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
                            else self.get_option("pmloggerfiles"))
 
         if not self.pcp_parse_conffile():
-            self._log_warn("could not parse %s" % self.pcp_conffile)
+            self._log_warn(f"could not parse {self.pcp_conffile}")
             return
 
         # Add PCP_SYSCONF_DIR (/etc/pcp) and PCP_VAR_DIR (/var/lib/pcp/config)
@@ -127,7 +127,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             files_collected = 0
             path = self.path_join(self.pcp_log_dir, 'pmlogger',
                                   self.pcp_hostname, '*')
-            pmlogger_ls = self.exec_cmd("ls -t1 %s" % path)
+            pmlogger_ls = self.exec_cmd(f"ls -t1 {path}")
             if pmlogger_ls['status'] == 0:
                 for line in pmlogger_ls['output'].splitlines():
                     self.add_copy_spec(line, sizelimit=0)
@@ -155,8 +155,8 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
                 if line.startswith(' pmlogger:'):
                     arc = line.split()[-1]
                     self.add_cmd_output(
-                        "pmstat -S 00:00 -T 23:59 -t 5m -x -a %s" % arc,
-                        root_symlink="pmstat"
+                        f"pmstat -S 00:00 -T 23:59 -t 5m -x -a {arc}",
+                        root_symlink="pmstat",
                     )
                     break
 

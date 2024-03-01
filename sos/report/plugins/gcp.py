@@ -92,7 +92,8 @@ class GCP(Plugin, IndependentPlugin):
             response = request.urlopen(req)
         except URLError as err:
             raise RuntimeError(
-                "Failed to communicate with Metadata Server: " + str(err))
+                f"Failed to communicate with Metadata Server: {str(err)}"
+            )
         if response.code != 200:
             raise RuntimeError(
                 f"Failed to communicate with Metadata Server "

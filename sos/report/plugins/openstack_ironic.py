@@ -29,30 +29,31 @@ class OpenStackIronic(Plugin):
 
         if in_container:
             self.conf_list = [
-                self.var_puppet_gen + "/etc/ironic/*",
-                self.var_puppet_gen + "/etc/ironic-inspector/*",
-                self.var_puppet_gen + "_api/etc/ironic/*",
-                self.ins_puppet_gen + "/etc/ironic-inspector/*",
-                self.ins_puppet_gen + "/var/lib/httpboot/inspector.ipxe"
+                f"{self.var_puppet_gen}/etc/ironic/*",
+                f"{self.var_puppet_gen}/etc/ironic-inspector/*",
+                f"{self.var_puppet_gen}_api/etc/ironic/*",
+                f"{self.ins_puppet_gen}/etc/ironic-inspector/*",
+                f"{self.ins_puppet_gen}/var/lib/httpboot/inspector.ipxe",
             ]
             self.add_copy_spec([
                 "/var/lib/ironic-inspector/",
                 "/var/log/containers/ironic-inspector/ramdisk/",
-                self.var_puppet_gen + "/etc/xinetd.conf",
-                self.var_puppet_gen + "/etc/xinetd.d/",
-                self.var_puppet_gen + "/etc/ironic/",
-                self.var_puppet_gen + "/etc/ironic-inspector/",
-                self.var_puppet_gen + "/etc/httpd/conf/",
-                self.var_puppet_gen + "/etc/httpd/conf.d/",
-                self.var_puppet_gen + "/etc/httpd/conf.modules.d/*.conf",
-                self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf",
-                self.var_puppet_gen + "_api/etc/ironic/",
-                self.var_puppet_gen + "_api/etc/httpd/conf/",
-                self.var_puppet_gen + "_api/etc/httpd/conf.d/",
-                self.var_puppet_gen + "_api/etc/httpd/conf.modules.d/*.conf",
-                self.var_puppet_gen + "_api/etc/my.cnf.d/tripleo.cnf",
-                self.ins_puppet_gen + "/etc/ironic-inspector/*",
-                self.ins_puppet_gen + "/var/lib/httpboot/inspector.ipxe"
+                f"{self.var_puppet_gen}/etc/xinetd.conf",
+                f"{self.var_puppet_gen}/etc/xinetd.d/",
+                f"{self.var_puppet_gen}/etc/ironic/",
+                f"{self.var_puppet_gen}/etc/ironic-inspector/",
+                f"{self.var_puppet_gen}/etc/httpd/conf/",
+                f"{self.var_puppet_gen}/etc/httpd/conf.d/",
+                f"{self.var_puppet_gen}/etc/httpd/conf.modules.d/*.conf",
+                f"{self.var_puppet_gen}/etc/my.cnf.d/tripleo.cnf",
+                f"{self.var_puppet_gen}_api/etc/ironic/",
+                f"{self.var_puppet_gen}_api/etc/httpd/conf/",
+                f"{self.var_puppet_gen}_api/etc/httpd/conf.d/",
+                f"{self.var_puppet_gen}_api/etc/httpd/conf.modules.d/"
+                "*.conf",
+                f"{self.var_puppet_gen}_api/etc/my.cnf.d/tripleo.cnf",
+                f"{self.ins_puppet_gen}/etc/ironic-inspector/*",
+                f"{self.ins_puppet_gen}/var/lib/httpboot/inspector.ipxe",
             ])
 
             if self.get_option("all_logs"):
@@ -65,13 +66,11 @@ class OpenStackIronic(Plugin):
                     "/var/log/containers/ironic/*.log",
                     "/var/log/containers/ironic-inspector/*.log",
                 ])
-
             for path in ['/var/lib/ironic', '/httpboot', '/tftpboot',
-                         self.ins_puppet_gen + '/var/lib/httpboot/',
-                         self.ins_puppet_gen + '/var/lib/tftpboot/']:
-                self.add_cmd_output('ls -laRt %s' % path)
-                self.add_cmd_output('ls -laRt %s' %
-                                    (self.var_puppet_gen + path))
+                         f'{self.ins_puppet_gen}/var/lib/httpboot/',
+                         f'{self.ins_puppet_gen}/var/lib/tftpboot/']:
+                self.add_cmd_output(f'ls -laRt {path}')
+                self.add_cmd_output(f'ls -laRt {self.var_puppet_gen + path}')
 
             # Let's get the packages from the containers, always helpful when
             # troubleshooting.
@@ -79,7 +78,7 @@ class OpenStackIronic(Plugin):
                                    'ironic_inspector', 'ironic_pxe_http',
                                    'ironic_pxe_tftp', 'ironic_neutron_agent',
                                    'ironic_conductor', 'ironic_api']:
-                if self.container_exists('.*' + container_name):
+                if self.container_exists(f'.*{container_name}'):
                     self.add_cmd_output('rpm -qa', container=container_name)
 
         else:
@@ -108,7 +107,7 @@ class OpenStackIronic(Plugin):
                 ])
 
             for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
-                self.add_cmd_output('ls -laRt %s' % path)
+                self.add_cmd_output(f'ls -laRt {path}')
 
         self.add_file_tags({
             ".*/etc/ironic/ironic.conf": "ironic_conf"
@@ -143,14 +142,14 @@ class OpenStackIronic(Plugin):
             "os_password", "transport_url"
         ]
         connection_keys = ["connection", "sql_connection"]
-
+        keys = "|".join(protect_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            rf"(^\s*({keys})\s*=\s*)(.*)",
             r"\1*********"
         )
+        keys = "|".join(connection_keys)
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            rf"(^\s*({keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 
@@ -185,7 +184,7 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
                  if uuid.strip()]
         for uuid in uuids:
             self.add_cmd_output('openstack baremetal introspection '
-                                'data save %s' % uuid)
+                                f'data save {uuid}')
 
     def setup(self):
         super(RedHatIronic, self).setup()

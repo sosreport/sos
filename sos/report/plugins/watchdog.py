@@ -76,7 +76,7 @@ class Watchdog(Plugin, RedHatPlugin):
             if res:
                 log_dir = res
         except IOError as ex:
-            self._log_warn("Could not read %s: %s" % (conf_file, ex))
+            self._log_warn(f"Could not read {conf_file}: {ex}")
 
         if self.get_option('all_logs'):
             log_files = glob(self.path_join(log_dir, '*'))
@@ -88,6 +88,6 @@ class Watchdog(Plugin, RedHatPlugin):
 
         # Get output of "wdctl <device>" for each /dev/watchdog*
         for dev in glob(self.path_join('/dev/watchdog*')):
-            self.add_cmd_output("wdctl %s" % dev)
+            self.add_cmd_output(f"wdctl {dev}")
 
 # vim: set et ts=4 sw=4 :

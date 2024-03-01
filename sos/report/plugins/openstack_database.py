@@ -49,13 +49,13 @@ class OpenStackDatabase(Plugin):
             if cname:
                 break
 
-        fname = "clustercheck_%s" % cname if cname else None
+        fname = f"clustercheck_{cname}" if cname else None
         self.add_cmd_output('clustercheck', container=cname, timeout=15,
                             suggest_filename=fname)
 
         if self.get_option('dump') or self.get_option('dumpall'):
             db_dump = self.get_mysql_db_string(container=cname)
-            db_cmd = "mysqldump --opt %s" % db_dump
+            db_cmd = f"mysqldump --opt {db_dump}"
 
             self.add_cmd_output(db_cmd, suggest_filename='mysql_dump.sql',
                                 sizelimit=0, container=cname)

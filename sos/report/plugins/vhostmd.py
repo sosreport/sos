@@ -37,11 +37,11 @@ class vhostmd(Plugin, RedHatPlugin):
                 for disk in self.listdir(sysblock):
                     if "256K" in disk:
                         dev = disk.split()[0]
-                        r = self.exec_cmd("dd if=/dev/%s bs=25 count=1" % dev)
+                        r = self.exec_cmd(f"dd if=/dev/{dev} bs=25 count=1")
                         if 'metric' in r['output']:
                             self.add_cmd_output(
-                                "dd if=/dev/%s bs=256k count=1" % dev,
-                                suggest_filename="virt_metrics"
+                                f"dd if=/dev/{dev} bs=256k count=1",
+                                suggest_filename="virt_metrics",
                             )
 
 # vim: et ts=4 sw=4

@@ -88,7 +88,8 @@ class CollectOptionsHelpTest(StageOneOutputTest):
         # this has the secondary effect of enforcing a stylistic requirement
         # where at least one profile must match the pyfile name
         for clus in clusters:
-            assert clus in _profs, "Cluster '%s' not displayed in --list-options" % clus
+            assert clus in _profs, (f"Cluster '{clus}' not displayed in "
+                                    "--list-options")
 
     @skipIf(PEXPECT_PRESENT is False, "python3-pexpect not installed locally")
     def test_cluster_options_shown(self):

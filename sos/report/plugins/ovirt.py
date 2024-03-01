@@ -66,7 +66,7 @@ class Ovirt(Plugin, RedHatPlugin):
     def setup(self):
         if self.get_option('jbosstrace') and self.is_installed('ovirt-engine'):
             engine_pattern = r"^ovirt-engine\ -server.*jboss-modules.jar"
-            pgrep = "pgrep -f '%s'" % engine_pattern
+            pgrep = f"pgrep -f '{engine_pattern}'"
             r = self.exec_cmd(pgrep)
             engine_pids = [int(x) for x in r['output'].splitlines()]
             if not engine_pids:
@@ -77,7 +77,7 @@ class Ovirt(Plugin, RedHatPlugin):
                     # backtrace written to '/var/log/ovirt-engine/console.log
                     os.kill(pid, signal.SIGQUIT)
                 except OSError as e:
-                    self.soslog.error('Unable to send signal to %d' % pid, e)
+                    self.soslog.error(f'Unable to send signal to {pid}', e)
 
         self.add_forbidden_path([
             '/etc/ovirt-engine/.pgpass',
@@ -113,13 +113,12 @@ class Ovirt(Plugin, RedHatPlugin):
 
         self.add_cmd_output([
             # process certificate files
-            "openssl x509 -in %s -text -noout" % c for c in certificates
+            f"openssl x509 -in {c} -text -noout" for c in certificates
         ])
 
         self.add_cmd_output([
-            # process TrustStore certificates
-            "keytool -list -storepass %s -rfc -keystore %s" %
-            (p, c) for (p, c) in keystores
+            f"keytool -list -storepass {p} -rfc -keystore {c}"
+            for (p, c) in keystores
         ])
 
         # 3.x line uses engine-manage-domains, 4.x uses ovirt-aaa-jdbc-tool
@@ -128,9 +127,9 @@ class Ovirt(Plugin, RedHatPlugin):
         jdbc_tool = 'ovirt-aaa-jdbc-tool'
 
         if is_executable(manage_domains):
-            self.add_cmd_output('%s list' % manage_domains)
+            self.add_cmd_output(f'{manage_domains} list')
         if is_executable(extensions_tool):
-            self.add_cmd_output('%s info list-extensions' % extensions_tool)
+            self.add_cmd_output(f'{extensions_tool} info list-extensions')
         if is_executable('ovirt-aaa-jdbc-tool'):
             subcmds = [
                 'query --what=user',
@@ -138,7 +137,7 @@ class Ovirt(Plugin, RedHatPlugin):
                 'settings show'
             ]
 
-            self.add_cmd_output(['%s %s' % (jdbc_tool, sc) for sc in subcmds])
+            self.add_cmd_output([f'{jdbc_tool} {sc}' for sc in subcmds])
 
         # Copy engine config files.
         self.add_copy_spec([
@@ -205,9 +204,9 @@ class Ovirt(Plugin, RedHatPlugin):
         )
         for filename in engine_files:
             self.do_file_sub(
-                "/var/tmp/ovirt-engine/config/%s" % filename,
+                f"/var/tmp/ovirt-engine/config/{filename}",
                 r"(<password>)(.*)(</password>)",
-                r"\1********\3"
+                r"\1********\3",
             )
 
         self.do_file_sub(
@@ -235,10 +234,9 @@ class Ovirt(Plugin, RedHatPlugin):
         if keys_opt and keys_opt is not True:
             sensitive_keys = keys_opt
         key_list = [x for x in sensitive_keys.split(':') if x]
+        keys = "|".join(key_list)
         self.do_path_regex_sub(
-            self.DB_PASS_FILES,
-            r'(%s)=(.*)' % "|".join(key_list),
-            r'\1=********'
+            self.DB_PASS_FILES, f'({keys})=(.*)', r'\1=********'
         )
 
         # Answer files contain passwords.
@@ -263,7 +261,7 @@ class Ovirt(Plugin, RedHatPlugin):
             "pool.default.ssl.truststore.password",
             "config.datasource.dbpassword"
         ]
-        regexp = r"(^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = rf"(^\s*#*({'|'.join(protect_keys)})\s*=\s*)(.*)"
 
         self.do_path_regex_sub(r"/etc/ovirt-engine/aaa/.*\.properties", regexp,
                                r"\1*********")

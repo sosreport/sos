@@ -32,7 +32,7 @@ class Foreman(Plugin):
         PluginOpt('puma-gc', default=False,
                   desc='collect Puma GC stats')
     ]
-    pumactl = 'pumactl %s -S /usr/share/foreman/tmp/puma.state'
+    pumactl = 'pumactl {} -S /usr/share/foreman/tmp/puma.state'
 
     def setup(self):
         # for external DB, search in /etc/foreman/database.yml for:
@@ -127,9 +127,9 @@ class Foreman(Plugin):
             'passenger-memory-stats',
             'ls -lanR /root/ssl-build',
             'ls -lanR /usr/share/foreman/config/hooks',
-            'ping -c1 -W1 %s' % _hostname,
-            'ping -c1 -W1 %s' % _host_f,
-            'ping -c1 -W1 localhost'
+            f'ping -c1 -W1 {_hostname}',
+            f'ping -c1 -W1 {_host_f}',
+            'ping -c1 -W1 localhost',
         ])
         self.add_cmd_output(
             'qpid-stat -b amqps://localhost:5671 -q \
@@ -152,9 +152,9 @@ class Foreman(Plugin):
         # and optionally also gc-stats
         # if on RHEL with Software Collections, wrap the commands accordingly
         if self.get_option('puma-gc'):
-            self.add_cmd_output(self.pumactl % 'gc-stats',
+            self.add_cmd_output(self.pumactl.format('gc-stats'),
                                 suggest_filename='pumactl_gc-stats')
-        self.add_cmd_output(self.pumactl % 'stats',
+        self.add_cmd_output(self.pumactl.format('stats'),
                             suggest_filename='pumactl_stats')
         self.add_cmd_output('/usr/sbin/foreman-puma-status')
 
@@ -177,7 +177,7 @@ class Foreman(Plugin):
         self.add_cmd_output(_cmd, suggest_filename='foreman_db_tables_sizes',
                             env=self.env)
 
-        days = '%s days' % self.get_option('days')
+        days = f"{self.get_option('days')} days"
 
         # Construct the DB queries, using the days option to limit the range
         # of entries returned
@@ -196,23 +196,21 @@ class Foreman(Plugin):
             'select dynflow_execution_plans.* from foreman_tasks_tasks join '
             'dynflow_execution_plans on (foreman_tasks_tasks.external_id = '
             'dynflow_execution_plans.uuid::varchar) where foreman_tasks_tasks.'
-            'started_at > NOW() - interval %s' % quote(days)
+            f'started_at > NOW() - interval {quote(days)}'
         )
 
         dactioncmd = (
              'select dynflow_actions.* from foreman_tasks_tasks join '
              'dynflow_actions on (foreman_tasks_tasks.external_id = '
              'dynflow_actions.execution_plan_uuid::varchar) where '
-             'foreman_tasks_tasks.started_at > NOW() - interval %s'
-             % quote(days)
+             f'foreman_tasks_tasks.started_at > NOW() - interval {quote(days)}'
         )
 
         dstepscmd = (
             'select dynflow_steps.* from foreman_tasks_tasks join '
             'dynflow_steps on (foreman_tasks_tasks.external_id = '
             'dynflow_steps.execution_plan_uuid::varchar) where '
-            'foreman_tasks_tasks.started_at > NOW() - interval %s'
-            % quote(days)
+            f'foreman_tasks_tasks.started_at > NOW() - interval {quote(days)}'
         )
 
         # counts of fact_names prefixes/types: much of one type suggests
@@ -279,8 +277,8 @@ class Foreman(Plugin):
                     proxy = proxy.split(',')
                     # proxy is now tuple [name, url]
                     _cmd = 'curl -s --key /etc/foreman/client_key.pem ' \
-                           '--cert /etc/foreman/client_cert.pem ' \
-                           '%s/v2/features' % proxy[1]
+                        '--cert /etc/foreman/client_cert.pem ' \
+                        f'{proxy[1]}/v2/features'
                     self.add_cmd_output(_cmd, suggest_filename=proxy[0],
                                         subdir='smart_proxies_features',
                                         timeout=10)
@@ -297,10 +295,11 @@ class Foreman(Plugin):
         a large amount of quoting in sos logs referencing the command being run
         """
         if csv:
-            query = "COPY (%s) TO STDOUT " \
-                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)" % query
-        _dbcmd = "%s --no-password -h %s -p 5432 -U foreman -d foreman -c %s"
-        return _dbcmd % (binary, self.dbhost, quote(query))
+            query = (f"COPY ({query}) TO STDOUT WITH (FORMAT 'csv', "
+                     "DELIMITER ',', HEADER)")
+        _dbcmd = (f"{binary} --no-password -h {self.dbhost} -p 5432 "
+                  f"-U foreman -d foreman -c {quote(query)}")
+        return _dbcmd
 
     def postproc(self):
         self.do_path_regex_sub(
@@ -329,7 +328,7 @@ class RedHatForeman(Foreman, SCLPlugin, RedHatPlugin):
         # if we are on RHEL7 with scl, wrap some Puma commands by
         # scl enable tfm 'command'
         if self.policy.dist_version() == 7 and is_executable('scl'):
-            self.pumactl = "scl enable tfm '%s'" % self.pumactl
+            self.pumactl = f"scl enable tfm '{self.pumactl}'"
 
         super(RedHatForeman, self).setup()
         self.add_cmd_output('gem list')

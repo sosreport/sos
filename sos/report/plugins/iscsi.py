@@ -23,8 +23,8 @@ class Iscsi(Plugin):
         self.add_copy_spec([
             "/etc/iscsi/iscsid.conf",
             "/etc/iscsi/initiatorname.iscsi",
-            var_puppet_gen + "/etc/iscsi/initiatorname.iscsi",
-            "/var/lib/iscsi"
+            f"{var_puppet_gen}/etc/iscsi/initiatorname.iscsi",
+            "/var/lib/iscsi",
         ])
         self.add_cmd_output([
             "iscsiadm -m session -P 3",

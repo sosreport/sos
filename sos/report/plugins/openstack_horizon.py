@@ -34,23 +34,25 @@ class OpenStackHorizon(Plugin):
 
         self.add_copy_spec([
             "/etc/openstack-dashboard/",
-            self.var_puppet_gen + "/horizon/etc/openstack-dashboard/",
-            self.var_puppet_gen + "/horizon/etc/httpd/conf/",
-            self.var_puppet_gen + "/horizon/etc/httpd/conf.d/",
-            self.var_puppet_gen + "/horizon/etc/httpd/conf.modules.d/*.conf",
-            self.var_puppet_gen + "/memcached/etc/sysconfig/memcached"
+            f"{self.var_puppet_gen}/horizon/etc/openstack-dashboard/",
+            f"{self.var_puppet_gen}/horizon/etc/httpd/conf/",
+            f"{self.var_puppet_gen}/horizon/etc/httpd/conf.d/",
+            f"{self.var_puppet_gen}/horizon/etc/httpd/conf.modules.d/"
+            "*.conf",
+            f"{self.var_puppet_gen}/memcached/etc/sysconfig/memcached",
         ])
         self.add_forbidden_path(
             "/etc/openstack-dashboard/local_settings.d/*.py[co]"
         )
 
     def postproc(self):
-        var_puppet_gen = self.var_puppet_gen + "/horizon"
+        var_puppet_gen = f"{self.var_puppet_gen}/horizon"
         protect_keys = [
             "SECRET_KEY", "EMAIL_HOST_PASSWORD"
         ]
 
-        regexp = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        keys = "|".join(protect_keys)
+        regexp = rf"(^\s*({keys})\s*=\s*)(.*)"
         for regpath in [r"/etc/openstack-dashboard/.*\.json",
                         "/etc/openstack-dashboard/local_settings$"]:
             self.do_path_regex_sub(regpath, regexp, r"\1*********")
