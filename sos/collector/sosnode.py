@@ -412,25 +412,29 @@ class SosNode():
         :returns:   True if installed version is at least ``ver``, else False
         :rtype:     ``bool``
         """
-        def _format_version(ver):
-            # format the version we're checking to a standard form of X.Y.Z-R
+        def _format_version_to_pep440(ver):
+            """ Convert the version into a PEP440 compliant version scheme."""
+            public_version_re = re.compile(
+                    r"^([0-9][0-9.]*(?:(?:a|b|rc|.post|.dev)[0-9]+)*)\+?"
+                    )
             try:
-                _fver = ver.split('-')[0]
-                _rel = ''
-                if '-' in ver:
-                    _rel = '-' + ver.split('-')[-1].split('.')[0]
-                if len(_fver.split('.')) == 2:
-                    _fver += '.0'
-
-                return _fver + _rel
+                _, public, local = public_version_re.split(ver, maxsplit=1)
+                if not local:
+                    return ver
+                sanitized_local = re.sub("[+~]+", ".", local).strip("-")
+                pep440_version = f"{public}+{sanitized_local}"
+                return pep440_version
             except Exception as err:
-                self.log_debug("Unable to format '%s': %s" % (ver, err))
+                self.log_debug(f"Unable to format {ver} to pep440 format: "
+                               f"{err}")
                 return ver
 
-        _ver = _format_version(ver)
+        _ver = _format_version_to_pep440(ver)
+        _node_formatted_version = _format_version_to_pep440(
+                self.sos_info['version'])
 
         try:
-            _node_ver = parse_version(self.sos_info['version'])
+            _node_ver = parse_version(_node_formatted_version)
             _test_ver = parse_version(_ver)
             return _node_ver >= _test_ver
         except Exception as err:
