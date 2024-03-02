@@ -49,6 +49,7 @@ class SMcli(Plugin, IndependentPlugin):
             self.do_debug(ssnames)
 
     def do_debug(self, ssnames):
+        """ Collect debug logs """
         logpath = self.get_cmd_output_path(make=False)
 
         cmd = 'SMcli localhost -n'

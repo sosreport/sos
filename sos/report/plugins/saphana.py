@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
-class saphana(Plugin, RedHatPlugin):
+class Saphana(Plugin, RedHatPlugin):
 
     short_desc = 'SAP HANA'
     plugin_name = 'saphana'
@@ -21,8 +21,8 @@ class saphana(Plugin, RedHatPlugin):
         sids = []
 
         if self.path_isdir("/hana/shared"):
-            s = self.listdir("/hana/shared")
-            for sid in s:
+            shared = self.listdir("/hana/shared")
+            for sid in shared:
                 if len(sid) == 3:
                     sid = sid.strip()
                     sids.append(sid)
@@ -51,6 +51,7 @@ class saphana(Plugin, RedHatPlugin):
                             self.get_inst_info(sid, sidadm, inst)
 
     def get_inst_info(self, sid, sidadm, inst):
+        """ Collect the given instance info """
         proc_cmd = 'su - %s -c "sapcontrol -nr %s -function GetProcessList"'
         status_fname = "%s_%s_status" % (sid, inst)
         self.add_cmd_output(

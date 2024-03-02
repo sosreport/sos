@@ -31,7 +31,7 @@ class Release(Plugin, UbuntuPlugin, CosPlugin):
 class DebianRelease(Release, DebianPlugin):
 
     def setup(self):
-        super(DebianRelease, self).setup()
+        super().setup()
         self.add_copy_spec('/etc/debian_version')
 
 
@@ -39,6 +39,6 @@ class RedHatRelease(Release, RedHatPlugin):
 
     def setup(self):
         self.add_file_tags({'/etc/redhat-release': 'redhat_release'})
-        super(RedHatRelease, self).setup()
+        super().setup()
 
 # vim: set et ts=4 sw=4 :

@@ -8,9 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, PluginOpt
-import os
 from socket import gethostname
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, PluginOpt
 
 
 class Pcp(Plugin, RedHatPlugin, DebianPlugin):
@@ -37,17 +36,10 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
 
     pcp_hostname = ''
 
-    def get_size(self, path):
-        total_size = 0
-        for dirpath, dirnames, filenames in os.walk(path):
-            for f in filenames:
-                fp = self.path_join(dirpath, f)
-                total_size += os.path.getsize(fp)
-        return total_size
-
     def pcp_parse_conffile(self):
+        """ Parse PCP configuration """
         try:
-            with open(self.pcp_conffile, "r") as pcpconf:
+            with open(self.pcp_conffile, "r", encoding='UTF-8') as pcpconf:
                 lines = pcpconf.readlines()
         except IOError:
             return False
@@ -65,17 +57,17 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             self.pcp_sysconf_dir = env_vars['PCP_SYSCONF_DIR']
             self.pcp_var_dir = env_vars['PCP_VAR_DIR']
             self.pcp_log_dir = env_vars['PCP_LOG_DIR']
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             # Fail if all three env variables are not found
             return False
 
         return True
 
     def setup(self):
-        self.sizelimit = (None if self.get_option("all_logs")
-                          else self.get_option("pmmgrlogs"))
-        self.countlimit = (None if self.get_option("all_logs")
-                           else self.get_option("pmloggerfiles"))
+        sizelimit = (None if self.get_option("all_logs")
+                     else self.get_option("pmmgrlogs"))
+        countlimit = (None if self.get_option("all_logs")
+                      else self.get_option("pmloggerfiles"))
 
         if not self.pcp_parse_conffile():
             self._log_warn("could not parse %s" % self.pcp_conffile)
@@ -122,7 +114,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
             # collect pmmgr logs up to 'pmmgrlogs' size limit
             path = self.path_join(self.pcp_log_dir, 'pmmgr',
                                   self.pcp_hostname, '*')
-            self.add_copy_spec(path, sizelimit=self.sizelimit, tailit=False)
+            self.add_copy_spec(path, sizelimit=sizelimit, tailit=False)
             # collect newest pmlogger logs up to 'pmloggerfiles' count
             files_collected = 0
             path = self.path_join(self.pcp_log_dir, 'pmlogger',
@@ -132,7 +124,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
                 for line in pmlogger_ls['output'].splitlines():
                     self.add_copy_spec(line, sizelimit=0)
                     files_collected = files_collected + 1
-                    if self.countlimit and files_collected == self.countlimit:
+                    if countlimit and files_collected == countlimit:
                         break
 
         self.add_copy_spec([

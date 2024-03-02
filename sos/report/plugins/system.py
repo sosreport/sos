@@ -25,7 +25,6 @@ class System(Plugin, IndependentPlugin):
             "/etc/environment",
         ])
 
-        # FIXME: provide a a long-term solution for #1299
         self.add_forbidden_path([
             "/proc/sys/net/ipv4/route/flush",
             "/proc/sys/net/ipv6/route/flush",

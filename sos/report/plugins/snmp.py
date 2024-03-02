@@ -27,15 +27,10 @@ class RedHatSnmp(Snmp, RedHatPlugin):
 
     packages = ('net-snmp',)
 
-    def setup(self):
-        super(RedHatSnmp, self).setup()
-
 
 class DebianSnmp(Snmp, DebianPlugin, UbuntuPlugin):
 
     packages = ('snmp',)
 
-    def setup(self):
-        super(DebianSnmp, self).setup()
 
 # vim: set et ts=4 sw=4 :

@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
-class vhostmd(Plugin, RedHatPlugin):
+class Vhostmd(Plugin, RedHatPlugin):
 
     short_desc = 'vhostmd virtualization metrics collection'
 
@@ -19,12 +19,12 @@ class vhostmd(Plugin, RedHatPlugin):
     packages = ('virt-what',)
 
     def setup(self):
-        vw = self.collect_cmd_output("virt-what")['output'].splitlines()
+        vwhat = self.collect_cmd_output("virt-what")['output'].splitlines()
 
-        if not vw:
+        if not vwhat:
             return
 
-        if "vmware" in vw or "kvm" in vw or "xen" in vw:
+        if "vmware" in vwhat or "kvm" in vwhat or "xen" in vwhat:
             if self.is_installed("vm-dump-metrics"):
                 # if vm-dump-metrics is installed use it
                 self.add_cmd_output("vm-dump-metrics",
@@ -37,8 +37,9 @@ class vhostmd(Plugin, RedHatPlugin):
                 for disk in self.listdir(sysblock):
                     if "256K" in disk:
                         dev = disk.split()[0]
-                        r = self.exec_cmd("dd if=/dev/%s bs=25 count=1" % dev)
-                        if 'metric' in r['output']:
+                        ret = self.exec_cmd("dd if=/dev/%s bs=25 count=1"
+                                            % dev)
+                        if 'metric' in ret['output']:
                             self.add_cmd_output(
                                 "dd if=/dev/%s bs=256k count=1" % dev,
                                 suggest_filename="virt_metrics"

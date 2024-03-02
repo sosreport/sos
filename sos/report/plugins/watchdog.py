@@ -8,9 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
-
 from glob import glob
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class Watchdog(Plugin, RedHatPlugin):
@@ -36,7 +35,7 @@ class Watchdog(Plugin, RedHatPlugin):
         """
         log_dir = None
 
-        with open(conf_file, 'r') as conf_f:
+        with open(conf_file, 'r', encoding='UTF-8') as conf_f:
             for line in conf_f:
                 line = line.split('#')[0].strip()
 

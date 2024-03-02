@@ -43,7 +43,7 @@ class Scsi(Plugin, IndependentPlugin):
         result = self.collect_cmd_output('lsscsi -g')
         if result['status'] == 0:
             for line in result['output'].splitlines():
-                if (line.split()[1] in scsi_types):
+                if line.split()[1] in scsi_types:
                     devsg = line.split()[-1]
                     self.add_cmd_output("sg_ses -p2 -b1 %s" % devsg)
 

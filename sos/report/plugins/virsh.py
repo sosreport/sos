@@ -59,11 +59,11 @@ class LibvirtClient(Plugin, IndependentPlugin):
                 # catch the rare exceptions when 'Name' is not found
                 try:
                     pos = k_lines[0].split().index('Name')
-                except Exception:
+                except Exception:  # pylint: disable=broad-except
                     continue
                 for j in filter(lambda x: x, k_lines[2:]):
-                    n = j.split()[pos]
-                    self.add_cmd_output('%s %s-dumpxml %s' % (cmd, k, n),
+                    name = j.split()[pos]
+                    self.add_cmd_output('%s %s-dumpxml %s' % (cmd, k, name),
                                         foreground=True)
 
         # cycle through the VMs/domains list, ignore 2 header lines and latest
@@ -72,16 +72,16 @@ class LibvirtClient(Plugin, IndependentPlugin):
         if domains_output['status'] == 0:
             domains_lines = domains_output['output'].splitlines()[2:]
             for domain in filter(lambda x: x, domains_lines):
-                d = domain.split()[1]
-                for x in ['dumpxml', 'dominfo', 'domblklist']:
-                    self.add_cmd_output('%s %s %s' % (cmd, x, d),
+                domain = domain.split()[1]
+                for opt in ['dumpxml', 'dominfo', 'domblklist']:
+                    self.add_cmd_output('%s %s %s' % (cmd, opt, domain),
                                         foreground=True)
 
         nodedev_output = self.exec_cmd(f"{cmd} nodedev-list", foreground=True)
         if nodedev_output['status'] == 0:
-            for n in nodedev_output['output'].splitlines():
+            for name in nodedev_output['output'].splitlines():
                 self.add_cmd_output(
-                    f"{cmd} nodedev-dumpxml {n}",
+                    f"{cmd} nodedev-dumpxml {name}",
                     foreground=True
                 )
 

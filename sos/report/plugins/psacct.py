@@ -28,7 +28,7 @@ class RedHatPsacct(Psacct, RedHatPlugin):
     packages = ("psacct", )
 
     def setup(self):
-        super(RedHatPsacct, self).setup()
+        super().setup()
         self.add_copy_spec("/var/account/pacct")
         if self.get_option("all"):
             self.add_copy_spec("/var/account/pacct*.gz")
@@ -39,7 +39,7 @@ class DebianPsacct(Psacct, DebianPlugin, UbuntuPlugin):
     packages = ("acct", )
 
     def setup(self):
-        super(DebianPsacct, self).setup()
+        super().setup()
         self.add_copy_spec(["/var/log/account/pacct", "/etc/default/acct"])
         if self.get_option("all"):
             self.add_copy_spec("/var/log/account/pacct*.gz")

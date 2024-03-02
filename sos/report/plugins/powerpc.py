@@ -22,15 +22,16 @@ class PowerPC(Plugin, IndependentPlugin):
 
     def setup(self):
         try:
-            with open(self.path_join('/proc/cpuinfo'), 'r') as fp:
-                contents = fp.read()
-                ispSeries = "pSeries" in contents
-                isPowerNV = "PowerNV" in contents
+            with open(self.path_join('/proc/cpuinfo'), 'r',
+                      encoding='UTF-8') as file:
+                contents = file.read()
+                isp_series = "pSeries" in contents
+                is_power_nv = "PowerNV" in contents
         except IOError:
-            ispSeries = False
-            isPowerNV = False
+            isp_series = False
+            is_power_nv = False
 
-        if ispSeries or isPowerNV:
+        if isp_series or is_power_nv:
             self.add_copy_spec([
                 "/proc/device-tree/",
                 "/proc/loadavg",
@@ -64,7 +65,7 @@ class PowerPC(Plugin, IndependentPlugin):
                 "rmcdomainstatus -s ctrmc -a ip"
             ])
 
-        if ispSeries:
+        if isp_series:
             self.add_copy_spec([
                 "/proc/ppc64/lparcfg",
                 "/proc/ppc64/eeh",
@@ -107,7 +108,7 @@ class PowerPC(Plugin, IndependentPlugin):
                 "ctrmc"
             ])
 
-        if isPowerNV:
+        if is_power_nv:
             self.add_copy_spec([
                 "/proc/ppc64/eeh",
                 "/proc/ppc64/systemcfg",

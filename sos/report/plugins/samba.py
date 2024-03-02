@@ -48,7 +48,7 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 class RedHatSamba(Samba, RedHatPlugin):
 
     def setup(self):
-        super(RedHatSamba, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/sysconfig/samba")
 
 # vim: set et ts=4 sw=4 :

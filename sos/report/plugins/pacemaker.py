@@ -6,11 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import re
+from datetime import datetime, timedelta
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
 from sos.utilities import sos_parse_version
-from datetime import datetime, timedelta
-import re
 
 
 class Pacemaker(Plugin):
@@ -34,15 +34,18 @@ class Pacemaker(Plugin):
     envfile = ""
 
     def setup_crm_mon(self):
+        """ Get cluster summary """
         self.add_cmd_output("crm_mon -1 -A -n -r -t")
 
     def setup_crm_shell(self):
+        """ Get cluster status and configuration """
         self.add_cmd_output([
             "crm status",
             "crm configure show",
         ])
 
     def setup_pcs(self):
+        """ Get pacemaker/corosync configuration """
         pcs_pkg = self.policy.package_manager.pkg_by_name('pcs')
         if pcs_pkg is None:
             return
@@ -65,6 +68,7 @@ class Pacemaker(Plugin):
         self.add_cmd_output("pcs status --full", tags="pcs_status")
 
     def postproc_crm_shell(self):
+        """ Clear password """
         self.do_cmd_output_sub(
             "crm configure show",
             r"passw([^\s=]*)=\S+",
@@ -72,6 +76,7 @@ class Pacemaker(Plugin):
         )
 
     def postproc_pcs(self):
+        """ Clear password """
         self.do_cmd_output_sub(
             "pcs config",
             r"passw([^\s=]*)=\S+",
@@ -128,8 +133,8 @@ class Pacemaker(Plugin):
         pattern = r'^\s*PCMK_logfile=[\'\"]?(\S+)[\'\"]?\s*(\s#.*)?$'
         if self.path_isfile(self.envfile):
             self.add_copy_spec(self.envfile)
-            with open(self.envfile) as f:
-                for line in f:
+            with open(self.envfile, 'r', encoding='UTF-8') as file:
+                for line in file:
                     if re.match(pattern, line):
                         # remove trailing and leading quote marks, in case the
                         # line is e.g. PCMK_logfile="/var/log/pacemaker.log"
@@ -144,7 +149,7 @@ class DebianPacemaker(Pacemaker, DebianPlugin, UbuntuPlugin):
         self.envfile = self.path_join("/etc/default/pacemaker")
         self.setup_crm_shell()
         self.setup_pcs()
-        super(DebianPacemaker, self).setup()
+        super().setup()
 
     def postproc(self):
         self.postproc_crm_shell()
@@ -156,7 +161,7 @@ class RedHatPacemaker(Pacemaker, RedHatPlugin):
         self.envfile = self.path_join("/etc/sysconfig/pacemaker")
         self.setup_pcs()
         self.add_copy_spec("/etc/sysconfig/sbd")
-        super(RedHatPacemaker, self).setup()
+        super().setup()
 
     def postproc(self):
         self.postproc_pcs()

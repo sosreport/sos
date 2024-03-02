@@ -32,8 +32,8 @@ class Vault(Plugin, UbuntuPlugin):
         self.add_copy_spec(vault_cfg)
 
         try:
-            with open(vault_cfg, 'r') as cf:
-                for line in cf.read().splitlines():
+            with open(vault_cfg, 'r', encoding='UTF-8') as cfile:
+                for line in cfile.read().splitlines():
                     if not line:
                         continue
                     words = line.split('=')

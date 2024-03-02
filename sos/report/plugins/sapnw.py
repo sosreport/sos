@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
-class sapnw(Plugin, RedHatPlugin):
+class Sapnw(Plugin, RedHatPlugin):
 
     short_desc = 'SAP NetWeaver'
     plugin_name = 'sapnw'
@@ -17,24 +17,18 @@ class sapnw(Plugin, RedHatPlugin):
     files = ('/usr/sap',)
 
     def collect_list_instances(self):
-        # list installed instances
-        inst_out = self.collect_cmd_output(
+        """ Collect data on installed instances """
+        inst_list = self.collect_cmd_output(
             "/usr/sap/hostctrl/exe/saphostctrl -function ListInstances",
             suggest_filename="SAPInstances"
         )
-        if inst_out['status'] != 0:
+        if inst_list['status'] != 0:
             return
-
-        # set the common strings that will be formatted later in each a_c_s
-        prof_cmd = "env -i %s %s/sappfpar all pf=/usr/sap/%s/SYS/profile/%s"
-        inst_cmd = "env -i %s %s/sapcontrol -nr %s -function GetProcessList"
-        vers_cmd = "env -i %s %s/sapcontrol -nr %s -function GetVersionInfo"
-        user_cmd = 'su - %sadm -c "sapcontrol -nr %s -function GetEnvironment"'
 
         sidsunique = set()
         # Cycle through all the instances, get 'sid', 'instance_number'
         # and 'vhost' to determine the proper profile
-        for inst_line in inst_out['output'].splitlines():
+        for inst_line in inst_list['output'].splitlines():
             if ("DAA" not in inst_line and not
                     inst_line.startswith("No instances found")):
                 fields = inst_line.strip().split()
@@ -50,26 +44,32 @@ class sapnw(Plugin, RedHatPlugin):
                 for line in self.listdir(path):
                     if all(f in line for f in [sid, inst, vhost]):
                         ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
-                        # TODO: I am assuming unicode here
+                        # Unicode is assumed here
                         # nuc should be accounted
-                        pt = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
+                        path = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
                         profile = line.strip()
 
                         # collect profiles
                         self.add_cmd_output(
-                            prof_cmd % (ldenv, pt, sid, profile),
+                            "env -i %s %s/sappfpar all "
+                            "pf=/usr/sap/%s/SYS/profile/%s" %
+                            (ldenv, path, sid, profile),
                             suggest_filename="%s_parameters" % profile
                         )
 
                         # collect instance status
                         self.add_cmd_output(
-                            inst_cmd % (ldenv, pt, inst),
+                            "env -i %s %s/sapcontrol -nr %s "
+                            "-function GetProcessList"
+                            % (ldenv, path, inst),
                             suggest_filename="%s_%s_GetProcList" % (sid, inst)
                         )
 
                         # collect version info for the various components
                         self.add_cmd_output(
-                            vers_cmd % (ldenv, pt, inst),
+                            "env -i %s %s/sapcontrol -nr %s "
+                            "-function GetVersionInfo"
+                            % (ldenv, path, inst),
                             suggest_filename="%s_%s_GetVersInfo" % (sid, inst)
                         )
 
@@ -77,7 +77,9 @@ class sapnw(Plugin, RedHatPlugin):
                         lowsid = sid.lower()
                         fname = "%s_%sadm_%s_userenv" % (sid, lowsid, inst)
                         self.add_cmd_output(
-                            user_cmd % (lowsid, inst),
+                            'su - %sadm -c "sapcontrol -nr %s '
+                            '-function GetEnvironment"'
+                            % (lowsid, inst),
                             suggest_filename=fname
                         )
 
@@ -86,16 +88,17 @@ class sapnw(Plugin, RedHatPlugin):
             self.add_copy_spec("/usr/sap/%s/*DVEB*/work/dev_w0" % sid)
 
     def collect_list_dbs(self):
+        """ Collect data all the installed DBs """
         # list installed sap dbs
-        db_out = self.collect_cmd_output(
+        db_list = self.collect_cmd_output(
             "/usr/sap/hostctrl/exe/saphostctrl -function ListDatabases",
             suggest_filename="SAPDatabases"
         )
 
-        if db_out['status'] != 0:
+        if db_list['status'] != 0:
             return
 
-        for line in db_out['output'].splitlines():
+        for line in db_list['output'].splitlines():
             if "Instance name" in line:
                 fields = line.strip().split()
                 dbadm = fields[2][:-1]

@@ -68,12 +68,12 @@ class S390(Plugin, IndependentPlugin):
             "smc_dbg"
         ])
 
-        r = self.exec_cmd("ls /dev/dasd?")
-        dasd_dev = r['output']
-        for x in dasd_dev.split('\n'):
+        ret = self.exec_cmd("ls /dev/dasd?")
+        dasd_dev = ret['output']
+        for dev in dasd_dev.split('\n'):
             self.add_cmd_output([
-                "dasdview -x -i -j -l -f %s" % (x,),
-                "fdasd -p %s" % (x,)
+                "dasdview -x -i -j -l -f %s" % (dev,),
+                "fdasd -p %s" % (dev,)
             ])
 
 

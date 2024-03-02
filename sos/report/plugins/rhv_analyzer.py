@@ -11,7 +11,7 @@
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
-class Rhv_Analyzer(Plugin, RedHatPlugin):
+class RhvAnalyzer(Plugin, RedHatPlugin):
 
     short_desc = 'RHV Log Collector Analyzer'
 

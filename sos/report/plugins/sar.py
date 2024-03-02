@@ -6,11 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+from datetime import datetime as dt
+import os
+import re
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
-import re
-import os
-from datetime import datetime as dt
 
 
 class Sar(Plugin):
@@ -72,23 +72,26 @@ class Sar(Plugin):
                 sar_filename = 'sar' + fname[2:]
                 if sar_filename not in dir_list:
                     # only collect sar output for the last 7 days by default
-                    if not self.get_option('all_sar'):
-                        try:
-                            _ftime = os.stat(sa_data_path).st_mtime
-                            _age = dt.today() - dt.fromtimestamp(_ftime)
-                            if _age.days > 7:
-                                continue
-                        except Exception as err:
-                            self._log_warn(
-                                "Could not determine age of '%s' - skipping "
-                                "converting to sar format: %s"
-                                % (sa_data_path, err)
-                            )
-                            continue
+                    if not self.get_option('all_sar') and \
+                       self.is_older_than_7days(sa_data_path):
+                        continue
                     sar_cmd = "sar -A -f %s" % sa_data_path
                     self.add_cmd_output(sar_cmd, sar_filename)
                 sadf_cmd = "sadf -x -- -A %s" % sa_data_path
                 self.add_cmd_output(sadf_cmd, "%s.xml" % fname)
+
+    def is_older_than_7days(self, sarfile):
+        """ Is the file older than 7 days? """
+        try:
+            _ftime = os.stat(sarfile).st_mtime
+            _age = dt.today() - dt.fromtimestamp(_ftime)
+            if _age.days <= 7:
+                return False
+        except Exception as err:  # pylint: disable=broad-except
+            self._log_warn("Could not determine age of '%s' - skipping "
+                           "converting to sar format: %s" % (sarfile, err))
+
+        return True
 
 
 class RedHatSar(Sar, RedHatPlugin):

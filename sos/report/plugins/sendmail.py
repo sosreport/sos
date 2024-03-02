@@ -32,7 +32,7 @@ class RedHatSendmail(Sendmail, RedHatPlugin):
     files = ('/etc/rc.d/init.d/sendmail',)
 
     def setup(self):
-        super(RedHatSendmail, self).setup()
+        super().setup()
         self.add_copy_spec('/var/log/maillog')
 
 
@@ -41,7 +41,7 @@ class DebianSendmail(Sendmail, DebianPlugin, UbuntuPlugin):
     files = ('/etc/init.d/sendmail',)
 
     def setup(self):
-        super(DebianSendmail, self).setup()
+        super().setup()
         self.add_copy_spec("/var/log/mail.*")
 
 # vim: set et ts=4 sw=4 :

@@ -23,7 +23,6 @@ class SANLock(Plugin):
             "sanlock client host_status -D",
             "sanlock client log_dump"
         ])
-        return
 
 
 class RedHatSANLock(SANLock, RedHatPlugin):
@@ -31,7 +30,7 @@ class RedHatSANLock(SANLock, RedHatPlugin):
     files = ("/etc/sysconfig/sanlock",)
 
     def setup(self):
-        super(RedHatSANLock, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/sysconfig/sanlock")
 
 # vim: set et ts=4 sw=4 :

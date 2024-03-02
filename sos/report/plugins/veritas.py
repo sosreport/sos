@@ -28,10 +28,10 @@ class Veritas(Plugin, RedHatPlugin):
 
     def setup(self):
         """ interface with vrtsexplorer to capture veritas related data """
-        r = self.exec_cmd(self.get_option("script"))
-        if r['status'] == 0:
+        ret = self.exec_cmd(self.get_option("script"))
+        if ret['status'] == 0:
             tarfile = ""
-            for line in r['output']:
+            for line in ret['output']:
                 line = line.strip()
                 tarfile = self.do_regex_find_all(r"ftp (.*tar.gz)", line)
             if len(tarfile) == 1:

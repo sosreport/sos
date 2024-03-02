@@ -8,9 +8,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+from glob import glob
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, SoSPredicate)
-from glob import glob
 
 
 class Sssd(Plugin):
@@ -61,15 +61,13 @@ class Sssd(Plugin):
 
 
 class RedHatSssd(Sssd, RedHatPlugin):
-
-    def setup(self):
-        super(RedHatSssd, self).setup()
+    pass
 
 
 class DebianSssd(Sssd, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
-        super(DebianSssd, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/default/sssd")
 
 # vim: set et ts=4 sw=4 :

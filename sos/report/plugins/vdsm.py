@@ -8,11 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
-
 import glob
 import json
 import re
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 # This configuration is based on vdsm.storage.lvm.LVM_CONF_TEMPLATE.
@@ -132,9 +131,9 @@ class Vdsm(Plugin, RedHatPlugin):
                         f"vdsm-client StoragePool getSpmStatus "
                         f"storagepoolID={pool}"
                     )
-        except ValueError as e:
+        except ValueError as err:
             self._log_error(
-                'vdsm-client Host getConnectedStoragePools: %s' % (e)
+                'vdsm-client Host getConnectedStoragePools: %s' % (err)
             )
 
         try:
@@ -145,9 +144,9 @@ class Vdsm(Plugin, RedHatPlugin):
                 self.add_cmd_output([
                     dump_volume_chains_cmd % uuid for uuid in sd_uuids
                 ])
-        except ValueError as e:
+        except ValueError as err:
             self._log_error(
-                'vdsm-client Host getStorageDomains: %s' % (e)
+                'vdsm-client Host getStorageDomains: %s' % (err)
             )
 
     def _add_vdsm_forbidden_paths(self):

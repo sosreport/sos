@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, UbuntuPlugin
 
 
-class unity(Plugin, UbuntuPlugin):
+class Unity(Plugin, UbuntuPlugin):
 
     short_desc = 'Unity'
 

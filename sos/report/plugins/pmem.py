@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class pmem(Plugin, IndependentPlugin):
+class PMem(Plugin, IndependentPlugin):
     """This plugin collects data from Persistent Memory devices,
     commonly referred to as NVDIMM's or Storage Class Memory (SCM)
     """
@@ -30,20 +30,19 @@ class pmem(Plugin, IndependentPlugin):
             "/var/log/ipmctl"
         ])
 
-        """ Use the ndctl-list(1) command to collect:
-        -i      Include idle (not enabled) devices in the listing
-        -vvv    Increase verbosity of the output
-        -B      Include bus info in the listing
-        -D      Include dimm info in the listing
-        -F      Include dimm firmware info in the listing
-        -H      Include dimm health info in the listing
-        -M      Include media errors (badblocks) in the listing
-        -N      Include namespace info in the listing
-        -R      Include region info in the listing
-        -X      Include device-dax info in the listing
-
-        Output is JSON formatted
-        """
+        # Use the ndctl-list(1) command to collect:
+        # -i      Include idle (not enabled) devices in the listing
+        # -vvv    Increase verbosity of the output
+        # -B      Include bus info in the listing
+        # -D      Include dimm info in the listing
+        # -F      Include dimm firmware info in the listing
+        # -H      Include dimm health info in the listing
+        # -M      Include media errors (badblocks) in the listing
+        # -N      Include namespace info in the listing
+        # -R      Include region info in the listing
+        # -X      Include device-dax info in the listing
+        #
+        # Output is JSON formatted
         self.add_cmd_output([
             "ndctl --version",
             "ndctl list -vvv",
@@ -51,21 +50,19 @@ class pmem(Plugin, IndependentPlugin):
             "ndctl read-labels -j all"
         ])
 
-        """ Use the daxctl-list(1) command to collect:
-        -i		Include idle (not enabled / zero-sized) devices in the listing
-        -D 		Include device-dax instance info in the listing
-        -R 		Include region info in the listing
-
-        Output is JSON formatted
-        """
+        # Use the daxctl-list(1) command to collect:
+        # -i		Include idle (not enabled / zero-sized) devices in the listing
+        # -D 		Include device-dax instance info in the listing
+        # -R 		Include region info in the listing
+        #
+        # Output is JSON formatted
         self.add_cmd_output([
             "daxctl list",
             "daxctl list -iDR"
         ])
 
-        """ Use the ipmctl(1) command to collect data from
-        Intel(R) Optane(TM) Persistent Memory Modules.
-        """
+        # Use the ipmctl(1) command to collect data from
+        # Intel(R) Optane(TM) Persistent Memory Modules.
         self.add_cmd_output([
             "ipmctl version",
             "ipmctl show -cap",

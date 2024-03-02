@@ -6,8 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
 from datetime import datetime
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Tomcat(Plugin, RedHatPlugin):
@@ -45,11 +45,11 @@ class Tomcat(Plugin, RedHatPlugin):
         })
 
     def postproc(self):
-        serverXmlPasswordAttributes = ['keyPass', 'keystorePass',
-                                       'truststorePass', 'SSLPassword']
+        server_password_attr = ['keyPass', 'keystorePass',
+                                'truststorePass', 'SSLPassword']
         self.do_path_regex_sub(
             r"\/etc\/tomcat.*\/server.xml",
-            r"(%s)=(\S*)" % "|".join(serverXmlPasswordAttributes),
+            r"(%s)=(\S*)" % "|".join(server_password_attr),
             r'\1="********"'
         )
         self.do_path_regex_sub(
