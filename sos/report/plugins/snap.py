@@ -7,9 +7,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
-
 import re
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class Snap(Plugin, IndependentPlugin):
@@ -74,7 +73,7 @@ class Snap(Plugin, IndependentPlugin):
                     continue
                 change = line.split()
                 change_id, change_status = change[0], change[1]
-                if change_status == "Doing" or change_status == "Error":
+                if change_status in ("Doing", "Error"):
                     self.add_cmd_output(f"snap tasks {change_id} --abs-time")
 
     def postproc(self):

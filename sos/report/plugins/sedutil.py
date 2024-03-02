@@ -42,6 +42,7 @@ class SEDUtility(Plugin, IndependentPlugin):
             self.do_debug(sed_list)
 
     def do_debug(self, sed_list):
+        """ Collect debug logs """
         for device in sed_list:
             self.add_cmd_output(f"sedutil-cli --query {device}")
 

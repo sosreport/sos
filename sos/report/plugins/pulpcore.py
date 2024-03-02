@@ -8,9 +8,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
-from pipes import quote
 from re import match
+from shlex import quote
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class PulpCore(Plugin, IndependentPlugin):
@@ -24,16 +24,17 @@ class PulpCore(Plugin, IndependentPlugin):
         PluginOpt('task-days', default=7, desc='days of task history')
     ]
 
+    dbhost = "localhost"
+    dbport = 5432
+    dbname = "pulpcore"
+    dbpasswd = ""
+    staticroot = "/var/lib/pulp/assets"
+    uploaddir = "/var/lib/pulp/media/upload"
+    env = {"PGPASSWORD": dbpasswd}
+
     def parse_settings_config(self):
+        """ Parse pulp settings """
         databases_scope = False
-        self.dbhost = "localhost"
-        self.dbport = 5432
-        self.dbname = "pulpcore"
-        self.dbpasswd = ""
-        # TODO: read also redis config (we dont expect much customisations)
-        # TODO: read also db user (pulp)
-        self.staticroot = "/var/lib/pulp/assets"
-        self.uploaddir = "/var/lib/pulp/media/upload"
 
         def separate_value(line, sep=':'):
             # an auxiliary method to parse values from lines like:
@@ -45,9 +46,9 @@ class PulpCore(Plugin, IndependentPlugin):
             return val
 
         try:
-            with open("/etc/pulp/settings.py", 'r') as pfile:
+            with open("/etc/pulp/settings.py", 'r', encoding='UTF-8') as file:
                 # split the lines to "one option per line" format
-                for line in pfile.read() \
+                for line in file.read() \
                         .replace(',', ',\n').replace('{', '{\n') \
                         .replace('}', '\n}').splitlines():
                     # skip empty lines and lines with comments

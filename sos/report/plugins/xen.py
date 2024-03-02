@@ -6,9 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
 import os
 import re
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class Xen(Plugin, RedHatPlugin):
@@ -19,6 +19,7 @@ class Xen(Plugin, RedHatPlugin):
     profiles = ('virt',)
 
     def determine_xen_host(self):
+        """ Determine xen host type """
         if os.access("/proc/acpi/dsdt", os.R_OK):
             result = self.exec_cmd("grep -qi xen /proc/acpi/dsdt")
             if result['status'] == 0:
@@ -28,19 +29,20 @@ class Xen(Plugin, RedHatPlugin):
             result = self.exec_cmd("grep -q control_d /proc/xen/capabilities")
             if result['status'] == 0:
                 return "dom0"
-            else:
-                return "domU"
+            return "domU"
         return "baremetal"
 
     def check_enabled(self):
-        return (self.determine_xen_host() == "baremetal")
+        return self.determine_xen_host() == "baremetal"
 
     def is_running_xenstored(self):
+        """ Check if xenstored is running """
         xs_pid = self.exec_cmd("pidof xenstored")['output']
         xs_pidnum = re.split('\n$', xs_pid)[0]
         return xs_pidnum.isdigit()
 
     def dom_collect_proc(self):
+        """ Collect /proc/xen """
         self.add_copy_spec([
             "/proc/xen/balloon",
             "/proc/xen/capabilities",
@@ -85,11 +87,6 @@ class Xen(Plugin, RedHatPlugin):
             else:
                 # we need tdb instead of xenstore-ls if cannot get it.
                 self.add_copy_spec("/var/lib/xenstored/tdb")
-
-            # FIXME: we *might* want to collect things in /sys/bus/xen*,
-            # /sys/class/xen*, /sys/devices/xen*, /sys/modules/blk*,
-            # /sys/modules/net*, but I've never heard of them actually being
-            # useful, so I'll leave it out for now
         else:
             # for bare-metal, we don't have to do anything special
             return  # USEFUL

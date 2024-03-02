@@ -46,11 +46,13 @@ class Ssh(Plugin, IndependentPlugin):
             self.user_ssh_files_permissions()
 
     def included_configs(self, sshcfgs):
+        """ Include subconfig files """
         # Read configs for any includes and copy those
         try:
             for sshcfg in sshcfgs:
                 tag = sshcfg.split('/')[-1]
-                with open(self.path_join(sshcfg), 'r') as cfgfile:
+                with open(self.path_join(sshcfg), 'r',
+                          encoding='UTF-8') as cfgfile:
                     for line in cfgfile:
                         # skip empty lines and comments
                         if len(line.split()) == 0 or line.startswith('#'):
@@ -59,7 +61,7 @@ class Ssh(Plugin, IndependentPlugin):
                         if line.lower().startswith('include'):
                             confarg = line.split()
                             self.add_copy_spec(confarg[1], tags=tag)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             pass
 
     def user_ssh_files_permissions(self):
@@ -73,9 +75,10 @@ class Ssh(Plugin, IndependentPlugin):
         if users_data['status']:
             # If getent fails, fallback to just reading /etc/passwd
             try:
-                with open(self.path_join('/etc/passwd')) as passwd_file:
+                with open(self.path_join('/etc/passwd'), 'r',
+                          encoding='UTF-8') as passwd_file:
                     users_data_lines = passwd_file.readlines()
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 # If we can't read /etc/passwd, then there's something wrong.
                 self._log_error("Couldn't read /etc/passwd")
                 return

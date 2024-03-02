@@ -8,12 +8,12 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import hashlib
+import json
+import os
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
 from sos.policies.distros.redhat import RHELPolicy
-import os
-import json
-import hashlib
 
 
 class Python(Plugin):
@@ -67,7 +67,7 @@ class RedHatPython(Python, RedHatPlugin):
         if isinstance(self.policy, RHELPolicy) and \
                 self.policy.dist_version() == 8:
             self.python_version = "/usr/libexec/platform-python -V"
-        super(RedHatPython, self).setup()
+        super().setup()
 
     def collect(self):
         if self.get_option('hashes'):
@@ -75,6 +75,7 @@ class RedHatPython(Python, RedHatPlugin):
                 hfile.write(json.dumps(self.get_hashes(), indent=4))
 
     def get_hashes(self):
+        """ Get the hashes for Python files """
         digests = {
             'digests': []
         }
@@ -92,12 +93,12 @@ class RedHatPython(Python, RedHatPlugin):
                         continue
                     filepath = self.path_join(root, _file)
                     try:
-                        with open(filepath, 'rb') as f:
+                        with open(filepath, 'rb') as file:
                             digest = hashlib.sha256()
-                            data = f.read(1024)
+                            data = file.read(1024)
                             while data:
                                 digest.update(data)
-                                data = f.read(1024)
+                                data = file.read(1024)
 
                             digest = digest.hexdigest()
                             digests['digests'].append({

@@ -39,7 +39,7 @@ class Services(Plugin):
 class RedHatServices(Services, RedHatPlugin):
 
     def setup(self):
-        super(RedHatServices, self).setup()
+        super().setup()
         self.add_cmd_output("chkconfig --list", root_symlink="chkconfig",
                             tags="chkconfig")
 
@@ -47,7 +47,7 @@ class RedHatServices(Services, RedHatPlugin):
 class DebianServices(Services, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
-        super(DebianServices, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/rc*.d")
 
 # vim: set et ts=4 sw=4 :

@@ -25,7 +25,7 @@ class RedHatRadius(Radius, RedHatPlugin):
     files = ('/etc/raddb',)
 
     def setup(self):
-        super(RedHatRadius, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/raddb",
             "/etc/pam.d/radiusd",
@@ -42,7 +42,7 @@ class DebianRadius(Radius, DebianPlugin, UbuntuPlugin):
     files = ('/etc/freeradius',)
 
     def setup(self):
-        super(DebianRadius, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/freeradius",
             "/etc/pam.d/radiusd",

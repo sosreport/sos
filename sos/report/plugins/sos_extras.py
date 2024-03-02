@@ -6,9 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
 import os
 import stat
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class SosExtras(Plugin, IndependentPlugin):
@@ -45,9 +45,9 @@ class SosExtras(Plugin, IndependentPlugin):
 
     def setup(self):
         try:
-            st = os.stat(self.extras_dir)
-            if (st.st_uid != 0) or (st.st_mode & stat.S_IWGRP) or \
-               (st.st_mode & stat.S_IWOTH):
+            st_res = os.stat(self.extras_dir)
+            if (st_res.st_uid != 0) or (st_res.st_mode & stat.S_IWGRP) or \
+               (st_res.st_mode & stat.S_IWOTH):
                 self._log_warn("Skipping sos extras as %s has too wide"
                                " permissions or ownership." % self.extras_dir)
                 return
@@ -56,12 +56,12 @@ class SosExtras(Plugin, IndependentPlugin):
                            self.extras_dir)
             return
 
-        for path, dirlist, filelist in os.walk(self.extras_dir):
-            for f in filelist:
-                _file = self.path_join(path, f)
+        for path, _, filelist in os.walk(self.extras_dir):
+            for file in filelist:
+                _file = self.path_join(path, file)
                 self._log_warn("Collecting data from extras file %s" % _file)
                 try:
-                    with open(_file, 'r') as sfile:
+                    with open(_file, 'r', encoding='UTF-8') as sfile:
                         for line in sfile.read().splitlines():
                             # ignore empty lines or comments
                             if len(line.split()) == 0 or line.startswith('#'):
@@ -83,7 +83,7 @@ class SosExtras(Plugin, IndependentPlugin):
                                                    sizelimit=limit)
                             else:
                                 # command to execute
-                                self.add_cmd_output(line, subdir=f)
+                                self.add_cmd_output(line, subdir=file)
 
                 except IOError:
                     self._log_warn("unable to read extras file %s" % _file)

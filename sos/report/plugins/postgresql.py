@@ -46,6 +46,7 @@ class PostgreSQL(Plugin):
     ]
 
     def do_pg_dump(self, filename="pgdump.tar"):
+        """ Extract PostgreSQL database into a tar file """
         if self.get_option("dbname"):
             if self.get_option("password") or "PGPASSWORD" in os.environ:
                 # We're only modifying this for ourself and our children so
@@ -86,7 +87,7 @@ class PostgreSQL(Plugin):
 class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
 
     def setup(self):
-        super(RedHatPostgreSQL, self).setup()
+        super().setup()
 
         pghome = self.get_option("pghome")
         dirs = [pghome]
@@ -101,14 +102,14 @@ class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
                 self.add_copy_spec(filename)
 
             # copy PG_VERSION and postmaster.opts
-            for f in ["PG_VERSION", "postmaster.opts"]:
-                self.add_copy_spec(self.path_join(_dir, "data", f))
+            for file in ["PG_VERSION", "postmaster.opts"]:
+                self.add_copy_spec(self.path_join(_dir, "data", file))
 
 
 class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
-        super(DebianPostgreSQL, self).setup()
+        super().setup()
 
         self.add_copy_spec([
             "/var/log/postgresql/*.log",

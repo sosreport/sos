@@ -6,9 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
-
 import re
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Postfix(Plugin):
@@ -20,8 +19,9 @@ class Postfix(Plugin):
     packages = ('postfix',)
 
     def forbidden_ssl_keys_files(self):
-        # list of attributes defining a location of a SSL key file
-        # we must forbid from collection
+        """ list of attributes defining a location of a SSL key file
+        we must forbid from collection
+        """
         forbid_attributes = [
             "lmtp_tls_dkey_file",
             "lmtp_tls_eckey_file",
@@ -41,31 +41,35 @@ class Postfix(Plugin):
             "tlsproxy_tls_dh1024_param_file",
             "tlsproxy_tls_dh512_param_file",
         ]
-        fp = []
+        fpaths = []
         try:
-            with open(self.path_join('/etc/postfix/main.cf'), 'r') as cffile:
+            with open(self.path_join('/etc/postfix/main.cf'), 'r',
+                      encoding='UTF-8') as cffile:
                 for line in cffile.readlines():
                     # ignore comments and take the first word after '='
                     if line.startswith('#'):
                         continue
                     words = line.split('=')
                     if words[0].strip() in forbid_attributes:
-                        fp.append(words[1].split()[0])
-        finally:
-            return fp
+                        fpaths.append(words[1].split()[0])
+        except Exception:  # pylint: disable=broad-except
+            pass
+        return fpaths
 
     def forbidden_password_files(self):
+        """ Get the list of password to exclude """
         forbid_attributes = (
             "lmtp_sasl_password_maps",
             "smtp_sasl_password_maps",
             "postscreen_dnsbl_reply_map",
             "smtp_sasl_auth_cache_name",
         )
-        fp = []
+        fpaths = []
         prefix = 'hash:'
         option_format = re.compile(r"^(.*)=(.*)")
         try:
-            with open(self.path_join('/etc/postfix/main.cf'), 'r') as cffile:
+            with open(self.path_join('/etc/postfix/main.cf'), 'r',
+                      encoding='UTF-8') as cffile:
                 for line in cffile.readlines():
                     # ignore comment and check option format
                     line = re.sub('#.*', '', line)
@@ -83,12 +87,12 @@ class Postfix(Plugin):
                         # remove prefix
                         if filepath.startswith(prefix):
                             filepath = filepath[len(prefix):]
-                        fp.append(filepath)
-        except Exception as e:
+                        fpaths.append(filepath)
+        except Exception as err:  # pylint: disable=broad-except
             # error log
-            msg = f"Error parsing main.cf: {e.args[0]}"
+            msg = f"Error parsing main.cf: {err.args[0]}"
             self._log_error(msg)
-        return fp
+        return fpaths
 
     def setup(self):
         self.add_copy_spec([
@@ -114,7 +118,7 @@ class RedHatPostfix(Postfix, RedHatPlugin):
     packages = ('postfix',)
 
     def setup(self):
-        super(RedHatPostfix, self).setup()
+        super().setup()
         self.add_copy_spec("/etc/mail")
 
 
@@ -122,7 +126,5 @@ class DebianPostfix(Postfix, DebianPlugin, UbuntuPlugin):
 
     packages = ('postfix',)
 
-    def setup(self):
-        super(DebianPostfix, self).setup()
 
 # vim: set et ts=4 sw=4 :

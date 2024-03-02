@@ -25,7 +25,7 @@ class SAS3ircu(Plugin, IndependentPlugin):
         # get list of adapters
         result = self.collect_cmd_output("sas3ircu list", timeout=5)
 
-        if (result["status"] == 0):
+        if result["status"] == 0:
             # only want devices
             sas_lst = result["output"].splitlines()[10:-1]
 

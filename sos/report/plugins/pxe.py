@@ -27,7 +27,7 @@ class RedHatPxe(Pxe, RedHatPlugin):
     packages = ('system-config-netboot-cmd',)
 
     def setup(self):
-        super(RedHatPxe, self).setup()
+        super().setup()
         self.add_cmd_output("/usr/sbin/pxeos -l")
         self.add_copy_spec("/etc/dhcpd.conf")
         if self.get_option("tftpboot"):
@@ -39,7 +39,7 @@ class DebianPxe(Pxe, DebianPlugin, UbuntuPlugin):
     packages = ('tftpd-hpa',)
 
     def setup(self):
-        super(DebianPxe, self).setup()
+        super().setup()
         self.add_copy_spec([
             "/etc/dhcp/dhcpd.conf",
             "/etc/default/tftpd-hpa"

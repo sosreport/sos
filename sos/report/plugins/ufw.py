@@ -9,7 +9,7 @@
 from sos.report.plugins import (Plugin, IndependentPlugin, SoSPredicate)
 
 
-class ufw(Plugin, IndependentPlugin):
+class Ufw(Plugin, IndependentPlugin):
 
     short_desc = 'Uncomplicated FireWall'
 

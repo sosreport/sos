@@ -8,9 +8,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
-from pipes import quote
 from re import match
+from shlex import quote
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
 class Pulp(Plugin, RedHatPlugin):
@@ -25,6 +25,11 @@ class Pulp(Plugin, RedHatPlugin):
                   desc='number of tasks to collect from DB queries')
     ]
 
+    dbhost = "localhost"
+    dbport = "27017"
+    dbuser = ""
+    dbpassword = ""
+
     def setup(self):
 
         # get mongo DB host and port from line like:
@@ -38,15 +43,11 @@ class Pulp(Plugin, RedHatPlugin):
         # further, collect location of CA file for contacting qpid in section
         # [messaging]
         # certfile: /etc/pki/katello/qpid_client_striped.crt
-        self.dbhost = "localhost"
-        self.dbport = "27017"
-        self.dbuser = ""
-        self.dbpassword = ""
-        self.messaging_cert_file = ""
+        messaging_cert_file = ""
         in_messaging_section = False
         try:
-            with open("/etc/pulp/server.conf", 'r') as pfile:
-                pulp_lines = pfile.read().splitlines()
+            with open("/etc/pulp/server.conf", 'r', encoding='UTF-8') as file:
+                pulp_lines = file.read().splitlines()
             for line in pulp_lines:
                 if match(r"^\s*seeds:\s+\S+:\S+", line):
                     uri = line.split()[1].split(',')[0].split(':')
@@ -59,7 +60,7 @@ class Pulp(Plugin, RedHatPlugin):
                 if line.startswith("[messaging]"):
                     in_messaging_section = True
                 if in_messaging_section and line.startswith("certfile:"):
-                    self.messaging_cert_file = line.split()[1]
+                    messaging_cert_file = line.split()[1]
                     in_messaging_section = False
         except IOError:
             # fallback when the cfg file is not accessible
@@ -137,7 +138,7 @@ class Pulp(Plugin, RedHatPlugin):
         for opt in "quc":
             self.add_cmd_output(
                 f"qpid-stat -{opt} --ssl-certificate="
-                f"{self.messaging_cert_file} -b amqps://localhost:5671",
+                f"{messaging_cert_file} -b amqps://localhost:5671",
                 tags=f"qpid_stat_{opt}")
 
         self.add_cmd_output(
@@ -147,6 +148,7 @@ class Pulp(Plugin, RedHatPlugin):
         )
 
     def build_mongo_cmd(self, query):
+        """ Build mongoDB command """
         _cmd = "bash -c %s"
         _mondb = "--host %s --port %s %s %s" % (self.dbhost, self.dbport,
                                                 self.dbuser, self.dbpassword)

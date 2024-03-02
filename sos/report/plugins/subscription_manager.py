@@ -6,9 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
-import glob
 from configparser import NoOptionError, NoSectionError
+import glob
+from sos.report.plugins import Plugin, RedHatPlugin
 
 
 class SubscriptionManager(Plugin, RedHatPlugin):
@@ -22,7 +22,7 @@ class SubscriptionManager(Plugin, RedHatPlugin):
     packages = ('subscription-manager',)
 
     def get_proxy_string(self, config):
-        # return curl options --proxy[-user] per RHSM config
+        """ return curl options --proxy[-user] per RHSM config """
         proxy = ""
         proxy_hostname = config.get('server', 'proxy_hostname')
         if proxy_hostname:
@@ -41,7 +41,7 @@ class SubscriptionManager(Plugin, RedHatPlugin):
         return proxy
 
     def get_server_url(self, config):
-        # return URL per RHSM config for curl command
+        """ return URL per RHSM config for curl command """
         secure = "s" if config.get('server', 'insecure') != '1' else ""
         port = config.get('server', 'port')
         # if port is set, prepend it by ':' separating it from hostname
@@ -85,7 +85,7 @@ class SubscriptionManager(Plugin, RedHatPlugin):
                   "https://subscription.rhsm.redhat.com:443/subscription"
         env = None  # for no_proxy
         try:
-            from rhsm.config import get_config_parser
+            from rhsm.config import get_config_parser  # pylint: disable=C0415
             config = get_config_parser()
             proxy = self.get_proxy_string(config)
             server_url = self.get_server_url(config)

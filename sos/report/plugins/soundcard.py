@@ -28,8 +28,7 @@ class Soundcard(Plugin):
 class RedHatSoundcard(Soundcard, RedHatPlugin):
 
     def setup(self):
-        super(RedHatSoundcard, self).setup()
-
+        super().setup()
         self.add_copy_spec([
             "/etc/alsa/*",
             "/etc/asound.*"
@@ -39,8 +38,7 @@ class RedHatSoundcard(Soundcard, RedHatPlugin):
 class DebianSoundcard(Soundcard, DebianPlugin, UbuntuPlugin):
 
     def setup(self):
-        super(DebianSoundcard, self).setup()
-
+        super().setup()
         self.add_copy_spec("/etc/pulse/*")
 
 # vim: set et ts=4 sw=4 :

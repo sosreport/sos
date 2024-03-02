@@ -42,6 +42,7 @@ class SaltMaster(Plugin, IndependentPlugin):
         ], timeout=30)
 
     def add_pillar_roots(self):
+        """ Collect pilliar_roots of all salt configs """
         cfgs = glob.glob("/etc/salt/master.d/*conf")
         main_cfg = "/etc/salt/master"
 
@@ -50,9 +51,10 @@ class SaltMaster(Plugin, IndependentPlugin):
 
         all_pillar_roots = []
         for cfg in cfgs:
-            with open(cfg, "r") as f:
+            with open(cfg, "r", encoding='UTF-8') as file:
                 cfg_pillar_roots = (
-                    yaml.safe_load(f).get("pillar_roots", {}).get("base", [])
+                    yaml.safe_load(file).get("pillar_roots", {}).
+                    get("base", [])
                 )
                 all_pillar_roots.extend(cfg_pillar_roots)
 
