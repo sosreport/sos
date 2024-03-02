@@ -24,7 +24,7 @@ class LogsPluginTest(StageOneReportTest):
 
     def test_journalctl_collections(self):
         self.assertFileCollected('sos_commands/logs/journalctl_--disk-usage')
-        self.assertFileCollected('sos_commands/logs/journalctl_--no-pager_--boot')
+        self.assertFileCollected('sos_commands/logs/journalctl_-o_with-unit_--no-pager_--boot')
 
     def test_journal_runtime_collected(self):
         self.assertFileGlobInArchive('/var/log/journal/*')
@@ -70,13 +70,13 @@ class JournalSizeLimitTest(StageTwoReportTest):
             sosfd.write(rand[::-1] + '\n')
 
     def test_journal_size_limit(self):
-        journ = 'sos_commands/logs/journalctl_--no-pager'
+        journ = 'sos_commands/logs/journalctl_-o_with-unit_--no-pager'
         self.assertFileCollected(journ)
         jsize = os.stat(self.get_name_in_archive(journ)).st_size
         assert jsize <= 20971520, "Collected journal is larger than 20MB (size: %s)" % jsize
 
     def test_journal_tailed_and_linked(self):
-        tailed = self.get_name_in_archive('sos_strings/logs/journalctl_--no-pager.tailed')
+        tailed = self.get_name_in_archive('sos_strings/logs/journalctl_-o_with-unit_--no-pager.tailed')
         self.assertFileExists(tailed)
-        journ = self.get_name_in_archive('sos_commands/logs/journalctl_--no-pager')
+        journ = self.get_name_in_archive('sos_commands/logs/journalctl_-o_with-unit_--no-pager')
         assert os.path.islink(journ), "Journal in sos_commands/logs is not a symlink"
