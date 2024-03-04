@@ -130,13 +130,4 @@ class sapnw(Plugin, RedHatPlugin):
         self.collect_list_instances()
         self.collect_list_dbs()
 
-        # run sapconf in check mode
-        #
-        # since the command creates a limits.d file on its own,
-        # we must predicate it by presence of the file
-        if self.path_exists('/etc/security/limits.d/99-sap-limits.conf') \
-                or self.get_option('allow_system_changes'):
-            self.add_cmd_output("sapconf -n",
-                                suggest_filename="sapconf_checkmode")
-
 # vim: et ts=4 sw=4
