@@ -69,7 +69,8 @@ class ocp(Cluster):
         ('role', 'master', 'Colon delimited list of roles to filter on'),
         ('kubeconfig', '', 'Path to the kubeconfig file'),
         ('token', '', 'Service account token to use for oc authorization'),
-        ('with-api', False, 'Collect OCP API data from a master node')
+        ('with-api', False, 'Collect OCP API data from a master node'),
+        ('api-url', '', 'Alternate API URL of an external control-plane'),
     ]
 
     @property
@@ -109,8 +110,9 @@ class ocp(Cluster):
         token
         """
         _res = self.exec_primary_cmd(
-            self.fmt_oc_cmd("login --insecure-skip-tls-verify=True --token=%s"
-                            % self.token)
+            self.fmt_oc_cmd("login --insecure-skip-tls-verify=True "
+                            f"--token={self.token} "
+                            f"{self.get_option('api-url')}")
         )
         return _res['status'] == 0
 
