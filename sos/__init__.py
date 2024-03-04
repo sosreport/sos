@@ -51,6 +51,9 @@ class SoS():
     """
 
     def __init__(self, args):
+        if not os.getenv('HOST', None) and os.path.isfile('/run/.toolboxenv'):
+            os.environ['HOST'] = '/run/host'
+
         self.cmdline = args
         # define the local subcommands that exist on the system
         # first import the necessary module, then add an entry to the dict that
