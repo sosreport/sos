@@ -73,6 +73,32 @@ __all__ = [
 ]
 
 
+def format_version_to_pep440(ver):
+    """ Convert the version into a PEP440 compliant version scheme."""
+    public_version_re = re.compile(
+            r"^([0-9][0-9.]*(?:(?:a|b|rc|.post|.dev)[0-9]+)*)\+?"
+            )
+    try:
+        _, public, local = public_version_re.split(ver, maxsplit=1)
+        if not local:
+            return ver
+        sanitized_local = re.sub("[+~]+", ".", local).strip("-")
+        pep440_version = f"{public}+{sanitized_local}"
+        return pep440_version
+    except Exception as err:
+        log.debug(f"Unable to format {ver} to pep440 format: {err}")
+        return ver
+
+
+def sos_parse_version(ver, pep440=True):
+    """ Converts the version to PEP440 format before parsing """
+    if pep440:
+        ver_pep440 = format_version_to_pep440(ver)
+        return parse_version(ver_pep440)
+
+    return parse_version(ver)
+
+
 def tail(filename, number_of_bytes):
     """Returns the last number_of_bytes of filename"""
     with open(filename, "rb") as f:

@@ -8,7 +8,7 @@
 
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
-from sos.utilities import parse_version
+from sos.utilities import sos_parse_version
 from datetime import datetime, timedelta
 import re
 
@@ -55,7 +55,7 @@ class Pacemaker(Plugin):
         ])
 
         pcs_version = '.'.join(pcs_pkg['version'])
-        if parse_version(pcs_version) > parse_version('0.10.8'):
+        if sos_parse_version(pcs_version) > sos_parse_version('0.10.8'):
             self.add_cmd_output("pcs property config --all")
         else:
             self.add_cmd_output("pcs property list --all")
