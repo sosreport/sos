@@ -185,6 +185,7 @@ class Foreman(Plugin):
     def collect_foreman_db(self):
         """ Collect foreman db and dynflow data """
         days = '%s days' % self.get_option('days')
+        interval = quote(days)
 
         # Construct the DB queries, using the days option to limit the range
         # of entries returned
@@ -194,28 +195,29 @@ class Foreman(Plugin):
             "'%(pass|key|secret)%'"
         )
 
+        dtaskcmd = ('select * from foreman_tasks_tasks where started_at > '
+                    f'NOW() - interval {interval} order by started_at asc')
+
         dyncmd = (
             'select dynflow_execution_plans.* from foreman_tasks_tasks join '
             'dynflow_execution_plans on (foreman_tasks_tasks.external_id = '
             'dynflow_execution_plans.uuid::varchar) where foreman_tasks_tasks.'
-            'started_at > NOW() - interval %s' % quote(days)
-        )
+            f'started_at > NOW() - interval {interval} order by '
+            'foreman_tasks_tasks.started_at asc')
 
         dactioncmd = (
              'select dynflow_actions.* from foreman_tasks_tasks join '
              'dynflow_actions on (foreman_tasks_tasks.external_id = '
              'dynflow_actions.execution_plan_uuid::varchar) where '
-             'foreman_tasks_tasks.started_at > NOW() - interval %s'
-             % quote(days)
-        )
+             f'foreman_tasks_tasks.started_at > NOW() - interval {interval} '
+             'order by foreman_tasks_tasks.started_at asc')
 
         dstepscmd = (
             'select dynflow_steps.* from foreman_tasks_tasks join '
             'dynflow_steps on (foreman_tasks_tasks.external_id = '
             'dynflow_steps.execution_plan_uuid::varchar) where '
-            'foreman_tasks_tasks.started_at > NOW() - interval %s'
-            % quote(days)
-        )
+            f'foreman_tasks_tasks.started_at > NOW() - interval {interval} '
+            'order by foreman_tasks_tasks.started_at asc')
 
         # counts of fact_names prefixes/types: much of one type suggests
         # performance issues
@@ -247,7 +249,7 @@ class Foreman(Plugin):
         # Same as above, but tasks should be in CSV output
 
         foremancsv = {
-            'foreman_tasks_tasks': 'select * from foreman_tasks_tasks',
+            'foreman_tasks_tasks': dtaskcmd,
             'dynflow_execution_plans': dyncmd,
             'dynflow_actions': dactioncmd,
             'dynflow_steps': dstepscmd,
