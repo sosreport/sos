@@ -683,7 +683,7 @@ class SoSReport(SoSComponent):
 
     def _get_devices_by_fstype(self):
         _dev_fstypes = {}
-        _devs = sos_get_command_output("lsblk -nrpo FSTYPE,NAME")
+        _devs = sos_get_command_output("lsblk -snrpo FSTYPE,NAME")
         if _devs['status'] != 0:
             return _dev_fstypes
         for line in (_devs['output'].splitlines()):
