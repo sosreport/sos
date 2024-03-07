@@ -261,7 +261,7 @@ report_stagetwo_task:
         log_artifacts: *logs
 
 report_foreman_task:
-    skip: "!changesInclude('.cirrus.yml', '**/{__init__,apache,foreman,foreman_tests,candlepin,pulp,pulpcore}.py')"
+    skip: "!changesInclude('.cirrus.yml', '**/{__init__,apache,foreman,foreman_tests,candlepin,pulp,pulpcore}.py', '**/foreman_setup.sh')"
     timeout_in: 45m
     alias: "foreman_integration"
     name: "Integration Test - Foreman ${FOREMAN_VER} - ${BUILD_NAME}"
