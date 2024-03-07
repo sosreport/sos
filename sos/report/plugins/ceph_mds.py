@@ -18,12 +18,22 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
     files = ('/var/lib/ceph/mds/*',)
 
     def setup(self):
+        all_logs = self.get_option("all_logs")
+
         self.add_file_tags({
             '/var/log/ceph/ceph-mds.*.log': 'ceph_mds_log',
         })
 
+        if not all_logs:
+            self.add_copy_spec([
+                "/var/log/ceph/ceph-mds*.log",
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/ceph/ceph-mds*.log*",
+            ])
+
         self.add_copy_spec([
-            "/var/log/ceph/ceph-mds*.log",
             "/var/lib/ceph/bootstrap-mds/",
             "/var/lib/ceph/mds/",
             "/run/ceph/ceph-mds*",

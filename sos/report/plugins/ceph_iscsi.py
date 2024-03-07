@@ -20,14 +20,26 @@ class CephISCSI(Plugin, RedHatPlugin, UbuntuPlugin):
     containers = ("rbd-target-api.*", "rbd-target-gw.*")
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/tcmu/tcmu.conf",
-            "/var/log/**/ceph-client.*.log",
-            "/var/log/**/rbd-target-api.log",
-            "/var/log/**/rbd-target-gw.log",
-            "/var/log/**/tcmu-runner.log",
-            "/var/log/tcmu-runner.log"
-        ])
+        all_logs = self.get_option("all_logs")
+
+        self.add_copy_spec(["/etc/tcmu/tcmu.conf",])
+
+        if not all_logs:
+            self.add_copy_spec([
+                "/var/log/**/ceph-client.*.log",
+                "/var/log/**/rbd-target-api.log",
+                "/var/log/**/rbd-target-gw.log",
+                "/var/log/**/tcmu-runner.log",
+                "/var/log/tcmu-runner.log"
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/**/ceph-client.*.log*",
+                "/var/log/**/rbd-target-api.log*",
+                "/var/log/**/rbd-target-gw.log*",
+                "/var/log/**/tcmu-runner.log*",
+                "/var/log/tcmu-runner.log*"
+            ])
 
         self.add_cmd_output([
             "gwcli info",

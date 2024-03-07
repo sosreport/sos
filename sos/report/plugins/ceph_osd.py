@@ -37,6 +37,7 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
              '/var/snap/microceph/common/data/osd/*')
 
     def setup(self):
+        all_logs = self.get_option("all_logs")
         directory = ''
         microceph_pkg = self.policy.package_manager.pkg_by_name('microceph')
         cmds = [
@@ -103,6 +104,12 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
                 "ceph-volume lvm list"
             ])
 
+            if all_logs:
+                self.add_copy_spec([
+                    "/var/log/ceph/**/ceph-osd*.log*",
+                    "/var/log/ceph/**/ceph-volume*.log*",
+                ])
+
         else:
             directory = '/var/snap/microceph'
             # Only collect microceph files, don't run any commands
@@ -116,6 +123,11 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
                 "/var/snap/microceph/common/data/osd/*",
                 "/var/snap/microceph/common/logs/*ceph-osd*.log",
             ])
+
+            if all_logs:
+                self.add_copy_spec([
+                    "/var/snap/microceph/common/logs/*ceph-osd*.log*",
+                ])
 
         # common add_cmd_output for ceph and microceph
         self.add_cmd_output([

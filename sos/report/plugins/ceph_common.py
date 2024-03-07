@@ -54,14 +54,18 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
             })
 
             if not all_logs:
-                self.add_copy_spec("/var/log/calamari/*.log",)
+                self.add_copy_spec([
+                    "/var/log/calamari/*.log",
+                    "/var/log/ceph/**/ceph.log",
+                ])
             else:
-                self.add_copy_spec("/var/log/calamari",)
+                self.add_copy_spec([
+                    "/var/log/calamari",
+                    "/var/log/ceph/**/ceph.log*",
+                ])
 
             self.add_copy_spec([
-                "/var/log/ceph/**/ceph.log",
                 "/var/log/ceph/**/ceph.audit.log*",
-                "/var/log/calamari/*.log",
                 "/etc/ceph/",
                 "/etc/calamari/",
                 "/var/lib/ceph/tmp/",
@@ -80,10 +84,16 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
                 "/etc/ceph/*bindpass*"
             ])
         else:
-            self.add_copy_spec([
-                "/var/snap/microceph/common/logs/ceph.log",
-                "/var/snap/microceph/common/logs/ceph.audit.log",
-            ])
+            if not all_logs:
+                self.add_copy_spec([
+                    "/var/snap/microceph/common/logs/ceph.log",
+                    "/var/snap/microceph/common/logs/ceph.audit.log",
+                ])
+            else:
+                self.add_copy_spec([
+                    "/var/snap/microceph/common/logs/ceph.log*",
+                    "/var/snap/microceph/common/logs/ceph.audit.log*",
+                ])
 
         self.add_cmd_output([
             "ceph -v",
