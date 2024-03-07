@@ -42,7 +42,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
     ceph_version = 0
 
     def setup(self):
-
+        all_logs = self.get_option("all_logs")
         self.ceph_version = self.get_ceph_version()
 
         microceph_pkg = self.policy.package_manager.pkg_by_name('microceph')
@@ -61,10 +61,18 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
                 "/etc/ceph/*bindpass*"
             ])
 
+            if not all_logs:
+                self.add_copy_spec([
+                    "/var/log/ceph/**/*ceph-mon*.log"
+                ])
+            else:
+                self.add_copy_spec([
+                    "/var/log/ceph/**/*ceph-mon*.log*"
+                ])
+
             self.add_copy_spec([
                 "/run/ceph/**/ceph-mon*",
                 "/var/lib/ceph/**/kv_backend",
-                "/var/log/ceph/**/*ceph-mon*.log"
             ])
 
         else:
@@ -75,9 +83,17 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
                 "/var/snap/microceph/common/state/*",
             ])
 
+            if not all_logs:
+                self.add_copy_spec([
+                    "/var/snap/microceph/common/logs/*ceph-mon*.log",
+                ])
+            else:
+                self.add_copy_spec([
+                    "/var/snap/microceph/common/logs/*ceph-mon*.log*",
+                ])
+
             self.add_copy_spec([
                 "/var/snap/microceph/common/data/mon/*",
-                "/var/snap/microceph/common/logs/*ceph-mon*.log",
                 "/var/snap/microceph/current/conf/*",
             ])
 
