@@ -14,8 +14,8 @@
 
 import os
 
-from sos.report.plugins import (Plugin, UbuntuPlugin, DebianPlugin, SCLPlugin,
-                                PluginOpt)
+from sos.report.plugins import (Plugin, UbuntuPlugin, DebianPlugin,
+                                RedHatPlugin, PluginOpt)
 from sos.utilities import find
 
 
@@ -45,7 +45,7 @@ class PostgreSQL(Plugin):
                   desc='database server listening port')
     ]
 
-    def do_pg_dump(self, scl=None, filename="pgdump.tar"):
+    def do_pg_dump(self, filename="pgdump.tar"):
         if self.get_option("dbname"):
             if self.get_option("password") or "PGPASSWORD" in os.environ:
                 # We're only modifying this for ourself and our children so
@@ -67,8 +67,6 @@ class PostgreSQL(Plugin):
                         self.get_option("dbname")
                     )
 
-                if scl is not None:
-                    cmd = self.convert_cmd_scl(scl, cmd)
                 self.add_cmd_output(cmd, suggest_filename=filename,
                                     binary=True, sizelimit=0)
 
@@ -85,33 +83,13 @@ class PostgreSQL(Plugin):
         self.add_cmd_output("du -sh %s" % self.get_option('pghome'))
 
 
-class RedHatPostgreSQL(PostgreSQL, SCLPlugin):
-
-    packages = (
-        'postgresql',
-        'rh-postgresql95-postgresql-server',
-        'rh-postgresql10-postgresql-server',
-        'rh-postgresql12-postgresql-server',
-    )
+class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
 
     def setup(self):
         super(RedHatPostgreSQL, self).setup()
 
         pghome = self.get_option("pghome")
         dirs = [pghome]
-
-        for pkg in self.packages[1:]:
-            # The scl name, package name, and service name all differ slightly
-            # but is at least consistent in doing so across versions, so we
-            # need to do some mangling here
-            scl = pkg.split('-postgresql-')[0]
-            _dir = self.convert_copyspec_scl(scl, pghome)
-            dirs.append(_dir)
-            if self.path_isdir(_dir):
-                self.add_cmd_output("du -sh %s" % _dir)
-            if (self.is_service_running(pkg.replace('-server', '')) and
-                    scl in self.scls_matched):
-                self.do_pg_dump(scl=scl, filename="pgdump-scl-%s.tar" % scl)
 
         for _dir in dirs:
             # Copy PostgreSQL log files.

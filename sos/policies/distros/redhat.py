@@ -43,7 +43,6 @@ class RedHatPolicy(LinuxPolicy):
     ]
     _tmp_dir = "/var/tmp"
     _in_container = False
-    default_scl_prefix = '/opt/rh'
     name_pattern = 'friendly'
     upload_url = None
     upload_user = None

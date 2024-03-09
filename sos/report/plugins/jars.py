@@ -41,7 +41,7 @@ class Jars(Plugin, RedHatPlugin):
     # Following paths can be optionally scanned as well. Note the scan can take
     # *very* long time.
     extra_jar_locations = (
-        "/opt",             # location for RHSCL and 3rd party software
+        "/opt",             # location for 3rd party software
         "/usr/local",       # used by sysadmins when installing SW locally
         "/var/lib"          # Java services commonly explode WARs there
     )
