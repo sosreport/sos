@@ -11,9 +11,8 @@
 
 from re import match
 from shlex import quote
-from sos.report.plugins import (Plugin, RedHatPlugin, SCLPlugin,
-                                DebianPlugin, UbuntuPlugin, PluginOpt)
-from sos.utilities import is_executable
+from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, PluginOpt)
 
 
 class Foreman(Plugin):
@@ -324,7 +323,7 @@ class Foreman(Plugin):
 # attr so we can keep all log definitions centralized in the main class
 
 
-class RedHatForeman(Foreman, SCLPlugin, RedHatPlugin):
+class RedHatForeman(Foreman, RedHatPlugin):
 
     apachepkg = 'httpd'
 
@@ -333,10 +332,6 @@ class RedHatForeman(Foreman, SCLPlugin, RedHatPlugin):
         self.add_file_tags({
             '/usr/share/foreman/.ssh/ssh_config': 'ssh_foreman_config',
         })
-        # if we are on RHEL7 with scl, wrap some Puma commands by
-        # scl enable tfm 'command'
-        if self.policy.dist_version() == 7 and is_executable('scl'):
-            self.pumactl = "scl enable tfm '%s'" % self.pumactl
 
         super().setup()
         self.add_cmd_output('gem list')

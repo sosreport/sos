@@ -116,7 +116,6 @@ any third party.
     vendor_urls = [('Example URL', "http://www.example.com/")]
     vendor_text = ""
     PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-    default_scl_prefix = ""
     name_pattern = 'legacy'
     presets = {"": PresetDefaults()}
     presets_path = PRESETS_PATH
@@ -265,9 +264,6 @@ any third party.
         if not opt_tmp_dir:
             return tempfile.gettempdir()
         return opt_tmp_dir
-
-    def get_default_scl_prefix(self):
-        return self.default_scl_prefix
 
     def match_plugin(self, plugin_classes):
         """Determine what subclass of a Plugin should be used based on the

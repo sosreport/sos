@@ -3213,10 +3213,6 @@ class Plugin():
         corresponding paths, packages or commands and return True if any
         are present.
 
-        For SCLPlugin subclasses, it will check whether the plugin can be run
-        for any of installed SCLs. If so, it will store names of these SCLs
-        on the plugin class in addition to returning True.
-
         For plugins with more complex enablement checks this method may be
         overridden.
 
@@ -3242,33 +3238,11 @@ class Plugin():
             if isinstance(self.services, str):
                 self.services = [self.services]
 
-            if isinstance(self, SCLPlugin):
-                # save SCLs that match files or packages
-                type(self)._scls_matched = []
-                for scl in self._get_scls():
-                    files = [f % {"scl_name": scl} for f in self.files]
-                    packages = [p % {"scl_name": scl} for p in self.packages]
-                    commands = [c % {"scl_name": scl} for c in self.commands]
-                    services = [s % {"scl_name": scl} for s in self.services]
-                    if self._check_plugin_triggers(files,
-                                                   packages,
-                                                   commands,
-                                                   services,
-                                                   # SCL containers don't exist
-                                                   ()):
-                        type(self)._scls_matched.append(scl)
-                if type(self)._scls_matched:
-                    return True
-
             return self._check_plugin_triggers(self.files,
                                                self.packages,
                                                self.commands,
                                                self.services,
                                                self.containers)
-
-        if isinstance(self, SCLPlugin):
-            # if files and packages weren't specified, we take all SCLs
-            type(self)._scls_matched = self._get_scls()
 
         return True
 
@@ -3552,59 +3526,6 @@ class IndependentPlugin(PluginDistroTag):
 class ExperimentalPlugin(PluginDistroTag):
     """Tagging class that indicates that this plugin is experimental"""
     pass
-
-
-class SCLPlugin(RedHatPlugin):
-    """Superclass for plugins operating on Software Collections (SCLs).
-
-    Subclasses of this plugin class can specify class.files and class.packages
-    using "%(scl_name)s" interpolation. The plugin invoking mechanism will try
-    to match these against all found SCLs on the system. SCLs that do match
-    class.files or class.packages are then accessible via self.scls_matched
-    when the plugin is invoked.
-    """
-
-    @property
-    def scls_matched(self):
-        if not hasattr(type(self), '_scls_matched'):
-            type(self)._scls_matched = []
-        return type(self)._scls_matched
-
-    def _get_scls(self):
-        output = sos_get_command_output("scl -l")["output"]
-        return [scl.strip() for scl in output.splitlines()]
-
-    def convert_cmd_scl(self, scl, cmd):
-        """wrapping command in "scl enable" call
-        """
-        scl_cmd = "scl enable %s \"%s\"" % (scl, cmd)
-        return scl_cmd
-
-    # config files for Software Collections are under /etc/${prefix}/${scl} and
-    # var files are under /var/${prefix}/${scl} where the ${prefix} is distro
-    # specific path. So we need to insert the paths after the appropriate root
-    # dir.
-    def convert_copyspec_scl(self, scl, copyspec):
-        scl_prefix = self.policy.get_default_scl_prefix()
-        for rootdir in ['etc', 'var']:
-            p = re.compile('^/%s/' % rootdir)
-            copyspec = os.path.abspath(p.sub('/%s/%s/%s/' %
-                                       (rootdir, scl_prefix, scl),
-                                       copyspec))
-        return copyspec
-
-    def add_copy_spec_scl(self, scl, copyspecs):
-        """Same as add_copy_spec, except that it prepends path to SCL root
-        to "copyspecs".
-        """
-        if scl not in self.scls_matched:
-            return
-        if isinstance(copyspecs, str):
-            copyspecs = [copyspecs]
-        scl_copyspecs = []
-        for copyspec in copyspecs:
-            scl_copyspecs.append(self.convert_copyspec_scl(scl, copyspec))
-        self.add_copy_spec(scl_copyspecs)
 
 
 def import_plugin(name, superclasses=None):

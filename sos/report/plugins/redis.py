@@ -9,17 +9,17 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, SCLPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Redis(Plugin, SCLPlugin):
+class Redis(Plugin, IndependentPlugin):
 
     short_desc = 'Redis, in-memory data structure store'
 
     plugin_name = 'redis'
     profiles = ('services',)
 
-    packages = ('redis', 'rh-redis32', 'rh-redis5')
+    packages = ('redis',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/redis"
 
@@ -30,17 +30,6 @@ class Redis(Plugin, SCLPlugin):
             self.var_puppet_gen + "/etc/redis/",
             self.var_puppet_gen + "/etc/security/limits.d/"
         ])
-
-        for pkg in self.packages[1:]:
-            scl = pkg.split('rh-redis*-')[0]
-            self.add_copy_spec_scl(scl, [
-                '/etc/redis.conf',
-                '/etc/redis.conf.puppet',
-                '/etc/redis-sentinel.conf',
-                '/etc/redis-sentinel.conf.puppet',
-                '/var/log/redis/sentinel.log',
-                '/var/log/redis/redis.log'
-            ])
 
         self.add_cmd_output("redis-cli info")
         if self.get_option("all_logs"):
@@ -53,10 +42,7 @@ class Redis(Plugin, SCLPlugin):
             ])
 
     def postproc(self):
-        for path in ["/etc/",
-                     self.var_puppet_gen + "/etc/",
-                     "/etc/opt/rh/rh-redis32/",
-                     "/etc/opt/rh/rh-redis5/"]:
+        for path in ["/etc/", self.var_puppet_gen + "/etc/"]:
             self.do_file_sub(
                 path + "redis.conf",
                 r"(masterauth|requirepass)\s.*",
