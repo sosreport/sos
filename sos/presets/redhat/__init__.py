@@ -40,10 +40,14 @@ RHOCP_OPTS = SoSOptions(
     skip_plugins=['cgroups'], container_runtime='crio', no_report=True,
     log_size=100,
     plugopts=[
+        'crio.all=on',
+        'crio.logs=on',
         'crio.timeout=600',
         'networking.timeout=600',
         'networking.ethtool_namespaces=False',
-        'networking.namespaces=200'
+        'networking.namespaces=200',
+        'podman.all=on',
+        'podman.logs=on',
     ])
 
 RH_CFME = "cfme"
