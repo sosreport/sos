@@ -72,13 +72,15 @@ class ReportWithMask(StageOneReportTest):
             self.assertEqual(imode_orig, imode_obfuscated)
 
 
-class ReportWithCleanedKeywords(StageOneReportTest):
-    """Testing for obfuscated keywords provided by the user
+class ReportWithUserCustomisations(StageOneReportTest):
+    """Testing for 1) obfuscated keywords provided by the user (--keywords option),
+    and 2) skipping to clean specific files (--skip-cleaning-files option)
 
     :avocado: tags=stageone
     """
 
-    sos_cmd = '--clean -o filesys,kernel --keywords=fstab,Linux,tmp --no-update'
+    sos_cmd = '--clean -o filesys,kernel --keywords=fstab,Linux,tmp,BOOT_IMAGE,fs.dentry-state \
+        --skip-cleaning-files proc/cmdline,sos_commands/*/sysctl* --no-update'
 
     # Will the 'tmp' be properly treated in path to working dir without raising an error?
     # To make this test effective, we assume the test runs on a system / with Policy
@@ -95,6 +97,12 @@ class ReportWithCleanedKeywords(StageOneReportTest):
 
     def test_keyword_obfuscated_in_file(self):
         self.assertFileNotHasContent('sos_commands/kernel/uname_-a', 'Linux')
+
+    def test_skip_cleaning_single_file(self):
+        self.assertFileHasContent('proc/cmdline', 'BOOT_IMAGE')
+
+    def test_skip_cleaning_glob_file(self):
+        self.assertFileHasContent('sos_commands/kernel/sysctl_-a', 'fs.dentry-state')
 
 
 class DefaultRemoveBinaryFilesTest(StageTwoReportTest):
