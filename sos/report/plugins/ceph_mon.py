@@ -92,6 +92,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph config-key dump",
             "ceph crash stat",
             "ceph features",
+            "ceph health detail",
             "ceph insights",
             "ceph log last 10000 debug audit",
             "ceph log last 10000 debug cluster",
