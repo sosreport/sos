@@ -1615,6 +1615,19 @@ class Plugin():
                 tags.extend(val)
         return tags
 
+    def get_devices_by_fstype(self, fstype):
+        """Get list of devices based on fstype and returns empty array in case
+        of failure.
+        """
+        dev = []
+        all_devs = self.exec_cmd("lsblk -rpo NAME,FSTYPE")
+        if (all_devs['status'] == 0 and not all_devs['truncated']):
+            if all_devs['status'] == 0:
+                for line in all_devs['output'].splitlines():
+                    if (fstype in line) and (line.split()[0] not in dev):
+                        dev.append(line.split()[0])
+        return dev
+
     def generate_copyspec_tags(self):
         """After file collections have completed, retroactively generate
         manifest entries to apply tags to files copied by generic copyspecs

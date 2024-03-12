@@ -10,11 +10,11 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class Xfs(Plugin, IndependentPlugin):
-    """This plugin collects information on mounted XFS filessystems on the
-    local system.
+    """This plugin collects information on mounted XFS filessystems on
+    the local system.
 
-    Users should expect `xfs_info` and `xfs_admin` collections by this plugin
-    for each XFS filesystem that is locally mounted.
+    Users should expect `xfs_info` and `xfs_admin` collections by this
+    plugin for each XFS filesystem that is recognized by lsblk.
     """
 
     short_desc = 'XFS filesystem'
@@ -25,18 +25,23 @@ class Xfs(Plugin, IndependentPlugin):
     kernel_mods = ('xfs',)
 
     def setup(self):
-        mounts = '/proc/mounts'
-        ext_fs_regex = r"^(/dev/.+).+xfs\s+"
-        for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
-            for e in dev:
-                parts = e.split(' ')
-                self.add_cmd_output("xfs_info %s" % (parts[1]),
+        allfs = self.get_devices_by_fstype('xfs')
+        if allfs:
+            for fs in allfs:
+                self.add_cmd_output(f"xfs_info {fs}",
                                     tags="xfs_info")
-                self.add_cmd_output("xfs_admin -l -u %s" % (parts[0]))
+                self.add_cmd_output(f"xfs_admin -l -u {fs}")
 
-        self.add_copy_spec([
-            '/proc/fs/xfs',
-            '/sys/fs/xfs'
-        ])
+        else:
+            mounts = '/proc/mounts'
+            ext_fs_regex = r"^(/dev/.+).+xfs\s+"
+            for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
+                for e in dev:
+                    parts = e.split()
+                    self.add_cmd_output(f"xfs_info {parts[1]}",
+                                        tags="xfs_info")
+                    self.add_cmd_output(f"xfs_admin -l -u {parts[0]}")
+
+        self.add_copy_spec(self.files)
 
 # vim: set et ts=4 sw=4 :

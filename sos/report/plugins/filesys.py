@@ -29,9 +29,6 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
     option_list = [
         PluginOpt('lsof', default=False,
                   desc='collect information on all open files'),
-        PluginOpt('dumpe2fs', default=False, desc='dump filesystem info'),
-        PluginOpt('frag', default=False,
-                  desc='collect filesystem fragmentation status')
     ]
 
     def setup(self):
@@ -76,18 +73,36 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
         if self.get_option('lsof'):
             self.add_cmd_output("lsof -b +M -n -l -P", root_symlink="lsof",
                                 priority=50)
+        option_list = [
+            PluginOpt('dumpe2fs', default=False, desc='dump filesystem info'),
+            PluginOpt('frag', default=False,
+                      desc='collect filesystem fragmentation status')
+        ]
 
+    def setup(self):
         dumpe2fs_opts = '-h'
         if self.get_option('dumpe2fs'):
             dumpe2fs_opts = ''
-        mounts = '/proc/mounts'
-        ext_fs_regex = r"^(/dev/\S+).+ext[234]\s+"
-        for dev in self.do_regex_find_all(ext_fs_regex, mounts):
-            self.add_cmd_output("dumpe2fs %s %s" % (dumpe2fs_opts, dev),
-                                tags="dumpe2fs_h")
+        allfs = self.get_devices_by_fstype('ext')
+        if allfs:
+            for fs in allfs:
+                self.add_cmd_output(f"dumpe2fs {dumpe2fs_opts} {fs}",
+                                    tags="dumpe2fs_h")
+
+                if self.get_option('frag'):
+                    self.add_cmd_output(f"e2freefrag {fs}", priority=100)
+
+        else:
+            mounts = '/proc/mounts'
+            ext_fs_regex = r"^(/dev/\S+).+ext[234]\s+"
+            for dev in self.do_regex_find_all(ext_fs_regex, mounts):
+                self.add_cmd_output(f"dumpe2fs {dumpe2fs_opts} {fs}",
+                                    tags="dumpe2fs_h")
 
             if self.get_option('frag'):
-                self.add_cmd_output("e2freefrag %s" % (dev), priority=100)
+                self.add_cmd_output(f"e2freefrag {fs}", priority=100)
+
+        self.add_copy_spec(self.files)
 
     def postproc(self):
         self.do_file_sub(
