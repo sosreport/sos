@@ -19,6 +19,7 @@ Build-Depends:
 Homepage: https://github.com/sosreport/sos
 Vcs-Browser: https://salsa.debian.org/sosreport-team/sosreport
 Vcs-Git: https://salsa.debian.org/sosreport-team/sosreport.git
+X-Python3-Version: >= 3.6
 
 Package: sosreport
 Architecture: any
