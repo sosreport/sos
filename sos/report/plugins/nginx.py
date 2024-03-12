@@ -33,6 +33,18 @@ class Nginx(Plugin, IndependentPlugin):
             "/var/log/nginx/access.log",
             "/var/log/nginx/error.log",
         ])
+
+        # Other plugins collect these files;
+        # do not collect them here to avoid collisions in the archive paths.
+        altconf = [
+            'automationcontroller',
+            'automationhub',
+            'automationedacontroller'
+        ]
+        self.add_forbidden_path([
+            f"/var/log/nginx/{alt}*" for alt in altconf
+        ])
+
         if self.get_option("log") or self.get_option("all_logs"):
             self.add_copy_spec("/var/log/nginx/*")
 
