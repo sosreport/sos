@@ -119,7 +119,7 @@ class DefaultRemoveBinaryFilesTest(StageTwoReportTest):
         self.assertFileNotCollected('var/log/binary_test.tar.xz')
 
     def test_binaries_removed_reported(self):
-        self.assertOutputContains('\[removed .* unprocessable files\]')
+        self.assertOutputContains(r'\[removed .* unprocessable files\]')
 
 
 class KeepBinaryFilesTest(StageTwoReportTest):
@@ -142,4 +142,4 @@ class KeepBinaryFilesTest(StageTwoReportTest):
         self.assertFileCollected('var/log/binary_test.tar.xz')
 
     def test_no_binaries_reported_removed(self):
-        self.assertOutputNotContains('\[removed .* unprocessable files\]')
+        self.assertOutputNotContains(r'\[removed .* unprocessable files\]')

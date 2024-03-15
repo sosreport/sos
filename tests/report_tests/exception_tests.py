@@ -17,7 +17,7 @@ class InvalidPluginEnabledTest(StageOneReportExceptionTest):
     sos_cmd = '-o foobar'
 
     def test_caught_invalid_plugin(self):
-        self.assertOutputContains('a non-existing plugin \(foobar\)')
+        self.assertOutputContains(r'a non-existing plugin \(foobar\)')
 
 
 class InvalidPluginOptionTest(StageOneReportExceptionTest):
@@ -28,7 +28,7 @@ class InvalidPluginOptionTest(StageOneReportExceptionTest):
     sos_cmd = '-o kernel -k kernel.colonel=on'
 
     def test_caught_invalid_plugin_option(self):
-        self.assertOutputContains('no such option "colonel" for plugin \(kernel\)')
+        self.assertOutputContains(r'no such option "colonel" for plugin \(kernel\)')
 
 
 class InvalidReportOptionTest(StageOneReportExceptionTest):
@@ -39,7 +39,7 @@ class InvalidReportOptionTest(StageOneReportExceptionTest):
     sos_cmd = '--magic'
 
     def test_caught_invalid_option(self):
-        self.assertOutputContains('unrecognized arguments\: --magic')
+        self.assertOutputContains(r'unrecognized arguments\: --magic')
 
 
 class InvalidPluginDisableTest(StageOneReportTest):

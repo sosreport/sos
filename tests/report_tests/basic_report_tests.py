@@ -23,7 +23,7 @@ class NormalSoSReport(StageOneReportTest):
 
     def test_debug_not_printed_to_console(self):
         self.assertOutputNotContains('added cmd output')
-        self.assertOutputNotContains('\[archive:.*\]')
+        self.assertOutputNotContains(r'\[archive:.*\]')
 
     def test_postproc_called(self):
         self.assertSosLogContains('substituting scrpath')
@@ -61,11 +61,11 @@ class LogLevelTest(StageOneReportTest):
     sos_cmd = '-vvv -o kernel,host,boot,filesys'
 
     def test_archive_logging_enabled(self):
-        self.assertSosLogContains('DEBUG: \[archive:.*\]')
+        self.assertSosLogContains(r'DEBUG: \[archive:.*\]')
         self.assertSosLogContains('Making leading paths for')
 
     def test_debug_printed_to_console(self):
-        self.assertOutputContains('\[plugin:.*\]')
+        self.assertOutputContains(r'\[plugin:.*\]')
 
 
 class RestrictedSoSReport(StageOneReportTest):
