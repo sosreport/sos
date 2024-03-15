@@ -123,7 +123,7 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
             ])
 
         else:
-            directory = '/var/snap/microceph'
+            directory = '/var/snap/microceph/current/run'
             self.add_file_tags({
                 '/var/snap/microceph/common/logs/ceph-mgr.*.log':
                 'ceph_mgr_log',
