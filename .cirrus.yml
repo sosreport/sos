@@ -142,11 +142,16 @@ deb_build_task:
 # Make sure a user can manually build a snap from the checkout
 snap_build_task:
     alias: "snap_build"
-    name: "snap Build From Checkout"
+    name: "snap Build From Checkout - ${SNAP} snap"
     gce_instance:
         image_project: "${UBUNTU_PROJECT}"
         image_name: "${UBUNTU_SNAP_IMAGE_NAME}"
         type: e2-medium
+    matrix:
+        - env:
+            SNAP: "classic"
+        - env:
+            SNAP: "strictmode"
     setup_script: |
         apt update
         apt -y install snapd
@@ -154,6 +159,10 @@ snap_build_task:
         sed -i -e 's/adopt-info.*/version: test/g' -e '/set version/d' snap/snapcraft.yaml
         snap install snapcraft --classic
     main_script: |
+        if [ ${SNAP} == "strictmode" ]; then
+            cp snap/snapcraft_strictmode.yaml snapcraft.yaml
+            sed -i -e 's/adopt-info.*/version: test/g' -e '/set version/d' snapcraft.yaml
+        fi
         snapcraft --destructive-mode
     packages_artifacts:
         path: "*.snap"
@@ -182,16 +191,23 @@ report_stageone_task:
             BUILD_NAME: ${UBUNTU_NAME}
             VM_IMAGE_NAME: ${UBUNTU_IMAGE_NAME}
             PKG: "snap"
+            SNAP: "classic"
         - env: &ubuntuprior
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_PRIOR_NAME}
             VM_IMAGE_NAME: ${UBUNTU_PRIOR_IMAGE_NAME}
             PKG: "snap"
+            SNAP: "classic"
         - env: &ubuntuprior2
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_PRIOR2_NAME}
             VM_IMAGE_NAME: ${UBUNTU_PRIOR2_IMAGE_NAME}
             PKG: "snap"
+            SNAP: "classic"
+        - env:
+            <<: *ubuntu
+            BUILD_NAME: ${UBUNTU_NAME}-snap
+            SNAP: "strictmode"
         - env: &ubuntu-latest
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_LATEST_NAME}
@@ -203,10 +219,19 @@ report_stageone_task:
             apt update --allow-releaseinfo-change
             apt -y install python3-pip snapd
             if [ ${PKG} == "snap" ] ; then
-                echo "$ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap"
-                $ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap
+                echo "$ARTCURL/snap%20Build%20From%20Checkout%20-%20${SNAP}%20snap/packages/sosreport_test_amd64.snap"
+                $ARTCURL/snap%20Build%20From%20Checkout%20-%20${SNAP}%20snap/packages/sosreport_test_amd64.snap
                 systemctl start snapd
-                snap install ./sosreport_test_amd64.snap --classic --dangerous
+                if [ ${SNAP} == "classic" ] ; then
+                    SNAP_ARGS="--classic --dangerous"
+                elif [ ${SNAP} == "strictmode" ] ; then
+                    SNAP_ARGS="--devmode"
+                    SOS_SNAP=/snap/sosreport/current
+                    CORE_SNAP=/snap/core22/current
+                    PYTHONPATH=${SOS_SNAP}/lib/python3.10/site-packages:${SOS_SNAP}/usr/lib/python3/dist-packages:$PYTHONPATH
+                    PYTHONPATH=${CORE_SNAP}/lib/python3.10/site-packages:${CORE_SNAP}/usr/lib/python3/dist-packages:$PYTHONPATH
+                fi
+                snap install ./sosreport_test_amd64.snap ${SNAP_ARGS}
                 snap alias sosreport.sos sos
             elif [ ${PKG} == "deb" ]; then
                 echo "$ARTCURL/deb%20Build%20From%20Checkout/packages/sos_cirrus.deb"
@@ -226,8 +251,8 @@ report_stageone_task:
         pip3 install avocado-framework==94.0 ${PIP_EXTRA}
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
-    unittest_script: PYTHONPATH=. avocado run tests/unittests/
-    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+    unittest_script: PYTHONPATH=.:${PYTHONPATH} avocado run tests/unittests/
+    main_script: PYTHONPATH=tests/:${PYTHONPATH} avocado run -p TESTLOCAL=true --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: &faillogs |
             ls -d /var/tmp/avocado* /root/avocado* 2> /dev/null | xargs tar cf sos-fail-logs.tar
