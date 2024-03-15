@@ -424,7 +424,7 @@ class BaseSoSReportTest(BaseSoSTest):
         override
         """
         try:
-            return re.findall('/.*sosreport-.*tar.*\.gpg', self.cmd_output.stdout)[-1]
+            return re.findall(r'/.*sosreport-.*tar.*\.gpg', self.cmd_output.stdout)[-1]
         except:
             return None
 

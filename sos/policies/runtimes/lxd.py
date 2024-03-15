@@ -24,6 +24,7 @@ class LxdContainerRuntime(ContainerRuntime):
     def check_is_active(self):
         # the daemon must be running
         if (is_executable('lxc', self.policy.sysroot) and
+                self.policy.package_manager.pkg_by_name('lxd') and
                 (self.policy.init_system.is_running('lxd') or
                  self.policy.init_system.is_running('snap.lxd.daemon'))):
             self.active = True

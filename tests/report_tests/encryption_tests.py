@@ -22,10 +22,11 @@ class EncryptedReportTest(StageOneReportTest):
     sos_cmd = "-o kernel --encrypt-pass %s" % encrypt_pass
 
     def test_archive_gpg_encrypted(self):
-        self.assertOutputContains('/.*sosreport-.*tar.*\.gpg')
+        self.assertOutputContains(r'/.*sosreport-.*tar.*\.gpg')
         _cmd = "file %s" % self.encrypted_path
         res = process.run(_cmd)
-        self.assertTrue("GPG symmetrically encrypted data" in res.stdout.decode())
+        self.assertTrue(("GPG symmetrically encrypted data" in res.stdout.decode())
+                        or ("PGP symmetric key encrypted data" in res.stdout.decode()))
 
     def test_tarball_named_secure(self):
         self.assertTrue('secured-' in self.encrypted_path)

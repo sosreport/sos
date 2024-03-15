@@ -65,7 +65,7 @@ class CollectOptionsHelpTest(StageOneOutputTest):
 
     @skipIf(PEXPECT_PRESENT is False, "python3-pexpect not installed locally")
     def test_cluster_profiles_shown(self):
-        _out = re.search("Use the short name with --cluster-type or cluster options \(-c\)(.*?)The following cluster options are available:",
+        _out = re.search(r"Use the short name with --cluster-type or cluster options \(-c\)(.*?)The following cluster options are available:",
                          self.cmd_output.stdout, re.S).group(1).splitlines()
         _profs = {}
         for ln in _out:

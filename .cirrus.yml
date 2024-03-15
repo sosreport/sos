@@ -21,6 +21,7 @@ env:
     FEDORA_PROJECT: "fedora-cloud"
     SOS_PROJECT: "sos-devel-jobs"
     UBUNTU_PROJECT: "ubuntu-os-cloud"
+    UBUNTU_DEVEL_PROJECT: "ubuntu-os-cloud-devel"
 
     # Images exist on GCP already
     CENTOS_9_IMAGE_NAME: "centos-stream-9-v20230809"
@@ -28,12 +29,14 @@ env:
     DEBIAN_IMAGE_NAME: "debian-11-bullseye-v20230809"
     FEDORA_IMAGE_NAME: "fedora-cloud-base-gcp-38-1-6-x86-64"
     FEDORA_PRIOR_IMAGE_NAME: "fedora-cloud-base-gcp-37-1-7-x86-64"
+
     UBUNTU_DEB_IMAGE_NAME: "ubuntu-minimal-2310-mantic-amd64-v20231030"
     UBUNTU_LATEST_IMAGE_NAME: "ubuntu-2310-mantic-amd64-v20231031"
     UBUNTU_IMAGE_NAME: "ubuntu-2204-jammy-v20231030"
     UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-2004-focal-v20231101"
     UBUNTU_PRIOR2_IMAGE_NAME: "ubuntu-1804-bionic-v20230605"
     UBUNTU_SNAP_IMAGE_NAME: "ubuntu-2204-jammy-v20231030"
+    UBUNTU_DEVEL_FAMILY_NAME: "ubuntu-2404-lts-amd64"
 
     # Curl-command prefix for downloading task artifacts, simply add the
     # the url-encoded task name, artifact name, and path as a suffix.
@@ -226,13 +229,39 @@ report_stageone_task:
         pip3 install avocado-framework==94.0 ${PIP_EXTRA}
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
-    unittest_script: PYTHONPATH=. avocado run tests/unittests/
-    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+    unittest_script: &unit_test |
+        PYTHONPATH=. avocado run tests/unittests/
+    main_script: &stageone_test
+        PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: &faillogs |
             ls -d /var/tmp/avocado* /root/avocado* 2> /dev/null | xargs tar cf sos-fail-logs.tar
         log_artifacts: &logs
             path: "sos-fail-logs.tar"
+
+report_stageone_daily_task:
+    alias: "stageone_daily_report"
+    name: "Report Stage One - ${UBUNTU_DEVEL_FAMILY_NAME}"
+    allow_failures: true
+    depends_on:
+        - snap_build
+    gce_instance:
+        image_project: ${UBUNTU_DEVEL_PROJECT}
+        image_family: ${UBUNTU_DEVEL_FAMILY_NAME}
+        type: e2-medium
+    environment:
+      PKG: "snap"
+    setup_script: *setup
+    avocado_install_script: &avocado_setup |
+        pip3 uninstall -y avocado-framework --break-system-packages
+        git clone --single-branch -b 92lts https://github.com/avocado-framework/avocado.git
+        cd avocado
+        make install
+    unittest_script: *unit_test
+    main_script: *stageone_test
+    on_failure:
+        fail_script: *faillogs
+        log_artifacts: *logs
 
 # IFF the stage one tests all pass, then run stage two for latest distros
 report_stagetwo_task:
@@ -255,7 +284,27 @@ report_stagetwo_task:
         if [ $(command -v dnf) ]; then
             dnf -y install python3-pexpect
         fi
-    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+    main_script: &stagetwo_test |
+        PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+    on_failure:
+        fail_script: *faillogs
+        log_artifacts: *logs
+
+report_stagetwo_daily_task:
+    alias: "stagetwo_daily_report"
+    name: "Report Stage Two - ${UBUNTU_DEVEL_FAMILY_NAME}"
+    allow_failures: true
+    depends_on: stageone_daily_report
+    timeout_in: 45m
+    gce_instance:
+        image_project: ${UBUNTU_DEVEL_PROJECT}
+        image_family: ${UBUNTU_DEVEL_FAMILY_NAME}
+        type: e2-medium
+    environment:
+      PKG: "snap"
+    setup_script: *setup
+    avocado_install_script: *avocado_setup
+    main_script: *stagetwo_test
     on_failure:
         fail_script: *faillogs
         log_artifacts: *logs
