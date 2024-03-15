@@ -96,6 +96,7 @@ class OpenStackNova(Plugin):
             self.add_copy_spec([
                 "/var/log/nova/",
                 f"/var/log/{self.apachepkg}*/nova*",
+                f"/var/lib/nova/instances/*/console.log",
             ])
         else:
             novadir = '/var/log/nova/'
