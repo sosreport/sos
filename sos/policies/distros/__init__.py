@@ -256,8 +256,8 @@ class LinuxPolicy(Policy):
                 for line in mfile:
                     kmod = line.split('/')[-1].split('.ko')[0]
                     self.kernel_mods.append(kmod)
-        except IOError:
-            pass
+        except IOError as err:
+            self.soslog.warning(f"Unable to read kernel builtins: {err}")
 
         # finally, parse kconfig looking for specific kconfig strings that
         # have been verified to not appear in either lsmod or modules.builtin
@@ -274,8 +274,8 @@ class LinuxPolicy(Policy):
                 for line in kfile:
                     if '=y' in line:
                         kconfigs.append(line.split('=y')[0])
-        except IOError:
-            pass
+        except IOError as err:
+            self.soslog.warning(f"Unable to read booted kernel config: {err}")
 
         for builtin in config_strings:
             if config_strings[builtin] in kconfigs:

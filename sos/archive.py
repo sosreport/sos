@@ -26,6 +26,9 @@ from sos.utilities import sos_get_command_output
 try:
     import selinux
 except ImportError:
+    # not on a distro that uses selinux most likely, but for distros that
+    # use selinux this import failure simply means we won't match context in
+    # the sos archive
     pass
 
 P_FILE = "file"
