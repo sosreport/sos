@@ -546,7 +546,7 @@ class SoSCollector(SoSComponent):
         try:
             self.close_all_connections()
         except Exception:
-            pass
+            self.log_warn("Warning: Failed to close all remote connections")
         if error != 130:
             # keep the tempdir around when a user issues a keyboard interrupt
             # like we do for report
@@ -703,8 +703,8 @@ class SoSCollector(SoSComponent):
 
         try:
             string.lowercase = string.ascii_lowercase
-        except NameError:
-            pass
+        except NameError as err:
+            self.log_debug(f"Could not cast to ascii_lowercase: {err}")
 
         rand = ''.join(random.choice(string.lowercase) for x in range(5))
         return '%s-%s-%s' % (nstr, dt, rand)
@@ -1133,8 +1133,8 @@ class SoSCollector(SoSComponent):
         try:
             _node_max = len(max(self.node_list, key=len))
             self.commons['hostlen'] = max(_node_max, self.commons['hostlen'])
-        except (TypeError, ValueError):
-            pass
+        except (TypeError, ValueError) as err:
+            self.log_debug(f"Could not set UI spacing: {err}")
 
     def _connect_to_node(self, node):
         """Try to connect to the node, and if we can add to the client list to

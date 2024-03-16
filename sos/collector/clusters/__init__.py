@@ -440,5 +440,6 @@ class Cluster():
                     if 'sosreport' in extra_file:
                         files.append(extra_file + '.md5')
         except AttributeError:
+            # run_extra_cmd() not defined for cluster profile
             pass
         return files

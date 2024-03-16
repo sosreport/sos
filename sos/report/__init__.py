@@ -922,6 +922,7 @@ class SoSReport(SoSComponent):
                         try:
                             val = int(val)
                         except ValueError:
+                            # not a number to convert back to int from argparse
                             pass
 
                 try:
@@ -1375,11 +1376,16 @@ class SoSReport(SoSComponent):
             try:
                 self.pluglist.remove(plugin)
             except ValueError:
-                pass
+                self.soslog.debug(
+                    f"Could not remove {plugin} from plugin list, ignoring..."
+                )
             try:
                 self.running_plugs.remove(plugname)
             except ValueError:
-                pass
+                self.soslog.debug(
+                    f"Could not remove {plugin} from running plugin list, "
+                    f"ignoring..."
+                )
             status = ''
             if (len(self.pluglist) <= int(self.opts.threads) and
                     self.running_plugs):
