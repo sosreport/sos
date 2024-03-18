@@ -430,6 +430,7 @@ variable. If this variable is set, then no username prompt will occur and --batc
 may be used provided all other required values (case number, upload password)
 are provided.
 
+This option is ignored when uploading to the Red Customer Portal or Red Hat Secure FTP server in favour of web token authentication.
 .TP
 .B \-\-upload-pass PASS
 Specify the password to use for authentication with the destination server.
@@ -448,6 +449,7 @@ You also have the option of providing this value via the SOSUPLOADPASSWORD envir
 variable. If this variable is set, then no password prompt will occur and --batch may
 be used provided all other required values (case number, upload user) are provided.
 
+This option is ignored when uploading to the Red Customer Portal or Red Hat Secure FTP server in favour of web token authentication.
 .TP
 .B \--upload-directory DIR
 Specify a directory to upload to, if one is not specified by a vendor default location
