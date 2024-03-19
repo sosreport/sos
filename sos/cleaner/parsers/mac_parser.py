@@ -57,9 +57,9 @@ class SoSMacParser(SoSCleanerParser):
         """Strips away leading and trailing non-alphanum characters from any
         matched string to leave us with just the bare MAC addr
         """
-        while not (match[0].isdigit() or match[0].isalpha()):
+        while not match[0] in '0123456789abcdefABCDEF':
             match = match[1:]
-        while not (match[-1].isdigit() or match[-1].isalpha()):
+        while not match[-1] in '0123456789abcdefABCDEF':
             match = match[0:-1]
         # just to be safe, call strip() to remove any padding
         return match.strip()
