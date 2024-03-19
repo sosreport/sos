@@ -34,8 +34,8 @@ class Process(Plugin, IndependentPlugin):
         ps_axo = "ps axo"
         # process group and thread options
         ps_group_opts = "pid,ppid,user,group,lwp,nlwp,start_time,comm,cgroup"
-        ps_sched_opts = "flags,state,uid,pid,ppid,pgid,sid,cls,pri,addr,sz,"
-        ps_sched_opts += "wchan:20,lstart,tty,time,cmd"
+        ps_sched_opts = "flags,state,uid,pid,ppid,pgid,sid,cls,pri,psr,addr,"
+        ps_sched_opts += "sz,wchan:20,lstart,tty,time,cmd"
 
         self.add_copy_spec([
             "/proc/sched_debug",
