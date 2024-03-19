@@ -3528,6 +3528,11 @@ class ExperimentalPlugin(PluginDistroTag):
     pass
 
 
+class AzurePlugin(PluginDistroTag):
+    """Tagging class for Azure Linux"""
+    pass
+
+
 def import_plugin(name, superclasses=None):
     """Import name as a module and return a list of all classes defined in that
     module. superclasses should be a tuple of valid superclasses to import,

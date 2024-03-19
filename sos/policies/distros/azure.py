@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+from sos.report.plugins import AzurePlugin
 from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
 import os
 
@@ -17,7 +18,7 @@ class AzurePolicy(RedHatPolicy):
     distro = "Azure Linux"
     vendor = "Microsoft"
     vendor_urls = [
-        ('Distribution Website', 'https://github.com/microsoft/CBL-Mariner')
+        ('Distribution Website', 'https://github.com/microsoft/azurelinux')
     ]
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
@@ -25,6 +26,7 @@ class AzurePolicy(RedHatPolicy):
         super(AzurePolicy, self).__init__(sysroot=sysroot, init=init,
                                           probe_runtime=probe_runtime,
                                           remote_exec=remote_exec)
+        self.valid_subclasses += [AzurePlugin]
 
     @classmethod
     def check(cls, remote=''):
@@ -39,6 +41,8 @@ class AzurePolicy(RedHatPolicy):
             for line in f:
                 if line.startswith('NAME'):
                     if 'Common Base Linux Mariner' in line:
+                        return True
+                    if 'Microsoft Azure Linux' in line:
                         return True
         return False
 
