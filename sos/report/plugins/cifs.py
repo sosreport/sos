@@ -17,14 +17,16 @@ class Cifs(Plugin, IndependentPlugin):
     packages = ('cifs-utils',)
 
     def setup(self):
+        self.add_forbidden_path([
+            "/proc/fs/cifs/traceSMB",
+            "/proc/fs/cifs/cifsFYI",
+        ])
+
         self.add_copy_spec([
             "/etc/request-key.d/cifs.spnego.conf",
             "/etc/request-key.d/cifs.idmap.conf",
             "/proc/keys",
-            "/proc/fs/cifs/LinuxExtensionsEnabled",
-            "/proc/fs/cifs/SecurityFlags",
-            "/proc/fs/cifs/Stats",
-            "/proc/fs/cifs/DebugData",
+            "/proc/fs/cifs/*",
         ])
 
 # vim: set et ts=4 sw=4 :
