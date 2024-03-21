@@ -105,7 +105,7 @@ class Kubernetes(Plugin):
                     continue
                 node = words[0]
                 self.add_cmd_output(
-                    "%s describe node %s" % (self.kube_cmd, node),
+                    f"{self.kube_cmd} {kube_get_cmd} node {node}",
                     subdir='nodes'
                 )
 
