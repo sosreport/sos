@@ -111,7 +111,7 @@ class Kernel(Plugin, IndependentPlugin):
             "/proc/buddyinfo",
             "/proc/slabinfo",
             "/proc/zoneinfo",
-            "/lib/modules/%s/modules.dep" % self.policy.kernel_version(),
+            f"/lib/modules/{self.policy.kernel_version()}/modules.dep",
             "/etc/conf.modules",
             "/etc/modules.conf",
             "/etc/modprobe.conf",
@@ -136,7 +136,8 @@ class Kernel(Plugin, IndependentPlugin):
             "/sys/kernel/debug/extfrag/extfrag_index",
             clocksource_path + "available_clocksource",
             clocksource_path + "current_clocksource",
-            "/proc/pressure/"
+            "/proc/pressure/",
+            f"/boot/config-{self.policy.kernel_version()}"
         ])
 
         if self.get_option("with-timer"):
