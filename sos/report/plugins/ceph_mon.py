@@ -141,6 +141,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "df",
             "fs dump",
             "fs ls",
+            "healthcheck history ls",
             "mds stat",
             "mon dump",
             "osd blocked-by",
