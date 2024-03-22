@@ -29,7 +29,8 @@ class System(Plugin, IndependentPlugin):
             "/proc/sys/net/ipv4/route/flush",
             "/proc/sys/net/ipv6/route/flush",
             "/proc/sys/net/ipv6/neigh/*/retrans_time",
-            "/proc/sys/net/ipv6/neigh/*/base_reachable_time"
+            "/proc/sys/net/ipv6/neigh/*/base_reachable_time",
+            "/etc/default/grub.d/50-curtin-settings.cfg",
         ])
 
         # collect glibc tuning decisions

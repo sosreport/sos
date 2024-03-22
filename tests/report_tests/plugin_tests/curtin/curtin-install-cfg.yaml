@@ -1,0 +1,211 @@
+apply_net_commands:
+  builtin: []
+apt:
+  preserve_sources_list: false
+  proxy: http://192.168.151.1:8000/
+  sources_list: 'deb http://archive.ubuntu.com/ubuntu $RELEASE multiverse universe
+    main restricted
+
+    # deb-src http://archive.ubuntu.com/ubuntu $RELEASE multiverse universe main restricted
+
+    deb http://archive.ubuntu.com/ubuntu $RELEASE-updates multiverse universe main
+    restricted
+
+    # deb-src http://archive.ubuntu.com/ubuntu $RELEASE-updates multiverse universe
+    main restricted
+
+    deb http://archive.ubuntu.com/ubuntu $RELEASE-security multiverse universe main
+    restricted
+
+    # deb-src http://archive.ubuntu.com/ubuntu $RELEASE-security multiverse universe
+    main restricted
+
+    deb http://archive.ubuntu.com/ubuntu $RELEASE-backports multiverse universe main
+    restricted
+
+    # deb-src http://archive.ubuntu.com/ubuntu $RELEASE-backports multiverse universe
+    main restricted
+
+    '
+cloudconfig:
+  maas-cloud-config:
+    content: "#cloud-config\ndatasource:\n  MAAS:\n    consumer_key: yaYmBSUuArGt3JYwHU\n\
+      \    metadata_url: http://192.168.151.1:5248/MAAS/metadata/\n    token_key:\
+      \ WCCtp2JewdWkHEDAW6\n    token_secret: Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR\n"
+    path: /etc/cloud/cloud.cfg.d/90_maas_cloud_config.cfg
+  maas-datasource:
+    content: 'datasource_list: [ MAAS ]'
+    path: /etc/cloud/cloud.cfg.d/90_maas_datasource.cfg
+  maas-reporting:
+    content: "#cloud-config\nreporting:\n  maas:\n    consumer_key: yaYmBSUuArGt3JYwHU\n\
+      \    endpoint: http://192.168.151.1:5248/MAAS/metadata/status/qe8krg\n    token_key:\
+      \ WCCtp2JewdWkHEDAW6\n    token_secret: Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR\n \
+      \   type: webhook\n"
+    path: /etc/cloud/cloud.cfg.d/90_maas_cloud_init_reporting.cfg
+  maas-ubuntu-sso:
+    content: "#cloud-config\nsnap:\n  email: ubuntu@localhost.localdomain\n"
+    path: /etc/cloud/cloud.cfg.d/90_maas_ubuntu_sso.cfg
+curthooks_commands:
+  builtin:
+  - curtin
+  - curthooks
+debconf_selections:
+  grub2: grub2   grub2/update_nvram  boolean false
+  maas: 'cloud-init   cloud-init/datasources  multiselect MAAS
+
+    cloud-init   cloud-init/maas-metadata-url  string http://192.168.151.1:5248/MAAS/metadata/
+
+    cloud-init   cloud-init/maas-metadata-credentials  string oauth_consumer_key=yaYmBSUuArGt3JYwHU&oauth_token_key=WCCtp2JewdWkHEDAW6&oauth_token_secret=Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR
+
+    cloud-init   cloud-init/local-cloud-config  string manage_etc_hosts: true\nmanual_cache_clean:
+    true\nreporting:\n  maas:\n    consumer_key: yaYmBSUuArGt3JYwHU\n    endpoint:
+    http://192.168.151.1:5248/MAAS/metadata/status/qe8krg\n    token_key: WCCtp2JewdWkHEDAW6\n    token_secret:
+    Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR\n    type: webhook\n
+
+    '
+early_commands:
+  driver_00:
+  - sh
+  - -c
+  - echo third party drivers not installed or necessary.
+extract_commands:
+  builtin:
+  - curtin
+  - extract
+hook_commands:
+  builtin:
+  - curtin
+  - hook
+install:
+  error_tarfile: /tmp/curtin-logs.tar
+  log_file: /tmp/install.log
+  log_file_append: false
+  post_files:
+  - /tmp/install.log
+  - /tmp/curtin-logs.tar
+kernel:
+  mapping: {}
+  package: linux-generic
+late_commands:
+  builtin: []
+  maas:
+  - wget
+  - --no-proxy
+  - http://192.168.151.1:5248/MAAS/metadata/latest/by-id/qe8krg/
+  - --post-data
+  - op=netboot_off
+  - -O
+  - /dev/null
+network:
+  ethernets:
+    ens4:
+      addresses:
+      - 192.168.151.102/24
+      gateway4: 192.168.151.1
+      match:
+        macaddress: 52:54:00:90:33:27
+      mtu: 1500
+      nameservers:
+        addresses:
+        - 192.168.151.1
+        search:
+        - maas
+      set-name: ens4
+    ens8:
+      match:
+        macaddress: 52:54:00:f0:89:52
+      mtu: 1500
+      set-name: ens8
+  version: 2
+network_commands:
+  builtin:
+  - curtin
+  - net-meta
+  - custom
+partitioning_commands:
+  builtin:
+  - curtin
+  - block-meta
+  - custom
+proxy: {}
+reporting:
+  maas:
+    consumer_key: yaYmBSUuArGt3JYwHU
+    endpoint: http://192.168.151.1:5248/MAAS/metadata/status/qe8krg
+    token_key: WCCtp2JewdWkHEDAW6
+    token_secret: Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR
+    type: webhook
+showtrace: true
+sources:
+  00_cmdline:
+    type: tgz
+    uri: cp:///media/root-ro
+stages:
+- early
+- partitioning
+- network
+- extract
+- curthooks
+- hook
+- late
+storage:
+  config:
+  - grub_device: true
+    id: vda
+    name: vda
+    path: /dev/vda
+    ptable: gpt
+    type: disk
+    wipe: superblock
+  - device: vda
+    flag: bios_grub
+    id: vda-part1
+    number: 1
+    offset: 4194304B
+    size: 1048576B
+    type: partition
+    wipe: zero
+  - id: nvme0n1
+    model: QEMU NVMe Ctrl
+    name: nvme0n1
+    serial: fit-panda_nvme1
+    type: disk
+    wipe: superblock
+  - id: sda
+    model: QEMU HARDDISK
+    name: sda
+    serial: fit-panda_a
+    type: disk
+    wipe: superblock
+  - id: sdb
+    model: QEMU HARDDISK
+    name: sdb
+    serial: fit-panda_b
+    type: disk
+    wipe: superblock
+  - id: sdc
+    model: QEMU HARDDISK
+    name: sdc
+    serial: fit-panda_c
+    type: disk
+    wipe: superblock
+  - device: vda
+    id: vda-part2
+    name: vda-part2
+    number: 2
+    size: 63992496128B
+    type: partition
+    uuid: b6aeba92-9bba-4043-8f72-e8e0bcb01464
+    wipe: superblock
+  - fstype: ext4
+    id: vda-part2_format
+    label: root
+    type: format
+    uuid: 00710b9e-ad77-459d-bb4e-0565c7501fcf
+    volume: vda-part2
+  - device: vda-part2_format
+    id: vda-part2_mount
+    path: /
+    type: mount
+  version: 1
+verbosity: 3
