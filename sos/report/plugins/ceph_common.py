@@ -95,6 +95,13 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
                     "/var/snap/microceph/common/logs/ceph.audit.log*",
                 ])
 
+            self.add_cmd_output("microceph status", subdir="microceph")
+            self.add_cmd_output("snap info microceph", subdir="microceph")
+            # Collect all but exclude any keyrings
+            self.add_cmd_output("microceph cluster sql 'select * from config \
+                                 where key NOT LIKE \"%keyring%\"'",
+                                subdir="microceph")
+
         self.add_cmd_output([
             "ceph -v",
         ])
