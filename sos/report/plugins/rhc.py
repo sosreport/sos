@@ -27,6 +27,7 @@ class Rhc(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/rhc/*",
+            "/var/log/rhc-worker-playbook",
         ])
 
         self.add_cmd_output([
@@ -46,4 +47,19 @@ class Rhc(Plugin, RedHatPlugin):
         self.do_path_regex_sub("/etc/rhc/workers/foreman_rh_cloud.toml",
                                r"(FORWARDER_PASSWORD\s*=\s*)(.+)(\"\,)",
                                r"\1********\3")
+
+        # hide ssh host keys from rhc-worker ansible playbooks
+        # Example for scrubbing one of the ssh keys
+        #
+        # "ansible_ssh_host_key_ecdsa_public": "ABCDEFGHIJ",
+        #
+        # to
+        #
+        # "ansible_ssh_host_key_ecdsa_public": ********,
+
+        path = "/var/log/rhc-worker-playbook/ansible/*"
+        regexp = r"(\s*\"ansible_ssh_host_key_)(.+)(_public\":\s*)(.+)(\,|$)"
+        self.do_path_regex_sub(path, regexp,
+                               r"\1\2\3********\5")
+
 # vim: set et ts=4 sw=4 :
