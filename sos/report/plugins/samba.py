@@ -39,6 +39,7 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "wbinfo --domain='.' --domain-groups",
             "wbinfo --trusted-domains --verbose",
             "wbinfo --check-secret",
+            "wbinfo --online-status",
             "net primarytrust dumpinfo",
             "net ads info",
             "net ads testjoin",
