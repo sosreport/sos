@@ -23,6 +23,7 @@ class OVNHost(Plugin):
         '/usr/local/var/run/openvswitch',
         '/run/openvswitch',
     ]
+    ovs_cmd_pre = ""
 
     def setup(self):
         if os.environ.get('OVS_RUNDIR'):
@@ -39,9 +40,9 @@ class OVNHost(Plugin):
         self.add_copy_spec('/etc/sysconfig/ovn-controller')
 
         self.add_cmd_output([
-            'ovs-ofctl -O OpenFlow13 dump-flows br-int',
-            'ovs-vsctl list-br',
-            'ovs-vsctl list Open_vSwitch',
+            f'{self.ovs_cmd_pre}ovs-ofctl -O OpenFlow13 dump-flows br-int',
+            f'{self.ovs_cmd_pre}ovs-vsctl list-br',
+            f'{self.ovs_cmd_pre}ovs-vsctl list Open_vSwitch',
         ])
 
         self.add_journal(units="ovn-controller")
@@ -75,3 +76,29 @@ class RedHatOVNHost(OVNHost, RedHatPlugin):
 class DebianOVNHost(OVNHost, DebianPlugin, UbuntuPlugin):
 
     packages = ('ovn-host', )
+
+    sunbeam_common_dir = '/var/snap/openstack-hypervisor/common'
+
+    pid_paths = [
+        f'{sunbeam_common_dir}/run/ovn',
+    ]
+
+    def setup(self):
+
+        if self.is_installed('openstack-hypervisor'):
+            self.ovs_cmd_pre = "openstack-hypervisor."
+
+            self.add_copy_spec([
+                f'{self.sunbeam_common_dir}/lib/ovn-metadata-proxy/*.conf',
+            ])
+
+            if self.get_option("all_logs"):
+                self.add_copy_spec([
+                    f"{self.sunbeam_common_dir}/var/log/ovn/",
+                ])
+            else:
+                self.add_copy_spec([
+                    f"{self.sunbeam_common_dir}/var/log/ovn/*.log",
+                ])
+
+        super().setup()
