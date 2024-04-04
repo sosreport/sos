@@ -19,6 +19,9 @@ class OpenVSwitch(Plugin):
     plugin_name = "openvswitch"
     profiles = ('network', 'virt')
     actl = "ovs-appctl"
+    vctl = "ovs-vsctl"
+    ofctl = "ovs-ofctl"
+    dpctl = "ovs-dpctl"
     check_dpdk = False
     check_6wind = False
 
@@ -32,7 +35,7 @@ class OpenVSwitch(Plugin):
         ]
 
         dpdk_enabled = self.collect_cmd_output(
-            "ovs-vsctl -t 5 get Open_vSwitch . other_config:dpdk-init")
+            f"{self.vctl} -t 5 get Open_vSwitch . other_config:dpdk-init")
         self.check_dpdk = (dpdk_enabled["status"] == 0 and
                            dpdk_enabled["output"].startswith('"true"'))
         self.check_6wind = any(self.is_installed(p) for p in
@@ -85,69 +88,70 @@ class OpenVSwitch(Plugin):
             "driverctl -v list-overrides",
             "driverctl list-persisted",
             # Capture a list of all bond devices
-            "ovs-appctl bond/list",
+            f"{self.actl} bond/list",
             # Capture more details from bond devices
-            "ovs-appctl bond/show",
+            f"{self.actl} bond/show",
             # Capture LACP details
-            "ovs-appctl lacp/show",
-            "ovs-appctl lacp/show-stats",
+            f"{self.actl} lacp/show",
+            f"{self.actl} lacp/show-stats",
             # Capture coverage stats"
-            "ovs-appctl coverage/show",
+            f"{self.actl} coverage/show",
             # Capture cached routes
-            "ovs-appctl ovs/route/show",
+            f"{self.actl} ovs/route/show",
             # Capture tnl arp table"
-            "ovs-appctl tnl/arp/show",
+            f"{self.actl} tnl/arp/show",
             # Capture a list of listening ports"
-            "ovs-appctl tnl/ports/show -v",
+            f"{self.actl} tnl/ports/show -v",
             # Capture upcall information
-            "ovs-appctl upcall/show",
+            f"{self.actl} upcall/show",
             # Capture OVS list
-            "ovs-vsctl -t 5 list Open_vSwitch",
+            f"{self.vctl} -t 5 list Open_vSwitch",
             # Capture OVS interface list
-            "ovs-vsctl -t 5 list interface",
+            f"{self.vctl} -t 5 list interface",
             # Capture OVS detailed information from all the bridges
-            "ovs-vsctl -t 5 list bridge",
+            f"{self.vctl} -t 5 list bridge",
             # Capture OVS datapath list
-            "ovs-vsctl -t 5 list datapath",
+            f"{self.vctl} -t 5 list datapath",
             # Capture DPDK queue to pmd mapping
-            "ovs-appctl dpif-netdev/pmd-rxq-show -secs 5",
-            "ovs-appctl dpif-netdev/pmd-rxq-show -secs 30",
-            "ovs-appctl dpif-netdev/pmd-rxq-show",
+            f"{self.actl} dpif-netdev/pmd-rxq-show -secs 5",
+            f"{self.actl} dpif-netdev/pmd-rxq-show -secs 30",
+            f"{self.actl} dpif-netdev/pmd-rxq-show",
             # Capture DPDK pmd stats
-            "ovs-appctl dpif-netdev/pmd-stats-show",
+            f"{self.actl} dpif-netdev/pmd-stats-show",
             # Capture DPDK pmd performance counters
-            "ovs-appctl dpif-netdev/pmd-perf-show",
+            f"{self.actl} dpif-netdev/pmd-perf-show",
             # Capture ofproto tunnel configs
-            "ovs-appctl ofproto/list-tunnels",
+            f"{self.actl} ofproto/list-tunnels",
             # Capture ipsec tunnel information
-            "ovs-appctl -t ovs-monitor-ipsec tunnels/show",
-            "ovs-appctl -t ovs-monitor-ipsec xfrm/state",
-            "ovs-appctl -t ovs-monitor-ipsec xfrm/policies",
+            f"{self.actl} -t ovs-monitor-ipsec tunnels/show",
+            f"{self.actl} -t ovs-monitor-ipsec xfrm/state",
+            f"{self.actl} -t ovs-monitor-ipsec xfrm/policies",
             # Capture OVS offload enabled flows
-            "ovs-dpctl dump-flows --name -m type=offloaded",
+            f"{self.dpctl} dump-flows --name -m type=offloaded",
             # Capture OVS slowdatapth flows
-            "ovs-dpctl dump-flows --name -m type=ovs",
+            f"{self.dpctl} dump-flows --name -m type=ovs",
             # Capture dpcls implementations
-            "ovs-appctl dpif-netdev/subtable-lookup-prio-get",
+            f"{self.actl} dpif-netdev/subtable-lookup-prio-get",
             # Capture dpif implementations
-            "ovs-appctl dpif-netdev/dpif-impl-get",
+            f"{self.actl} dpif-netdev/dpif-impl-get",
             # Capture miniflow extract implementations
-            "ovs-appctl dpif-netdev/miniflow-parser-get",
+            f"{self.actl} dpif-netdev/miniflow-parser-get",
             # Capture DPDK pmd sleep config
-            "ovs-appctl dpif-netdev/pmd-sleep-show",
+            f"{self.actl} dpif-netdev/pmd-sleep-show",
             # Capture additional DPDK info
-            "ovs-appctl dpdk/lcore-list",
-            "ovs-appctl dpdk/log-list",
-            "ovs-appctl dpdk/get-malloc-stats",
+            f"{self.actl} dpdk/lcore-list",
+            f"{self.actl} dpdk/log-list",
+            f"{self.actl} dpdk/get-malloc-stats",
             # Capture dpdk mempool info
-            "ovs-appctl netdev-dpdk/get-mempool-info"
+            f"{self.actl} netdev-dpdk/get-mempool-info"
         ])
         # Capture DPDK and other parameters
-        self.add_cmd_output("ovs-vsctl -t 5 get Open_vSwitch . other_config",
-                            tags="openvswitch_other_config")
+        self.add_cmd_output(
+            f"{self.vctl} -t 5 get Open_vSwitch . other_config",
+            tags="openvswitch_other_config")
         # The '-t 5' adds an upper bound on how long to wait to connect
         # to the Open vSwitch server, avoiding hangs when running sos.
-        self.add_cmd_output("ovs-vsctl -t 5 show",
+        self.add_cmd_output(f"{self.vctl} -t 5 show",
                             tags="ovs_vsctl_show")
 
         # Gather systemd services logs
@@ -199,12 +203,12 @@ class OpenVSwitch(Plugin):
                 "fp-cli stats non-zero",
                 "fp-cli stats",
                 "fp-cli dpdk-cp-filter-budget",
-                "ovs-appctl vm/port-detailed-show",
-                "ovs-appctl upcall/show",
+                f"{self.actl} vm/port-detailed-show",
+                f"{self.actl} upcall/show",
                 "fp-cli nfct4",
-                "ovs-appctl vm/port-vip-list-show",
+                f"{self.actl} vm/port-vip-list-show",
                 "fp-shmem-ports -s",
-                "ovs-dpctl show -s",
+                f"{self.dpctl} show -s",
                 "fpcmd fp-vswitch-flows",
                 "fp-cli fp-vswitch-ports percore",
                 "fp-cli dpdk-debug-pool",
@@ -212,7 +216,7 @@ class OpenVSwitch(Plugin):
                 "fp-cli conf runtime",
                 "fp-cli conf compiled",
                 "fp-cli iface",
-                "ovs-appctl memory/show",
+                f"{self.actl} memory/show",
             ])
             self.add_journal(units="virtual-accelerator")
             for table in ['filter', 'mangle', 'raw', 'nat']:
@@ -232,7 +236,7 @@ class OpenVSwitch(Plugin):
 
     def collect_datapath(self):
         """ Gather the datapath information for each datapath """
-        dp_list_result = self.collect_cmd_output('ovs-appctl dpctl/dump-dps')
+        dp_list_result = self.collect_cmd_output(f'{self.actl} dpctl/dump-dps')
         if dp_list_result['status'] == 0:
             for dps in dp_list_result['output'].splitlines():
                 self.add_cmd_output([
@@ -246,7 +250,7 @@ class OpenVSwitch(Plugin):
     def collect_ovs_bridge_info(self):
         """ Gather additional output for each OVS bridge on the host. """
 
-        br_list_result = self.collect_cmd_output("ovs-vsctl -t 5 list-br")
+        br_list_result = self.collect_cmd_output(f"{self.vctl} -t 5 list-br")
         if br_list_result['status'] != 0:
             return
 
@@ -257,13 +261,13 @@ class OpenVSwitch(Plugin):
                 f"{self.actl} fdb/show {bri}",
                 f"{self.actl} fdb/stats-show {bri}",
                 f"{self.actl} mdb/show {bri}",
-                f"ovs-ofctl dump-flows {bri}",
-                f"ovs-ofctl dump-ports-desc {bri}",
-                f"ovs-ofctl dump-ports {bri}",
-                f"ovs-ofctl queue-get-config {bri}",
-                f"ovs-ofctl queue-stats {bri}",
-                f"ovs-ofctl show {bri}",
-                f"ovs-ofctl dump-groups {bri}",
+                f"{self.ofctl} dump-flows {bri}",
+                f"{self.ofctl} dump-ports-desc {bri}",
+                f"{self.ofctl} dump-ports {bri}",
+                f"{self.ofctl} queue-get-config {bri}",
+                f"{self.ofctl} queue-stats {bri}",
+                f"{self.ofctl} show {bri}",
+                f"{self.ofctl} dump-groups {bri}",
             ])
 
             self.get_flow_versions(bri)
@@ -272,13 +276,13 @@ class OpenVSwitch(Plugin):
 
             if self.check_dpdk:
                 iface_list_result = self.exec_cmd(
-                    f"ovs-vsctl -t 5 list-ifaces {bri}"
+                    f"{self.vctl} -t 5 list-ifaces {bri}"
                 )
                 if iface_list_result['status'] == 0:
                     for iface in iface_list_result['output'].splitlines():
                         self.add_cmd_output(
-                            f"ovs-appctl netdev-dpdk/get-mempool-info "
-                            f"{iface}")
+                            f"{self.actl} netdev-dpdk/get-mempool-info {iface}"
+                        )
             if self.check_6wind:
                 self.add_cmd_output([
                     f"{self.actl} evpn/vip-list-show {bri}",
@@ -298,7 +302,7 @@ class OpenVSwitch(Plugin):
                         ])
 
                 evpn_list = self.collect_cmd_output(
-                    f"ovs-appctl evpn/list {bri}")
+                    f"{self.actl} evpn/list {bri}")
                 if evpn_list['status'] == 0:
                     evpns = evpn_list['output'].split()[1:]
                     for evpn in evpns:
@@ -338,11 +342,11 @@ class OpenVSwitch(Plugin):
             0x06: "OpenFlow15",
         }
 
-        ofp_ver_result = self.collect_cmd_output("ovs-ofctl -t 5 --version")
+        ofp_ver_result = self.collect_cmd_output(f"{self.vctl} -t 5 --version")
 
         # List protocols currently in use, if any
-        br_info = self.collect_cmd_output(f"ovs-vsctl -t 5 list "
-                                          f"bridge {bridge}")
+        br_info = self.collect_cmd_output(
+            f"{self.vctl} -t 5 list bridge {bridge}")
 
         br_protos = []
         for line in br_info['output'].splitlines():
@@ -371,33 +375,34 @@ class OpenVSwitch(Plugin):
         for flow in flow_versions:
             if flow in br_protos:
                 self.add_cmd_output([
-                    f"ovs-ofctl -O {flow} show {bridge}",
-                    f"ovs-ofctl -O {flow} dump-groups {bridge}",
-                    f"ovs-ofctl -O {flow} dump-group-stats {bridge}",
-                    f"ovs-ofctl -O {flow} dump-flows {bridge}",
-                    f"ovs-ofctl -O {flow} dump-tlv-map {bridge}",
-                    f"ovs-ofctl -O {flow}  dump-ports-desc {bridge}",
+                    f"{self.ofctl} -O {flow} show {bridge}",
+                    f"{self.ofctl} -O {flow} dump-groups {bridge}",
+                    f"{self.ofctl} -O {flow} dump-group-stats {bridge}",
+                    f"{self.ofctl} -O {flow} dump-flows {bridge}",
+                    f"{self.ofctl} -O {flow} dump-tlv-map {bridge}",
+                    f"{self.ofctl} -O {flow} dump-ports-desc {bridge}",
                 ])
 
     def get_port_list(self, bridge):
         """ Collect port list of the given bridge """
-        port_list_result = self.exec_cmd(f"ovs-vsctl -t 5 list-ports {bridge}")
+        port_list_result = self.exec_cmd(
+            f"{self.vctl} -t 5 list-ports {bridge}")
 
         if port_list_result['status'] == 0:
             for port in port_list_result['output'].splitlines():
                 self.add_cmd_output([
-                    f"ovs-appctl cfm/show {port}",
-                    f"ovs-appctl qos/show {port}",
+                    f"{self.actl} cfm/show {port}",
+                    f"{self.actl} qos/show {port}",
                     # Not all ports are "bond"s, but all "bond"s are
                     # a single port
-                    f"ovs-appctl bond/show {port}",
+                    f"{self.actl} bond/show {port}",
                     # In the case of IPSec, we should pull the config
-                    f"ovs-vsctl get Interface {port} options",
+                    f"{self.actl} get Interface {port} options",
                     ])
 
                 if self.check_dpdk:
                     self.add_cmd_output(
-                        f"ovs-appctl netdev-dpdk/get-mempool-info {port}")
+                        f"{self.actl} netdev-dpdk/get-mempool-info {port}")
 
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
@@ -411,5 +416,21 @@ class DebianOpenVSwitch(OpenVSwitch, DebianPlugin, UbuntuPlugin):
 
     packages = ('openvswitch-switch', 'nuage-openvswitch')
 
+    files = (
+        '/var/snap/openstack-hypervisor/common/etc/openvswitch/system-id.conf',
+    )
+
+    def setup(self):
+
+        if self.is_installed('openstack-hypervisor'):
+
+            self.ovs_cmd_pre = "openstack-hypervisor."
+
+            self.actl = f"{self.ovs_cmd_pre}{self.actl}"
+            self.vctl = f"{self.ovs_cmd_pre}{self.vctl}"
+            self.ofctl = f"{self.ovs_cmd_pre}{self.ofctl}"
+            self.dpctl = f"{self.ovs_cmd_pre}{self.dpctl}"
+
+        super().setup()
 
 # vim: set et ts=4 sw=4 :
