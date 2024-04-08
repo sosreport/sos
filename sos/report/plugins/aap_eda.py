@@ -25,6 +25,8 @@ class AAPEDAControllerPlugin(Plugin, RedHatPlugin):
             "/var/log/ansible-automation-platform/eda/scheduler.log*",
             "/var/log/ansible-automation-platform/eda/gunicorn.log*",
             "/var/log/ansible-automation-platform/eda/activation.log*",
+            "/var/log/nginx/automationedacontroller.access.log*",
+            "/var/log/nginx/automationedacontroller.error.log*",
         ])
 
         self.add_forbidden_path([
