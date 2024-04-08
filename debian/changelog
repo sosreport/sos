@@ -1,3 +1,15 @@
+sosreport (4.7.1) mantic; urgency=medium
+
+  * New upstream release
+
+ -- Pavel Moravec <pmoravec@redhat.com> Mon, 08 Apr 2024 09:25:31 +0000
+
+sosreport (4.7.1) mantic; urgency=medium
+
+  * New upstream release
+
+ -- Pavel Moravec <pmoravec@redhat.com>  Mon, 08 Apr 2024 11:25:22 +0200
+
 sosreport (4.7.0-0ubuntu1) mantic; urgency=medium
 
   * New 4.7.0 upstream release
