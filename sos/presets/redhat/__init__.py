@@ -64,6 +64,18 @@ AAPEDA_NOTE = ('Collects \'eda\' user output for the containers_common plugin.'
                ' If you need more users, do not forget to add \'eda\' '
                'to your own list for the \'rootlessusers\' option.')
 
+AAPCONTROLLER = 'aap_controller'
+AAPCONTROLLER_DESC = 'Ansible Automation Platform Controller'
+AAPCONTROLLER_OPTS = SoSOptions(
+    enable_plugins=['containers_common'],
+    plugopts=[
+        'containers_common.rootlessusers=awx'
+    ])
+AAPCONTROLLER_NOTE = ('Collects \'awx\' user output for the containers_common'
+                      'pluging. If you need more users, do not forget to add'
+                      '\'awx\' to your own list for the \'rootlessusers\' '
+                      'option.')
+
 CB = "cantboot"
 CB_DESC = "For use when normal system startup fails"
 CB_OPTS = SoSOptions(
@@ -79,6 +91,9 @@ NOTE_SIZE_TIME = "This preset may increase report size and run time"
 RHEL_PRESETS = {
     AAPEDA: PresetDefaults(name=AAPEDA, desc=AAPEDA_DESC, opts=AAPEDA_OPTS,
                            note=AAPEDA_NOTE),
+    AAPCONTROLLER: PresetDefaults(name=AAPCONTROLLER, desc=AAPCONTROLLER_DESC,
+                                  opts=AAPCONTROLLER_OPTS,
+                                  note=AAPCONTROLLER_NOTE),
     RHV: PresetDefaults(name=RHV, desc=RHV_DESC, note=NOTE_TIME,
                         opts=_opts_verify),
     RHEL: PresetDefaults(name=RHEL, desc=RHEL_DESC),
