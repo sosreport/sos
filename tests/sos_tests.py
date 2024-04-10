@@ -12,6 +12,7 @@ from avocado.core.output import LOG_UI
 from avocado import Test
 from avocado.utils import archive, process, distro, software_manager
 from avocado.utils.cpu import get_arch
+from avocado.utils.software_manager import distro_packages
 from fnmatch import fnmatch
 
 import glob
@@ -30,7 +31,7 @@ SOS_PLUGIN_DIR = os.path.realpath(
 SOS_TEST_DATA_DIR = os.path.realpath(os.path.join(SOS_TEST_DIR, 'test_data'))
 SOS_TEST_BIN = os.path.realpath(os.path.join(SOS_TEST_DIR, '../bin/sos'))
 
-RH_DIST = ['rhel', 'centos', 'fedora']
+RH_DIST = ['rhel', 'centos', 'fedora', 'centos-stream']
 UBUNTU_DIST = ['Ubuntu', 'debian']
 
 
@@ -816,10 +817,7 @@ class StageTwoReportTest(BaseSoSReportTest):
 
     def setUp(self):
         self.end_of_test_case = False
-        # seems awkward, but check_installed() and remove() are not exposed
-        # together with install_distro_packages()
-        self.installer = software_manager
-        self.sm = self.installer.SoftwareManager()
+        self.sm = software_manager.manager.SoftwareManager()
 
         for dist in self.packages:
             if isinstance(self.packages[dist], str):
@@ -834,6 +832,7 @@ class StageTwoReportTest(BaseSoSReportTest):
             self.packages['fedora'] = self.packages['rhel']
         if 'rhel' in keys:
             self.packages['centos'] = self.packages['rhel']
+            self.packages['centos-stream'] = self.packages['rhel']
 
         super(StageTwoReportTest, self).setUp()
 
@@ -894,7 +893,7 @@ class StageTwoReportTest(BaseSoSReportTest):
             self._strip_installed_packages()
             if not self.packages[self.local_distro]:
                 return
-            installed = self.installer.install_distro_packages(self.packages)
+            installed = distro_packages.install_distro_packages(self.packages)
             if not installed:
                 raise Exception(
                     "Unable to install requested packages %s"

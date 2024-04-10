@@ -148,7 +148,7 @@ deb_build_task:
         apt -y install devscripts equivs python3-pip
         mk-build-deps
         apt -y install ./sosreport-build-deps*.deb
-        pip3 install avocado-framework==94.0 --break-system-packages
+        pip3 install "avocado-framework<104.0" --break-system-packages
     main_script: |
         dpkg-buildpackage -b -us -uc -rfakeroot -m --build-by="noreply@canonical.com"
     prep_artifacts_script: mv ../*.deb ./sos_cirrus.deb
@@ -240,13 +240,13 @@ report_stageone_task:
         fi
         PIP_EXTRA=""
         [[ $(pip3 install --help | grep break-system) ]] && PIP_EXTRA="--break-system-packages"
-        pip3 install avocado-framework==94.0 ${PIP_EXTRA}
+        pip3 install "avocado-framework<104.0" ${PIP_EXTRA}
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
     unittest_script: &unit_test |
         PYTHONPATH=. avocado run tests/unittests/
     main_script: &stageone_test
-        PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+        PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t stageone tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: &faillogs |
             ls -d /var/tmp/avocado* /root/avocado* 2> /dev/null | xargs tar cf sos-fail-logs.tar
@@ -266,11 +266,6 @@ report_stageone_daily_task:
     environment:
       PKG: "snap"
     setup_script: *setup
-    avocado_install_script: &avocado_setup |
-        pip3 uninstall -y avocado-framework --break-system-packages
-        git clone --single-branch -b 92lts https://github.com/avocado-framework/avocado.git
-        cd avocado
-        make install
     unittest_script: *unit_test
     main_script: *stageone_test
     on_failure:
@@ -299,7 +294,7 @@ report_stagetwo_task:
             dnf -y install python3-pexpect
         fi
     main_script: &stagetwo_test |
-        PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+        PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t stagetwo tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: *faillogs
         log_artifacts: *logs
@@ -317,7 +312,6 @@ report_stagetwo_daily_task:
     environment:
       PKG: "snap"
     setup_script: *setup
-    avocado_install_script: *avocado_setup
     main_script: *stagetwo_test
     on_failure:
         fail_script: *faillogs
@@ -349,7 +343,7 @@ report_foreman_task:
             FOREMAN_VER: "3.7"
     setup_script: *setup
     foreman_setup_script: ./tests/test_data/foreman_setup.sh
-    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t foreman tests/product_tests/foreman/
+    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t foreman tests/product_tests/foreman/
     on_failure:
         fail_script: *faillogs
         log_artifacts: *logs

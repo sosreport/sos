@@ -14,7 +14,7 @@ from avocado.utils import software_manager
 from sos_tests import StageOneOutputTest, SOS_REPO_ROOT, skipIf
 
 installer = software_manager
-sm = installer.SoftwareManager()
+sm = installer.manager.SoftwareManager()
 
 PEXPECT_PRESENT = sm.check_installed('python3-pexpect')
 
