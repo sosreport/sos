@@ -6,14 +6,14 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
+
 from sos.report.plugins import UbuntuPlugin
 from sos.policies.distros.debian import DebianPolicy
 
 from sos.policies.package_managers.snap import SnapPackageManager
 from sos.policies.package_managers.dpkg import DpkgPackageManager
 from sos.policies.package_managers import MultiPackageManager
-
-import os
 
 
 class UbuntuPolicy(DebianPolicy):
@@ -32,9 +32,9 @@ class UbuntuPolicy(DebianPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(UbuntuPolicy, self).__init__(sysroot=sysroot, init=init,
-                                           probe_runtime=probe_runtime,
-                                           remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
 
         self.package_manager = MultiPackageManager(
             primary=DpkgPackageManager,
@@ -83,7 +83,7 @@ class UbuntuPolicy(DebianPolicy):
         if self.upload_url.startswith(self._upload_url):
             return (self._upload_user, self._upload_password)
         else:
-            return super(UbuntuPolicy, self).get_upload_https_auth()
+            return super().get_upload_https_auth()
 
     def get_upload_url_string(self):
         if self.upload_url.startswith(self._upload_url):
@@ -97,6 +97,6 @@ class UbuntuPolicy(DebianPolicy):
                 return self._upload_url
             fname = os.path.basename(self.upload_archive_name)
             return self._upload_url + fname
-        return super(UbuntuPolicy, self).get_upload_url()
+        return super().get_upload_url()
 
 # vim: set et ts=4 sw=4 :

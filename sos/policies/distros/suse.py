@@ -24,9 +24,9 @@ class SuSEPolicy(LinuxPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(SuSEPolicy, self).__init__(sysroot=sysroot, init=init,
-                                         probe_runtime=probe_runtime,
-                                         remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
         self.valid_subclasses += [SuSEPlugin, RedHatPlugin]
 
         self.usrmove = False
@@ -77,9 +77,9 @@ No changes will be made to system configuration.
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(OpenSuSEPolicy, self).__init__(sysroot=sysroot, init=init,
-                                             probe_runtime=probe_runtime,
-                                             remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
 
     @classmethod
     def check(cls, remote):

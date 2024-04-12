@@ -8,6 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+# pylint: disable=too-many-locals,too-many-branches
+
 import fnmatch
 import inspect
 import json
@@ -145,7 +147,7 @@ class SoSCollector(SoSComponent):
     }
 
     def __init__(self, parser, parsed_args, cmdline_args):
-        super(SoSCollector, self).__init__(parser, parsed_args, cmdline_args)
+        super().__init__(parser, parsed_args, cmdline_args)
         os.umask(0o77)
         self.client_list = []
         self.node_list = []

@@ -9,10 +9,9 @@
 import random
 import os
 
-
-from sos_tests import StageOneReportTest, StageTwoReportTest
 from string import ascii_uppercase, digits
 from time import sleep
+from sos_tests import StageOneReportTest, StageTwoReportTest
 
 
 class LogsPluginTest(StageOneReportTest):

@@ -128,6 +128,7 @@ class SoSHostnameMap(SoSMap):
         return False
 
     def get(self, item):
+        # pylint: disable=too-many-branches
         prefix = ''
         suffix = ''
         final = None
@@ -170,21 +171,21 @@ class SoSHostnameMap(SoSMap):
                 elif not _host_substr and (_test[0].endswith('.') or
                                            item.endswith(_existing)):
                     # new hostname in known domain
-                    final = super(SoSHostnameMap, self).get(item)
+                    final = super().get(item)
                     break
                 elif item.split(_test[0]):
                     # string that includes existing FQDN obfuscation substring
                     # so, only obfuscate the FQDN part
                     try:
                         itm = item.split(_test[0])[1]
-                        final = _test[0] + super(SoSHostnameMap, self).get(itm)
+                        final = _test[0] + super().get(itm)
                         break
                     except Exception:
                         # fallback to still obfuscating the entire item
                         pass
 
         if not final:
-            final = super(SoSHostnameMap, self).get(item)
+            final = super().get(item)
         return prefix + final + suffix
 
     def sanitize_item(self, item):

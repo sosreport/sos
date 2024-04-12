@@ -18,11 +18,11 @@ __version__ = "4.7.1"
 
 import os
 import sys
+import gettext
 
 from argparse import ArgumentParser
 from sos.options import SosListOption
 
-import gettext
 gettext_dir = "/usr/share/locale"
 gettext_app = "sos"
 gettext.bindtextdomain(gettext_app, gettext_dir)

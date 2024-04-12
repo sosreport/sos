@@ -8,22 +8,25 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+# pylint: disable=too-many-branches,too-many-locals
+
 import sys
 import traceback
 import os
 import errno
 import logging
-
+import hashlib
+import pdb
 from datetime import datetime
 import glob
+
+from shutil import rmtree
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
+
 import sos.report.plugins
 from sos.utilities import (ImporterHelper, SoSTimeoutError, bold,
                            sos_get_command_output, TIMEOUT_DEFAULT, listdir,
                            is_executable)
-from shutil import rmtree
-import hashlib
-from concurrent.futures import ThreadPoolExecutor, TimeoutError
-import pdb
 
 from sos import _sos as _
 from sos import __version__
@@ -141,7 +144,7 @@ class SoSReport(SoSComponent):
     }
 
     def __init__(self, parser, args, cmdline):
-        super(SoSReport, self).__init__(parser, args, cmdline)
+        super().__init__(parser, args, cmdline)
         self.loaded_plugins = []
         self.skipped_plugins = []
         self.all_options = []

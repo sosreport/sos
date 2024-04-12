@@ -219,6 +219,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                            chroot=None, chdir=None, env=None, foreground=False,
                            binary=False, sizelimit=None, poller=None,
                            to_file=False):
+    # pylint: disable=too-many-locals,too-many-branches
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
@@ -498,7 +499,7 @@ class AsyncReader(threading.Thread):
     """
 
     def __init__(self, channel, sizelimit, binary):
-        super(AsyncReader, self).__init__()
+        super().__init__()
         self.chan = channel
         self.binary = binary
         self.chunksize = 2048

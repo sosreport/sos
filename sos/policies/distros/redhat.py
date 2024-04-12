@@ -57,9 +57,9 @@ class RedHatPolicy(LinuxPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(RedHatPolicy, self).__init__(sysroot=sysroot, init=init,
-                                           probe_runtime=probe_runtime,
-                                           remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
         self.usrmove = False
 
         self.package_manager = MultiPackageManager(
@@ -235,9 +235,9 @@ support representative.
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(RHELPolicy, self).__init__(sysroot=sysroot, init=init,
-                                         probe_runtime=probe_runtime,
-                                         remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
         self.register_presets(RHEL_PRESETS)
 
     @classmethod
@@ -354,13 +354,13 @@ support representative.
             fname = os.path.join(self.upload_directory, fname)
         return fname
 
-    def upload_sftp(self):
+    def upload_sftp(self):  # pylint: disable=too-many-branches
         """Override the base upload_sftp to allow for setting an on-demand
         generated anonymous login for the RH SFTP server if a username and
         password are not given
         """
         if RH_SFTP_HOST.split('//')[1] not in self.get_upload_url():
-            return super(RHELPolicy, self).upload_sftp()
+            return super().upload_sftp()
 
         if not REQUESTS_LOADED:
             raise Exception("python3-requests is not installed and is required"
@@ -426,8 +426,7 @@ support representative.
                     f"{anon.status_code}): {anon.json()}"
                 )
         if _user and _token:
-            return super(RHELPolicy, self).upload_sftp(user=_user,
-                                                       password=_token)
+            return super().upload_sftp(user=_user, password=_token)
         raise Exception("Could not retrieve valid or anonymous credentials")
 
     def upload_archive(self, archive):
@@ -439,7 +438,7 @@ support representative.
                     (not self.get_upload_user() or
                      not self.get_upload_password()):
                 self.upload_url = RH_SFTP_HOST
-            uploaded = super(RHELPolicy, self).upload_archive(archive)
+            uploaded = super().upload_archive(archive)
         except Exception as e:
             uploaded = False
             if not self.upload_url.startswith(RH_API_HOST):
@@ -450,7 +449,7 @@ support representative.
                       f"{e}. Trying {RH_SFTP_HOST}")
                 )
                 self.upload_url = RH_SFTP_HOST
-                uploaded = super(RHELPolicy, self).upload_archive(archive)
+                uploaded = super().upload_archive(archive)
         return uploaded
 
     def dist_version(self):
@@ -537,9 +536,9 @@ support representative.
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(RedHatCoreOSPolicy, self).__init__(sysroot=sysroot, init=init,
-                                                 probe_runtime=probe_runtime,
-                                                 remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
 
     @classmethod
     def check(cls, remote=''):
@@ -608,9 +607,9 @@ class FedoraPolicy(RedHatPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(FedoraPolicy, self).__init__(sysroot=sysroot, init=init,
-                                           probe_runtime=probe_runtime,
-                                           remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
 
     @classmethod
     def check(cls, remote=''):
@@ -624,7 +623,8 @@ class FedoraPolicy(RedHatPolicy):
 
     def fedora_version(self):
         pkg = self.pkg_by_name("fedora-release") or \
-            self.all_pkgs_by_name_regex("fedora-release-.*")[-1]
+            self.package_manager.all_pkgs_by_name_regex(
+                "fedora-release-.*")[-1]
         return int(pkg["version"])
 
 # vim: set et ts=4 sw=4 :

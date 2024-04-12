@@ -304,8 +304,7 @@ class MultiPackageManager(PackageManager):
     """
 
     def __init__(self, primary, fallbacks, chroot=None, remote_exec=None):
-        super(MultiPackageManager, self).__init__(chroot=chroot,
-                                                  remote_exec=remote_exec)
+        super().__init__(chroot=chroot, remote_exec=remote_exec)
 
         if not issubclass(primary, PackageManager):
             raise Exception(

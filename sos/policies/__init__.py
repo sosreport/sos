@@ -1,3 +1,4 @@
+
 import logging
 import os
 import platform
@@ -9,6 +10,7 @@ import string
 import sys
 
 from pwd import getpwuid
+from textwrap import fill
 from sos.presets import (NO_PRESET, GENERIC_PRESETS, PRESETS_PATH,
                          PresetDefaults, DESC, NOTE, OPTS)
 from sos.policies.package_managers import PackageManager
@@ -17,7 +19,6 @@ from sos.utilities import (ImporterHelper, import_module, get_human_readable,
 from sos.report.plugins import IndependentPlugin, ExperimentalPlugin
 from sos.options import SoSOptions
 from sos import _sos as _
-from textwrap import fill
 
 
 def import_policy(name):
@@ -234,7 +235,7 @@ any third party.
                   the Policy `name_pattern`
         :rtype: ``str``
         """
-        name = self.get_local_name().split('.')[0]
+        name = self.get_local_name().split('.')[0]  # pylint: disable=no-member
         case = self.case_id
         label = self.commons['cmdlineopts'].label
         date = ''
@@ -252,6 +253,7 @@ any third party.
         else:
             nstr = self.name_pattern
 
+        # pylint: disable-next=no-member
         return self.sanitize_filename(time.strftime(nstr))
 
     # for some specific binaries like "xz", we need to determine package

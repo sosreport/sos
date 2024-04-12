@@ -8,11 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-
-from sos.cleaner.archives import SoSObfuscationArchive
-
 import os
 import tarfile
+
+from sos.cleaner.archives import SoSObfuscationArchive
 
 
 class DataDirArchive(SoSObfuscationArchive):

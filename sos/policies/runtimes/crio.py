@@ -9,9 +9,9 @@
 # See the LICENSE file in the source distribution for further information.
 import json
 
+from shlex import quote
 from sos.policies.runtimes import ContainerRuntime
 from sos.utilities import sos_get_command_output
-from shlex import quote
 
 
 class CrioContainerRuntime(ContainerRuntime):

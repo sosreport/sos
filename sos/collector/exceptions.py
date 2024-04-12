@@ -14,7 +14,7 @@ class InvalidPasswordException(Exception):
 
     def __init__(self):
         message = 'Invalid password provided'
-        super(InvalidPasswordException, self).__init__(message)
+        super().__init__(message)
 
 
 class TimeoutPasswordAuthException(Exception):
@@ -23,7 +23,7 @@ class TimeoutPasswordAuthException(Exception):
 
     def __init__(self):
         message = 'Timeout hit while waiting for password validation'
-        super(TimeoutPasswordAuthException, self).__init__(message)
+        super().__init__(message)
 
 
 class PasswordRequestException(Exception):
@@ -32,7 +32,7 @@ class PasswordRequestException(Exception):
 
     def __init__(self):
         message = 'Host requested password, but none provided'
-        super(PasswordRequestException, self).__init__(message)
+        super().__init__(message)
 
 
 class AuthPermissionDeniedException(Exception):
@@ -40,7 +40,7 @@ class AuthPermissionDeniedException(Exception):
 
     def __init__(self):
         message = 'Permission denied while trying to authenticate'
-        super(AuthPermissionDeniedException, self).__init__(message)
+        super().__init__(message)
 
 
 class ConnectionException(Exception):
@@ -49,7 +49,7 @@ class ConnectionException(Exception):
     def __init__(self, address='', port=''):
         message = (f"Could not connect to host {address} on specified port "
                    f"{port}")
-        super(ConnectionException, self).__init__(message)
+        super().__init__(message)
 
 
 class CommandTimeoutException(Exception):
@@ -59,7 +59,7 @@ class CommandTimeoutException(Exception):
         message = 'Timeout expired'
         if command:
             message += f" executing {command}"
-        super(CommandTimeoutException, self).__init__(message)
+        super().__init__(message)
 
 
 class ConnectionTimeoutException(Exception):
@@ -67,7 +67,7 @@ class ConnectionTimeoutException(Exception):
 
     def __init__(self):
         message = 'Timeout expires while trying to connect'
-        super(ConnectionTimeoutException, self).__init__(message)
+        super().__init__(message)
 
 
 class ControlSocketMissingException(Exception):
@@ -75,7 +75,7 @@ class ControlSocketMissingException(Exception):
 
     def __init__(self, path=''):
         message = f"SSH control socket {path} does not exist"
-        super(ControlSocketMissingException, self).__init__(message)
+        super().__init__(message)
 
 
 class ControlPersistUnsupportedException(Exception):
@@ -83,7 +83,7 @@ class ControlPersistUnsupportedException(Exception):
 
     def __init__(self):
         message = 'ControlPersist unsupported by local SSH installation'
-        super(ControlPersistUnsupportedException, self).__init__(message)
+        super().__init__(message)
 
 
 class UnsupportedHostException(Exception):
@@ -91,7 +91,7 @@ class UnsupportedHostException(Exception):
 
     def __init__(self):
         message = 'Host did not match any supported distributions'
-        super(UnsupportedHostException, self).__init__(message)
+        super().__init__(message)
 
 
 class InvalidTransportException(Exception):
@@ -101,7 +101,7 @@ class InvalidTransportException(Exception):
     def __init__(self, transport=None):
         message = ("Connection failed: unknown or unsupported transport "
                    f"{transport if transport else ''}")
-        super(InvalidTransportException, self).__init__(message)
+        super().__init__(message)
 
 
 class SaltStackMasterUnsupportedException(Exception):
@@ -109,7 +109,7 @@ class SaltStackMasterUnsupportedException(Exception):
 
     def __init__(self):
         message = 'Master unsupported by local SaltStack installation'
-        super(SaltStackMasterUnsupportedException, self).__init__(message)
+        super().__init__(message)
 
 
 class JujuNotInstalledException(Exception):
@@ -120,7 +120,7 @@ class JujuNotInstalledException(Exception):
             'Juju is not installed, '
             'please ensure you have installed juju.'
         )
-        super(JujuNotInstalledException, self).__init__(message)
+        super().__init__(message)
 
 
 __all__ = [

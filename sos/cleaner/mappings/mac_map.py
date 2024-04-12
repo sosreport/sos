@@ -52,11 +52,11 @@ class SoSMacMap(SoSMap):
 
     def add(self, item):
         item = item.replace('-', ':').lower().strip('=.,').strip()
-        return super(SoSMacMap, self).add(item)
+        return super().add(item)
 
     def get(self, item):
         item = item.replace('-', ':').lower().strip('=.,').strip()
-        return super(SoSMacMap, self).get(item)
+        return super().get(item)
 
     def sanitize_item(self, item):
         """Randomize the device hextets, and append those to our 'vendor'

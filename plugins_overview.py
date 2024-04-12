@@ -46,7 +46,8 @@ def add_valid_item(dest, item):
 # split by comma; add each valid item to the `dest` list
 def add_all_items(method, dest, wrapopen=r'\(', wrapclose=r'\)'):
     regexp = f"{method}{wrapopen}(.*?){wrapclose}"
-    for match in re.findall(regexp, plugcontent, flags=re.MULTILINE | re.DOTALL):
+    for match in re.findall(regexp, plugcontent,
+                            flags=re.MULTILINE | re.DOTALL):
         # tuple of distros ended by either (class|from|import)
         if isinstance(match, tuple):
             for item in list(match):

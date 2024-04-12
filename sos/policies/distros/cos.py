@@ -38,9 +38,9 @@ class CosPolicy(LinuxPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(CosPolicy, self).__init__(sysroot=sysroot, init=init,
-                                        probe_runtime=probe_runtime,
-                                        remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
         self.valid_subclasses += [CosPolicy]
 
     @classmethod

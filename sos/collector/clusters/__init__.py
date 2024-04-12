@@ -10,9 +10,9 @@
 
 import logging
 
+from threading import Lock
 from sos.options import ClusterOption
 from sos.utilities import bold
-from threading import Lock
 
 
 class Cluster():
@@ -91,7 +91,7 @@ class Cluster():
         return cls.__name__.lower()
 
     @classmethod
-    def display_help(cls, section):
+    def display_help(cls, section):  # pylint: disable=too-many-branches
         if cls is Cluster:
             cls.display_self_help(section)
             return

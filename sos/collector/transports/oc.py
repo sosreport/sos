@@ -204,7 +204,7 @@ class OCTransport(RemoteTransport):
         if cmd.startswith('oc'):
             return (f"oc -n {self.project} exec --request-timeout=0 "
                     f"{self.pod_name} -- chroot /host {cmd}")
-        return super(OCTransport, self)._format_cmd_for_exec(cmd)
+        return super()._format_cmd_for_exec(cmd)
 
     def run_command(self, cmd, timeout=180, need_root=False, env=None,
                     use_shell=False):
@@ -214,8 +214,8 @@ class OCTransport(RemoteTransport):
 
         # since we always execute within a bash shell, force disable use_shell
         # to avoid double-quoting
-        return super(OCTransport, self).run_command(cmd, timeout, need_root,
-                                                    env, use_shell=False)
+        return super().run_command(cmd, timeout, need_root,
+                                   env, use_shell=False)
 
     def _disconnect(self):
         if os.path.exists(self.pod_tmp_conf):

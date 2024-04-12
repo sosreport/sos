@@ -6,9 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
 from sos.report.plugins import OpenEulerPlugin
 from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
-import os
 
 
 class OpenEulerPolicy(RedHatPolicy):
@@ -18,9 +18,9 @@ class OpenEulerPolicy(RedHatPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(OpenEulerPolicy, self).__init__(sysroot=sysroot, init=init,
-                                              probe_runtime=probe_runtime,
-                                              remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
 
         self.valid_subclasses += [OpenEulerPlugin]
 

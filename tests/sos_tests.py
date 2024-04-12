@@ -6,13 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-
-from avocado.core.exceptions import TestSkipError
-from avocado.core.output import LOG_UI
-from avocado import Test
-from avocado.utils import archive, process, distro, software_manager
-from avocado.utils.cpu import get_arch
-from avocado.utils.software_manager import distro_packages
 from fnmatch import fnmatch
 
 import glob
@@ -23,6 +16,13 @@ import pickle
 import shutil
 import socket
 import re
+
+from avocado.core.exceptions import TestSkipError
+from avocado.core.output import LOG_UI
+from avocado import Test
+from avocado.utils import archive, process, distro, software_manager
+from avocado.utils.cpu import get_arch
+from avocado.utils.software_manager import distro_packages
 
 SOS_TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 SOS_REPO_ROOT = os.path.realpath(os.path.join(SOS_TEST_DIR, '../'))
@@ -148,6 +148,8 @@ class BaseSoSTest(Test):
             if self._exception_expected:
                 self.cmd_output = err.result
             else:
+                # pylint: disable=no-member
+                # We've already checked above for the result attribute for err
                 msg = err.result.stderr.decode() or err.result.stdout.decode()
                 # a little hacky, but using self.log methods here will not
                 # print to console unless we ratchet up the verbosity for the
@@ -399,6 +401,7 @@ class BaseSoSReportTest(BaseSoSTest):
         try:
             process.run(cmd, timeout=10)
         except Exception as err:
+            # pylint: disable=no-member
             if err.result.interrupted:
                 self.error("Timeout while decrypting")
             if 'Bad session key' in err.result.stderr.decode():
@@ -473,7 +476,7 @@ class BaseSoSReportTest(BaseSoSTest):
                 f"--tmp-dir {self.tmpdir} {self.sos_cmd}")
 
     def _execute_sos_cmd(self):
-        super(BaseSoSReportTest, self)._execute_sos_cmd()
+        super()._execute_sos_cmd()
         self.archive = re.findall(
             '/.*sosreport-.*tar.*',
             self.cmd_output.stdout
@@ -489,7 +492,7 @@ class BaseSoSReportTest(BaseSoSTest):
         return None
 
     def setUp(self):
-        super(BaseSoSReportTest, self).setUp()
+        super().setUp()
         self.archive_path = self._get_archive_path()
 
     def get_name_in_archive(self, fname):
@@ -834,12 +837,12 @@ class StageTwoReportTest(BaseSoSReportTest):
             self.packages['centos'] = self.packages['rhel']
             self.packages['centos-stream'] = self.packages['rhel']
 
-        super(StageTwoReportTest, self).setUp()
+        super().setUp()
 
     def tearDown(self):
         if self.end_of_test_case:
             self.teardown_mocking()
-            super(StageTwoReportTest, self).tearDown()
+            super().tearDown()
 
     def teardown_mocking(self):
         """Undo any and all mocked setup that we did for tests

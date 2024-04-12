@@ -46,4 +46,4 @@ class SoSIPParser(SoSCleanerParser):
 
     def __init__(self, config, skip_clean_files=[]):
         self.mapping = SoSIPMap()
-        super(SoSIPParser, self).__init__(config, skip_clean_files)
+        super().__init__(config, skip_clean_files)

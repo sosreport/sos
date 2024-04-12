@@ -30,7 +30,7 @@ class MockPlugin(Plugin):
     ]
 
     def __init__(self, commons):
-        super(MockPlugin, self).__init__(commons=commons)
+        super().__init__(commons=commons)
 
 
 class GlobalOptionTest(unittest.TestCase):

@@ -10,8 +10,8 @@
 
 
 import os
-import pexpect
 import subprocess
+import pexpect
 
 from sos.collector.transports import RemoteTransport
 from sos.collector.exceptions import (InvalidPasswordException,
@@ -69,7 +69,7 @@ class SSHControlPersist(RemoteTransport):
             raise ControlPersistUnsupportedException
         return True
 
-    def _connect(self, password=''):
+    def _connect(self, password=''):  # pylint: disable=too-many-branches
         """
         Using ControlPersist, create the initial connection to the node.
 
