@@ -8,8 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
 import os
+from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
 
 
 class RockyPolicy(RedHatPolicy):
@@ -22,9 +22,9 @@ class RockyPolicy(RedHatPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(RockyPolicy, self).__init__(sysroot=sysroot, init=init,
-                                          probe_runtime=probe_runtime,
-                                          remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
 
     @classmethod
     def check(cls, remote=''):

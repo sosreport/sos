@@ -10,10 +10,11 @@
 
 import inspect
 import logging
-import pexpect
 import re
-
 from shlex import quote
+
+import pexpect
+
 from sos.collector.exceptions import (ConnectionException,
                                       CommandTimeoutException)
 from sos.utilities import bold
@@ -322,7 +323,7 @@ class RemoteTransport():
         :type result:       ``pexpect.spawn``
         """
         if index == 2:
-            if not self.opts.sudo_pw and not self.opt.nopasswd_sudo:
+            if not self.opts.sudo_pw and not self.opts.nopasswd_sudo:
                 msg = ("Unable to run command: sudo password "
                        "required but not provided")
                 self.log_error(msg)

@@ -117,7 +117,7 @@ class ocp(Cluster):
         return _res['status'] == 0
 
     def check_enabled(self):
-        if super(ocp, self).check_enabled():
+        if super().check_enabled():
             return True
         self.token = self.get_option('token') or os.getenv('SOSOCPTOKEN', None)
         if self.token:

@@ -10,9 +10,9 @@
 
 import re
 
+from xml.etree import ElementTree
 from sos.collector.clusters import Cluster
 from sos.utilities import sos_parse_version
-from xml.etree import ElementTree
 
 
 class pacemaker(Cluster):

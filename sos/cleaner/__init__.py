@@ -13,13 +13,16 @@ import json
 import logging
 import os
 import shutil
-import sos.cleaner.preppers
 import tempfile
 import fnmatch
 
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pwd import getpwuid
+from textwrap import fill
+
+import sos.cleaner.preppers
+
 from sos import __version__
 from sos.component import SoSComponent
 from sos.cleaner.parsers.ip_parser import SoSIPParser
@@ -34,7 +37,6 @@ from sos.cleaner.archives.sos import (SoSReportArchive, SoSReportDirectory,
 from sos.cleaner.archives.generic import DataDirArchive, TarballArchive
 from sos.cleaner.archives.insights import InsightsArchive
 from sos.utilities import get_human_readable, import_module, ImporterHelper
-from textwrap import fill
 
 
 class SoSCleaner(SoSComponent):
@@ -97,7 +99,7 @@ class SoSCleaner(SoSComponent):
                  hook_commons=None):
         if not in_place:
             # we are running `sos clean` directly
-            super(SoSCleaner, self).__init__(parser, args, cmdline)
+            super().__init__(parser, args, cmdline)
             self.from_cmdline = True
         else:
             # we are being hooked by either SoSReport or SoSCollector, don't
@@ -665,7 +667,7 @@ third party.
             for archive in self.report_paths:
                 self._prepare_archive_with_prepper(archive, prepper)
 
-    def obfuscate_report(self, archive):
+    def obfuscate_report(self, archive):  # pylint: disable=too-many-branches
         """Individually handle each archive or directory we've discovered by
         running through each file therein.
 
@@ -744,6 +746,7 @@ third party.
                              f"{archive.archive_name}: {err}")
 
     def obfuscate_file(self, filename, short_name=None, arc_name=None):
+        # pylint: disable=too-many-locals
         """Obfuscate and individual file, line by line.
 
         Lines processed, even if no substitutions occur, are then written to a

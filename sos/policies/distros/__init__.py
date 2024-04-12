@@ -8,6 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+# pylint: disable=too-many-branches
+
 import os
 import re
 
@@ -91,9 +93,9 @@ class LinuxPolicy(Policy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(LinuxPolicy, self).__init__(sysroot=sysroot,
-                                          probe_runtime=probe_runtime,
-                                          remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
 
         if sysroot:
             self.sysroot = sysroot
@@ -1018,6 +1020,7 @@ class LinuxPolicy(Policy):
         return ''
 
     def restart_sos_container(self):
+        # pylint: disable=no-member
         """Restarts the container created for sos collect if it has stopped.
 
         This is called immediately after create_sos_container() as the command
@@ -1029,6 +1032,7 @@ class LinuxPolicy(Policy):
         return f"{self.container_runtime} start {self.sos_container_name}"
 
     def format_container_command(self, cmd):
+        # pylint: disable=no-member
         """Returns the command that allows us to exec into the created
         container for sos collect.
 

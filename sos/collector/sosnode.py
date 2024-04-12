@@ -8,6 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+# pylint: disable=too-many-branches
+
 import fnmatch
 import inspect
 import logging
@@ -838,36 +840,25 @@ class SosNode():
 
     def retrieve_sosreport(self):
         """Collect the sosreport archive from the node"""
-        if self.sos_path:
-            if self.need_sudo or self.opts.become_root:
-                try:
-                    self.make_archive_readable(self.sos_path)
-                except Exception:
-                    self.log_error('Failed to make archive readable')
-                    return False
-            self.log_info(f'Retrieving sos report from {self.address}')
-            self.ui_msg('Retrieving sos report...')
+        if self.need_sudo or self.opts.become_root:
             try:
-                ret = self.retrieve_file(self.sos_path)
-            except Exception as err:
-                self.log_error(err)
+                self.make_archive_readable(self.sos_path)
+            except Exception:
+                self.log_error('Failed to make archive readable')
                 return False
-            if ret:
-                self.ui_msg('Successfully collected sos report')
-                self.file_list.append(self.sos_path.split('/')[-1])
-                return True
-            else:
-                self.ui_msg('Failed to retrieve sos report')
-                return False
+        self.log_info(f'Retrieving sos report from {self.address}')
+        self.ui_msg('Retrieving sos report...')
+        try:
+            ret = self.retrieve_file(self.sos_path)
+        except Exception as err:
+            self.log_error(err)
+            return False
+        if ret:
+            self.ui_msg('Successfully collected sos report')
+            self.file_list.append(self.sos_path.split('/')[-1])
+            return True
         else:
-            # sos sometimes fails but still returns a 0 exit code
-            if self.stderr.read():
-                e = self.stderr.read()
-            else:
-                e = [x.strip() for x in self.stdout.readlines() if x.strip][-1]
-            self.soslog.error(
-                f'Failed to run sos report on {self.address}: {e}')
-            self.log_error(f'Failed to run sos report. {e}')
+            self.ui_msg('Failed to retrieve sos report')
             return False
 
     def remove_sos_archive(self):

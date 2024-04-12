@@ -11,9 +11,9 @@
 
 from fnmatch import translate
 import re
+import json
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
-import json
 
 
 class Kubernetes(Plugin):
@@ -191,37 +191,40 @@ class Kubernetes(Plugin):
                             )
 
             if self.get_option('podlogs'):
-                k_cmd = f'{self.kube_cmd} get -o json {knsp}'
-                ret = self.exec_cmd(f'{k_cmd} pods')
-                if ret['status'] == 0:
-                    pods = json.loads(ret['output'])
-                    # allow shell-style regex
-                    reg = (translate(self.get_option('podlogs-filter')) if
-                           self.get_option('podlogs-filter') else None)
-                    for pod in pods["items"]:
-                        if reg and not re.match(reg, pod["metadata"]["name"]):
-                            continue
-                        _subdir = (f'cluster-info/'
-                                   f'{pod["metadata"]["namespace"]}/podlogs/'
-                                   f'{pod["metadata"]["name"]}')
-                        if "containers" in pod["spec"]:
-                            for cont in pod["spec"]["containers"]:
-                                pod_name = pod["metadata"]["name"]
-                                cont_name = cont["name"]
-                                self.add_cmd_output(
-                                    f'{self.kube_cmd} {knsp} logs '
-                                    f'{pod_name} -c {cont_name}',
-                                    subdir=_subdir
-                                )
-                        if "initContainers" in pod["spec"]:
-                            for cont in pod["spec"]["initContainers"]:
-                                pod_name = pod["metadata"]["name"]
-                                cont_name = cont["name"]
-                                self.add_cmd_output(
-                                    f'{self.kube_cmd} {knsp} logs '
-                                    f'{pod_name} -c {cont_name}',
-                                    subdir=_subdir
-                                )
+                self._get_pod_logs(knsp)
+
+    def _get_pod_logs(self, namespace):
+        k_cmd = f'{self.kube_cmd} get -o json {namespace}'
+        ret = self.exec_cmd(f'{k_cmd} pods')
+        if ret['status'] == 0:
+            pods = json.loads(ret['output'])
+            # allow shell-style regex
+            reg = (translate(self.get_option('podlogs-filter')) if
+                   self.get_option('podlogs-filter') else None)
+            for pod in pods["items"]:
+                if reg and not re.match(reg, pod["metadata"]["name"]):
+                    continue
+                _subdir = (f'cluster-info/'
+                           f'{pod["metadata"]["namespace"]}/podlogs/'
+                           f'{pod["metadata"]["name"]}')
+                if "containers" in pod["spec"]:
+                    for cont in pod["spec"]["containers"]:
+                        pod_name = pod["metadata"]["name"]
+                        cont_name = cont["name"]
+                        self.add_cmd_output(
+                            f'{self.kube_cmd} {namespace} logs '
+                            f'{pod_name} -c {cont_name}',
+                            subdir=_subdir
+                        )
+                if "initContainers" in pod["spec"]:
+                    for cont in pod["spec"]["initContainers"]:
+                        pod_name = pod["metadata"]["name"]
+                        cont_name = cont["name"]
+                        self.add_cmd_output(
+                            f'{self.kube_cmd} {namespace} logs '
+                            f'{pod_name} -c {cont_name}',
+                            subdir=_subdir
+                        )
 
     def collect_all_resources(self):
         """ Collect details about all resources """

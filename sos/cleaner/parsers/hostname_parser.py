@@ -23,7 +23,7 @@ class SoSHostnameParser(SoSCleanerParser):
 
     def __init__(self, config, skip_clean_files=[]):
         self.mapping = SoSHostnameMap()
-        super(SoSHostnameParser, self).__init__(config, skip_clean_files)
+        super().__init__(config, skip_clean_files)
 
     def parse_line(self, line):
         """This will be called for every line in every file we process, so that

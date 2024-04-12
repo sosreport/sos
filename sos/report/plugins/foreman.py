@@ -182,6 +182,7 @@ class Foreman(Plugin):
         self.collect_proxies()
 
     def collect_foreman_db(self):
+        # pylint: disable=too-many-locals
         """ Collect foreman db and dynflow data """
         days = f'{self.get_option("days")} days'
         interval = quote(days)

@@ -21,6 +21,8 @@ except ImportError:
 
 class Node(object):
 
+    data = {}
+
     def __str__(self):
         return json.dumps(self.data)
 

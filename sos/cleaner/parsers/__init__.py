@@ -8,6 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+# pylint: disable=no-member
+
 import re
 
 

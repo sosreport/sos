@@ -8,15 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+# pylint: disable=too-many-locals,too-many-branches
+
 """ This exports methods available for use by plugins for sos """
 
-from sos.utilities import (sos_get_command_output, import_module, grep,
-                           fileobj, tail, is_executable, TIMEOUT_DEFAULT,
-                           path_exists, path_isdir, path_isfile, path_islink,
-                           listdir, path_join, bold, file_is_binary,
-                           recursive_dict_values_by_key)
-
-from sos.archive import P_FILE, P_LINK
 import contextlib
 import os
 import glob
@@ -29,6 +24,14 @@ import errno
 import textwrap
 
 from datetime import datetime
+
+from sos.utilities import (sos_get_command_output, import_module, grep,
+                           fileobj, tail, is_executable, TIMEOUT_DEFAULT,
+                           path_exists, path_isdir, path_isfile, path_islink,
+                           listdir, path_join, bold, file_is_binary,
+                           recursive_dict_values_by_key)
+
+from sos.archive import P_FILE, P_LINK
 
 
 def regex_findall(regex, fname):
@@ -542,6 +545,7 @@ class Plugin():
     # Default predicates
     predicate = None
     cmd_predicate = None
+    short_desc = "<no description available>"
 
     def __init__(self, commons):
 
@@ -818,6 +822,7 @@ class Plugin():
             )
 
         if hasattr(cls, 'verify_packages'):
+            # pylint: disable=no-member
             section.add_text(
                 "\nVerfies packages (when using --verify): "
                 f"{', '.join(pkg for pkg in cls.verify_packages)}",
@@ -1977,6 +1982,7 @@ class Plugin():
                                      subdir=subdir)
 
     def _add_cmd_output(self, **kwargs):
+        # pylint: disable=no-member
         """Internal helper to add a single command to the collection list."""
         pred = kwargs.pop('pred') if 'pred' in kwargs else SoSPredicate(self)
         if 'priority' not in kwargs:

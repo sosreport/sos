@@ -14,11 +14,11 @@ import sys
 import os
 
 from collections import OrderedDict
+from textwrap import fill
 from sos.component import SoSComponent
 from sos.policies import import_policy
 from sos.report.plugins import Plugin
 from sos.utilities import bold, ImporterHelper
-from textwrap import fill
 
 try:
     TERMSIZE = min(os.get_terminal_size().columns, 120)
@@ -41,7 +41,7 @@ class SoSHelper(SoSComponent):
     }
 
     def __init__(self, parser, args, cmdline):
-        super(SoSHelper, self).__init__(parser, args, cmdline)
+        super().__init__(parser, args, cmdline)
         self.topic = self.opts.topic
 
     @classmethod

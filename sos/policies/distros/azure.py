@@ -8,9 +8,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
 from sos.report.plugins import AzurePlugin
 from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
-import os
 
 
 class AzurePolicy(RedHatPolicy):
@@ -23,9 +23,9 @@ class AzurePolicy(RedHatPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(AzurePolicy, self).__init__(sysroot=sysroot, init=init,
-                                          probe_runtime=probe_runtime,
-                                          remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
         self.valid_subclasses += [AzurePlugin]
 
     @classmethod

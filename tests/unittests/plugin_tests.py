@@ -12,13 +12,12 @@ import shutil
 import random
 
 from io import StringIO
-
+from string import ascii_lowercase
 from sos.report.plugins import (Plugin, regex_findall,
                                 _mangle_command, PluginOpt)
 from sos.archive import TarFileArchive
 from sos.policies.distros import LinuxPolicy
 from sos.policies.init_systems import InitSystem
-from string import ascii_lowercase
 
 PATH = os.path.dirname(__file__)
 

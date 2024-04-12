@@ -73,6 +73,9 @@ class Archive(object):
             return
         self.log.debug(self._format_msg(msg))
 
+    def name(self):
+        return self._name
+
     # this is our contract to clients of the Archive class hierarchy.
     # All sub-classes need to implement these methods (or inherit concrete
     # implementations from a parent class.
@@ -124,8 +127,7 @@ class Archive(object):
         An archive that is subsequently compressed or simply closing an
         archive that supports in-line handling. If method is automatic then
         the following methods are tried in order: xz, gzip"""
-
-        self.close()
+        pass
 
 
 class FileCacheArchive(Archive):
@@ -167,6 +169,7 @@ class FileCacheArchive(Archive):
         return os.path.join(self.sysroot, path)
 
     def _make_leading_paths(self, src, mode=0o700):
+        # pylint: disable=too-many-locals
         """Create leading path components
 
             The standard python `os.makedirs` is insufficient for our
@@ -664,6 +667,9 @@ class FileCacheArchive(Archive):
             msg = f"gpg exited with code {r['status']}"
         raise Exception(msg)
 
+    def _build_archive(self, method):
+        pass
+
 
 class TarFileArchive(FileCacheArchive):
     """ archive class using python TarFile to create tar archives"""
@@ -673,8 +679,8 @@ class TarFileArchive(FileCacheArchive):
 
     def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot,
                  manifest=None):
-        super(TarFileArchive, self).__init__(name, tmpdir, policy, threads,
-                                             enc_opts, sysroot, manifest)
+        super().__init__(name, tmpdir, policy, threads,
+                         enc_opts, sysroot, manifest)
         self._suffix = "tar"
         self._archive_name = os.path.join(
             tmpdir, self.name()  # lgtm [py/init-calls-subclass]
@@ -724,7 +730,7 @@ class TarFileArchive(FileCacheArchive):
     def name_max(self):
         # GNU Tar format supports unlimited file name length. Just return
         # the limit of the underlying FileCacheArchive.
-        return super(TarFileArchive, self).name_max()
+        return super().name_max()
 
     def _build_archive(self, method):
         if method == 'auto':

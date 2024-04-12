@@ -28,7 +28,7 @@ class SoSUsernameParser(SoSCleanerParser):
 
     def __init__(self, config, skip_clean_files=[]):
         self.mapping = SoSUsernameMap()
-        super(SoSUsernameParser, self).__init__(config, skip_clean_files)
+        super().__init__(config, skip_clean_files)
 
     def _parse_line(self, line):
         return line, 0
