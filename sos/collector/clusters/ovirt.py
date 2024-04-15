@@ -10,7 +10,7 @@
 
 import fnmatch
 
-from pipes import quote
+from shlex import quote
 from sos.collector.clusters import Cluster
 
 ENGINE_KEY = '/etc/pki/ovirt-engine/keys/engine_id_rsa'

@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from pipes import quote
+from shlex import quote
 from sos.collector.clusters import Cluster
 
 

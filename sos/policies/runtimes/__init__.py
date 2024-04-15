@@ -10,7 +10,7 @@
 
 import re
 
-from pipes import quote
+from shlex import quote
 from sos.utilities import sos_get_command_output, is_executable
 
 
