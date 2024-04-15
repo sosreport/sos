@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+from glob import glob
 from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
@@ -33,7 +34,8 @@ class Ssh(Plugin, IndependentPlugin):
 
         sshcfgs = [
             "/etc/ssh/ssh_config",
-            "/etc/ssh/sshd_config"
+            "/etc/ssh/sshd_config",
+            "/etc/ssh/sshd_config.d/*",
             ]
 
         # Include main config files
@@ -49,7 +51,12 @@ class Ssh(Plugin, IndependentPlugin):
         """ Include subconfig files """
         # Read configs for any includes and copy those
         try:
-            for sshcfg in sshcfgs:
+            cfgfiles = [
+                f for files in [
+                    glob(copyspec, recursive=True) for copyspec in sshcfgs
+                ] for f in files
+            ]
+            for sshcfg in cfgfiles:
                 tag = sshcfg.split('/')[-1]
                 with open(self.path_join(sshcfg), 'r',
                           encoding='UTF-8') as cfgfile:
