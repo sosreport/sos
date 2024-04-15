@@ -8,7 +8,7 @@
 
 import platform
 from sos.report.plugins import Plugin, PluginOpt, RedHatPlugin, DebianPlugin, \
-    UbuntuPlugin, CosPlugin
+    UbuntuPlugin, CosPlugin, AzurePlugin
 
 
 class KDump(Plugin):
@@ -123,5 +123,50 @@ class CosKDump(KDump, CosPlugin):
         self.add_cmd_output('ls -alRh /var/kdump*')
         if self.get_option("collect-kdumps"):
             self.add_copy_spec(["/var/kdump-*"])
+
+
+class AzureKDump(KDump, AzurePlugin):
+
+    files = ('/etc/kdump.conf',)
+    packages = ('kexec-tools',)
+
+    option_list = [
+        PluginOpt("get_vm_core", default=False, val_type=bool,
+                  desc="collect vm core")
+    ]
+
+    def read_kdump_conffile(self):
+        """ Parse /etc/kdump file """
+        path = "/var/crash"
+
+        kdump = '/etc/kdump.conf'
+        with open(kdump, 'r', encoding='UTF-8') as file:
+            for line in file:
+                if line.startswith("path"):
+                    path = line.split()[1]
+
+        return path
+
+    def setup(self):
+        super().setup()
+
+        self.add_copy_spec([
+            "/etc/kdump.conf",
+            "/usr/lib/udev/rules.d/*kexec.rules"
+        ])
+
+        try:
+            path = self.read_kdump_conffile()
+        except Exception:  # pylint: disable=broad-except
+            # set no filesystem and default path
+            path = "/var/crash"
+
+        self.add_cmd_output(f"ls -alhR {path}")
+        self.add_copy_spec(f"{path}/*/vmcore-dmesg.txt")
+        self.add_copy_spec(f"{path}/*/kexec-dmesg.log")
+
+        # collect the latest vmcore created in the last 24hrs <= 2GB
+        if self.get_option("get_vm_core"):
+            self.add_copy_spec(f"{path}/*/vmcore", sizelimit=2048, maxage=24)
 
 # vim: set et ts=4 sw=4 :
