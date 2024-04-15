@@ -13,7 +13,7 @@ import logging
 import pexpect
 import re
 
-from pipes import quote
+from shlex import quote
 from sos.collector.exceptions import (ConnectionException,
                                       CommandTimeoutException)
 from sos.utilities import bold

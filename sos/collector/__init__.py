@@ -23,7 +23,7 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from getpass import getpass
 from pathlib import Path
-from pipes import quote
+from shlex import quote
 from textwrap import fill
 from sos.cleaner import SoSCleaner
 from sos.collector.sosnode import SosNode

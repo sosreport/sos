@@ -11,7 +11,7 @@ import json
 
 from sos.policies.runtimes import ContainerRuntime
 from sos.utilities import sos_get_command_output
-from pipes import quote
+from shlex import quote
 
 
 class CrioContainerRuntime(ContainerRuntime):

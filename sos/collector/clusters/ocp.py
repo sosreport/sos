@@ -10,7 +10,7 @@
 
 import os
 
-from pipes import quote
+from shlex import quote
 from sos.collector.clusters import Cluster
 from sos.utilities import is_executable
 

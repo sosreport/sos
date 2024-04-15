@@ -14,7 +14,7 @@ import logging
 import os
 import re
 
-from pipes import quote
+from shlex import quote
 from sos.policies import load
 from sos.policies.init_systems import InitSystem
 from sos.collector.transports.juju import JujuSSH
