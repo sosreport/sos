@@ -129,8 +129,8 @@ class Foreman(Plugin):
             'passenger-memory-stats',
             'ls -lanR /root/ssl-build',
             'ls -lanR /usr/share/foreman/config/hooks',
-            'ping -c1 -W1 %s' % _hostname,
-            'ping -c1 -W1 %s' % _host_f,
+            f'ping -c1 -W1 {_hostname}',
+            f'ping -c1 -W1 {_host_f}',
             'ping -c1 -W1 localhost'
         ])
         self.add_cmd_output(
@@ -183,7 +183,7 @@ class Foreman(Plugin):
 
     def collect_foreman_db(self):
         """ Collect foreman db and dynflow data """
-        days = '%s days' % self.get_option('days')
+        days = f'{self.get_option("days")} days'
         interval = quote(days)
 
         # Construct the DB queries, using the days option to limit the range
@@ -286,7 +286,7 @@ class Foreman(Plugin):
                     # proxy is now tuple [name, url]
                     _cmd = 'curl -s --key /etc/foreman/client_key.pem ' \
                            '--cert /etc/foreman/client_cert.pem ' \
-                           '%s/v2/features' % proxy[1]
+                           f'{proxy[1]}/v2/features'
                     self.add_cmd_output(_cmd, suggest_filename=proxy[0],
                                         subdir='smart_proxies_features',
                                         timeout=10)
@@ -303,8 +303,8 @@ class Foreman(Plugin):
         a large amount of quoting in sos logs referencing the command being run
         """
         if csv:
-            query = "COPY (%s) TO STDOUT " \
-                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)" % query
+            query = f"COPY ({query}) TO STDOUT " \
+                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)"
         _dbcmd = "%s --no-password -h %s -p 5432 -U foreman -d foreman -c %s"
         return _dbcmd % (binary, self.dbhost, quote(query))
 

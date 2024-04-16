@@ -23,7 +23,7 @@ class Md(Plugin, IndependentPlugin):
             for line in mdadm_members['output'].splitlines():
                 if 'linux_raid_member' in line:
                     dev = line.split()[0]
-                    self.add_cmd_output('mdadm -E /dev/%s' % dev,
+                    self.add_cmd_output(f'mdadm -E /dev/{dev}',
                                         tags="mdadm_E")
 
         self.add_copy_spec([

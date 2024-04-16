@@ -33,6 +33,6 @@ class Stratis(Plugin, RedHatPlugin):
             '--version',
         ]
 
-        self.add_cmd_output(["stratis %s" % subcmd for subcmd in subcmds])
+        self.add_cmd_output([f"stratis {subcmd}" for subcmd in subcmds])
 
 # vim: set et ts=4 sw=4 :

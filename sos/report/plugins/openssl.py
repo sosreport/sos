@@ -27,7 +27,7 @@ class OpenSSL(Plugin):
             "challengePassword"
         ]
 
-        regexp = r"^(\s*#?\s*(%s).*=)(.*)" % "|".join(protect_keys)
+        regexp = fr"^(\s*#?\s*({'|'.join(protect_keys)}).*=)(.*)"
 
         self.do_file_sub(
             '/etc/ssl/openssl.cnf',

@@ -64,13 +64,14 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
         ]
         for user in users_list:
             # collect user's containers' config
+            expanded_user = os.path.expanduser(f'~{user}')
             self.add_copy_spec(
-                '%s/.config/containers/' % (os.path.expanduser('~%s' % user)))
+                f'{expanded_user}/.config/containers/')
             # collect user-status
-            self.add_cmd_output('loginctl user-status %s' % user)
+            self.add_cmd_output(f'loginctl user-status {user}')
             # collect the user's related commands
             self.add_cmd_output([
-                'machinectl -q shell %s@ /usr/bin/%s' % (user, cmd)
+                f'machinectl -q shell {user}@ /usr/bin/{cmd}'
                 for cmd in user_subcmds
             ], foreground=True)
 

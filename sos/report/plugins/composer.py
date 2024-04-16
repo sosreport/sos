@@ -43,17 +43,17 @@ class Composer(Plugin, IndependentPlugin):
         ])
         blueprints = self._get_entries("composer-cli blueprints list")
         for blueprint in blueprints:
-            self.add_cmd_output("composer-cli blueprints show %s" % blueprint)
+            self.add_cmd_output(f"composer-cli blueprints show {blueprint}")
 
         sources = self._get_entries("composer-cli sources list")
         for src in sources:
-            self.add_cmd_output("composer-cli sources info %s" % src)
+            self.add_cmd_output(f"composer-cli sources info {src}")
 
         composes = self._get_entries("composer-cli compose list")
         for compose in composes:
             # the first column contains the compose id
             self.add_cmd_output(
-                "composer-cli compose log %s" % compose.split(" ")[0]
+                f"composer-cli compose log {compose.split(' ')[0]}"
             )
 
         self.add_journal(units=[

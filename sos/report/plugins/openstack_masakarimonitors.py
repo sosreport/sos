@@ -49,7 +49,7 @@ class OpenStackMasakariMonitors(Plugin, UbuntuPlugin):
 
         self.do_path_regex_sub(
             f"{self.config_dir}/*",
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1*********"
         )
 

@@ -27,7 +27,7 @@ class Vdo(Plugin, RedHatPlugin):
         self.add_copy_spec(self.files)
         vdos = self.collect_cmd_output('vdo list --all')
         for vdo in vdos['output'].splitlines():
-            self.add_cmd_output("vdo status -n %s" % vdo)
+            self.add_cmd_output(f"vdo status -n {vdo}")
         self.add_cmd_output('vdostats --human-readable')
 
 # vim set et ts=4 sw=4 :

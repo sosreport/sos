@@ -72,7 +72,7 @@ class Infiniband(Plugin, IndependentPlugin):
                 except IOError:
                     continue
 
-                opts = "-C %s -P %s" % (ibdev, port)
-                self.add_cmd_output(["%s %s" % (c, opts) for c in ports_cmds])
+                opts = f"-C {ibdev} -P {port}"
+                self.add_cmd_output([f"{c} {opts}" for c in ports_cmds])
 
 # vim: set et ts=4 sw=4 :

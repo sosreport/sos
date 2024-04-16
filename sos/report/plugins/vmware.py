@@ -48,7 +48,7 @@ class VMWare(Plugin, RedHatPlugin):
         stats = self.exec_cmd("vmware-toolbox-cmd stat raw")
         if stats['status'] == 0:
             for _stat in stats['output'].splitlines():
-                self.add_cmd_output("vmware-toolbox-cmd stat raw text %s"
-                                    % _stat)
+                self.add_cmd_output("vmware-toolbox-cmd stat raw text"
+                                    f" {_stat}")
 
 # vim: set et ts=4 sw=4 :

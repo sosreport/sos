@@ -35,8 +35,8 @@ class Peripety(Plugin, RedHatPlugin):
 
         for disk in disks:
             self.add_cmd_output([
-                "prpt info %s" % disk,
-                "prpt query --blk %s" % disk
+                f"prpt info {disk}",
+                f"prpt query --blk {disk}",
             ])
 
 # vim: set et ts=4 sw=4 :

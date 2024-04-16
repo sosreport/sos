@@ -23,7 +23,7 @@ class Console(Plugin, RedHatPlugin, UbuntuPlugin):
 
         self.add_cmd_output("fgconsole")
         self.add_cmd_output([
-            "kbdinfo -C %s gkbled" % tty for tty in glob("/dev/tty[0-8]")
+            f"kbdinfo -C {tty} gkbled" for tty in glob("/dev/tty[0-8]")
         ])
 
 # vim: set et ts=4 sw=4 :

@@ -30,9 +30,9 @@ class Xfs(Plugin, IndependentPlugin):
         for dev in zip(self.do_regex_find_all(ext_fs_regex, mounts)):
             for ext in dev:
                 parts = ext.split(' ')
-                self.add_cmd_output("xfs_info %s" % (parts[1]),
+                self.add_cmd_output(f"xfs_info {parts[1]}",
                                     tags="xfs_info")
-                self.add_cmd_output("xfs_admin -l -u %s" % (parts[0]))
+                self.add_cmd_output(f"xfs_admin -l -u {parts[0]}")
 
         self.add_copy_spec([
             '/proc/fs/xfs',

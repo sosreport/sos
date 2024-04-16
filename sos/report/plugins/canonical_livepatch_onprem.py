@@ -32,7 +32,7 @@ class CanonicaLivepatchOnprem(Plugin, UbuntuPlugin):
         ]
 
         # Redact simple yaml style "key: value".
-        keys_regex = r"(^(-|\s)*(%s)\s*:\s*)(.*)" % "|".join(protect_keys)
+        keys_regex = fr"(^(-|\s)*({'|'.join(protect_keys)})\s*:\s*)(.*)"
         sub_regex = r"\1*********"
         self.do_path_regex_sub(onprem_conf, keys_regex, sub_regex)
 

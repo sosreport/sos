@@ -37,11 +37,10 @@ class Qpid(Plugin, RedHatPlugin):
         for option in ["ssl-certificate", "ssl-key"]:
             if self.get_option(option):
                 amqps_prefix = "amqps://"
-                options = (options + " --%s=" % (option) +
-                           self.get_option(option))
+                options = (options + f" --{option}={self.get_option(option)}")
         if self.get_option("port"):
             options = (options + " -b " + amqps_prefix +
-                       "localhost:%s" % (self.get_option("port")))
+                       f"localhost:{self.get_option('port')}")
 
         self.add_cmd_output([
             "qpid-stat -g" + options,  # applies since 0.18 version

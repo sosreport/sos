@@ -58,17 +58,16 @@ class MsSQL(Plugin, RedHatPlugin):
                          (section == '[network]'):
                         kerberoskeytabfile = words[1].strip()
         except IOError as ex:
-            self._log_error('Could not open conf file %s: %s' %
-                            (mssql_conf, ex))
+            self._log_error(f'Could not open conf file {mssql_conf}: {ex}')
             return
 
         # Collect AD authentication configuratoin
         keytab_err = ('keytab file is specfieid in mssql_conf'
-                      ' but not found in %s' % kerberoskeytabfile)
+                      f' but not found in {kerberoskeytabfile}')
         if kerberoskeytabfile is not None:
             if self.path_isfile(kerberoskeytabfile):
-                self.add_cmd_output('ls -l %s' % kerberoskeytabfile)
-                self.add_cmd_output('klist -e -k %s' % kerberoskeytabfile)
+                self.add_cmd_output(f'ls -l {kerberoskeytabfile}')
+                self.add_cmd_output(f'klist -e -k {kerberoskeytabfile}')
             else:
                 self._log_error(keytab_err)
 

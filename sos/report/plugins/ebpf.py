@@ -27,7 +27,7 @@ class Ebpf(Plugin, IndependentPlugin):
         try:
             prog_data = json.loads(prog_json)
         except Exception as err:  # pylint: disable=broad-except
-            self._log_info("Couldn't parse bpftool prog list: %s" % err)
+            self._log_info(f"Couldn't parse bpftool prog list: {err}")
             return out
         for _, item in enumerate(prog_data):
             if "id" in item:
@@ -40,7 +40,7 @@ class Ebpf(Plugin, IndependentPlugin):
         try:
             map_data = json.loads(map_json)
         except Exception as err:  # pylint: disable=broad-except
-            self._log_info("Could not parse bpftool map list: %s" % err)
+            self._log_info(f"Could not parse bpftool map list: {err}")
             return out
         for _, item in enumerate(map_data):
             if "id" in item:
@@ -52,12 +52,12 @@ class Ebpf(Plugin, IndependentPlugin):
         progs = self.collect_cmd_output("bpftool -j prog list")
         for prog_id in self.get_bpftool_prog_ids(progs['output']):
             for dumpcmd in ["xlated", "jited"]:
-                self.add_cmd_output("bpftool prog dump %s id %s" %
-                                    (dumpcmd, prog_id))
+                self.add_cmd_output(f"bpftool prog dump {dumpcmd} id "
+                                    f"{prog_id}")
 
         maps = self.collect_cmd_output("bpftool -j map list")
         for map_id in self.get_bpftool_map_ids(maps['output']):
-            self.add_cmd_output("bpftool map dump id %s" % map_id)
+            self.add_cmd_output(f"bpftool map dump id {map_id}")
 
         self.add_cmd_output([
             # collect list of eBPF programs and maps and their dumps

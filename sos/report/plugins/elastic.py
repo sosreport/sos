@@ -36,7 +36,7 @@ class Elastic(Plugin, IndependentPlugin):
                     if network_port and len(network_port.groups()) == 2:
                         port = network_port.groups()[-1].strip()
         except Exception as err:  # pylint: disable=broad-except
-            self._log_info("Failed to parse %s: %s" % (els_config_file, err))
+            self._log_info(f"Failed to parse {els_config_file}: {err}")
         return hostname, port
 
     def setup(self):
@@ -53,13 +53,13 @@ class Elastic(Plugin, IndependentPlugin):
         host, port = self.get_hostname_port(els_config_file)
         endpoint = host + ":" + port
         self.add_cmd_output([
-                "curl -X GET '%s/_cluster/settings?pretty'" % endpoint,
-                "curl -X GET '%s/_cluster/health?pretty'" % endpoint,
-                "curl -X GET '%s/_cluster/stats?pretty'" % endpoint,
-                "curl -X GET '%s/_cat/nodes?v'" % endpoint,
-                "curl -X GET '%s/_cat/indices'" % endpoint,
-                "curl -X GET '%s/_cat/shards'" % endpoint,
-                "curl -X GET '%s/_cat/aliases'" % endpoint,
+                f"curl -X GET '{endpoint}/_cluster/settings?pretty'",
+                f"curl -X GET '{endpoint}/_cluster/health?pretty'",
+                f"curl -X GET '{endpoint}/_cluster/stats?pretty'",
+                f"curl -X GET '{endpoint}/_cat/nodes?v'",
+                f"curl -X GET '{endpoint}/_cat/indices'",
+                f"curl -X GET '{endpoint}/_cat/shards'",
+                f"curl -X GET '{endpoint}/_cat/aliases'",
         ])
 
 # vim: set et ts=4 sw=4 :

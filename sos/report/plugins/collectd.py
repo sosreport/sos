@@ -40,10 +40,10 @@ class Collectd(Plugin, IndependentPlugin):
             with open(cfile, 'r', encoding='UTF-8') as file:
                 for line in file:
                     if plugin.match(line):
-                        self.add_alert("Active Plugin found: %s" %
-                                       line.split()[-1])
+                        self.add_alert("Active Plugin found: "
+                                       f"{line.split()[-1]}")
         except IOError as err:
-            self._log_warn("could not open /etc/collectd.conf: %s" % err)
+            self._log_warn(f"could not open /etc/collectd.conf: {err}")
 
     def postproc(self):
         # add these to protect_keys if need be:
@@ -52,7 +52,7 @@ class Collectd(Plugin, IndependentPlugin):
             "Password", "User",
             "[<]*URL", "Address"
         ]
-        regexp = r"(^[#]*\s*(%s)\s* \s*)(.*)" % "|".join(protect_keys)
+        regexp = fr"(^[#]*\s*({'|'.join(protect_keys)})\s* \s*)(.*)"
         self.do_path_regex_sub(
             "/etc/collectd.d/*.conf",
             regexp, r'\1"*********"'

@@ -72,7 +72,7 @@ class Libvirt(Plugin, IndependentPlugin):
             ])
 
         if self.path_exists(self.path_join(libvirt_keytab)):
-            self.add_cmd_output("klist -ket %s" % libvirt_keytab)
+            self.add_cmd_output(f"klist -ket {libvirt_keytab}")
 
         self.add_cmd_output("ls -lR /var/lib/libvirt/qemu")
 
@@ -82,7 +82,7 @@ class Libvirt(Plugin, IndependentPlugin):
                 pid = pfile.read().splitlines()[0]
                 pr_files = ["environ", "cgroup", "maps", "numa_maps", "limits"]
                 for file in pr_files:
-                    self.add_copy_spec("/proc/%s/%s" % (pid, file))
+                    self.add_copy_spec(f"/proc/{pid}/{file}")
 
         self.add_file_tags({
             "/run/libvirt/qemu/*.xml": "var_qemu_xml",

@@ -21,11 +21,11 @@ class OpenStackManila(Plugin):
 
     def setup(self):
 
-        config_dir = "%s/etc/manila" % (
+        pre_conf = (
             self.var_puppet_gen if self.container_exists('.*manila_api') else
-            ''
-        )
-        manila_cmd = "manila-manage --config-dir %s db version" % config_dir
+            '')
+        config_dir = f"{pre_conf}/etc/manila"
+        manila_cmd = f"manila-manage --config-dir {config_dir} db version"
         self.add_cmd_output(manila_cmd, suggest_filename="manila_db_version")
 
         self.add_copy_spec([
@@ -64,13 +64,14 @@ class OpenStackManila(Plugin):
                         "memcache_secret_key"]
         connection_keys = ["connection", "sql_connection"]
 
+        join_con_keys = "|".join(connection_keys)
+
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1*********"
         )
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            fr"(^\s*({join_con_keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

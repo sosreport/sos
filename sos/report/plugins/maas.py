@@ -55,11 +55,8 @@ class Maas(Plugin, UbuntuPlugin):
 
     def _remote_api_login(self):
         ret = self.exec_cmd(
-            "maas login %s %s %s" % (
-                self.get_option("profile-name"),
-                self.get_option("url"),
-                self.get_option("credentials")
-            )
+            f"maas login {self.get_option('profile-name')} "
+            f"{self.get_option('url')} {self.get_option('credentials')}"
         )
 
         return ret['status'] == 0
@@ -125,8 +122,8 @@ class Maas(Plugin, UbuntuPlugin):
 
         if self._has_login_options():
             if self._remote_api_login():
-                self.add_cmd_output("maas %s commissioning-results list" %
-                                    self.get_option("profile-name"))
+                self.add_cmd_output(f"maas {self.get_option('profile-name')} "
+                                    "commissioning-results list")
             else:
                 self._log_error(
                     "Cannot login into MAAS remote API with provided creds.")

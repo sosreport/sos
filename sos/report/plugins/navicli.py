@@ -43,20 +43,20 @@ class Navicli(Plugin, RedHatPlugin):
         information - CLARiiON - commands
         """
         self.add_cmd_output([
-            "navicli -h %s getall" % sp_address,
-            "navicli -h %s getsptime -spa" % sp_address,
-            "navicli -h %s getsptime -spb" % sp_address,
-            "navicli -h %s getlog" % sp_address,
-            "navicli -h %s getdisk" % sp_address,
-            "navicli -h %s getcache" % sp_address,
-            "navicli -h %s getlun" % sp_address,
-            "navicli -h %s getlun -rg -type -default -owner -crus "
-            "-capacity" % sp_address,
-            "navicli -h %s lunmapinfo" % sp_address,
-            "navicli -h %s getcrus" % sp_address,
-            "navicli -h %s port -list -all" % sp_address,
-            "navicli -h %s storagegroup -list" % sp_address,
-            "navicli -h %s spportspeed -get" % sp_address
+            f"navicli -h {sp_address} getall",
+            f"navicli -h {sp_address} getsptime -spa",
+            f"navicli -h {sp_address} getsptime -spb",
+            f"navicli -h {sp_address} getlog",
+            f"navicli -h {sp_address} getdisk",
+            f"navicli -h {sp_address} getcache",
+            f"navicli -h {sp_address} getlun",
+            f"navicli -h {sp_address} getlun -rg -type -default -owner -crus "
+            "-capacity",
+            f"navicli -h {sp_address} lunmapinfo",
+            f"navicli -h {sp_address} getcrus",
+            f"navicli -h {sp_address} port -list -all",
+            f"navicli -h {sp_address} storagegroup -list",
+            f"navicli -h {sp_address} spportspeed -get",
         ])
 
     def setup(self):

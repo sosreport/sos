@@ -90,7 +90,7 @@ class PowerPC(Plugin, IndependentPlugin):
                 "lparnumascore",
                 "lparnumascore -c cpu -d 4",
                 "lparnumascore -c mem -d 3",
-                "ctsnap -xrunrpttr -d %s" % (ctsnap_path),
+                f"ctsnap -xrunrpttr -d {ctsnap_path}",
                 "lsdevinfo",
                 "lsslot",
                 "amsstat"
