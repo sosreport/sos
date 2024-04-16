@@ -44,8 +44,8 @@ class Dlm(Plugin, IndependentPlugin):
         lock_re = re.compile(lock_exp, re.MULTILINE)
         for lockspace in lock_re.findall(result["output"]):
             self.add_cmd_output(
-                "dlm_tool lockdebug -svw '%s'" % lockspace,
-                suggest_filename="dlm_locks_%s" % lockspace
+                f"dlm_tool lockdebug -svw '{lockspace}'",
+                suggest_filename=f"dlm_locks_{lockspace}"
             )
 
 # vim: et ts=4 sw=4

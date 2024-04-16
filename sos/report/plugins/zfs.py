@@ -54,6 +54,6 @@ class Zfs(Plugin, IndependentPlugin):
         if zpools['status'] == 0:
             zpools_list = zpools['output'].splitlines()
             for zpool in zpools_list:
-                self.add_cmd_output("zpool get all %s" % zpool)
+                self.add_cmd_output(f"zpool get all {zpool}")
 
 # vim: set et ts=4 sw=4 :

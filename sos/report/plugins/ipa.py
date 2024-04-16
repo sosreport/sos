@@ -95,7 +95,7 @@ class Ipa(Plugin, RedHatPlugin):
         if self.ipa_server_installed():
             self._log_debug("IPA server install detected")
 
-            self._log_debug("IPA version is [%s]" % ipa_version)
+            self._log_debug(f"IPA version is [{ipa_version}]")
 
             self.add_copy_spec([
                 "/var/log/ipaserver-install.log",
@@ -145,8 +145,8 @@ class Ipa(Plugin, RedHatPlugin):
             pki_tomcat_dir = self.pki_tomcat_dir_v3
             pki_tomcat_conf_dir = self.pki_tomcat_conf_dir_v3
 
-        self.add_cmd_output("certutil -L -d %s/alias" % pki_tomcat_dir)
-        self.add_copy_spec("%s/CS.cfg" % pki_tomcat_conf_dir)
+        self.add_cmd_output(f"certutil -L -d {pki_tomcat_dir}/alias")
+        self.add_copy_spec(f"{pki_tomcat_conf_dir}/CS.cfg")
 
         self.add_forbidden_path([
             "/etc/pki/nssdb/key*",
@@ -158,9 +158,9 @@ class Ipa(Plugin, RedHatPlugin):
             "/etc/httpd/alias/pin.txt",
             "/etc/httpd/alias/pwdfile.txt",
             "/etc/named.keytab",
-            "%s/alias/key*" % pki_tomcat_dir,
-            "%s/flatfile.txt" % pki_tomcat_conf_dir,
-            "%s/password.conf" % pki_tomcat_conf_dir,
+            f"{pki_tomcat_dir}/alias/key*",
+            f"{pki_tomcat_conf_dir}/flatfile.txt",
+            f"{pki_tomcat_conf_dir}/password.conf",
         ])
 
         self.add_cmd_output([
@@ -180,7 +180,7 @@ class Ipa(Plugin, RedHatPlugin):
                             tags="getcert_list")
 
         for certdb_directory in glob("/etc/dirsrv/slapd-*/"):
-            self.add_cmd_output("certutil -L -d %s" % certdb_directory)
+            self.add_cmd_output(f"certutil -L -d {certdb_directory}")
 
         self.add_file_tags({
             "/var/log/ipa/healthcheck/healthcheck.log":

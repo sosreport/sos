@@ -108,13 +108,14 @@ class OpenStackPlacement(Plugin):
         protect_keys = ["password", "memcache_secret_key"]
         connection_keys = ["database_connection", "slave_connection"]
 
+        join_con_keys = "|".join(connection_keys)
+
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1*********"
         )
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            fr"(^\s*({join_con_keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

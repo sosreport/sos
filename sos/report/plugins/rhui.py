@@ -56,7 +56,7 @@ class Rhui(Plugin, RedHatPlugin):
         for cookie in ["csrftoken", "sessionid"]:
             self.do_path_regex_sub(
                 r"/root/\.rhui/.*/cookies.txt",
-                r"(%s\s+)(\S+)" % cookie,
+                fr"({cookie}\s+)(\S+)",
                 r"\1********")
 
 

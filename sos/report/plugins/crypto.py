@@ -23,8 +23,8 @@ class Crypto(Plugin, IndependentPlugin):
         cpth = '/etc/crypto-policies/back-ends'
 
         self.add_file_tags({
-            "%s/bind.config" % cpth: 'crypto_policies_bind',
-            "%s/opensshserver.config" % cpth: 'crypto_policies_opensshserver',
+            f"{cpth}/bind.config": 'crypto_policies_bind',
+            f"{cpth}/opensshserver.config": 'crypto_policies_opensshserver',
             '/etc/crypto-policies/.*/current': 'crypto_policies_state_current',
             '/etc/crypto-policies/config': 'crypto_policies_config'
         })

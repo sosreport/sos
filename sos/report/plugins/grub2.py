@@ -46,7 +46,7 @@ class Grub2(Plugin, IndependentPlugin):
         # to prevent removing of extra args in $kernel_opts, and (only) if so,
         # call the command with this argument
         grub_cmd = 'grub2-mkconfig'
-        out = {'cmd': '%s --help' % grub_cmd, 'output': '--no-grubenv-update'}
+        out = {'cmd': f'{grub_cmd} --help', 'output': '--no-grubenv-update'}
         if self.test_predicate(self, pred=SoSPredicate(self, cmd_outputs=out)):
             grub_cmd += ' --no-grubenv-update'
         self.add_cmd_output(grub_cmd, env={'GRUB_DISABLE_OS_PROBER': 'true'},

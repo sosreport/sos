@@ -87,17 +87,17 @@ class OpenStackOctavia(Plugin):
 
             for res in self.resources:
                 # get a list for each resource type
-                self.add_cmd_output('openstack loadbalancer %s list' % res,
+                self.add_cmd_output(f'openstack loadbalancer {res} list',
                                     subdir=res)
 
                 # get details from each resource
-                cmd = "openstack loadbalancer %s list -f value -c id" % res
+                cmd = f"openstack loadbalancer {res} list -f value -c id"
                 ret = self.exec_cmd(cmd)
                 if ret['status'] == 0:
                     for ent in ret['output'].splitlines():
                         ent = ent.split()[0]
                         self.add_cmd_output(
-                            "openstack loadbalancer %s show %s" % (res, ent),
+                            f"openstack loadbalancer {res} show {ent}",
                             subdir=res)
 
             # get capability details from each provider
@@ -108,7 +108,7 @@ class OpenStackOctavia(Plugin):
                     provider = provider.split()[0]
                     self.add_cmd_output(
                        "openstack loadbalancer provider capability list"
-                       " %s" % provider,
+                       f" {provider}",
                        subdir='provider_capability')
 
     def postproc(self):
@@ -117,7 +117,7 @@ class OpenStackOctavia(Plugin):
             "connection", "transport_url", "server_certs_key_passphrase",
             "memcache_secret_key"
         ]
-        regexp = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)"
 
         self.do_path_regex_sub("/etc/octavia/*", regexp, r"\1*********")
         self.do_path_regex_sub(

@@ -56,7 +56,7 @@ class Mysql(Plugin):
 
         if self.get_option("dbdump"):
             msg = "database user name and password must be supplied"
-            dbdump_err = "mysql.dbdump: %s" % msg
+            dbdump_err = f"mysql.dbdump: {msg}"
 
             dbuser = self.get_option("dbuser")
             dbpass = self.get_option("dbpass")
@@ -78,9 +78,9 @@ class Mysql(Plugin):
             # the mysql plugin.
             os.environ['MYSQL_PWD'] = dbpass
 
-            opts = "--user=%s --all-databases" % dbuser
+            opts = f"--user={dbuser} --all-databases"
             name = "mysqldump_--all-databases"
-            self.add_cmd_output("mysqldump %s" % opts, suggest_filename=name)
+            self.add_cmd_output(f"mysqldump {opts}", suggest_filename=name)
 
         self.add_cmd_output("du -s /var/lib/mysql/*")
 

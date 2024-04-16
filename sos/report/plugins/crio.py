@@ -65,11 +65,11 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
             'version',
         ]
 
-        self.add_cmd_output(["crictl %s" % s for s in subcmds])
+        self.add_cmd_output([f"crictl {s}" for s in subcmds])
 
         ps_cmd = 'crictl ps --quiet'
         if self.get_option('all'):
-            ps_cmd = "%s -a" % ps_cmd
+            ps_cmd = f"{ps_cmd} -a"
 
         img_cmd = 'crictl images --quiet'
         pod_cmd = 'crictl pods --quiet'
@@ -81,18 +81,18 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
         self._get_crio_goroutine_stacks()
 
         for container in containers:
-            self.add_cmd_output("crictl inspect %s" % container,
+            self.add_cmd_output(f"crictl inspect {container}",
                                 subdir="containers")
             if self.get_option('logs'):
-                self.add_cmd_output("crictl logs -t %s" % container,
+                self.add_cmd_output(f"crictl logs -t {container}",
                                     subdir="containers/logs", priority=100,
                                     tags="crictl_logs")
 
         for image in images:
-            self.add_cmd_output("crictl inspecti %s" % image, subdir="images")
+            self.add_cmd_output(f"crictl inspecti {image}", subdir="images")
 
         for pod in pods:
-            self.add_cmd_output("crictl inspectp %s" % pod, subdir="pods")
+            self.add_cmd_output(f"crictl inspectp {pod}", subdir="pods")
 
     def _get_crio_list(self, cmd):
         ret = []

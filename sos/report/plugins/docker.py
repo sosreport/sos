@@ -57,7 +57,7 @@ class Docker(Plugin, CosPlugin):
         ]
 
         for subcmd in subcmds:
-            self.add_cmd_output("docker %s" % subcmd)
+            self.add_cmd_output(f"docker {subcmd}")
 
         self.add_cmd_output("docker info",
                             tags="docker_info")
@@ -76,7 +76,7 @@ class Docker(Plugin, CosPlugin):
         if nets['status'] == 0:
             networks = [n.split()[1] for n in nets['output'].splitlines()[1:]]
             for net in networks:
-                self.add_cmd_output("docker network inspect %s" % net)
+                self.add_cmd_output(f"docker network inspect {net}")
 
         containers = [
             c[0] for c in self.get_containers(runtime='docker',
@@ -86,20 +86,20 @@ class Docker(Plugin, CosPlugin):
         volumes = self.get_container_volumes(runtime='docker')
 
         for container in containers:
-            self.add_cmd_output("docker inspect %s" % container,
+            self.add_cmd_output(f"docker inspect {container}",
                                 subdir='containers')
             if self.get_option('logs'):
-                self.add_cmd_output("docker logs -t %s" % container,
+                self.add_cmd_output(f"docker logs -t {container}",
                                     subdir='containers')
 
         for img in images:
             name, img_id = img
             insp = name if 'none' not in name else img_id
-            self.add_cmd_output("docker inspect %s" % insp, subdir='images',
+            self.add_cmd_output(f"docker inspect {insp}", subdir='images',
                                 tags="docker_image_inspect")
 
         for vol in volumes:
-            self.add_cmd_output("docker volume inspect %s" % vol,
+            self.add_cmd_output(f"docker volume inspect {vol}",
                                 subdir='volumes')
 
     def postproc(self):

@@ -23,13 +23,13 @@ class Processor(Plugin, IndependentPlugin):
         cpupath = '/sys/devices/system/cpu'
 
         self.add_file_tags({
-            "%s/smt/control" % cpupath: 'cpu_smt_control',
-            "%s/smt/active" % cpupath: 'cpu_smt_active',
-            "%s/vulnerabilities/.*" % cpupath: 'cpu_vulns',
-            "%s/vulnerabilities/spectre_v2" % cpupath: 'cpu_vulns_spectre_v2',
-            "%s/vulnerabilities/meltdown" % cpupath: 'cpu_vulns_meltdown',
-            "%s/cpu.*/online" % cpupath: 'cpu_cores',
-            "%s/cpu/cpu0/cpufreq/cpuinfo_max_freq" % cpupath:
+            f"{cpupath}/smt/control": 'cpu_smt_control',
+            f"{cpupath}/smt/active": 'cpu_smt_active',
+            f"{cpupath}/vulnerabilities/.*": 'cpu_vulns',
+            f"{cpupath}/vulnerabilities/spectre_v2": 'cpu_vulns_spectre_v2',
+            f"{cpupath}/vulnerabilities/meltdown": 'cpu_vulns_meltdown',
+            f"{cpupath}/cpu.*/online": 'cpu_cores',
+            f"{cpupath}/cpu/cpu0/cpufreq/cpuinfo_max_freq":
                 'cpuinfo_max_freq'
         })
 

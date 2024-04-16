@@ -44,7 +44,7 @@ class Libraries(Plugin, IndependentPlugin):
                 dirs.add(fqlib[1].rsplit('/', 1)[0])
 
             if dirs:
-                self.add_cmd_output("ls -lanH %s" % " ".join(dirs),
+                self.add_cmd_output(f"ls -lanH {' '.join(dirs)}",
                                     suggest_filename="ld_so_cache")
 
 # vim: set et ts=4 sw=4 :

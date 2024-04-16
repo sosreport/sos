@@ -84,7 +84,7 @@ class OpenShiftOrigin(Plugin):
         node_certs = self.path_join(self.node_base_dir, "certs", "*")
         node_client_ca = self.path_join(self.node_base_dir, "client-ca.crt")
         admin_cfg = self.path_join(self.master_base_dir, "admin.kubeconfig")
-        oc_cmd_admin = "%s --config=%s" % ("oc", admin_cfg)
+        oc_cmd_admin = f"oc --config={admin_cfg}"
         static_pod_logs_cmd = "master-logs"
 
         # Note that a system can run both a master and a node.
@@ -100,12 +100,12 @@ class OpenShiftOrigin(Plugin):
                 self.add_copy_spec(self.path_join(self.static_pod_dir,
                                                   "*.yaml"))
                 self.add_cmd_output([
-                    "%s api api" % static_pod_logs_cmd,
-                    "%s controllers controllers" % static_pod_logs_cmd,
+                    f"{static_pod_logs_cmd} api api",
+                    f"{static_pod_logs_cmd} controllers controllers",
                 ])
 
             if self.is_static_etcd():
-                self.add_cmd_output("%s etcd etcd" % static_pod_logs_cmd)
+                self.add_cmd_output(f"{static_pod_logs_cmd} etcd etcd")
 
             # Possible enhancements:
             # some thoughts about information that might also be useful
@@ -132,7 +132,7 @@ class OpenShiftOrigin(Plugin):
             ]
 
             self.add_cmd_output([
-                '%s %s' % (oc_cmd_admin, subcmd) for subcmd in subcmds
+                f'{oc_cmd_admin} {subcmd}' for subcmd in subcmds
             ])
 
             jcmds = [
@@ -142,7 +142,7 @@ class OpenShiftOrigin(Plugin):
             ]
 
             self.add_cmd_output([
-                '%s get -o json %s' % (oc_cmd_admin, jcmd) for jcmd in jcmds
+                f'{oc_cmd_admin} get -o json {jcmd}' for jcmd in jcmds
             ])
 
             nmsps = [
@@ -154,8 +154,8 @@ class OpenShiftOrigin(Plugin):
             ]
 
             self.add_cmd_output([
-                '%s get -o json deploymentconfig,deployment,daemonsets -n %s'
-                % (oc_cmd_admin, n) for n in nmsps
+                f'{oc_cmd_admin} get -o json deploymentconfig,deployment,'
+                f'daemonsets -n {n}' for n in nmsps
             ])
 
             if not self.is_static_pod_compatible():
@@ -164,11 +164,9 @@ class OpenShiftOrigin(Plugin):
                                         "atomic-openshift-master-controllers"])
 
             # get logs from the infrastructure pods running in the default ns
-            pods = self.exec_cmd("%s get pod -o name -n default"
-                                 % oc_cmd_admin)
+            pods = self.exec_cmd(f"{oc_cmd_admin} get pod -o name -n default")
             for pod in pods['output'].splitlines():
-                self.add_cmd_output("%s logs -n default %s"
-                                    % (oc_cmd_admin, pod))
+                self.add_cmd_output(f"{oc_cmd_admin} logs -n default {pod}")
 
         # Note that a system can run both a master and a node.
         # See "Master vs. node" above.

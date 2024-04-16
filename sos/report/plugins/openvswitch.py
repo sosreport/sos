@@ -216,7 +216,7 @@ class OpenVSwitch(Plugin):
             ])
             self.add_journal(units="virtual-accelerator")
             for table in ['filter', 'mangle', 'raw', 'nat']:
-                self.add_cmd_output(["fpcmd nf4-rules %s" % table])
+                self.add_cmd_output([f"fpcmd nf4-rules {table}"])
 
             # 6wind doesn't care on which bridge the ports are, there's only
             # one bridge and it's alubr0
@@ -227,7 +227,7 @@ class OpenVSwitch(Plugin):
                     if mport:
                         port_name = mport.group(2)
                         self.add_cmd_output([
-                            "fp-cli dpdk-cp-filter-budget %s" % port_name,
+                            f"fp-cli dpdk-cp-filter-budget {port_name}",
                         ])
 
     def collect_datapath(self):
@@ -236,11 +236,11 @@ class OpenVSwitch(Plugin):
         if dp_list_result['status'] == 0:
             for dps in dp_list_result['output'].splitlines():
                 self.add_cmd_output([
-                    "%s dpctl/show -s %s" % (self.actl, dps),
-                    "%s dpctl/dump-flows -m %s" % (self.actl, dps),
-                    "%s dpctl/dump-conntrack -m %s" % (self.actl, dps),
-                    "%s dpctl/ct-stats-show -m %s" % (self.actl, dps),
-                    "%s dpctl/ipf-get-status %s" % (self.actl, dps),
+                    f"{self.actl} dpctl/show -s {dps}",
+                    f"{self.actl} dpctl/dump-flows -m {dps}",
+                    f"{self.actl} dpctl/dump-conntrack -m {dps}",
+                    f"{self.actl} dpctl/ct-stats-show -m {dps}",
+                    f"{self.actl} dpctl/ipf-get-status {dps}",
                 ])
 
     def collect_ovs_bridge_info(self):
@@ -252,18 +252,18 @@ class OpenVSwitch(Plugin):
 
         for bri in br_list_result['output'].splitlines():
             self.add_cmd_output([
-                "%s bridge/dump-flows --offload-stats %s" % (self.actl, bri),
-                "%s dpif/show-dp-features %s" % (self.actl, bri),
-                "%s fdb/show %s" % (self.actl, bri),
-                "%s fdb/stats-show %s" % (self.actl, bri),
-                "%s mdb/show %s" % (self.actl, bri),
-                "ovs-ofctl dump-flows %s" % bri,
-                "ovs-ofctl dump-ports-desc %s" % bri,
-                "ovs-ofctl dump-ports %s" % bri,
-                "ovs-ofctl queue-get-config %s" % bri,
-                "ovs-ofctl queue-stats %s" % bri,
-                "ovs-ofctl show %s" % bri,
-                "ovs-ofctl dump-groups %s" % bri,
+                f"{self.actl} bridge/dump-flows --offload-stats {bri}",
+                f"{self.actl} dpif/show-dp-features {bri}",
+                f"{self.actl} fdb/show {bri}",
+                f"{self.actl} fdb/stats-show {bri}",
+                f"{self.actl} mdb/show {bri}",
+                f"ovs-ofctl dump-flows {bri}",
+                f"ovs-ofctl dump-ports-desc {bri}",
+                f"ovs-ofctl dump-ports {bri}",
+                f"ovs-ofctl queue-get-config {bri}",
+                f"ovs-ofctl queue-stats {bri}",
+                f"ovs-ofctl show {bri}",
+                f"ovs-ofctl dump-groups {bri}",
             ])
 
             self.get_flow_versions(bri)
@@ -272,33 +272,33 @@ class OpenVSwitch(Plugin):
 
             if self.check_dpdk:
                 iface_list_result = self.exec_cmd(
-                    "ovs-vsctl -t 5 list-ifaces %s" % bri
+                    f"ovs-vsctl -t 5 list-ifaces {bri}"
                 )
                 if iface_list_result['status'] == 0:
                     for iface in iface_list_result['output'].splitlines():
                         self.add_cmd_output(
-                            "ovs-appctl netdev-dpdk/get-mempool-info %s" %
-                            iface)
+                            f"ovs-appctl netdev-dpdk/get-mempool-info "
+                            f"{iface}")
             if self.check_6wind:
                 self.add_cmd_output([
-                    "%s evpn/vip-list-show %s" % (self.actl, bri),
-                    "%s bridge/dump-conntracks-summary %s" % (self.actl, bri),
-                    "%s bridge/acl-table ingress/egress %s" % (self.actl, bri),
-                    "%s bridge/acl-table %s" % (self.actl, bri),
-                    "%s ofproto/show %s" % (self.actl, bri),
+                    f"{self.actl} evpn/vip-list-show {bri}",
+                    f"{self.actl} bridge/dump-conntracks-summary {bri}",
+                    f"{self.actl} bridge/acl-table ingress/egress {bri}",
+                    f"{self.actl} bridge/acl-table {bri}",
+                    f"{self.actl} ofproto/show {bri}",
                 ])
 
                 vrf_list = self.collect_cmd_output(
-                    "%s vrf/list %s" % (self.actl, bri))
+                    f"{self.actl} vrf/list {bri}")
                 if vrf_list['status'] == 0:
                     vrfs = vrf_list['output'].split()[1:]
                     for vrf in vrfs:
                         self.add_cmd_output([
-                            "%s vrf/route-table %s" % (self.actl, vrf),
+                            f"{self.actl} vrf/route-table {vrf}",
                         ])
 
                 evpn_list = self.collect_cmd_output(
-                    "ovs-appctl evpn/list %s" % bri)
+                    f"ovs-appctl evpn/list {bri}")
                 if evpn_list['status'] == 0:
                     evpns = evpn_list['output'].split()[1:]
                     for evpn in evpns:
@@ -386,18 +386,18 @@ class OpenVSwitch(Plugin):
         if port_list_result['status'] == 0:
             for port in port_list_result['output'].splitlines():
                 self.add_cmd_output([
-                    "ovs-appctl cfm/show %s" % port,
-                    "ovs-appctl qos/show %s" % port,
+                    f"ovs-appctl cfm/show {port}",
+                    f"ovs-appctl qos/show {port}",
                     # Not all ports are "bond"s, but all "bond"s are
                     # a single port
-                    "ovs-appctl bond/show %s" % port,
+                    f"ovs-appctl bond/show {port}",
                     # In the case of IPSec, we should pull the config
-                    "ovs-vsctl get Interface %s options" % port,
+                    f"ovs-vsctl get Interface {port} options",
                     ])
 
                 if self.check_dpdk:
                     self.add_cmd_output(
-                        "ovs-appctl netdev-dpdk/get-mempool-info %s" % port)
+                        f"ovs-appctl netdev-dpdk/get-mempool-info {port}")
 
 
 class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):

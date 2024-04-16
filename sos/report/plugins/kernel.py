@@ -59,7 +59,7 @@ class Kernel(Plugin, IndependentPlugin):
                                 suggest_filename="modinfo_ALL_MODULES",
                                 tags='modinfo_all')
         except OSError:
-            self._log_warn("could not list %s" % self.sys_module)
+            self._log_warn(f"could not list {self.sys_module}")
 
         # find /lib/modules/*/{extras,updates,weak-updates} -ls
         extra_mod_patterns = [
@@ -72,7 +72,7 @@ class Kernel(Plugin, IndependentPlugin):
             extra_mod_paths.extend(glob.glob(pattern))
 
         if extra_mod_paths:
-            self.add_cmd_output("find %s -ls" % " ".join(extra_mod_paths))
+            self.add_cmd_output(f"find {' '.join(extra_mod_paths)} -ls")
 
         self.add_cmd_output([
             "dmesg",

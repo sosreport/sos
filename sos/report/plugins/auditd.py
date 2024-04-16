@@ -45,8 +45,8 @@ class Auditd(Plugin, IndependentPlugin):
                     if words[0].strip() == 'log_file':
                         log_file = words[1].strip()
         except IOError as error:
-            self._log_error('Could not open conf file %s: %s' %
-                            (config_file, error))
+            self._log_error(f'Could not open conf file {config_file}: '
+                            f'{error}')
 
         if not self.get_option("all_logs"):
             self.add_copy_spec(log_file)

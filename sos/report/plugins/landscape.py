@@ -88,7 +88,7 @@ class Landscape(Plugin, UbuntuPlugin):
         ]
         self.do_path_regex_sub(
             "/etc/landscape/service.conf*",
-            r"(%s) = (.*)" % "|".join(keys),
+            fr"({'|'.join(keys)}) = (.*)",
             r"\1 = [********]"
         )
 

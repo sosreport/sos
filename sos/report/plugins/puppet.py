@@ -56,7 +56,7 @@ class Puppet(Plugin, IndependentPlugin):
             self.do_file_sub(
                 device_conf,
                 r"(.*url*.ssh://.*:).*(@.*)",
-                r"\1%s\2" % ('***')
+                r"\1***\2"
             )
 
 # vim: et ts=4 sw=4

@@ -39,8 +39,8 @@ class SHMcli(Plugin, IndependentPlugin):
 
         for subcmd in subcmds:
             self.add_cmd_output(
-                "%s %s" % (self.shmcli_bin, subcmd),
-                suggest_filename="shmcli_%s" % (subcmd))
+                f"{self.shmcli_bin} {subcmd}",
+                suggest_filename=f"shmcli_{subcmd}")
 
         self.collect_enclosures_list()
         self.collect_drivers_list()
@@ -72,7 +72,7 @@ class SHMcli(Plugin, IndependentPlugin):
         ]
 
         result = self.collect_cmd_output(
-            '%s list enclosures' % (self.shmcli_bin),
+            f'{self.shmcli_bin} list enclosures',
             suggest_filename='shmcli_list_enclosures'
         )
         if result['status'] == 0:
@@ -82,17 +82,16 @@ class SHMcli(Plugin, IndependentPlugin):
                     adapt_index = line[-1]
                     enc_index = line[0]
                     for subcmd in subcmds:
-                        _cmd = ("%s %s -a=%s -enc=%s"
-                                % (self.shmcli_bin, subcmd,
-                                   adapt_index, enc_index))
+                        _cmd = (f"{self.shmcli_bin} {subcmd} -a={adapt_index}"
+                                f" -enc={enc_index}")
                         _fname = _cmd.replace(self.shmcli_bin, 'shmcli')
                         self.add_cmd_output(_cmd, suggest_filename=_fname)
                     if self.get_option('debug'):
                         logpath = self.get_cmd_output_path(make=False)
-                        _dcmd = ("%s getdebugcli -a=%s -enc=%s"
-                                 % (self.shmcli_bin, adapt_index, enc_index))
+                        _dcmd = (f"{self.shmcli_bin} getdebugcli "
+                                 f"-a={adapt_index} -enc={enc_index}")
                         _dname = _dcmd.replace(self.shmcli_bin, 'shmcli')
-                        _odir = (" -outputdir=%s" % (logpath))
+                        _odir = (f" -outputdir={logpath}")
                         self.add_cmd_output(
                             _dcmd + _odir, suggest_filename=_dname,
                             timeout=300
@@ -101,7 +100,7 @@ class SHMcli(Plugin, IndependentPlugin):
     def collect_drivers_list(self):
         """ Collect info on the drives """
         result = self.collect_cmd_output(
-            '%s list drives' % (self.shmcli_bin),
+            f'{self.shmcli_bin} list drives',
             suggest_filename='shmcli_list_drives'
         )
         if result['status'] == 0:
@@ -109,8 +108,7 @@ class SHMcli(Plugin, IndependentPlugin):
                 words = line.split()
                 if len(words) > 6:
                     if (words[0] not in ['WWN', '---']):
-                        _cmd = ("%s info drive -d=%s"
-                                % (self.shmcli_bin, words[0]))
+                        _cmd = f"{self.shmcli_bin} info drive -d={words[0]}"
                         _fname = _cmd.replace(self.shmcli_bin, 'shmcli')
                         self.add_cmd_output(_cmd, suggest_filename=_fname)
 

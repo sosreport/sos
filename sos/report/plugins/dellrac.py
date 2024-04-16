@@ -27,8 +27,8 @@ class DellRAC(Plugin, IndependentPlugin):
     def setup(self):
         for subcmd in ['getniccfg', 'getsysinfo']:
             self.add_cmd_output(
-                '%s %s' % (self.racadm, subcmd),
-                suggest_filename='%s_%s' % (self.prefix, subcmd))
+                f'{self.racadm} {subcmd}',
+                suggest_filename=f'{self.prefix}_{subcmd}')
 
         if self.get_option("debug"):
             self.do_debug()
@@ -45,7 +45,7 @@ class DellRAC(Plugin, IndependentPlugin):
             logpath = self.get_cmd_output_path(make=False)
         subcmd = 'supportassist collect -f'
         self.add_cmd_output(
-            '%s %s support.zip' % (self.racadm, subcmd),
-            runat=logpath, suggest_filename='%s_%s' % (self.prefix, subcmd))
+            f'{self.racadm} {subcmd} support.zip',
+            runat=logpath, suggest_filename=f'{self.prefix}_{subcmd}')
 
 # vim: set et ts=4 sw=4 :

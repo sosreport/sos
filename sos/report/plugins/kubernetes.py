@@ -163,7 +163,7 @@ class Kubernetes(Plugin):
         knsps = [n.split()[0] for n in kn_output if n and len(n.split())]
 
         for nspace in knsps:
-            knsp = '--namespace=%s' % nspace
+            knsp = f'--namespace={nspace}'
             if self.get_option('all'):
                 k_cmd = f'{self.kube_cmd} get -o json {knsp}'
 

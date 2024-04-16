@@ -70,7 +70,7 @@ class OpenStackDesignate(Plugin):
 
         # commands
         self.add_cmd_output([
-            'openstack %s --all-projects' % sub for sub in subcmds
+            f'openstack {sub} --all-projects' for sub in subcmds
         ])
 
         # get recordsets for each zone
@@ -80,7 +80,7 @@ class OpenStackDesignate(Plugin):
             for zone in ret['output'].splitlines():
                 zone = zone.split()[0]
                 self.add_cmd_output(
-                    "openstack recordset list --all-projects %s" % zone,
+                    f"openstack recordset list --all-projects {zone}",
                     subdir='recordset')
 
     def postproc(self):
@@ -89,7 +89,7 @@ class OpenStackDesignate(Plugin):
             "ssl_key_password", "ssl_client_key_password",
             "memcache_secret_key"
         ]
-        regexp = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)"
 
         self.do_path_regex_sub("/etc/designate/*", regexp, r"\1*********")
         self.do_path_regex_sub(

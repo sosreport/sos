@@ -91,14 +91,14 @@ class ZVM(Plugin, IndependentPlugin):
             "ind user"
         ]
 
-        vm_id_out = self.collect_cmd_output("%s q userid" % vm_cmd)
+        vm_id_out = self.collect_cmd_output(f"{vm_cmd} q userid")
         if vm_id_out['status'] == 0:
             vm_id = vm_id_out['output'].split()[0]
             vm_cmds.extend([
-                "q reorder %s" % vm_id,
-                "q quickdsp %s" % vm_id
+                f"q reorder {vm_id}",
+                f"q quickdsp {vm_id}",
             ])
 
-        self.add_cmd_output(["%s %s" % (vm_cmd, vcmd) for vcmd in vm_cmds])
+        self.add_cmd_output([f"{vm_cmd} {vcmd}" for vcmd in vm_cmds])
 
 # vim: set et ts=4 sw=4 :

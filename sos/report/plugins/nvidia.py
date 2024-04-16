@@ -31,16 +31,16 @@ class Nvidia(Plugin, IndependentPlugin):
         ]
 
         self.add_service_status("nvidia-persistenced")
-        self.add_cmd_output(["nvidia-smi %s" % cmd for cmd in subcmds])
+        self.add_cmd_output([f"nvidia-smi {cmd}" for cmd in subcmds])
 
         query = ('gpu_name,gpu_bus_id,vbios_version,temperature.gpu,'
                  'utilization.gpu,memory.total,memory.free,memory.used,'
                  'clocks.applications.graphics,clocks.applications.memory')
         querypages = ('timestamp,gpu_bus_id,gpu_serial,gpu_uuid,'
                       'retired_pages.address,retired_pages.cause')
-        self.add_cmd_output("nvidia-smi --query-gpu=%s --format=csv" % query)
+        self.add_cmd_output(f"nvidia-smi --query-gpu={query} --format=csv")
         self.add_cmd_output(
-            "nvidia-smi --query-retired-pages=%s --format=csv" % querypages
+            f"nvidia-smi --query-retired-pages={querypages} --format=csv"
         )
         self.add_journal(boot=0, identifier='nvidia-persistenced')
 

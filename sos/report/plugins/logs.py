@@ -132,6 +132,6 @@ class CosLogs(LogsBase, CosPlugin):
             self.add_cmd_output("journalctl -o export")
         else:
             days = self.get_option("log_days", 3)
-            self.add_journal(since="-%ddays" % days)
+            self.add_journal(since=f"-{days}days")
 
 # vim: set et ts=4 sw=4 :

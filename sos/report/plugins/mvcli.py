@@ -30,6 +30,6 @@ class MvCLI(Plugin, IndependentPlugin):
             'smart -p 0',
         ]
 
-        self.add_cmd_output(["/opt/marvell/bin/mvcli %s" % s for s in subcmds])
+        self.add_cmd_output([f"/opt/marvell/bin/mvcli {s}" for s in subcmds])
 
 # vim: et ts=4 sw=4

@@ -123,13 +123,14 @@ class OpenStackHeat(Plugin):
         ]
         connection_keys = ["connection"]
 
+        join_con_keys = "|".join(connection_keys)
+
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1*********"
         )
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            fr"(^\s*({join_con_keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

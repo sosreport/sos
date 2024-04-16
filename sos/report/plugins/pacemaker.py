@@ -111,8 +111,8 @@ class Pacemaker(Plugin):
                 crm_from = self.get_option("crm_from")
             else:
                 self._log_error(
-                    "crm_from parameter '%s' is not a valid date: using "
-                    "default" % self.get_option("crm_from"))
+                    f"crm_from parameter '{self.get_option('crm_from')}' is "
+                    "not a valid date: using default")
 
         crm_dest = self.get_cmd_output_path(name="crm_report", make=False)
         if self.get_option("crm_scrub"):
@@ -122,9 +122,8 @@ class Pacemaker(Plugin):
             self._log_warn("scrubbing of crm passwords has been disabled:")
             self._log_warn("data collected by crm_report may contain"
                            " sensitive values.")
-        self.add_cmd_output('crm_report --sos-mode %s -S -d '
-                            ' --dest %s --from "%s"' %
-                            (crm_scrub, crm_dest, crm_from),
+        self.add_cmd_output(f'crm_report --sos-mode {crm_scrub} -S -d '
+                            f' --dest {crm_dest} --from "{crm_from}"',
                             chroot=self.tmp_in_sysroot())
 
         # collect user-defined logfiles, matching a shell-style syntax:

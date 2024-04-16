@@ -72,8 +72,8 @@ class S390(Plugin, IndependentPlugin):
         dasd_dev = ret['output']
         for dev in dasd_dev.split('\n'):
             self.add_cmd_output([
-                "dasdview -x -i -j -l -f %s" % (dev,),
-                "fdasd -p %s" % (dev,)
+                f"dasdview -x -i -j -l -f {dev}",
+                f"fdasd -p {dev}",
             ])
 
 

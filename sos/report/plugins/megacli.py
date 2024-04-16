@@ -30,7 +30,7 @@ class MegaCLI(Plugin, RedHatPlugin):
         ]
 
         self.add_cmd_output([
-            "%s %s -aALL" % (cmd, subcmd) for subcmd in subcmds
+            f"{cmd} {subcmd} -aALL" for subcmd in subcmds
         ])
 
 # vim: set et ts=4 sw=4 :
