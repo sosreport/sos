@@ -50,6 +50,8 @@ class AAPreceptorPlugin(Plugin, RedHatPlugin):
                                 suggest_filename="receptorctl_status")
             self.add_cmd_output(f"receptorctl --socket {s} status --json",
                                 suggest_filename="receptorctl_status.json")
+            self.add_cmd_output(f"receptorctl --socket {s} work list",
+                                suggest_filename="receptorctl_work_list.json")
             break
 
 # vim: set et ts=4 sw=4 :
