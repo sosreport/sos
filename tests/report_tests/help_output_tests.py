@@ -48,4 +48,4 @@ class ReportListPluginsTest(StageOneOutputTest):
             # Ignore newlines
             if not ln:
                 continue
-            assert len(ln) > 1, "Plugin '%s' missing description" % ln[0]
+            assert len(ln) > 1, f"Plugin '{ln[0]}' missing description"

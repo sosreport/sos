@@ -158,8 +158,8 @@ class BaseSoSTest(Test):
                 if err.result.interrupted:
                     raise Exception("Timeout exceeded, see output above")
                 else:
-                    raise Exception("Command failed, see output above: '%s'"
-                                    % err.command.split('bin/')[1])
+                    raise Exception("Command failed, see output above: "
+                                    f"'{err.command.split('bin/')[1]}'")
         with open(os.path.join(self.tmpdir, 'output'), 'wb') as pfile:
             pickle.dump(self.cmd_output, pfile)
         self.cmd_output.stdout = self.cmd_output.stdout.decode()
@@ -332,11 +332,11 @@ class BaseSoSTest(Test):
 
     def assertFileExists(self, fname):
         """Asserts that fname exists on the filesystem"""
-        assert os.path.exists(fname), "%s does not exist" % fname
+        assert os.path.exists(fname), f"{fname} does not exist"
 
     def assertFileNotExists(self, fname):
         """Asserts that fname does not exist on the filesystem"""
-        assert not os.path.exists(fname), "%s exists" % fname
+        assert not os.path.exists(fname), f"{fname} exists"
 
     def assertOutputContains(self, content):
         """Ensure that stdout did contain the given content string
@@ -347,7 +347,7 @@ class BaseSoSTest(Test):
         found = re.search(
             fr"(.*)?{content}(.*)?",
             self.cmd_output.stdout + self.cmd_output.stderr)
-        assert found, "Content string '%s' not in output" % content
+        assert found, f"Content string '{content}' not in output"
 
     def assertOutputNotContains(self, content):
         """Ensure that stdout did NOT contain the given content string
@@ -358,7 +358,7 @@ class BaseSoSTest(Test):
         found = re.search(
             fr"(.*)?{content}(.*)?",
             self.cmd_output.stdout + self.cmd_output.stderr)
-        assert not found, "String '%s' present in stdout" % content
+        assert not found, f"String '{content}' present in stdout"
 
 
 class BaseSoSReportTest(BaseSoSTest):
@@ -394,8 +394,8 @@ class BaseSoSReportTest(BaseSoSTest):
 
     def _decrypt_archive(self, archive):
         _archive = archive.strip('.gpg')
-        cmd = ("gpg --batch --passphrase %s -o %s --decrypt %s"
-               % (self.encrypt_pass, _archive, archive))
+        cmd = (f"gpg --batch --passphrase {self.encrypt_pass} -o {_archive} "
+               f"--decrypt {archive}")
         try:
             process.run(cmd, timeout=10)
         except Exception as err:
@@ -415,7 +415,7 @@ class BaseSoSReportTest(BaseSoSTest):
                        means "grep -F")
         """
         fixed_opt = "" if regexp else "F"
-        cmd = "grep -ril%s '%s' %s" % (fixed_opt, search, self.archive_path)
+        cmd = f"grep -ril{fixed_opt} '{search}' {self.archive_path}"
         try:
             out = process.run(cmd)
             rc = out.exit_status
@@ -457,7 +457,7 @@ class BaseSoSReportTest(BaseSoSTest):
             archive.extract(arc_path, _extract_path)
             self.archive_path = self._get_archive_path()
         except Exception as err:
-            self.cancel("Could not extract archive: %s" % err)
+            self.cancel(f"Could not extract archive: {err}")
 
     def _get_extracted_tarball_path(self):
         """Based on the klass id setup earlier, provide a name to extract the
@@ -550,7 +550,7 @@ class BaseSoSReportTest(BaseSoSTest):
             files = glob.glob(
                 os.path.join(self.archive_path, fname.lstrip('/'))
             )
-        assert files, "No files matching %s found" % fname
+        assert files, f"No files matching {fname} found"
 
     def assertFileGlobNotInArchive(self, fname):
         """Ensure that there are NO files in the archive matching a given fname
@@ -580,7 +580,7 @@ class BaseSoSReportTest(BaseSoSTest):
         with open(fname, 'r') as lfile:
             _contents = lfile.read()
             for line in _contents.splitlines():
-                if re.match(".*%s.*" % content, line, re.I):
+                if re.match(f".*{content}.*", line, re.I):
                     matched = True
                     break
         assert \
@@ -600,7 +600,7 @@ class BaseSoSReportTest(BaseSoSTest):
         fname = self.get_name_in_archive(fname)
         with open(fname, 'r') as mfile:
             for line in mfile.read().splitlines():
-                if re.match(".*%s.*" % content, line, re.I):
+                if re.match(f".*{content}.*", line, re.I):
                     matched = True
                     break
         assert \
@@ -680,11 +680,11 @@ class BaseSoSReportTest(BaseSoSTest):
 
         # test that all requested plugins did run
         for i in plugins:
-            assert i in _executed, "Requested plugin '%s' did not run" % i
+            assert i in _executed, f"Requested plugin '{i}' did not run"
 
         # test that no unrequested plugins ran
         for j in _executed:
-            assert j in plugins, "Unrequested plugin '%s' ran as well" % j
+            assert j in plugins, f"Unrequested plugin '{j}' ran as well"
 
     def get_plugin_manifest(self, plugin):
         """Get the manifest data for the specified plugin
@@ -696,7 +696,7 @@ class BaseSoSReportTest(BaseSoSTest):
         :rtype:   ``dict``
         """
         if not self.manifest['components']['report']['plugins'][plugin]:
-            raise Exception("Manifest for %s not present" % plugin)
+            raise Exception(f"Manifest for {plugin} not present")
         return self.manifest['components']['report']['plugins'][plugin]
 
 
@@ -896,8 +896,8 @@ class StageTwoReportTest(BaseSoSReportTest):
             installed = distro_packages.install_distro_packages(self.packages)
             if not installed:
                 raise Exception(
-                    "Unable to install requested packages %s"
-                    % ', '.join(self.packages[self.local_distro])
+                    f"Unable to install requested packages "
+                    f"{', '.join(self.packages[self.local_distro])}"
                 )
             # save installed package list to our tmpdir to be removed later
             self._write_file_to_tmpdir(
@@ -1037,7 +1037,7 @@ class StageOneOutputTest(BaseSoSTest):
     sos_cmd = ''
 
     def _generate_sos_command(self):
-        return "%s %s" % (self.sos_bin, self.sos_cmd)
+        return f"{self.sos_bin} {self.sos_cmd}"
 
     @skipIf(lambda x: x._exception_expected, "Non-zero exit code expected")
     def test_help_output_successful(self):

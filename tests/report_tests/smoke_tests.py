@@ -27,7 +27,7 @@ class AllPluginSmokeTest(StageOneReportTest):
     """
 
     def pre_sos_setup(self):
-        _cmd = '%s report --list-plugins' % self.sos_bin
+        _cmd = f'{self.sos_bin} report --list-plugins'
         out = process.run(_cmd, timeout=300).stdout.decode()
         reg = DISABLED + '(.*?)' + OPTIONS
         self.plugs = []
@@ -38,7 +38,7 @@ class AllPluginSmokeTest(StageOneReportTest):
                 except Exception:
                     pass
 
-        self.sos_cmd = '-e %s' % ','.join(p for p in self.plugs)
+        self.sos_cmd = f'-e {",".join(p for p in self.plugs)}'
 
     def test_all_plugins_ran(self):
         for plugin in self.plugs:

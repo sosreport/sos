@@ -31,23 +31,23 @@ class PluginConformance(unittest.TestCase):
                 _attr = getattr(plug, tup)
                 self.assertIsInstance(
                     _attr, tuple,
-                    "%s.%s is type %s" % (plug.__name__, tup, type(_attr))
+                    f"{plug.__name__}.{tup} is type {type(_attr)}"
                 )
 
     def test_plugin_description_is_str(self):
         for plug in self.plug_classes:
             self.assertIsInstance(plug.short_desc, str,
-                                  "%s name not string" % plug.__name__)
+                                  f"{plug.__name__} name not string")
             # make sure the description is not empty
             self.assertNotEqual(plug.short_desc, '',
-                                "%s description unset" % plug.__name__)
+                                f"{plug.__name__} description unset")
 
     def test_plugin_name_is_str(self):
         for plug in self.plug_classes:
             self.assertIsInstance(plug.plugin_name, str,
-                                  "%s name not string" % plug.__name__)
+                                  f"{plug.__name__} name not string")
             self.assertNotEqual(plug.plugin_name, '',
-                                "%s name unset" % plug.__name__)
+                                f"{plug.__name__} name unset")
 
     def test_plugin_option_list_correct(self):
         for plug in self.plug_classes:

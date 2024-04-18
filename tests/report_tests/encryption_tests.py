@@ -19,11 +19,11 @@ class EncryptedReportTest(StageOneReportTest):
     """
 
     encrypt_pass = 'sostest'
-    sos_cmd = "-o kernel --encrypt-pass %s" % encrypt_pass
+    sos_cmd = f"-o kernel --encrypt-pass {encrypt_pass}"
 
     def test_archive_gpg_encrypted(self):
         self.assertOutputContains(r'/.*sosreport-.*tar.*\.gpg')
-        _cmd = "file %s" % self.encrypted_path
+        _cmd = f"file {self.encrypted_path}"
         res = process.run(_cmd)
         self.assertTrue(
             ("GPG symmetrically encrypted data" in res.stdout.decode())
@@ -41,7 +41,7 @@ class EncryptedCleanedReportTest(EncryptedReportTest):
     """
 
     encrypt_pass = 'sostest'
-    sos_cmd = "-o host,networking --clean --encrypt-pass %s" % encrypt_pass
+    sos_cmd = f"-o host,networking --clean --encrypt-pass {encrypt_pass}"
 
     def test_hostname_obfuscated(self):
         self.assertFileHasContent('hostname', 'host0')
