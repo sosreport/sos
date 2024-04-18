@@ -37,7 +37,7 @@ class NetworkingPluginTest(StageOneReportTest):
             # https://lwn.net/Articles/142330/
             if not dev.startswith('bonding_'):
                 self.assertFileGlobInArchive(
-                    "sos_commands/networking/ethtool_*_%s" % dev
+                    f"sos_commands/networking/ethtool_*_{dev}"
                 )
 
 
