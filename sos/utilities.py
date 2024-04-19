@@ -114,7 +114,7 @@ def fileobj(path_or_file, mode='r'):
             return open(path_or_file, mode)
         except IOError:
             log = logging.getLogger('sos')
-            log.debug("fileobj: %s could not be opened" % path_or_file)
+            log.debug(f"fileobj: {path_or_file} could not be opened")
             return closing(io.StringIO())
     else:
         return closing(path_or_file)
@@ -124,15 +124,15 @@ def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
     """Converts a number of bytes to a shorter, more human friendly format"""
     fn = float(bytes_)
     if bytes_ >= T:
-        return '%.1fT' % (fn / T)
+        return f'{(fn / T):.1fT}'
     elif bytes_ >= G:
-        return '%.1fG' % (fn / G)
+        return f'{(fn / G):.1fG}'
     elif bytes_ >= M:
-        return '%.1fM' % (fn / M)
+        return f'{(fn / M):.1fM}'
     elif bytes_ >= K:
-        return '%.1fK' % (fn / K)
+        return f'{(fn / K):.1fK}'
     else:
-        return '%d' % bytes_
+        return f'{bytes_}'
 
 
 def file_is_binary(fname):
@@ -250,11 +250,8 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                 cmd_env.pop(key, None)
     # use /usr/bin/timeout to implement a timeout
     if timeout and is_executable("timeout"):
-        command = "timeout %s %ds %s" % (
-            '--foreground' if foreground else '',
-            timeout,
-            command
-        )
+        command = (f"timeout {'--foreground' if foreground else ''} {timeout}s"
+                   f" {command}")
 
     args = shlex.split(command)
     # Expand arguments that are wildcard root paths.
@@ -364,7 +361,7 @@ def get_human_readable(size, precision=2):
     while size > 1024 and suffixindex < 4:
         suffixindex += 1
         size = size/1024.0
-    return "%.*f%s" % (precision, size, suffixes[suffixindex])
+    return f"{size:.{precision}f}{suffixes[suffixindex]}"
 
 
 def _os_wrapper(path, sysroot, method, module=os.path):

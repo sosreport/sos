@@ -55,7 +55,7 @@ class rhosp(Cluster):
         try:
             _inv = yaml.safe_load(self.primary.read_file(INVENTORY))
         except Exception as err:
-            self.log_info("Error parsing yaml: %s" % err)
+            self.log_info(f"Error parsing yaml: {err}")
             raise Exception("Could not parse yaml for node addresses")
         try:
             for _t in ['Controller', 'Compute']:
@@ -64,5 +64,5 @@ class rhosp(Cluster):
                     for host in _inv[_t]['hosts'].keys():
                         _nodes.append(_inv[_t]['hosts'][host][_addr_field])
         except Exception as err:
-            self.log_error("Error getting %s host addresses: %s" % (_t, err))
+            self.log_error(f"Error getting {_t} host addresses: {err}")
         return _nodes

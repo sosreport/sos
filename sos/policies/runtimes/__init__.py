@@ -45,7 +45,7 @@ class ContainerRuntime():
 
     def __init__(self, policy=None):
         self.policy = policy
-        self.run_cmd = "%s exec " % self.binary
+        self.run_cmd = f"{self.binary} exec "
 
     def load_container_info(self):
         """If this runtime is found to be active, attempt to load information
@@ -82,7 +82,7 @@ class ContainerRuntime():
         :type get_all: ``bool``
         """
         containers = []
-        _cmd = "%s ps %s" % (self.binary, '-a' if get_all else '')
+        _cmd = f"{self.binary} ps {'-a' if get_all else ''}"
         if self.active:
             out = sos_get_command_output(_cmd, chroot=self.policy.sysroot)
             if out['status'] == 0:
@@ -119,7 +119,7 @@ class ContainerRuntime():
         fmt = '{{lower .Repository}}:{{lower .Tag}} {{lower .ID}}'
         if self.active:
             out = sos_get_command_output(
-                "%s images --format '%s'" % (self.binary, fmt),
+                f"{self.binary} images --format '{fmt}'",
                 chroot=self.policy.sysroot
             )
             if out['status'] == 0:
@@ -138,7 +138,7 @@ class ContainerRuntime():
         vols = []
         if self.active:
             out = sos_get_command_output(
-                "%s volume ls" % self.binary,
+                f"{self.binary} volume ls",
                 chroot=self.policy.sysroot
             )
             if out['status'] == 0:
@@ -183,7 +183,7 @@ class ContainerRuntime():
             quoted_cmd = quote(cmd)
         else:
             quoted_cmd = cmd
-        return "%s %s %s" % (self.run_cmd, container, quoted_cmd)
+        return f"{self.run_cmd} {container} {quoted_cmd}"
 
     def fmt_registry_credentials(self, username, password):
         """Format a string to pass to the 'run' command of the runtime to
@@ -199,7 +199,7 @@ class ContainerRuntime():
         :returns:  The string to use to enable a run command to pull the image
         :rtype:    ``str``
         """
-        return "--creds=%s%s" % (username, ':' + password if password else '')
+        return f"--creds={username}{':' + password if password else ''}"
 
     def fmt_registry_authfile(self, authfile):
         """Format a string to pass to the 'run' command of the runtime to
@@ -207,7 +207,7 @@ class ContainerRuntime():
         needed using an authfile.
         """
         if authfile:
-            return "--authfile %s" % authfile
+            return f"--authfile {authfile}"
         return ''
 
     def get_logs_command(self, container):
@@ -220,7 +220,7 @@ class ContainerRuntime():
         :returns: Formatted runtime command to get logs from `container`
         :type: ``str``
         """
-        return "%s logs -t %s" % (self.binary, container)
+        return f"{self.binary} logs -t {container}"
 
     def get_copy_command(self, container, path, dest, sizelimit=None):
         """Generate the command string used to copy a file out of a container
@@ -245,8 +245,7 @@ class ContainerRuntime():
         :rtype:     ``str``
         """
         if sizelimit:
-            return "%s %s tail -c %s %s" % (self.run_cmd, container, sizelimit,
-                                            path)
-        return "%s cp %s:%s %s" % (self.binary, container, path, dest)
+            return f"{self.run_cmd} {container} tail -c {sizelimit} {path}"
+        return f"{self.binary} cp {container}:{path} {dest}"
 
 # vim: set et ts=4 sw=4 :

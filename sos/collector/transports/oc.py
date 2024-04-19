@@ -51,14 +51,14 @@ class OCTransport(RemoteTransport):
         execution
         """
         return sos_get_command_output(
-            "oc -n %s %s" % (self.project, cmd),
+            f"oc -n {self.project} {cmd}",
             **kwargs
         )
 
     @property
     def connected(self):
         up = self.run_oc(
-            "wait --timeout=0s --for=condition=ready pod/%s" % self.pod_name
+            f"wait --timeout=0s --for=condition=ready pod/{self.pod_name}"
         )
         return up['status'] == 0
 
@@ -71,7 +71,7 @@ class OCTransport(RemoteTransport):
             "kind": "Pod",
             "apiVersion": "v1",
             "metadata": {
-                "name": "%s-sos-collector" % self.address.split('.')[0],
+                "name": f"{self.address.split('.')[0]}-sos-collector",
                 "namespace": self.project
             },
             "priorityClassName": "system-cluster-critical",
@@ -169,23 +169,23 @@ class OCTransport(RemoteTransport):
         fd, self.pod_tmp_conf = tempfile.mkstemp(dir=self.tmpdir)
         with open(fd, 'w') as cfile:
             json.dump(podconf, cfile)
-        self.log_debug("Starting sos collector container '%s'" % self.pod_name)
+        self.log_debug(f"Starting sos collector container '{self.pod_name}'")
         # this specifically does not need to run with a project definition
         out = sos_get_command_output(
-            "oc create -f %s" % self.pod_tmp_conf
+            f"oc create -f {self.pod_tmp_conf}"
         )
-        if (out['status'] != 0 or "pod/%s created" % self.pod_name not in
+        if (out['status'] != 0 or f"pod/{self.pod_name} created" not in
                 out['output']):
             self.log_error("Unable to deploy sos collect pod")
-            self.log_debug("Debug pod deployment failed: %s" % out['output'])
+            self.log_debug(f"Debug pod deployment failed: {out['output']}")
             return False
-        self.log_debug("Pod '%s' successfully deployed, waiting for pod to "
-                       "enter ready state" % self.pod_name)
+        self.log_debug(f"Pod '{self.pod_name}' successfully deployed, waiting "
+                       "for pod to enter ready state")
 
         # wait for the pod to report as running
         try:
-            up = self.run_oc("wait --for=condition=Ready pod/%s --timeout=30s"
-                             % self.pod_name,
+            up = self.run_oc(f"wait --for=condition=Ready pod/{self.pod_name} "
+                             "--timeout=30s",
                              # timeout is for local safety, not oc
                              timeout=40)
             if not up['status'] == 0:
@@ -195,16 +195,15 @@ class OCTransport(RemoteTransport):
             self.log_error("Timeout while polling for pod readiness")
             return False
         except Exception as err:
-            self.log_error("Error while waiting for pod to be ready: %s"
-                           % err)
+            self.log_error(f"Error while waiting for pod to be ready: {err}")
             return False
 
         return True
 
     def _format_cmd_for_exec(self, cmd):
         if cmd.startswith('oc'):
-            return ("oc -n %s exec --request-timeout=0 %s -- chroot /host %s"
-                    % (self.project, self.pod_name, cmd))
+            return (f"oc -n {self.project} exec --request-timeout=0 "
+                    f"{self.pod_name} -- chroot /host {cmd}")
         return super(OCTransport, self)._format_cmd_for_exec(cmd)
 
     def run_command(self, cmd, timeout=180, need_root=False, env=None,
@@ -221,22 +220,21 @@ class OCTransport(RemoteTransport):
     def _disconnect(self):
         if os.path.exists(self.pod_tmp_conf):
             os.unlink(self.pod_tmp_conf)
-        removed = self.run_oc("delete pod %s" % self.pod_name)
+        removed = self.run_oc(f"delete pod {self.pod_name}")
         if "deleted" not in removed['output']:
-            self.log_debug("Calling delete on pod '%s' failed: %s"
-                           % (self.pod_name, removed))
+            self.log_debug(f"Calling delete on pod '{self.pod_name}' failed: "
+                           f"{removed}")
             return False
         return True
 
     @property
     def remote_exec(self):
-        return ("oc -n %s exec --request-timeout=0 %s -- /bin/bash -c"
-                % (self.project, self.pod_name))
+        return (f"oc -n {self.project} exec --request-timeout=0 "
+                f"{self.pod_name} -- /bin/bash -c")
 
     def _retrieve_file(self, fname, dest):
         # check if --retries flag is available for given version of oc
         result = self.run_oc("cp --retries", stderr=True)
         flags = '' if "unknown flag" in result["output"] else '--retries=5'
-        cmd = self.run_oc("cp %s %s:%s %s"
-                          % (flags, self.pod_name, fname, dest))
+        cmd = self.run_oc(f"cp {flags} {self.pod_name}:{fname} {dest}")
         return cmd['status'] == 0

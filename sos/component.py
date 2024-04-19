@@ -109,7 +109,7 @@ class SoSComponent():
 
             if not os.path.isdir(tmpdir) \
                     or not os.access(tmpdir, os.W_OK):
-                msg = "temporary directory %s " % tmpdir
+                msg = f"temporary directory {tmpdir} "
                 msg += "does not exist or is not writable\n"
                 # write directly to stderr as logging is not initialised yet
                 sys.stderr.write(msg)
@@ -175,7 +175,7 @@ class SoSComponent():
         # no standard library method exists for this, so call out to stat to
         # avoid bringing in a dependency on psutil
         self.tmpfstype = shell_out(
-            "stat --file-system --format=%s %s" % ("%T", tmpdir)
+            f"stat --file-system --format=%T {tmpdir}"
         ).strip()
 
         if self.tmpfstype == 'tmpfs':
@@ -281,7 +281,7 @@ class SoSComponent():
             if opts.preset != self._arg_defaults["preset"]:
                 self.preset = self.policy.find_preset(opts.preset)
                 if not self.preset:
-                    sys.stderr.write("Unknown preset: '%s'\n" % opts.preset)
+                    sys.stderr.write(f"Unknown preset: '{opts.preset}'\n")
                     self.preset = self.policy.probe_preset()
                     opts.list_presets = True
 
@@ -310,8 +310,8 @@ class SoSComponent():
             if self.tmpdir:
                 rmtree(self.tmpdir)
         except Exception as err:
-            print("Failed to finish cleanup: %s\nContents may remain in %s"
-                  % (err, self.tmpdir))
+            print(f"Failed to finish cleanup: {err}\nContents may remain in "
+                  f"{self.tmpdir}")
 
     def _set_encrypt_from_env_vars(self):
         msg = ('No encryption environment variables set, archive will not be '

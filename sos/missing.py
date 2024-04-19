@@ -39,10 +39,8 @@ class MissingCollect(SoSComponent):
         """Set the --help output for collect to a message that shows that
         the functionality is unavailable
         """
-        msg = "%s %s" % (
-            'WARNING: `collect` is not available with this installation!',
-            cls.missing_msg
-        )
+        msg = ("WARNING: `collect` is not available with this installation! "
+               f"{cls.missing_msg}")
         parser.epilog = msg
         return parser
 

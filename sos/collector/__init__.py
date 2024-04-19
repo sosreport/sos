@@ -186,9 +186,9 @@ class SoSCollector(SoSComponent):
             try:
                 self.parse_node_strings()
                 self.parse_cluster_options()
-                self.log_debug('Executing %s' % ' '.join(s for s in sys.argv))
-                self.log_debug("Found cluster profiles: %s"
-                               % self.clusters.keys())
+                self.log_debug(f'Executing {" ".join(s for s in sys.argv)}')
+                self.log_debug(
+                    f"Found cluster profiles: {self.clusters.keys()}")
                 self.verify_cluster_options()
 
             except KeyboardInterrupt:
@@ -236,7 +236,7 @@ class SoSCollector(SoSComponent):
                 if '__' in pyfile:
                     continue
                 fname, ext = os.path.splitext(pyfile)
-                modname = 'sos.collector.%s.%s' % (modulename, fname)
+                modname = f'sos.collector.{modulename}.{fname}'
                 modules.extend(cls._import_modules(modname))
         return modules
 
@@ -601,8 +601,8 @@ class SoSCollector(SoSComponent):
                             opt.value = self._validate_option(option, opt)
                             break
             if not match:
-                self.exit('Unknown cluster option provided: %s.%s'
-                          % (opt.cluster, opt.name), 1)
+                self.exit('Unknown cluster option provided: '
+                          f'{opt.cluster}.{opt.name}', 1)
 
     def _validate_option(self, default, cli):
         """Checks to make sure that the option given on the CLI is valid.
@@ -645,7 +645,7 @@ class SoSCollector(SoSComponent):
     def log_debug(self, msg):
         """Log debug message to both console and log file"""
         caller = inspect.stack()[1][3]
-        msg = '[sos_collector:%s] %s' % (caller, msg)
+        msg = f'[sos_collector:{caller}] {msg}'
         self.soslog.debug(msg)
 
     def list_options(self):
@@ -696,9 +696,9 @@ class SoSCollector(SoSComponent):
         """Generates a name for the tarball archive"""
         nstr = 'sos-collector'
         if self.opts.label:
-            nstr += '-%s' % self.opts.label
+            nstr += f'-{self.opts.label}'
         if self.opts.case_id:
-            nstr += '-%s' % self.opts.case_id
+            nstr += f'-{self.opts.case_id}'
         dt = datetime.strftime(datetime.now(), '%Y-%m-%d')
 
         try:
@@ -707,7 +707,7 @@ class SoSCollector(SoSComponent):
             self.log_debug(f"Could not cast to ascii_lowercase: {err}")
 
         rand = ''.join(random.choice(string.lowercase) for x in range(5))
-        return '%s-%s-%s' % (nstr, dt, rand)
+        return f'{nstr}-{dt}-{rand}'
 
     def _get_archive_path(self):
         """Returns the path, including filename, of the tarball we build
@@ -737,7 +737,7 @@ class SoSCollector(SoSComponent):
         grp = self.opts.group
         paths = [
             grp,
-            os.path.join(Path.home(), '.config/sos/groups.d/%s' % grp),
+            os.path.join(Path.home(), f'.config/sos/groups.d/{grp}'),
             os.path.join(COLLECTOR_CONFIG_DIR, grp)
         ]
 
@@ -747,19 +747,19 @@ class SoSCollector(SoSComponent):
                 fname = path
                 break
         if fname is None:
-            raise OSError("no group definition for %s" % grp)
+            raise OSError(f"no group definition for {grp}")
 
-        self.log_debug("Loading host group %s" % fname)
+        self.log_debug(f"Loading host group {fname}")
 
         with open(fname, 'r') as hf:
             _group = json.load(hf)
             for key in ['primary', 'cluster_type']:
                 if _group[key]:
-                    self.log_debug("Setting option '%s' to '%s' per host group"
-                                   % (key, _group[key]))
+                    self.log_debug(f"Setting option '{key}' to '{_group[key]}'"
+                                   "per host group")
                     setattr(self.opts, key, _group[key])
             if _group['nodes']:
-                self.log_debug("Adding %s to node list" % _group['nodes'])
+                self.log_debug(f"Adding {_group['nodes']} to node list")
                 self.opts.nodes.extend(_group['nodes'])
 
     def write_host_group(self):
@@ -802,8 +802,8 @@ class SoSCollector(SoSComponent):
                                         self.opts.primary))
                     and not self.opts.batch):
                 self.log_debug('password specified, not using SSH keys')
-                msg = ('Provide the SSH password for user %s: '
-                       % self.opts.ssh_user)
+                msg = ('Provide the SSH password for user '
+                       f'{self.opts.ssh_user}: ')
                 self.opts.password = getpass(prompt=msg)
 
             if ((self.commons['need_sudo'] and not self.opts.nopasswd_sudo)
@@ -812,8 +812,8 @@ class SoSCollector(SoSComponent):
                     self.log_debug('non-root user specified, will request '
                                    'sudo password')
                     msg = ('A non-root user has been provided. Provide sudo '
-                           'password for %s on remote nodes: '
-                           % self.opts.ssh_user)
+                           f'password for {self.opts.ssh_user} on remote '
+                           'nodes: ')
                     self.opts.sudo_pw = getpass(prompt=msg)
                 else:
                     if not self.opts.nopasswd_sudo:
@@ -829,8 +829,8 @@ class SoSCollector(SoSComponent):
                            "to become root remotely.")
                     self.exit(msg, 1)
                 self.log_debug('non-root user asking to become root remotely')
-                msg = ('User %s will attempt to become root. '
-                       'Provide root password: ' % self.opts.ssh_user)
+                msg = (f'User {self.opts.ssh_user} will attempt to become '
+                       'root. Provide root password: ')
                 self.opts.root_password = getpass(prompt=msg)
                 self.commons['need_sudo'] = False
             else:
@@ -842,8 +842,8 @@ class SoSCollector(SoSComponent):
             try:
                 self._load_group_config()
             except Exception as err:
-                msg = ("Could not load specified group %s: %s"
-                       % (self.opts.group, err))
+                msg = (f"Could not load specified group {self.opts.group}: "
+                       f"{err}")
                 self.exit(msg, 1)
 
         try:
@@ -883,8 +883,8 @@ class SoSCollector(SoSComponent):
                                        local_sudo=local_sudo,
                                        load_facts=can_run_local)
             except Exception as err:
-                self.log_debug("Unable to determine local installation: %s" %
-                               err)
+                self.log_debug("Unable to determine local installation: "
+                               f"{err}")
                 self.exit('Unable to determine local installation. Use the '
                           '--no-local option if localhost should not be '
                           'included.\nAborting...\n', 1)
@@ -923,8 +923,9 @@ class SoSCollector(SoSComponent):
             self.cluster.setup()
             if self.cluster.cluster_ssh_key:
                 if not self.opts.ssh_key:
-                    self.log_debug("Updating SSH key to %s per cluster"
-                                   % self.cluster.cluster_ssh_key)
+                    self.log_debug(
+                        f"Updating SSH key to {self.cluster.cluster_ssh_key} "
+                        "per cluster")
                     self.opts.ssh_key = self.cluster.cluster_ssh_key
 
         self.get_nodes()
@@ -932,9 +933,9 @@ class SoSCollector(SoSComponent):
             gname = self.opts.save_group
             try:
                 fname = self.write_host_group()
-                self.log_info("Wrote group '%s' to %s" % (gname, fname))
+                self.log_info(f"Wrote group '{gname}' to {fname}")
             except Exception as err:
-                self.log_error("Could not save group %s: %s" % (gname, err))
+                self.log_error(f"Could not save group {gname}: {err}")
 
     def display_nodes(self):
         """Prints a list of nodes to collect from, if available. If no nodes
@@ -950,11 +951,12 @@ class SoSCollector(SoSComponent):
         if self.primary.connected and self.primary.hostname is not None:
             if not ((self.primary.local and self.opts.no_local)
                     or self.cluster.strict_node_list):
-                self.ui_log.info('\t%-*s' % (self.commons['hostlen'],
-                                             self.primary.hostname))
+                self.ui_log.info(
+                    f"\t{self.primary.hostname:<{self.commons['hostlen']}}"
+                )
 
         for node in sorted(self.node_list):
-            self.ui_log.info("\t%-*s" % (self.commons['hostlen'], node))
+            self.ui_log.info(f"\t{node:<{self.commons['hostlen']}}")
 
         self.ui_log.info('')
         if not self.opts.batch:
@@ -1004,10 +1006,10 @@ class SoSCollector(SoSComponent):
         """
         try:
             self.primary = SosNode(self.opts.primary, self.commons)
-            self.ui_log.info('Connected to %s, determining cluster type...'
-                             % self.opts.primary)
+            self.ui_log.info(f'Connected to {self.opts.primary}, determining '
+                             'cluster type...')
         except Exception as e:
-            self.log_debug('Failed to connect to primary node: %s' % e)
+            self.log_debug(f'Failed to connect to primary node: {e}')
             self.exit('Could not connect to primary node. Aborting...', 1)
 
     def determine_cluster(self):
@@ -1025,34 +1027,33 @@ class SoSCollector(SoSComponent):
             cluster.primary = self.primary
             if cluster.check_enabled():
                 cname = cluster.__class__.__name__
-                self.log_debug("Installation matches %s, checking for layered "
-                               "profiles" % cname)
+                self.log_debug(f"Installation matches {cname}, checking for "
+                               "layered profiles")
                 for remaining in checks:
                     if issubclass(remaining.__class__, cluster.__class__):
                         rname = remaining.__class__.__name__
-                        self.log_debug("Layered profile %s found. "
-                                       "Checking installation"
-                                       % rname)
+                        self.log_debug(f"Layered profile {rname} found. "
+                                       "Checking installation")
                         remaining.primary = self.primary
                         if remaining.check_enabled():
                             self.log_debug("Installation matches both layered "
-                                           "profile %s and base profile %s, "
-                                           "setting cluster type to layered "
-                                           "profile" % (rname, cname))
+                                           f"profile {rname} and base profile "
+                                           f"{cname}, setting cluster type to "
+                                           "layered profile")
                             cluster = remaining
                             break
                 self.cluster = cluster
                 self.cluster_type = cluster.name()
                 self.commons['cluster'] = self.cluster
                 self.ui_log.info(
-                    'Cluster type set to %s' % self.cluster_type)
+                    f'Cluster type set to {self.cluster_type}')
                 break
 
     def get_nodes_from_cluster(self):
         """Collects the list of nodes from the determined cluster cluster"""
         if self.cluster_type:
             nodes = self.cluster._get_nodes()
-            self.log_debug('Node list: %s' % nodes)
+            self.log_debug(f'Node list: {nodes}')
             return nodes
         return []
 
@@ -1072,7 +1073,7 @@ class SoSCollector(SoSComponent):
                 if n == self.primary.hostname or n == self.opts.primary:
                     self.node_list.remove(n)
         self.node_list = list(set(n for n in self.node_list if n))
-        self.log_debug('Node list reduced to %s' % self.node_list)
+        self.log_debug(f'Node list reduced to {self.node_list}')
         self.collect_md.add_list('node_list', self.node_list)
 
     def compare_node_to_regex(self, node):
@@ -1105,7 +1106,7 @@ class SoSCollector(SoSComponent):
             else:
                 self.node_list = nodes
         except Exception as e:
-            self.log_debug("Error parsing node list: %s" % e)
+            self.log_debug(f"Error parsing node list: {e}")
             self.log_debug('Setting node list to --nodes option')
             self.node_list = self.opts.nodes
             for node in self.node_list:
@@ -1118,7 +1119,7 @@ class SoSCollector(SoSComponent):
                 if any(i in node for i in '*\\?()/[]'):
                     continue
                 if node not in self.node_list:
-                    self.log_debug("Force adding %s to node list" % node)
+                    self.log_debug(f"Force adding {node} to node list")
                     self.node_list.append(node)
 
         if not self.primary:
@@ -1177,7 +1178,7 @@ organization before being passed to any third party.
 No configuration changes will be made to the system running \
 this utility or remote systems that it connects to.
 """)
-        self.ui_log.info("\nsos-collector (version %s)\n" % __version__)
+        self.ui_log.info(f"\nsos-collector (version {__version__})\n")
         intro_msg = self._fmt_msg(disclaimer % self.tmpdir)
         self.ui_log.info(intro_msg)
 
@@ -1230,8 +1231,8 @@ this utility or remote systems that it connects to.
         if self.opts.password_per_node:
             _nodes = []
             for node in nodes:
-                msg = ("Please enter the password for %s@%s: "
-                       % (self.opts.ssh_user, node[0]))
+                msg = (f"Please enter the password for {self.opts.ssh_user}@"
+                       f"{node[0]}: ")
                 node_pwd = getpass(msg)
                 _nodes.append((node[0], node_pwd))
             nodes = _nodes
@@ -1259,10 +1260,9 @@ this utility or remote systems that it connects to.
                         "Aborting...", 1
                     )
 
-            self.ui_log.info("\nBeginning collection of sosreports from %s "
-                             "nodes, collecting a maximum of %s "
-                             "concurrently\n"
-                             % (self.report_num, self.opts.jobs))
+            self.ui_log.info("\nBeginning collection of sosreports from "
+                             f"{self.report_num} nodes, collecting a maximum "
+                             f"of {self.opts.jobs} concurrently\n")
 
             npool = ThreadPoolExecutor(self.opts.jobs)
             npool.map(self._finalize_sos_cmd, self.client_list, chunksize=1)
@@ -1274,7 +1274,7 @@ this utility or remote systems that it connects to.
         except KeyboardInterrupt:
             self.exit("Exiting on user cancel\n", 130, force=True)
         except Exception as err:
-            msg = 'Could not connect to nodes: %s' % err
+            msg = f'Could not connect to nodes: {err}'
             self.exit(msg, 1, force=True)
 
         if hasattr(self.cluster, 'run_extra_cmd'):
@@ -1297,7 +1297,7 @@ this utility or remote systems that it connects to.
                 self.policy.upload_archive(arc_name)
                 self.ui_log.info("Uploaded archive successfully")
             except Exception as err:
-                self.ui_log.error("Upload attempt failed: %s" % err)
+                self.ui_log.error(f"Upload attempt failed: {err}")
 
     def _finalize_sos_cmd(self, client):
         """Calls finalize_sos_cmd() on each node so that we have the final
@@ -1306,8 +1306,8 @@ this utility or remote systems that it connects to.
         try:
             client.finalize_sos_cmd()
         except Exception as err:
-            self.log_error("Could not finalize sos command for %s: %s"
-                           % (client.address, err))
+            self.log_error("Could not finalize sos command for "
+                           f"{client.address}: {err}")
 
     def _collect(self, client):
         """Runs sosreport on each node"""
@@ -1320,13 +1320,13 @@ this utility or remote systems that it connects to.
             if client.retrieved:
                 self.retrieved += 1
         except Exception as err:
-            self.log_error("Error running sosreport: %s" % err)
+            self.log_error(f"Error running sosreport: {err}")
 
     def close_all_connections(self):
         """Close all sessions for nodes"""
         for client in self.client_list:
             if client.connected:
-                self.log_debug('Closing connection to %s' % client.address)
+                self.log_debug(f'Closing connection to {client.address}')
                 client.disconnect()
 
     def create_cluster_archive(self):
@@ -1355,8 +1355,7 @@ this utility or remote systems that it connects to.
                 map_file, arc_paths = cleaner.execute()
                 do_clean = True
             except Exception as err:
-                self.ui_log.error("ERROR: unable to obfuscate reports: %s"
-                                  % err)
+                self.ui_log.error(f"ERROR: unable to obfuscate reports: {err}")
 
         try:
             self.log_info('Creating archive of sosreports...')
@@ -1411,18 +1410,18 @@ this utility or remote systems that it connects to.
                 # the temp dir it was constructed in
                 map_name = cleaner.obfuscate_string(
                     os.path.join(self.sys_tmp,
-                                 "%s_private_map" % self.archive_name)
+                                 f"{self.archive_name}_private_map")
                 )
                 os.rename(map_file, map_name)
                 self.ui_log.info("A mapping of obfuscated elements is "
-                                 "available at\n\t%s" % map_name)
+                                 f"available at\n\t{map_name}")
 
-            self.soslog.info('Archive created as %s' % final_name)
+            self.soslog.info(f'Archive created as {final_name}')
             self.ui_log.info('\nThe following archive has been created. '
                              'Please provide it to your support team.')
-            self.ui_log.info('\t%s\n' % final_name)
+            self.ui_log.info(f'\t{final_name}\n')
             return final_name
         except Exception as err:
-            msg = ("Could not finalize archive: %s\n\nData may still be "
-                   "available uncompressed at %s" % (err, self.archive_path))
+            msg = (f"Could not finalize archive: {err}\n\nData may still be "
+                   f"available uncompressed at {self.archive_path}")
             self.exit(msg, 2)

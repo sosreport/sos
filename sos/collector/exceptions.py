@@ -47,8 +47,8 @@ class ConnectionException(Exception):
     """Raised when an attempt to connect fails"""
 
     def __init__(self, address='', port=''):
-        message = ("Could not connect to host %s on specified port %s"
-                   % (address, port))
+        message = (f"Could not connect to host {address} on specified port "
+                   f"{port}")
         super(ConnectionException, self).__init__(message)
 
 
@@ -58,7 +58,7 @@ class CommandTimeoutException(Exception):
     def __init__(self, command=None):
         message = 'Timeout expired'
         if command:
-            message += " executing %s" % command
+            message += f" executing {command}"
         super(CommandTimeoutException, self).__init__(message)
 
 
@@ -74,7 +74,7 @@ class ControlSocketMissingException(Exception):
     """Raised when the SSH control socket is missing"""
 
     def __init__(self, path=''):
-        message = "SSH control socket %s does not exist" % path
+        message = f"SSH control socket {path} does not exist"
         super(ControlSocketMissingException, self).__init__(message)
 
 
@@ -99,8 +99,8 @@ class InvalidTransportException(Exception):
     not supported locally"""
 
     def __init__(self, transport=None):
-        message = ("Connection failed: unknown or unsupported transport %s"
-                   % transport if transport else '')
+        message = ("Connection failed: unknown or unsupported transport "
+                   f"{transport if transport else ''}")
         super(InvalidTransportException, self).__init__(message)
 
 

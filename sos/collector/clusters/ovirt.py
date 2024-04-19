@@ -62,7 +62,7 @@ class ovirt(Cluster):
         Wrapper for running DB queries on the manager. Any scrubbing of the
         query should be done _before_ passing the query to this method.
         '''
-        cmd = "%s %s" % (self.db_exec, quote(query))
+        cmd = f"{self.db_exec} {quote(query)}"
         return self.exec_primary_cmd(cmd, need_root=True)
 
     def _sql_scrub(self, val):
@@ -75,8 +75,8 @@ class ovirt(Cluster):
 
         invalid_chars = ['\x00', '\\', '\n', '\r', '\032', '"', '\'']
         if any(x in invalid_chars for x in val):
-            self.log_warn("WARNING: Cluster option \'%s\' contains invalid "
-                          "characters. Using '%%' instead." % val)
+            self.log_warn(f"WARNING: Cluster option \'{val}\' contains invalid"
+                          " characters. Using '%%' instead.")
             return '%'
 
         return val
@@ -109,16 +109,16 @@ class ovirt(Cluster):
         cluster = self._sql_scrub(self.get_option('cluster'))
         datacenter = self._sql_scrub(self.get_option('datacenter'))
         self.dbquery = ("SELECT host_name from vds where cluster_id in "
-                        "(select cluster_id FROM cluster WHERE name like '%s'"
-                        " and storage_pool_id in (SELECT id FROM storage_pool "
-                        "WHERE name like '%s'))" % (cluster, datacenter))
+                        "(select cluster_id FROM cluster WHERE name like "
+                        f"'{cluster}' and storage_pool_id in (SELECT id FROM "
+                        f"storage_pool WHERE name like '{datacenter}'))")
         if self.get_option('spm-only'):
             # spm_status is an integer with the following meanings
             # 0 - Normal (not SPM)
             # 1 - Contending (SPM election in progress, but is not SPM)
             # 2 - SPM
             self.dbquery += ' AND spm_status = 2'
-        self.log_debug('Query command for ovirt DB set to: %s' % self.dbquery)
+        self.log_debug(f'Query command for ovirt DB set to: {self.dbquery}')
 
     def get_nodes(self):
         if self.get_option('no-hypervisors'):
@@ -128,8 +128,8 @@ class ovirt(Cluster):
             nodes = res['output'].splitlines()[2:-1]
             return [n.split('(')[0].strip() for n in nodes]
         else:
-            raise Exception('database query failed, return code: %s'
-                            % res['status'])
+            raise Exception('database query failed, return code: '
+                            f'{res["status"]}')
 
     def run_extra_cmd(self):
         if not self.get_option('no-database') and self.conf:
@@ -139,7 +139,7 @@ class ovirt(Cluster):
     def parse_db_conf(self):
         conf = {}
         engconf = '/etc/ovirt-engine/engine.conf.d/10-setup-database.conf'
-        res = self.exec_primary_cmd('cat %s' % engconf, need_root=True)
+        res = self.exec_primary_cmd(f'cat {engconf}', need_root=True)
         if res['status'] == 0:
             config = res['output'].splitlines()
             for line in config:

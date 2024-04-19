@@ -81,7 +81,7 @@ class SoSOptions():
             vals = [",".join(v) if _is_seq(v) else v for v in vals]
         else:
             # Only quote strings if quote=False
-            vals = ["'%s'" % v if isinstance(v, str) else v for v in vals]
+            vals = [f"'{v}'" if isinstance(v, str) else v for v in vals]
 
         return (args % tuple(vals)).strip(sep) + suffix
 
@@ -143,10 +143,10 @@ class SoSOptions():
         )
         count = ("verbose",)
         if opt in no_value:
-            return ["--%s" % opt]
+            return [f"--{opt}"]
         if opt in count:
-            return ["--%s" % opt for d in range(0, int(val))]
-        return ["--" + opt + "=" + val]
+            return [f"--{opt}" for d in range(0, int(val))]
+        return [f"--{opt}={val}"]
 
     def _convert_to_type(self, key, val, conf):
         """Ensure that the value read from a config file is the proper type
@@ -166,16 +166,15 @@ class SoSOptions():
             val = str_to_bool(val)
             if val is None:
                 raise Exception(
-                    "Value of '%s' in %s must be True or False or analagous"
-                    % (key, conf))
+                    f"Value of '{key}' in {conf} must be True or False or "
+                    "analagous")
             else:
                 return val
         if isinstance(self.arg_defaults[key], int):
             try:
                 return int(val)
             except ValueError:
-                raise Exception("Value of '%s' in %s must be integer"
-                                % (key, conf))
+                raise Exception(f"Value of '{key}' in {conf} must be integer")
         return val
 
     def update_from_conf(self, config_file, component):
@@ -216,8 +215,7 @@ class SoSOptions():
                     if key not in self.arg_defaults:
                         # read an option that is not loaded by the current
                         # SoSComponent
-                        print("Unknown option '%s' in section '%s'"
-                              % (key, section))
+                        print(f"Unknown option '{key}' in section '{section}'")
                         continue
                     val = self._convert_to_type(key, val, config_file)
                     setattr(self, key, val)
@@ -228,15 +226,14 @@ class SoSOptions():
                 with open(config_file) as f:
                     config.read_file(f, config_file)
             except DuplicateOptionError as err:
-                raise exit("Duplicate option '%s' in section '%s' in file %s"
-                           % (err.option, err.section, config_file))
+                raise exit(f"Duplicate option '{err.option}' in section "
+                           f"'{err.section}' in file {config_file}")
             except (ParsingError, Error):
-                raise exit('Failed to parse configuration file %s'
-                           % config_file)
+                raise exit(f'Failed to parse configuration file {config_file}')
         except (OSError, IOError) as e:
             print(
-                'WARNING: Unable to read configuration file %s : %s'
-                % (config_file, e.args[1])
+                f'WARNING: Unable to read configuration file {config_file} : '
+                f'{e.args[1]}'
             )
 
         _update_from_section("global", config)
@@ -323,7 +320,7 @@ class SoSOptions():
             value = ",".join(value) if _is_seq(value) else value
 
             if value is not True:
-                opt = "%s %s" % (name, value)
+                opt = f"{name} {value}"
             else:
                 opt = name
 

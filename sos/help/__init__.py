@@ -76,7 +76,7 @@ class SoSHelper(SoSComponent):
         try:
             klass = self.get_obj_for_topic()
         except Exception as err:
-            print("Could not load help for '%s': %s" % (self.opts.topic, err))
+            print(f"Could not load help for '{self.opts.topic}': {err}")
             sys.exit(1)
 
         if klass:
@@ -85,9 +85,9 @@ class SoSHelper(SoSComponent):
                 klass.display_help(ht)
                 ht.display()
             except Exception as err:
-                print("Error loading help: %s" % err)
+                print(f"Error loading help: {err}")
         else:
-            print("No help section found for '%s'" % self.opts.topic)
+            print(f"No help section found for '{self.opts.topic}'")
 
     def get_obj_for_topic(self):
         """Based on the help topic we're after, try to smartly decide which
@@ -176,22 +176,22 @@ class SoSHelper(SoSComponent):
             'SoS - officially pronounced "ess-oh-ess" - is a diagnostic and '
             'supportability utility used by several Linux distributions as an '
             'easy-to-use tool for standardized data collection. The most known'
-            ' component of which is %s (formerly sosreport) which is used to '
-            'collect troubleshooting information into an archive for review '
-            'by sysadmins or technical support teams.'
-            % bold('sos report')
+            f' component of which is {bold("sos report")} (formerly sosreport)'
+            ' which is used to collect troubleshooting information into an '
+            'archive for review by sysadmins or technical support teams.'
         )
 
         subsect = self_help.add_section('How to search using sos help')
         usage = bold('$component.$topic.$subtopic')
         subsect.add_text(
-            'To get more information on a given topic, use the form \'%s\'.'
-            % usage
+            'To get more information on a given topic, use the form '
+            f'\'{usage}\'.'
         )
 
         rep_ex = bold('sos help report.plugins.kernel')
-        subsect.add_text("For example '%s' will provide more information on "
-                         "the kernel plugin for the report function." % rep_ex)
+        subsect.add_text(f"For example '{rep_ex}' will provide more "
+                         "information on the kernel plugin for the report "
+                         "function.")
 
         avail_help = self_help.add_section('Available Help Sections')
         avail_help.add_text(

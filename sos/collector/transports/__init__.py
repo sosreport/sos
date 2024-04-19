@@ -49,20 +49,20 @@ class RemoteTransport():
     def log_info(self, msg):
         """Used to print and log info messages"""
         caller = inspect.stack()[1][3]
-        lmsg = '[%s:%s] %s' % (self.hostname, caller, msg)
+        lmsg = f'[{self.hostname}:{caller}] {msg}'
         self.soslog.info(lmsg)
 
     def log_error(self, msg):
         """Used to print and log error messages"""
         caller = inspect.stack()[1][3]
-        lmsg = '[%s:%s] %s' % (self.hostname, caller, msg)
+        lmsg = f'[{self.hostname}:{caller}] {msg}'
         self.soslog.error(lmsg)
 
     def log_debug(self, msg):
         """Used to print and log debug messages"""
         msg = self._sanitize_log_msg(msg)
         caller = inspect.stack()[1][3]
-        msg = '[%s:%s] %s' % (self.hostname, caller, msg)
+        msg = f'[{self.hostname}:{caller}] {msg}'
         self.soslog.debug(msg)
 
     @property
@@ -94,8 +94,8 @@ class RemoteTransport():
     def display_help(cls, section):
         if cls is RemoteTransport:
             return cls.display_self_help(section)
-        section.set_title("%s Transport Detailed Help"
-                          % cls.name.title().replace('_', ' '))
+        section.set_title(f"{cls.name.title().replace('_', ' ')} "
+                          "Transport Detailed Help")
         if cls.__doc__ and cls.__doc__ is not RemoteTransport.__doc__:
             section.add_text(cls.__doc__)
         else:
@@ -109,18 +109,17 @@ class RemoteTransport():
         section.set_title('SoS Remote Transport Help')
         section.add_text(
             "\nTransports define how SoS connects to nodes and executes "
-            "commands on them for the purposes of an %s run. Generally, "
-            "this means transports define how commands are wrapped locally "
-            "so that they are executed on the remote node(s) instead."
-            % bold('sos collect')
+            f"commands on them for the purposes of an {bold('sos collect')} "
+            "run. Generally, this means transports define how commands are "
+            "wrapped locally so that they are executed on the remote node(s) "
+            "instead."
         )
 
         section.add_text(
             "Transports are generally selected by the cluster profile loaded "
             "for a given execution, however users may explicitly set one "
-            "using '%s'. Note that not all transports will function for all "
-            "cluster/node types."
-            % bold('--transport=$transport_name')
+            f"using '{bold('--transport=$transport_name')}'. Note that not all"
+            " transports will function for all cluster/node types."
         )
 
         section.add_text(
@@ -131,8 +130,8 @@ class RemoteTransport():
 
         from sos.collector.sosnode import TRANSPORTS
         for transport in TRANSPORTS:
-            _sec = bold("collect.transports.%s" % transport)
-            _desc = "The '%s' transport" % transport.lower()
+            _sec = bold(f"collect.transports.{transport}")
+            _desc = f"The '{transport.lower()}' transport"
             section.add_text(
                 f"{' ':>8}{_sec:<45}{_desc:<30}",
                 newline=False
@@ -153,8 +152,8 @@ class RemoteTransport():
         """Actually perform the connection requirements. Should be overridden
         by specific transports that subclass RemoteTransport
         """
-        raise NotImplementedError("Transport %s does not define connect"
-                                  % self.name)
+        raise NotImplementedError(
+            f"Transport {self.name} does not define connect")
 
     def reconnect(self, password):
         """Attempts to reconnect to the node using the standard connect()
@@ -164,18 +163,17 @@ class RemoteTransport():
         attempts = 1
         last_err = 'unknown'
         while attempts < 5:
-            self.log_debug("Attempting reconnect (#%s) to node" % attempts)
+            self.log_debug(f"Attempting reconnect (#{attempts}) to node")
             try:
                 if self.connect(password):
                     return True
             except Exception as err:
-                self.log_debug("Attempt #%s exception: %s" % (attempts, err))
+                self.log_debug(f"Attempt #{attempts} exception: {err}")
                 last_err = err
             attempts += 1
         self.log_error("Unable to reconnect to node after 5 attempts, "
                        "aborting.")
-        raise ConnectionException("last exception from transport: %s"
-                                  % last_err)
+        raise ConnectionException(f"last exception from transport: {last_err}")
 
     def disconnect(self):
         """Perform whatever steps are necessary, if any, to terminate any
@@ -188,11 +186,11 @@ class RemoteTransport():
                 self.log_error("Unable to successfully disconnect, see log for"
                                " more details")
         except Exception as err:
-            self.log_error("Failed to disconnect: %s" % err)
+            self.log_error(f"Failed to disconnect: {err}")
 
     def _disconnect(self):
-        raise NotImplementedError("Transport %s does not define disconnect"
-                                  % self.name)
+        raise NotImplementedError(
+            f"Transport {self.name} does not define disconnect")
 
     @property
     def _need_shell(self):
@@ -227,10 +225,10 @@ class RemoteTransport():
         :returns:           Output of ``cmd`` and the exit code
         :rtype:             ``dict`` with keys ``output`` and ``status``
         """
-        self.log_debug('Running command %s' % cmd)
+        self.log_debug(f'Running command {cmd}')
         if (use_shell is True or
                 (self._need_shell if use_shell == 'auto' else False)):
-            cmd = "/bin/bash -c %s" % quote(cmd)
+            cmd = f"/bin/bash -c {quote(cmd)}"
             self.log_debug(f"Shell requested, command is now {cmd}")
         # currently we only use/support the use of pexpect for handling the
         # execution of these commands, as opposed to directly invoking
@@ -252,7 +250,7 @@ class RemoteTransport():
                         transport
         :rtype:         ``str``
         """
-        cmd = "%s %s" % (self.remote_exec, quote(cmd))
+        cmd = f"{self.remote_exec} {quote(cmd)}"
         cmd = cmd.lstrip()
         return cmd
 
@@ -350,7 +348,7 @@ class RemoteTransport():
 
         if not self._hostname:
             self._hostname = self.address
-        self.log_info("Hostname set to %s" % self._hostname)
+        self.log_info(f"Hostname set to {self._hostname}")
         return self._hostname
 
     def retrieve_file(self, fname, dest):
@@ -372,17 +370,17 @@ class RemoteTransport():
                 ret = self._retrieve_file(fname, dest)
                 if ret:
                     return True
-                self.log_info("File retrieval attempt %s failed" % attempts)
+                self.log_info(f"File retrieval attempt {attempts} failed")
             self.log_info("File retrieval failed after 5 attempts")
             return False
         except Exception as err:
-            self.log_error("Exception encountered during retrieval attempt %s "
-                           "for %s: %s" % (attempts, fname, err))
+            self.log_error("Exception encountered during retrieval attempt "
+                           f"{attempts} for {fname}: {err}")
             raise err
 
     def _retrieve_file(self, fname, dest):
-        raise NotImplementedError("Transport %s does not support file copying"
-                                  % self.name)
+        raise NotImplementedError(
+            f"Transport {self.name} does not support file copying")
 
     def read_file(self, fname):
         """Read the given file fname and return its contents
@@ -393,20 +391,19 @@ class RemoteTransport():
         :returns:   The content of the file
         :rtype:     ``str``
         """
-        self.log_debug("Reading file %s" % fname)
+        self.log_debug(f"Reading file {fname}")
         return self._read_file(fname)
 
     def _read_file(self, fname):
-        res = self.run_command("cat %s" % fname, timeout=10)
+        res = self.run_command(f"cat {fname}", timeout=10)
         if res['status'] == 0:
             return res['output']
         else:
             if 'No such file' in res['output']:
-                self.log_debug("File %s does not exist on node"
-                               % fname)
+                self.log_debug(f"File {fname} does not exist on node")
             else:
-                self.log_error("Error reading %s: %s" %
-                               (fname, res['output'].split(':')[1:]))
+                self.log_error(f"Error reading {fname}: "
+                               f"{res['output'].split(':')[1:]}")
             return ''
 
 # vim: set et ts=4 sw=4 :

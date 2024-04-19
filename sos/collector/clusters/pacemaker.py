@@ -36,21 +36,21 @@ class pacemaker(Cluster):
                     self.get_nodes_from_crm()
                 except Exception as err:
                     self.log_warn("Falling back to sourcing corosync.conf. "
-                                  "Could not parse crm_mon output: %s" % err)
+                                  f"Could not parse crm_mon output: {err}")
             if not self.nodes:
                 # fallback to corosync.conf, in case the node we're inspecting
                 # is offline from the cluster
                 self.get_nodes_from_corosync()
         except Exception as err:
-            self.log_error("Could not determine nodes from cluster: %s" % err)
+            self.log_error(f"Could not determine nodes from cluster: {err}")
 
         _shorts = [n for n in self.nodes if '.' not in n]
         if _shorts:
             self.log_warn(
-                "WARNING: Node addresses '%s' may not resolve locally if you "
-                "are not running on a node in the cluster. Try using option "
-                "'-c pacemaker.only-corosync' if these connections fail."
-                % ','.join(_shorts)
+                f"WARNING: Node addresses '{','.join(_shorts)}' may not "
+                "resolve locally if you are not running on a node in the "
+                "cluster. Try using option '-c pacemaker.only-corosync' if "
+                "these connections fail."
             )
         return self.nodes
 
@@ -68,7 +68,7 @@ class pacemaker(Cluster):
         else:
             return
         _out = self.exec_primary_cmd(
-            "crm_mon --one-shot --inactive %s" % xmlopt,
+            f"crm_mon --one-shot --inactive {xmlopt}",
             need_root=True
         )
         if _out['status'] == 0:

@@ -91,19 +91,19 @@ class ocp(Cluster):
                         "Unable to to determine PATH for 'oc' command, "
                         "node enumeration may fail."
                     )
-                    self.log_debug("Locating 'oc' failed: %s"
-                                   % _oc_path['output'])
+                    self.log_debug(
+                        f"Locating 'oc' failed: {_oc_path['output']}")
             if self.get_option('kubeconfig'):
                 self._oc_cmd += " --kubeconfig " \
                         f"{self.get_option('kubeconfig')}"
-            self.log_debug("oc base command set to %s" % self._oc_cmd)
+            self.log_debug(f"oc base command set to {self._oc_cmd}")
         return self._oc_cmd
 
     def fmt_oc_cmd(self, cmd):
         """Format the oc command to optionall include the kubeconfig file if
         one is specified
         """
-        return "%s %s" % (self.oc_cmd, cmd)
+        return f"{self.oc_cmd} {cmd}"
 
     def _attempt_oc_login(self):
         """Attempt to login to the API using the oc command using a provided
@@ -140,15 +140,15 @@ class ocp(Cluster):
             raise Exception("Insufficient permissions to create temporary "
                             "collection project.\nAborting...")
 
-        self.log_info("Creating new temporary project '%s'" % self.project)
+        self.log_info(f"Creating new temporary project '{self.project}'")
         ret = self.exec_primary_cmd(
-            self.fmt_oc_cmd("new-project %s" % self.project)
+            self.fmt_oc_cmd(f"new-project {self.project}")
         )
         if ret['status'] == 0:
             self._label_sos_project()
             return True
 
-        self.log_debug("Failed to create project: %s" % ret['output'])
+        self.log_debug(f"Failed to create project: {ret['output']}")
         raise Exception("Failed to create temporary project for collection. "
                         "\nAborting...")
 
@@ -257,7 +257,7 @@ class ocp(Cluster):
         cmd = 'get nodes -o wide'
         if self.get_option('label'):
             labels = ','.join(self.get_option('label').split(':'))
-            cmd += " -l %s" % quote(labels)
+            cmd += f" -l {quote(labels)}"
         res = self.exec_primary_cmd(self.fmt_oc_cmd(cmd))
         if res['status'] == 0:
             if self.get_option('role') == 'master':
@@ -318,7 +318,7 @@ class ocp(Cluster):
         else:
             _opt = 'no-oc'
             _val = 'off' if use_api else 'on'
-        node.plugopts.append("openshift.%s=%s" % (_opt, _val))
+        node.plugopts.append(f"openshift.{_opt}={_val}")
 
     def set_primary_options(self, node):
 
@@ -351,7 +351,7 @@ class ocp(Cluster):
                 # cannot do remotely
                 if node.file_exists('/root/.kube/config', need_root=True):
                     _oc_cmd += ' --kubeconfig /host/root/.kube/config'
-            can_oc = node.run_command("%s whoami" % _oc_cmd,
+            can_oc = node.run_command(f"{_oc_cmd} whoami",
                                       use_container=node.host.containerized,
                                       # container is available only to root
                                       # and if rhel, need to run sos as root
@@ -370,14 +370,14 @@ class ocp(Cluster):
                 # if the with-api option is turned on
                 if not _kubeconfig == master_kube:
                     node.plugopts.append(
-                        "openshift.kubeconfig=%s" % _kubeconfig
+                        f"openshift.kubeconfig={_kubeconfig}"
                     )
                 self._toggle_api_opt(node, True)
                 self.api_collect_enabled = True
             if self.api_collect_enabled:
-                msg = ("API collections will be performed on %s\nNote: API "
-                       "collections may extend runtime by 10s of minutes\n"
-                       % node.address)
+                msg = (f"API collections will be performed on {node.address}\n"
+                       "Note: API collections may extend runtime by 10s of "
+                       "minutes\n")
                 self.soslog.info(msg)
                 self.ui_log.info(msg)
 

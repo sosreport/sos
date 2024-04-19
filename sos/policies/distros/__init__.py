@@ -161,7 +161,7 @@ class LinuxPolicy(Policy):
         if cls == LinuxPolicy:
             cls.display_self_help(section)
         else:
-            section.set_title("%s Distribution Policy" % cls.distro)
+            section.set_title(f"{cls.distro} Distribution Policy")
             cls.display_distro_help(section)
 
     @classmethod
@@ -186,14 +186,14 @@ class LinuxPolicy(Policy):
         # information like $PATH and loaded presets
         _pol = cls(None, None, False)
         section.add_text(
-            "Default --upload location: %s" % _pol._upload_url
+            f"Default --upload location: {_pol._upload_url}"
         )
         section.add_text(
-            "Default container runtime: %s" % _pol.default_container_runtime,
+            f"Default container runtime: {_pol.default_container_runtime}",
             newline=False
         )
         section.add_text(
-            "$PATH used when running report: %s" % _pol.PATH,
+            f"$PATH used when running report: {_pol.PATH}",
             newline=False
         )
 
@@ -249,7 +249,7 @@ class LinuxPolicy(Policy):
 
         # next, include kernel builtins
         builtins = self.join_sysroot(
-            "/usr/lib/modules/%s/modules.builtin" % release
+            f"/usr/lib/modules/{release}/modules.builtin"
         )
         try:
             with open(builtins, "r") as mfile:
@@ -267,7 +267,7 @@ class LinuxPolicy(Policy):
             'dm_mod': 'CONFIG_BLK_DEV_DM'
         }
 
-        booted_config = self.join_sysroot("/boot/config-%s" % release)
+        booted_config = self.join_sysroot(f"/boot/config-{release}")
         kconfigs = []
         try:
             with open(booted_config, "r") as kfile:
@@ -436,7 +436,7 @@ class LinuxPolicy(Policy):
         be provided or not
         """
         if not self.get_upload_user():
-            msg = "Please provide upload user for %s: " % self.get_upload_url()
+            msg = f"Please provide upload user for {self.get_upload_url()}: "
             self.upload_user = input(_(msg))
 
     def prompt_for_upload_password(self):
@@ -445,8 +445,8 @@ class LinuxPolicy(Policy):
         """
         if not self.get_upload_password() and (self.get_upload_user() !=
                                                self._upload_user):
-            msg = ("Please provide the upload password for %s: "
-                   % self.get_upload_user())
+            msg = ("Please provide the upload password for "
+                   f"{self.get_upload_user()}: ")
             self.upload_password = getpass(msg)
 
     def upload_archive(self, archive):
@@ -524,7 +524,7 @@ class LinuxPolicy(Policy):
             raise Exception("Must provide protocol in upload URL")
         prot, url = self.upload_url.split('://')
         if prot not in prots.keys():
-            raise Exception("Unsupported or unrecognized protocol: %s" % prot)
+            raise Exception(f"Unsupported or unrecognized protocol: {prot}")
         return prots[prot]
 
     def get_upload_https_auth(self, user=None, password=None):
@@ -693,7 +693,7 @@ class LinuxPolicy(Policy):
 
         # need to strip the protocol prefix here
         sftp_url = self.get_upload_url().replace('sftp://', '')
-        sftp_cmd = "sftp -oStrictHostKeyChecking=no %s@%s" % (user, sftp_url)
+        sftp_cmd = f"sftp -oStrictHostKeyChecking=no {user}@{sftp_url}"
         ret = pexpect.spawn(sftp_cmd, encoding='utf-8')
 
         sftp_expects = [
@@ -719,25 +719,25 @@ class LinuxPolicy(Policy):
             sftp_connected = ret.expect(pass_expects, timeout=10) == 0
             if not sftp_connected:
                 ret.close()
-                raise Exception("Incorrect username or password for %s"
-                                % self.get_upload_url_string())
+                raise Exception("Incorrect username or password for "
+                                f"{self.get_upload_url_string()}")
         elif idx == 2:
-            raise Exception("Connection refused by %s. Incorrect port?"
-                            % self.get_upload_url_string())
+            raise Exception("Connection refused by "
+                            f"{self.get_upload_url_string()}. Incorrect port?")
         elif idx == 3:
-            raise Exception("Timeout hit trying to connect to %s"
-                            % self.get_upload_url_string())
+            raise Exception("Timeout hit trying to connect to "
+                            f"{self.get_upload_url_string()}")
         elif idx == 4:
-            raise Exception("Unexpected error trying to connect to sftp: %s"
-                            % ret.before)
+            raise Exception("Unexpected error trying to connect to sftp: "
+                            f"{ret.before}")
 
         if not sftp_connected:
             ret.close()
-            raise Exception("Unable to connect via SFTP to %s"
-                            % self.get_upload_url_string())
+            raise Exception("Unable to connect via SFTP to "
+                            f"{self.get_upload_url_string()}")
 
-        put_cmd = 'put %s %s' % (self.upload_archive_name,
-                                 self._get_sftp_upload_name())
+        put_cmd = (f'put {self.upload_archive_name} '
+                   f'{self._get_sftp_upload_name()}')
         ret.sendline(put_cmd)
 
         put_expects = [
@@ -755,11 +755,11 @@ class LinuxPolicy(Policy):
         elif put_success == 1:
             raise Exception("Timeout expired while uploading")
         elif put_success == 2:
-            raise Exception("Unknown error during upload: %s" % ret.before)
+            raise Exception(f"Unknown error during upload: {ret.before}")
         elif put_success == 3:
             raise Exception("Unable to write archive to destination")
         else:
-            raise Exception("Unexpected response from server: %s" % ret.before)
+            raise Exception(f"Unexpected response from server: {ret.before}")
 
     def _get_sftp_upload_name(self):
         """If a specific file name pattern is required by the SFTP server,
@@ -832,8 +832,8 @@ class LinuxPolicy(Policy):
                     raise Exception(
                         "Authentication failed: invalid user credentials"
                     )
-                raise Exception("POST request returned %s: %s"
-                                % (r.status_code, r.reason))
+                raise Exception(f"POST request returned {r.status_code}: "
+                                f"{r.reason}")
             return True
 
     def upload_ftp(self, url=None, directory=None, user=None, password=None):
@@ -889,25 +889,24 @@ class LinuxPolicy(Policy):
                                 "password?")
             session.cwd(directory)
         except socket.timeout:
-            raise Exception("timeout hit while connecting to %s" % url)
+            raise Exception(f"timeout hit while connecting to {url}")
         except socket.gaierror:
-            raise Exception("unable to connect to %s" % url)
+            raise Exception(f"unable to connect to {url}")
         except ftplib.error_perm as err:
             errno = str(err).split()[0]
             if errno == '503':
-                raise Exception("could not login as '%s'" % user)
+                raise Exception(f"could not login as '{user}'")
             if errno == '530':
-                raise Exception("invalid password for user '%s'" % user)
+                raise Exception(f"invalid password for user '{user}'")
             if errno == '550':
-                raise Exception("could not set upload directory to %s"
-                                % directory)
-            raise Exception("error trying to establish session: %s"
-                            % str(err))
+                raise Exception("could not set upload directory to "
+                                f"{directory}")
+            raise Exception(f"error trying to establish session: {str(err)}")
 
         try:
             with open(self.upload_archive_name, 'rb') as _arcfile:
                 session.storbinary(
-                    "STOR %s" % self.upload_archive_name.split('/')[-1],
+                    f"STOR {self.upload_archive_name.split('/')[-1]}",
                     _arcfile
                 )
             session.quit()
@@ -1027,8 +1026,7 @@ class LinuxPolicy(Policy):
         default to opening a bash shell in the container to keep it running,
         thus allowing us to exec into it again.
         """
-        return "%s start %s" % (self.container_runtime,
-                                self.sos_container_name)
+        return f"{self.container_runtime} start {self.sos_container_name}"
 
     def format_container_command(self, cmd):
         """Returns the command that allows us to exec into the created
@@ -1041,9 +1039,8 @@ class LinuxPolicy(Policy):
         :rtype: ``str``
         """
         if self.container_runtime:
-            return '%s exec %s %s' % (self.container_runtime,
-                                      self.sos_container_name,
-                                      cmd)
+            return (f'{self.container_runtime} exec {self.sos_container_name} '
+                    f'{cmd}')
         else:
             return cmd
 
