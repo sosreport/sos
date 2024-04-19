@@ -243,7 +243,7 @@ class ocp(Cluster):
             return 'oc'
         self.log_info("Local installation of 'oc' not found or is not "
                       "correctly configured. Will use ControlPersist.")
-        self.ui_log.warn(
+        self.ui_log.warning(
             "Preferred transport 'oc' not available, will fallback to SSH."
         )
         if not self.opts.batch:
