@@ -22,6 +22,7 @@ class AAPreceptorPlugin(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/receptor",
+            "/tmp/receptor/*/status",
             "/var/lib/receptor",
         ])
 
