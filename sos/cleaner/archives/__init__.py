@@ -292,6 +292,7 @@ class SoSObfuscationArchive():
             else:
                 shutil.rmtree(name)
         self.log_debug("Removing %s" % self.extracted_path)
+        # pylint: disable-next=deprecated-argument
         shutil.rmtree(self.extracted_path, onerror=force_delete_file)
 
     def extract_self(self):
