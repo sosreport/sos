@@ -45,7 +45,7 @@ def add_valid_item(dest, item):
 # method to find in `plugcontent` all items of given method (a_c_s/a_c_o/..)
 # split by comma; add each valid item to the `dest` list
 def add_all_items(method, dest, wrapopen=r'\(', wrapclose=r'\)'):
-    regexp = "%s%s(.*?)%s" % (method, wrapopen, wrapclose)
+    regexp = f"{method}{wrapopen}(.*?){wrapclose}"
     for match in re.findall(regexp, plugcontent, flags=re.MULTILINE | re.DOTALL):
         # tuple of distros ended by either (class|from|import)
         if isinstance(match, tuple):

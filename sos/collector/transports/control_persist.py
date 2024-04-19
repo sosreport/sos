@@ -95,24 +95,20 @@ class SSHControlPersist(RemoteTransport):
                            "Please update your OpenSSH installation.")
             raise
         self.log_info('Opening SSH session to create control socket')
-        self.control_path = ("%s/.sos-collector-%s" % (self.tmpdir,
-                                                       self.address))
+        self.control_path = (f"{self.tmpdir}/.sos-collector-{self.address}")
         self.ssh_cmd = ''
         connected = False
         ssh_key = ''
         ssh_port = ''
         if self.opts.ssh_port != 22:
-            ssh_port = "-p%s " % self.opts.ssh_port
+            ssh_port = f"-p{self.opts.ssh_port} "
         if self.opts.ssh_key:
-            ssh_key = "-i%s" % self.opts.ssh_key
+            ssh_key = f"-i{self.opts.ssh_key}"
 
-        cmd = ("ssh %s %s -oControlPersist=600 -oControlMaster=auto "
-               "-oStrictHostKeyChecking=no -oControlPath=%s %s@%s "
-               "\"echo Connected\"" % (ssh_key,
-                                       ssh_port,
-                                       self.control_path,
-                                       self.opts.ssh_user,
-                                       self.address))
+        cmd = (f"ssh {ssh_key} {ssh_port} -oControlPersist=600 "
+               "-oControlMaster=auto -oStrictHostKeyChecking=no "
+               f"-oControlPath={self.control_path} {self.opts.ssh_user}@"
+               f"{self.address} \"echo Connected\"")
         res = pexpect.spawn(cmd, encoding='utf-8')
 
         connect_expects = [
@@ -157,12 +153,12 @@ class SSHControlPersist(RemoteTransport):
         elif index == 5:
             raise ConnectionTimeoutException
         else:
-            raise Exception("Unknown error, client returned %s" % res.before)
+            raise Exception(f"Unknown error, client returned {res.before}")
         if connected:
             if not os.path.exists(self.control_path):
                 raise ControlSocketMissingException
-            self.log_debug("Successfully created control socket at %s"
-                           % self.control_path)
+            self.log_debug("Successfully created control socket at "
+                           f"{self.control_path}")
             return True
         return False
 
@@ -172,7 +168,7 @@ class SSHControlPersist(RemoteTransport):
                 os.remove(self.control_path)
                 return True
             except Exception as err:
-                self.log_debug("Could not disconnect properly: %s" % err)
+                self.log_debug(f"Could not disconnect properly: {err}")
                 return False
         self.log_debug("Control socket not present when attempting to "
                        "terminate session")
@@ -193,15 +189,13 @@ class SSHControlPersist(RemoteTransport):
     @property
     def remote_exec(self):
         if not self.ssh_cmd:
-            self.ssh_cmd = "ssh -oControlPath=%s %s@%s" % (
-                self.control_path, self.opts.ssh_user, self.address
-            )
+            self.ssh_cmd = (f"ssh -oControlPath={self.control_path} "
+                            f"{self.opts.ssh_user}@{self.address}")
         return self.ssh_cmd
 
     def _retrieve_file(self, fname, dest):
-        cmd = "/usr/bin/scp -oControlPath=%s %s@%s:%s %s" % (
-            self.control_path, self.opts.ssh_user, self.address, fname, dest
-        )
+        cmd = (f"/usr/bin/scp -oControlPath={self.control_path} "
+               f"{self.opts.ssh_user}@{self.address}:{fname} {dest}")
         res = sos_get_command_output(cmd)
         return res['status'] == 0
 

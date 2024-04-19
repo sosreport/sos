@@ -141,11 +141,10 @@ class SoSCleaner(SoSComponent):
             for _loaded in self.parsers:
                 _loaded_name = _loaded.name.lower().split('parser')[0].strip()
                 if _parser.lower().strip() == _loaded_name:
-                    self.log_info("Disabling parser: %s" % _loaded_name)
+                    self.log_info(f"Disabling parser: {_loaded_name}")
                     self.ui_log.warning(
-                        "Disabling the '%s' parser. Be aware that this may "
-                        "leave sensitive plain-text data in the archive."
-                        % _parser
+                        f"Disabling the '{_parser}' parser. Be aware that this"
+                        " may leave sensitive plain-text data in the archive."
                     )
                     self.parsers.remove(_loaded)
 
@@ -161,11 +160,11 @@ class SoSCleaner(SoSComponent):
         ]
         self.nested_archive = None
 
-        self.log_info("Cleaner initialized. From cmdline: %s"
-                      % self.from_cmdline)
+        self.log_info(
+            f"Cleaner initialized. From cmdline: {self.from_cmdline}")
 
     def _fmt_log_msg(self, msg, caller=None):
-        return "[cleaner%s] %s" % (":%s" % caller if caller else '', msg)
+        return f"[cleaner{f':{caller}' if caller else ''}] {msg}"
 
     def log_debug(self, msg, caller=None):
         self.soslog.debug(self._fmt_log_msg(msg, caller))
@@ -197,13 +196,13 @@ class SoSCleaner(SoSComponent):
         _conf = {}
         default_map = '/etc/sos/cleaner/default_mapping'
         if os.path.isdir(self.opts.map_file):
-            raise Exception("Requested map file %s is a directory"
-                            % self.opts.map_file)
+            raise Exception(f"Requested map file {self.opts.map_file} is a "
+                            "directory")
         if not os.path.exists(self.opts.map_file):
             if self.opts.map_file != default_map:
                 self.log_error(
-                    "ERROR: map file %s does not exist, will not load any "
-                    "obfuscation matches" % self.opts.map_file)
+                    f"ERROR: map file {self.opts.map_file} does not exist, "
+                    "will not load any obfuscation matches")
         else:
             with open(self.opts.map_file, 'r') as mf:
                 try:
@@ -212,8 +211,8 @@ class SoSCleaner(SoSComponent):
                     self.log_error("ERROR: Unable to parse map file, json is "
                                    "malformed. Will not load any mappings.")
                 except Exception as err:
-                    self.log_error("ERROR: Could not load '%s': %s"
-                                   % (self.opts.map_file, err))
+                    self.log_error("ERROR: Could not load "
+                                   f"'{self.opts.map_file}': {err}")
         return _conf
 
     def print_disclaimer(self):
@@ -234,7 +233,7 @@ Users should review any resulting data and/or archives generated or processed \
 by this utility for remaining sensitive content before being passed to a \
 third party.
 """)
-        self.ui_log.info("\nsos clean (version %s)\n" % __version__)
+        self.ui_log.info(f"\nsos clean (version {__version__})\n")
         self.ui_log.info(msg)
         if not self.opts.batch:
             try:
@@ -362,8 +361,8 @@ third party.
             self.print_disclaimer()
         self.report_paths = []
         if not os.path.exists(self.opts.target):
-            self.ui_log.error("Invalid target: no such file or directory %s"
-                              % self.opts.target)
+            self.ui_log.error("Invalid target: no such file or directory "
+                              f"{self.opts.target}")
             self._exit(1)
 
         self.inspect_target_archive()
@@ -389,8 +388,8 @@ third party.
             self.ui_log.info("No reports obfuscated, aborting...\n")
             self._exit(1)
 
-        self.ui_log.info("\nSuccessfully obfuscated %s report(s)\n"
-                         % len(self.completed_reports))
+        self.ui_log.info("\nSuccessfully obfuscated "
+                         f"{len(self.completed_reports)} report(s)\n")
 
         _map = self.compile_mapping_dict()
         map_path = self.write_map_for_archive(_map)
@@ -410,7 +409,7 @@ third party.
             checksum = self.get_new_checksum(arc.final_archive_path)
             if checksum is not None:
                 chksum_name = self.obfuscate_string(
-                    "%s.%s" % (arc_path.split('/')[-1], self.hash_name)
+                    f"{arc_path.split('/')[-1]}.{self.hash_name}"
                 )
                 with open(os.path.join(self.sys_tmp, chksum_name), 'w') as cf:
                     cf.write(checksum)
@@ -452,7 +451,7 @@ third party.
             arc_dest = archive.final_archive_path.split('/')[-1]
             checksum = self.get_new_checksum(archive.final_archive_path)
             if checksum is not None:
-                dname = "checksums/%s.%s" % (arc_dest, self.hash_name)
+                dname = f"checksums/{arc_dest}.{self.hash_name}"
                 self.archive.add_string(checksum, dest=dname)
         for dirn, dirs, files in os.walk(self.nested_archive.extracted_path):
             for filename in files:
@@ -490,11 +489,11 @@ third party.
         try:
             map_path = os.path.join(
                 self.sys_tmp,
-                self.obfuscate_string("%s-private_map" % self.arc_name)
+                self.obfuscate_string(f"{self.arc_name}-private_map")
             )
             return self.write_map_to_file(_map, map_path)
         except Exception as err:
-            self.log_error("Could not write private map file: %s" % err)
+            self.log_error(f"Could not write private map file: {err}")
             return None
 
     def write_map_for_config(self, _map):
@@ -509,10 +508,9 @@ third party.
             try:
                 os.makedirs(cleaner_dir, exist_ok=True)
                 self.write_map_to_file(_map, self.opts.map_file)
-                self.log_debug("Wrote mapping to %s" % self.opts.map_file)
+                self.log_debug(f"Wrote mapping to {self.opts.map_file}")
             except Exception as err:
-                self.log_error("Could not update mapping config file: %s"
-                               % err)
+                self.log_error(f"Could not update mapping config file: {err}")
 
     def write_cleaner_log(self, archive=False):
         """When invoked via the command line, the logging from SoSCleaner will
@@ -520,7 +518,7 @@ third party.
         separately to disk
         """
         log_name = os.path.join(
-            self.sys_tmp, "%s-obfuscation.log" % self.arc_name
+            self.sys_tmp, f"{self.arc_name}-obfuscation.log"
         )
         with open(log_name, 'w') as logfile:
             self.sos_log_file.seek(0)
@@ -546,7 +544,7 @@ third party.
                     digest.update(hashdata)
                 return digest.hexdigest() + '\n'
         except Exception as err:
-            self.log_debug("Could not generate new checksum: %s" % err)
+            self.log_debug(f"Could not generate new checksum: {err}")
         return None
 
     def obfuscate_report_paths(self):
@@ -558,8 +556,8 @@ third party.
         """
         try:
             msg = (
-                "Found %s total reports to obfuscate, processing up to %s "
-                "concurrently\n" % (len(self.report_paths), self.opts.jobs)
+                f"Found {len(self.report_paths)} total reports to obfuscate, "
+                f"processing up to {self.opts.jobs} concurrently\n"
             )
             self.ui_log.info(msg)
             if self.opts.keep_binary_files:
@@ -698,19 +696,18 @@ third party.
                     if count:
                         archive.update_sub_count(short_name, count)
                 except Exception as err:
-                    self.log_debug("Unable to parse file %s: %s"
-                                   % (short_name, err))
+                    self.log_debug(f"Unable to parse file {short_name}: {err}")
 
             try:
                 self.obfuscate_directory_names(archive)
             except Exception as err:
-                self.log_info("Failed to obfuscate directories: %s" % err,
+                self.log_info(f"Failed to obfuscate directories: {err}",
                               caller=archive.archive_name)
 
             try:
                 self.obfuscate_symlinks(archive)
             except Exception as err:
-                self.log_info("Failed to obfuscate symlinks: %s" % err,
+                self.log_info(f"Failed to obfuscate symlinks: {err}",
                               caller=archive.archive_name)
 
             # if the archive was already a tarball, repack it
@@ -724,10 +721,10 @@ third party.
                         )
                         archive.compress(method)
                     except Exception as err:
-                        self.log_debug("Archive %s failed to compress: %s"
-                                       % (archive.archive_name, err))
-                        archive.report_msg("Failed to re-compress archive: %s"
-                                           % err)
+                        self.log_debug(f"Archive {archive.archive_name} failed"
+                                       f" to compress: {err}")
+                        archive.report_msg(
+                            f"Failed to re-compress archive: {err}")
                         return
                 self.completed_reports.append(archive)
 
@@ -740,11 +737,11 @@ third party.
             if archive.removed_file_count:
                 rmsg = " [removed %s unprocessable files]"
                 rmsg = rmsg % archive.removed_file_count
-            archive.report_msg("Obfuscation completed%s" % rmsg)
+            archive.report_msg(f"Obfuscation completed{rmsg}")
 
         except Exception as err:
-            self.ui_log.info("Exception while processing %s: %s"
-                             % (archive.archive_name, err))
+            self.ui_log.info("Exception while processing "
+                             f"{archive.archive_name}: {err}")
 
     def obfuscate_file(self, filename, short_name=None, arc_name=None):
         """Obfuscate and individual file, line by line.
@@ -769,7 +766,7 @@ third party.
         if not os.path.islink(filename):
             # don't run the obfuscation on the link, but on the actual file
             # at some other point.
-            self.log_debug("Obfuscating %s" % short_name or filename,
+            self.log_debug(f"Obfuscating {short_name or filename}",
                            caller=arc_name)
             tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
             _parsers = [
@@ -785,8 +782,8 @@ third party.
                         subs += count
                         tfile.write(line)
                     except Exception as err:
-                        self.log_debug("Unable to obfuscate %s: %s"
-                                       % (short_name, err), caller=arc_name)
+                        self.log_debug(f"Unable to obfuscate {short_name}: "
+                                       f"{err}", caller=arc_name)
             tfile.seek(0)
             if subs:
                 shutil.copyfile(tfile.name, filename)
@@ -831,7 +828,7 @@ third party.
             try:
                 # relative name of the symlink in the archive
                 _sym = symlink.split(archive.extracted_path)[1].lstrip('/')
-                self.log_debug("Obfuscating symlink %s" % _sym,
+                self.log_debug(f"Obfuscating symlink {_sym}",
                                caller=archive.archive_name)
                 # current target of symlink, again relative to the archive
                 _target = os.readlink(symlink)
@@ -848,15 +845,14 @@ third party.
                     os.remove(symlink)
                     os.symlink(_ob_target, _ob_sym_name)
             except Exception as err:
-                self.log_info("Error obfuscating symlink '%s': %s"
-                              % (symlink, err))
+                self.log_info(f"Error obfuscating symlink '{symlink}': {err}")
 
     def obfuscate_directory_names(self, archive):
         """For all directories that exist within the archive, obfuscate the
         directory name if it contains sensitive strings found during execution
         """
-        self.log_info("Obfuscating directory names in archive %s"
-                      % archive.archive_name)
+        self.log_info("Obfuscating directory names in archive "
+                      f"{archive.archive_name}")
         for dirpath in sorted(archive.get_directory_list(), reverse=True):
             for _name in os.listdir(dirpath):
                 _dirname = os.path.join(dirpath, _name)
@@ -877,7 +873,7 @@ third party.
             try:
                 string_data = parser.parse_string_for_keys(string_data)
             except Exception as err:
-                self.log_info("Error obfuscating string data: %s" % err)
+                self.log_info(f"Error obfuscating string data: {err}")
         return string_data
 
     def obfuscate_line(self, line, parsers=None):
@@ -905,7 +901,7 @@ third party.
                 line, _count = parser.parse_line(line)
                 count += _count
             except Exception as err:
-                self.log_debug("failed to parse line: %s" % err, parser.name)
+                self.log_debug(f"failed to parse line: {err}", parser.name)
         return line, count
 
     def write_stats_to_manifest(self):

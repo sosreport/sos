@@ -34,7 +34,7 @@ class kubernetes(Cluster):
     def get_nodes(self):
         self.cmd += ' get nodes'
         if self.get_option('label'):
-            self.cmd += ' -l %s ' % quote(self.get_option('label'))
+            self.cmd += f' -l {quote(self.get_option("label"))} '
         res = self.exec_primary_cmd(self.cmd)
         if res['status'] == 0:
             nodes = []

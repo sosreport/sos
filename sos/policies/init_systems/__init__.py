@@ -42,8 +42,8 @@ class InitSystem():
         self.services = {}
 
         self.init_cmd = init_cmd
-        self.list_cmd = "%s %s" % (self.init_cmd, list_cmd) or None
-        self.query_cmd = "%s %s" % (self.init_cmd, query_cmd) or None
+        self.list_cmd = f"{self.init_cmd} {list_cmd}" or None
+        self.query_cmd = f"{self.init_cmd} {query_cmd}" or None
         self.chroot = chroot
 
     def is_enabled(self, name):
@@ -118,7 +118,7 @@ class InitSystem():
         if self.query_cmd:
             try:
                 return sos_get_command_output(
-                    "%s %s" % (self.query_cmd, name),
+                    f"{self.query_cmd} {name}",
                     chroot=self.chroot
                 )
             except Exception:
