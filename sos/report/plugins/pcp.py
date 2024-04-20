@@ -51,6 +51,7 @@ class Pcp(Plugin, RedHatPlugin, DebianPlugin):
                 (key, value) = line.strip().split('=')
                 env_vars[key] = value
             except (ValueError, KeyError):
+                # not a line for a key, value pair. Ignore the line.
                 pass
 
         try:

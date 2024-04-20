@@ -52,8 +52,8 @@ class Gluster(Plugin, RedHatPlugin):
                                     '/glusterd_state_[0-9]*_[0-9]*'))
                 for name in remove_files:
                     os.remove(name)
-            except OSError:
-                pass
+            except OSError as err:
+                self._log_error(f"Could not remove statedump files: {err}")
 
     def setup(self):
         self.add_forbidden_path("/var/lib/glusterd/geo-replication/secret.pem")

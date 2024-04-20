@@ -616,10 +616,12 @@ class TempFileUtil():
                 f.flush()
                 f.close()
             except Exception:
+                # file already closed or potentially already removed, ignore
                 pass
             try:
                 os.unlink(fname)
             except Exception:
+                # if the above failed, this is also likely to fail, ignore
                 pass
         self.files = []
 

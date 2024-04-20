@@ -91,8 +91,8 @@ class SoSComponent():
         try:
             import signal
             signal.signal(signal.SIGTERM, self.get_exit_handler())
-        except Exception:
-            pass
+        except Exception as err:
+            sys.stdout.write(f"Notice: Could not set SIGTERM handler: {err}\n")
 
         self.opts = SoSOptions(arg_defaults=self._arg_defaults)
         if self.load_policy:
