@@ -556,6 +556,7 @@ support representative.
                 for line in hfile.read().splitlines():
                     coreos |= 'Red Hat Enterprise Linux CoreOS' in line
         except IOError:
+            # host release file not present, will fallback to RHEL policy check
             pass
         return coreos
 

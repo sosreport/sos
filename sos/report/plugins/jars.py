@@ -64,13 +64,13 @@ class Jars(Plugin, RedHatPlugin):
             for dirpath, _, filenames in os.walk(location):
                 for filename in filenames:
                     path = self.path_join(dirpath, filename)
-                    if Jars.is_jar(path):
+                    if self.is_jar(path):
                         jar_paths.append(path)
 
         # try to extract information about found JARs
         for jar_path in jar_paths:
-            maven_id = Jars.get_maven_id(jar_path)
-            jar_id = Jars.get_jar_id(jar_path)
+            maven_id = self.get_maven_id(jar_path)
+            jar_id = self.get_jar_id(jar_path)
             if maven_id or jar_id:
                 record = {"path": jar_path,
                           "sha1": jar_id,
@@ -81,8 +81,7 @@ class Jars(Plugin, RedHatPlugin):
         results_str = json.dumps(results, indent=4, separators=(",", ": "))
         self.add_string_as_file(results_str, "jars.json", plug_dir=True)
 
-    @staticmethod
-    def is_jar(path):
+    def is_jar(self, path):
         """Check whether given file is a JAR file.
 
         JARs are ZIP files which usually include a manifest
@@ -93,12 +92,13 @@ class Jars(Plugin, RedHatPlugin):
                 with zipfile.ZipFile(path) as file:
                     if "META-INF/MANIFEST.MF" in file.namelist():
                         return True
-            except (IOError, zipfile.BadZipfile):
-                pass
+            except (IOError, zipfile.BadZipfile) as err:
+                self._log_info(
+                    f"Could not determine if {path} is a JAR: {err}"
+                )
         return False
 
-    @staticmethod
-    def get_maven_id(jar_path):
+    def get_maven_id(self, jar_path):
         """Extract Maven coordinates from a given JAR file, if possible.
 
         JARs build by Maven (most popular Java build system) contain
@@ -123,12 +123,13 @@ class Jars(Plugin, RedHatPlugin):
                                 props[key] = value
                             except ValueError:
                                 return None
-        except IOError:
-            pass
+        except IOError as err:
+            self._log_info(
+                f"Could not extract Maven coordinates from {jar_path}: {err}"
+            )
         return props
 
-    @staticmethod
-    def get_jar_id(jar_path):
+    def get_jar_id(self, jar_path):
         """Compute JAR id.
 
         Returns sha1 hash of a given JAR file.
@@ -140,6 +141,6 @@ class Jars(Plugin, RedHatPlugin):
                 for buf in iter(partial(file.read, 4096), b''):
                     digest.update(buf)
             jar_id = digest.hexdigest()
-        except IOError:
-            pass
+        except IOError as err:
+            self._log_info(f"Could not compute JAR id for {jar_path}: {err}")
         return jar_id

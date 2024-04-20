@@ -367,8 +367,8 @@ class SosNode():
                 if not is_list:
                     try:
                         res.append(line.split()[0])
-                    except Exception:
-                        pass
+                    except Exception as err:
+                        self.log_debug(f"Error parsing sos help: {err}")
                 else:
                     r = line.split(',')
                     res.extend(p.strip() for p in r if p.strip())
@@ -475,8 +475,8 @@ class SosNode():
                 self.log_error('Unable to determine path of sos archive')
             if self.sos_path:
                 self.retrieved = self.retrieve_sosreport()
-        except Exception:
-            pass
+        except Exception as err:
+            self.log_error(f"Error during sos execution: {err}")
         self.cleanup()
 
     def _preset_exists(self, preset):

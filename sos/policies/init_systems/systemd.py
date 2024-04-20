@@ -41,6 +41,7 @@ class SystemdInit(InitSystem):
                     'config': config
                 }
             except IndexError:
+                # not a valid line to extract status info from
                 pass
 
     def is_running(self, name, default=False):

@@ -95,8 +95,8 @@ class SubscriptionManager(Plugin, RedHatPlugin):
             if no_proxy:
                 env = {'NO_PROXY': no_proxy}
         except (ModuleNotFoundError, ImportError, NoOptionError,
-                NoSectionError):
-            pass
+                NoSectionError) as err:
+            self._log_debug(f"Error checking for RHSM cert/proxy issue: {err}")
         self.add_cmd_output(curlcmd, env=env, timeout=30)
 
     def postproc(self):

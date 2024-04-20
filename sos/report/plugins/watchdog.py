@@ -44,6 +44,7 @@ class Watchdog(Plugin, RedHatPlugin):
                     if key.strip() == 'log-dir':
                         log_dir = value.strip()
                 except ValueError:
+                    # not a valid key, value line and we can safely ignore
                     pass
 
         return log_dir
