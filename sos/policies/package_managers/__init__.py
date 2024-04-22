@@ -54,7 +54,7 @@ class PackageManager():
     files = None
 
     def __init__(self, chroot=None, remote_exec=None):
-        self._packages = {}
+        self._packages = None
         self.files = []
         self.remote_exec = remote_exec
 
@@ -63,7 +63,7 @@ class PackageManager():
 
     @property
     def packages(self):
-        if not self._packages:
+        if self._packages is None:
             self._generate_pkg_list()
         return self._packages
 
@@ -181,6 +181,9 @@ class PackageManager():
                               'pkg_manager': 'package manager name'}}
 
         """
+        if self._packages is None:
+            self._packages = {}
+
         if self.query_command:
             cmd = self.query_command
             pkg_list = self.exec_cmd(cmd, timeout=30, chroot=self.chroot)
@@ -340,6 +343,9 @@ class MultiPackageManager(PackageManager):
         return self.files
 
     def _generate_pkg_list(self):
+        if self._packages is None:
+            self._packages = {}
+
         self._packages.update(self.primary.packages)
         for pm in self.fallbacks:
             _pkgs = pm.packages
