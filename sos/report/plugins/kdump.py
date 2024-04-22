@@ -42,6 +42,11 @@ class RedHatKDump(KDump, RedHatPlugin):
     files = ('/etc/kdump.conf',)
     packages = ('kexec-tools',)
 
+    option_list = [
+        PluginOpt("get-vm-core", default=False, val_type=bool,
+                  desc="collect vm core")
+    ]
+
     def fstab_parse_fs(self, device):
         """ Parse /etc/fstab file """
         fstab = self.path_join('/etc/fstab')
@@ -77,6 +82,7 @@ class RedHatKDump(KDump, RedHatPlugin):
         self.add_copy_spec([
             "/etc/kdump.conf",
             "/etc/udev/rules.d/*kexec.rules",
+            "/usr/lib/udev/rules.d/*kexec.rules",
             "/var/crash/*/kexec-dmesg.log",
             "/var/log/kdump.log"
         ])
@@ -88,8 +94,13 @@ class RedHatKDump(KDump, RedHatPlugin):
             # set no filesystem and default path
             path = "/var/crash"
 
+        self.add_cmd_output(f"ls -alhR {path}")
         self.add_copy_spec(f"{path}/*/vmcore-dmesg.txt")
         self.add_copy_spec(f"{path}/*/kexec-dmesg.log")
+
+        # collect the latest vmcore created in the last 24hrs <= 2GB
+        if self.get_option("get-vm-core"):
+            self.add_copy_spec(f"{path}/*/vmcore", sizelimit=2048, maxage=24)
 
 
 class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
