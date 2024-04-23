@@ -32,7 +32,9 @@ SOS_TEST_DATA_DIR = os.path.realpath(os.path.join(SOS_TEST_DIR, 'test_data'))
 SOS_TEST_BIN = os.path.realpath(os.path.join(SOS_TEST_DIR, '../bin/sos'))
 
 RH_DIST = ['rhel', 'centos', 'fedora', 'centos-stream']
+CENTOS_DIST = ['centos', 'centos-stream']
 UBUNTU_DIST = ['Ubuntu', 'debian']
+OPENSTACK_DIST = ['centos', 'centos-stream', 'Ubuntu']
 
 
 def skipIf(cond, message=None):
@@ -51,6 +53,13 @@ def redhat_only(tst):
     def wrapper(func):
         if distro.detect().name not in RH_DIST:
             raise TestSkipError('Not running on a Red Hat distro')
+    return wrapper
+
+
+def openstack_only(tst):
+    def wrapper(func):
+        if distro.detect().name not in OPENSTACK_DIST:
+            raise TestSkipError('Not running on a OpenStack supported distro')
     return wrapper
 
 
@@ -77,6 +86,7 @@ class BaseSoSTest(Test):
     sos_timeout = 600
     redhat_only = False
     ubuntu_only = False
+    openstack_only = False
     end_of_test_case = False
     arch = []
 
@@ -242,6 +252,10 @@ class BaseSoSTest(Test):
         elif self.ubuntu_only:
             if self.local_distro not in UBUNTU_DIST:
                 raise TestSkipError("Not running on a Ubuntu or Debian distro")
+        elif self.openstack_only:
+            if self.local_distro not in OPENSTACK_DIST:
+                raise TestSkipError("Not running on a OpenStack supported "
+                                    "distro")
 
     def check_arch_for_enablement(self):
         """
@@ -847,8 +861,8 @@ class StageTwoReportTest(BaseSoSReportTest):
     def teardown_mocking(self):
         """Undo any and all mocked setup that we did for tests
         """
-        self.teardown_mocked_packages()
         self.teardown_mocked_files()
+        self.teardown_mocked_packages()
         self.teardown_mocked_plugins()
 
     def setup_mocking(self):

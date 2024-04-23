@@ -34,6 +34,7 @@ class OpenStackKeystone(Plugin):
             "/etc/keystone/keystone.conf",
             "/etc/keystone/logging.conf",
             "/etc/keystone/policy.json",
+            "/etc/keystone/keystone.policy.yaml",
             self.var_puppet_gen + "/etc/keystone/*.conf",
             self.var_puppet_gen + "/etc/keystone/*.json",
             self.var_puppet_gen + "/etc/httpd/conf/",
