@@ -104,7 +104,7 @@ class SoSObfuscationArchive():
             if toplevel.isdir():
                 return toplevel.name
             else:
-                return os.sep
+                return os.path.dirname(toplevel.name) or os.sep
         return os.path.abspath(self.archive_path)
 
     def report_msg(self, msg):
