@@ -148,7 +148,7 @@ deb_build_task:
         apt -y install devscripts equivs python3-pip
         mk-build-deps
         apt -y install ./sosreport-build-deps*.deb
-        pip3 install "avocado-framework<104.0" --break-system-packages
+        pip3 install -r test-requirements.txt --break-system-packages
     main_script: |
         dpkg-buildpackage -b -us -uc -rfakeroot -m --build-by="noreply@canonical.com"
     prep_artifacts_script: mv ../*.deb ./sos_cirrus.deb
@@ -240,7 +240,7 @@ report_stageone_task:
         fi
         PIP_EXTRA=""
         [[ $(pip3 install --help | grep break-system) ]] && PIP_EXTRA="--break-system-packages"
-        pip3 install "avocado-framework<104.0" ${PIP_EXTRA}
+        pip3 install -r test-requirements.txt ${PIP_EXTRA}
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
     unittest_script: &unit_test |
