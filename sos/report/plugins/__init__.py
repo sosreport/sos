@@ -2959,6 +2959,7 @@ class Plugin():
                 boot = "-1"
             journal_cmd += boot_opt % boot
 
+        since = since or self.get_option('since')
         if since:
             journal_cmd += since_opt % since
 

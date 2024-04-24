@@ -22,8 +22,6 @@ class LogsBase(Plugin):
         confs = ['/etc/syslog.conf', rsyslog]
         logs = []
 
-        since = self.get_option("since")
-
         if self.path_exists(rsyslog):
             with open(self.path_join(rsyslog), 'r', encoding='UTF-8') as conf:
                 for line in conf.readlines():
@@ -65,12 +63,10 @@ class LogsBase(Plugin):
         journal = any(self.path_exists(self.path_join(p, "log/journal/"))
                       for p in ["/var", "/run"])
         if journal and self.is_service("systemd-journald"):
-            self.add_journal(since=since, tags=['journal_full', 'journal_all'],
+            self.add_journal(tags=['journal_full', 'journal_all'],
                              priority=100)
-            self.add_journal(boot="this", since=since,
-                             tags='journal_since_boot')
-            self.add_journal(boot="last", since=since,
-                             tags='journal_last_boot')
+            self.add_journal(boot="this", tags='journal_since_boot')
+            self.add_journal(boot="last", tags='journal_last_boot')
             if self.get_option("all_logs"):
                 self.add_copy_spec([
                     "/var/log/journal/*",
