@@ -28,6 +28,6 @@ class Dracut(Plugin, RedHatPlugin):
         self.add_cmd_output([
             "dracut --list-modules",
             "dracut --print-cmdline"
-        ])
+        ], env={"RPMOSTREE_CLIWRAP_SKIP": "true"})
 
 # vim: set et ts=4 sw=4 :
