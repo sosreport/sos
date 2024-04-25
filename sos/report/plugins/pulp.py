@@ -73,6 +73,7 @@ class Pulp(Plugin, RedHatPlugin):
         self.add_copy_spec([
             "/etc/pulp/*.conf",
             "/etc/pulp/settings.py",
+            "/etc/pulp/settings.local.py",
             "/etc/pulp/server/plugins.conf.d/",
             "/etc/default/pulp*",
             "/var/log/httpd/pulp-http.log*",
@@ -181,6 +182,8 @@ class Pulp(Plugin, RedHatPlugin):
                       r"(\"|'|:)+)\s*(\S*)"
         repl = r"\1 ********"
         self.do_path_regex_sub("/etc/pulp/settings.py", key_pass_re, repl)
+        self.do_path_regex_sub("/etc/pulp/settings.local.py", key_pass_re,
+                               repl)
         self.do_cmd_output_sub("dynaconf list", key_pass_re, repl)
 
 # vim: set et ts=4 sw=4 :
