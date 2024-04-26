@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
+from sos.policies.distros.ubuntu import UbuntuPolicy
 
 
 class Processor(Plugin, IndependentPlugin):
@@ -17,6 +18,8 @@ class Processor(Plugin, IndependentPlugin):
     profiles = ('system', 'hardware', 'memory')
     files = ('/proc/cpuinfo',)
     packages = ('cpufreq-utils', 'cpuid')
+
+    cpu_kmods = []
 
     def setup(self):
 
@@ -48,14 +51,23 @@ class Processor(Plugin, IndependentPlugin):
         self.add_cmd_output([
             "lscpu",
             "lscpu -ae",
-            "cpupower frequency-info",
-            "cpupower info",
-            "cpupower idle-info",
             "cpufreq-info",
             "cpuid",
             "cpuid -r",
-            "turbostat --debug sleep 10"
         ], cmd_as_tag=True)
+
+        if (isinstance(self.policy, UbuntuPolicy) and
+                self.policy.dist_version() == 24.04):
+            self.cpu_kmods = ['msr']
+
+        cpupower_pred = SoSPredicate(self, kmods=self.cpu_kmods)
+
+        self.add_cmd_output([
+            "cpupower frequency-info",
+            "cpupower info",
+            "cpupower idle-info",
+            "turbostat --debug sleep 10",
+        ], cmd_as_tag=True, pred=cpupower_pred)
 
         if '86' in self.policy.get_arch():
             self.add_cmd_output("x86info -a")
