@@ -156,7 +156,7 @@ class SoSHostnameMap(SoSMap):
             # try to account for use of '-' in names that include hostnames
             # and don't create new mappings for each of these
             for _existing in sorted(self.dataset.keys(), reverse=True,
-                                    key=lambda x: len(x)):
+                                    key=len):
                 _host_substr = False
                 _test = item.split(_existing)
                 _h = _existing.split('.')

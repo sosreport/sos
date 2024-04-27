@@ -241,7 +241,7 @@ class SoSCollector(SoSComponent):
         return modules
 
     @classmethod
-    def _import_modules(self, modname):
+    def _import_modules(cls, modname):
         """Import and return all found classes in a module"""
         mod_short_name = modname.split('.')[2]
         try:

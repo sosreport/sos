@@ -146,7 +146,6 @@ class SoSReport(SoSComponent):
         self.skipped_plugins = []
         self.all_options = []
         self.env_vars = set()
-        self.archive = None
         self._args = args
         self.sysroot = "/"
         self.estimated_plugsizes = {}
