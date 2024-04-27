@@ -92,6 +92,7 @@ class Ssh(Plugin, IndependentPlugin):
                 if self.path_isdir(home_dir):
                     self.add_cmd_output(f"ls -laZ {home_dir}")
             except IndexError:
+                # invalid line for home dir parsing, ignore
                 pass
 
 # vim: set et ts=4 sw=4 :

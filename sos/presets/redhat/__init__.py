@@ -15,8 +15,6 @@ from sos.presets import PresetDefaults
 RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
 
 _opts_verify = SoSOptions(verify=True)
-_opts_all_logs = SoSOptions(all_logs=True)
-_opts_all_logs_verify = SoSOptions(all_logs=True, verify=True)
 _cb_profiles = ['boot', 'storage', 'system']
 _cb_plugopts = ['boot.all-images=on', 'rpm.rpmva=on', 'rpm.rpmdb=on']
 

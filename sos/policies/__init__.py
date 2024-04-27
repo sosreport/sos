@@ -359,7 +359,7 @@ any third party.
         return "sha256"
 
     @classmethod
-    def display_help(self, section):
+    def display_help(cls, section):
         section.set_title('SoS Policies')
         section.add_text(
             'Policies help govern how SoS operates on across different distri'
