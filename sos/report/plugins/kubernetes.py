@@ -247,6 +247,21 @@ class Kubernetes(Plugin):
         # output that is not hit by the previous iteration.
         self.do_cmd_private_sub(self.kube_cmd)
 
+        pathregex = fr'^({"|".join(self.config_files)})'
+        self.do_file_private_sub(pathregex)
+
+        # clear the certificate data from files that does not have
+        # the certificate banners that the _private_sub() methods look for
+        _fields = [
+            'client-certificate-data',
+            'client-key-data',
+            'certificate-authority-data',
+        ]
+
+        regex = fr'(\s*({"|".join(_fields)}):)(.*)'
+
+        self.do_path_regex_sub(pathregex, regex, r'\1 *******')
+
 
 class RedHatKubernetes(Kubernetes, RedHatPlugin):
 
