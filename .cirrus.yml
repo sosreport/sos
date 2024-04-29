@@ -35,7 +35,7 @@ env:
     UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-2204-jammy-v20240501"
     UBUNTU_PRIOR2_IMAGE_NAME: "ubuntu-2004-focal-v20240426"
     UBUNTU_PRIOR3_IMAGE_NAME: "ubuntu-1804-bionic-v20240116a"
-    UBUNTU_SNAP_IMAGE_NAME: "ubuntu-2204-jammy-v20240501"
+    UBUNTU_SNAP_IMAGE_NAME: "ubuntu-2404-noble-amd64-v20240423"
     UBUNTU_DEVEL_FAMILY_NAME: "ubuntu-2410-amd64"
 
     # Curl-command prefix for downloading task artifacts, simply add the
