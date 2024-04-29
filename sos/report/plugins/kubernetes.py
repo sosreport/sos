@@ -12,8 +12,28 @@
 from fnmatch import translate
 import re
 import json
+import os
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
+from sos.utilities import is_executable
+
+
+KUBE_PACKAGES = (
+    'kubelet',
+    'kubernetes',
+)
+
+KUBE_SVCS = (
+    'kubelet',
+    'kube-apiserver',
+    'kube-proxy',
+    'kube-scheduler',
+    'kube-controller-manager',
+)
+
+KUBECONFIGS = (
+    '/etc/kubernetes/admin.conf',
+)
 
 
 class Kubernetes(Plugin):
@@ -45,7 +65,9 @@ class Kubernetes(Plugin):
         'jobs',
         'cronjobs',
         'clusterroles',
-        'clusterrolebindings'
+        'clusterrolebindings',
+        'limitranges',
+        'resourcequotas',
     ]
 
     # these are not namespaced, must pull separately.
@@ -53,7 +75,7 @@ class Kubernetes(Plugin):
         'sc',
         'pv',
         'roles',
-        'rolebindings'
+        'rolebindings',
     ]
 
     option_list = [
@@ -69,6 +91,14 @@ class Kubernetes(Plugin):
 
     kube_cmd = "kubectl"
 
+    def set_kubeconfig(self):
+        if os.environ.get('KUBECONFIG'):
+            return
+        for _kconf in self.files:
+            if self.path_exists(_kconf):
+                self.kube_cmd += f" --kubeconfig={_kconf}"
+                break
+
     def check_is_master(self):
         """ Check if this is the master node """
         return any(self.path_exists(f) for f in self.files)
@@ -80,24 +110,8 @@ class Kubernetes(Plugin):
             'KUBECONFIG',
             'KUBERNETES_HTTP_PROXY',
             'KUBERNETES_HTTPS_PROXY',
-            'KUBERNETES_NO_PROXY'
+            'KUBERNETES_NO_PROXY',
         ])
-
-        svcs = [
-            'kubelet',
-            'kube-apiserver',
-            'kube-proxy',
-            'kube-scheduler',
-            'kube-controller-manager',
-            'snap.kubelet.daemon',
-            'snap.kube-apiserver.daemon',
-            'snap.kube-proxy.daemon',
-            'snap.kube-scheduler.daemon',
-            'snap.kube-controller-manager.daemon'
-        ]
-
-        for svc in svcs:
-            self.add_journal(units=svc)
 
         # We can only grab kubectl output from the master
         if not self.check_is_master():
@@ -250,69 +264,81 @@ class Kubernetes(Plugin):
         # output that is not hit by the previous iteration.
         self.do_cmd_private_sub(self.kube_cmd)
 
+        pathexp = fr'^({"|".join(self.config_files)})'
+        self.do_file_private_sub(pathexp)
+
+        # clear base64 encoded PEM from kubeconfigs files
+        regexp = r'LS0tLS1CRUdJ[A-Za-z0-9+/=]+'
+        subst = '***** SCRUBBED BASE64 PEM *****'
+        pathexp = fr'^({"|".join(list(self.files)+self.config_files)})'
+        self.do_path_regex_sub(pathexp, regexp, subst)
+
 
 class RedHatKubernetes(Kubernetes, RedHatPlugin):
 
-    # OpenShift Container Platform uses the atomic-openshift-master package
-    # to provide kubernetes
-    packages = ('kubernetes', 'kubernetes-master', 'atomic-openshift-master')
+    packages = KUBE_PACKAGES + (
+        'kubernetes-master',
+        'atomic-openshift-master',
+    )
 
-    files = (
+    files = KUBECONFIGS + (
         '/etc/origin/master/admin.kubeconfig',
         '/etc/origin/node/pods/master-config.yaml',
     )
 
-    kube_cmd = "kubectl"
+    services = KUBE_SVCS
+
+    def check_enabled(self):
+        # do not run at the same time as the openshift plugin
+        if self.is_installed("openshift-hyperkube"):
+            return False
+        return super().check_enabled()
 
     def setup(self):
-        # Rather than loading the config file, use the OCP command directly
-        # that wraps kubectl, so we don't have to manually account for any
-        # other changes the `oc` binary may implement
-        if self.path_exists('/etc/origin/master/admin.kubeconfig'):
+        self.set_kubeconfig()
+
+        # if present, use `oc` command and add some OCP specific ressources
+        if is_executable('oc'):
             self.kube_cmd = 'oc'
-        self.resources.extend([
-            'limitranges',
-            'policies',
-            'resourcequotas',
-            'routes'
-        ])
-        self.global_resources.extend([
-            'projects',
-            'pvs'
-        ])
+            self.resources.extend([
+                'policies',
+                'routes'
+            ])
+            self.global_resources.extend([
+                'projects',
+                'pvs'
+            ])
         super().setup()
 
 
 class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
 
-    packages = ('kubernetes',)
+    packages = KUBE_PACKAGES
 
-    files = (
+    files = KUBECONFIGS + (
         '/root/cdk/cdk_addons_kubectl_config',
-        '/etc/kubernetes/admin.conf',
         '/var/snap/microk8s/current/credentials/client.config',
     )
 
-    services = (
+    services = KUBE_SVCS + (
+        'snap.kubelet.daemon',
+        'snap.kube-apiserver.daemon',
+        'snap.kube-proxy.daemon',
+        'snap.kube-scheduler.daemon',
+        'snap.kube-controller-manager.daemon',
         # CDK
         'cdk.master.auth-webhook',
     )
 
     def setup(self):
-        for _kconf in self.files:
-            if self.path_exists(_kconf):
-                self.kube_cmd += f" --kubeconfig={_kconf}"
-                break
-
-        for svc in self.services:
-            self.add_journal(units=svc)
+        self.set_kubeconfig()
 
         if self.is_installed('microk8s'):
             self.kube_cmd = 'microk8s kubectl'
 
         self.config_files.extend([
             '/root/cdk/kubelet/config.yaml',
-            '/root/cdk/audit/audit-policy.yaml'
+            '/root/cdk/audit/audit-policy.yaml',
         ])
         super().setup()
 
