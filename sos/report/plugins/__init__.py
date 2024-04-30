@@ -64,7 +64,7 @@ def _node_type(st):
     return ''
 
 
-_certmatch = re.compile("-*BEGIN.*?-*END", re.DOTALL)
+_certmatch = re.compile("----(?:-| )BEGIN.*?----(?:-| )END", re.DOTALL)
 _cert_replace = "-----SCRUBBED"
 
 
