@@ -32,6 +32,8 @@ class Nginx(Plugin, IndependentPlugin):
             "/etc/nginx/*",
             "/var/log/nginx/access.log",
             "/var/log/nginx/error.log",
+            "/var/log/nginx/access.log*",
+            "/var/log/nginx/error.log*",
         ])
 
         # Other plugins collect these files;
