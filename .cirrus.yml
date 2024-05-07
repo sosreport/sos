@@ -25,8 +25,8 @@ env:
     UBUNTU_DEVEL_PROJECT: "ubuntu-os-cloud-devel"
 
     # Images exist on GCP already
-    CENTOS_9_IMAGE_NAME: "centos-stream-9-v20230809"
-    CENTOS_8_IMAGE_NAME: "centos-stream-8-v20230809"
+    CENTOS_9_IMAGE_NAME: "centos-stream-9-v20240415"
+    CENTOS_8_IMAGE_NAME: "centos-stream-8-v20240415"
     DEBIAN_IMAGE_NAME: "debian-11-bullseye-v20230809"
     FEDORA_IMAGE_NAME: "fedora-cloud-base-gcp-38-1-6-x86-64"
     FEDORA_PRIOR_IMAGE_NAME: "fedora-cloud-base-gcp-37-1-7-x86-64"
