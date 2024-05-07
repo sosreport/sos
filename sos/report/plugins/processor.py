@@ -57,7 +57,7 @@ class Processor(Plugin, IndependentPlugin):
         ], cmd_as_tag=True)
 
         if (isinstance(self.policy, UbuntuPolicy) and
-                self.policy.dist_version() == 24.04):
+                self.policy.dist_version() >= 24.04):
             self.cpu_kmods = ['msr']
 
         cpupower_pred = SoSPredicate(self, kmods=self.cpu_kmods)
