@@ -21,12 +21,12 @@ class Networking(Plugin):
     option_list = [
         PluginOpt("traceroute", default=False,
                   desc=f"collect a traceroute to {trace_host}"),
-        PluginOpt("namespace_pattern", default="", val_type=str,
+        PluginOpt("namespace-pattern", default="", val_type=str,
                   desc=("Specific namespace names or patterns to collect, "
                         "whitespace delimited.")),
         PluginOpt("namespaces", default=None, val_type=int,
                   desc="Number of namespaces to collect, 0 for unlimited"),
-        PluginOpt("ethtool_namespaces", default=True,
+        PluginOpt("ethtool-namespaces", default=True,
                   desc=("Toggle if ethtool commands should be run for each "
                         "namespace")),
         PluginOpt("eepromdump", default=False,
@@ -203,7 +203,7 @@ class Networking(Plugin):
         self.add_cmd_output("ip netns")
         cmd_prefix = "ip netns exec "
         namespaces = self.get_network_namespaces(
-                self.get_option("namespace_pattern"),
+                self.get_option("namespace-pattern"),
                 self.get_option("namespaces"))
         if namespaces:
             # 'ip netns exec <foo> iptables-save' must be guarded by nf_tables
@@ -254,7 +254,7 @@ class Networking(Plugin):
 
                 # Collect ethtool commands only when ethtool_namespaces
                 # is set to true.
-                if self.get_option("ethtool_namespaces"):
+                if self.get_option("ethtool-namespaces"):
                     # Devices that exist in a namespace use less ethtool
                     # parameters. Run this per namespace.
                     self.add_device_cmd([

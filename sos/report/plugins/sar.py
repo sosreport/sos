@@ -25,7 +25,7 @@ class Sar(Plugin):
     for the current day-of data being collected at the time of report
     generation).
 
-    Using the 'all_sar' plugin option will not only cause the plugin to capture
+    Using the 'all-sar' plugin option will not only cause the plugin to capture
     _all_ 'saX' files present on the host, but further perform the 'sar'
     conversion on all files, not just those produced within the last week.
 
@@ -46,13 +46,13 @@ class Sar(Plugin):
     packages = ('sysstat',)
     sa_path = '/var/log/sa'
     option_list = [
-        PluginOpt('all_sar', default=False,
+        PluginOpt('all-sar', default=False,
                   desc="gather all system activity records")
     ]
 
     def setup(self):
         self.add_copy_spec(self.path_join(self.sa_path, '*'),
-                           sizelimit=0 if self.get_option("all_sar") else None,
+                           sizelimit=0 if self.get_option("all-sar") else None,
                            tailit=False)
 
         try:
@@ -72,7 +72,7 @@ class Sar(Plugin):
                 sar_filename = 'sar' + fname[2:]
                 if sar_filename not in dir_list:
                     # only collect sar output for the last 7 days by default
-                    if not self.get_option('all_sar') and \
+                    if not self.get_option('all-sar') and \
                        self.is_older_than_7days(sa_data_path):
                         continue
                     sar_cmd = f"sar -A -f {sa_data_path}"

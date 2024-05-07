@@ -57,7 +57,7 @@ class Ovirt(Plugin, RedHatPlugin):
     option_list = [
         PluginOpt('jbosstrace', default=True,
                   desc='Enable oVirt Engine JBoss stack trace collection'),
-        PluginOpt('sensitive_keys', default=DEFAULT_SENSITIVE_KEYS,
+        PluginOpt('sensitive-keys', default=DEFAULT_SENSITIVE_KEYS,
                   desc='Sensitive keys to be masked in post-processing'),
         PluginOpt('heapdump', default=False,
                   desc='Collect heap dumps from /var/log/ovirt-engine/dump/')
@@ -231,7 +231,7 @@ class Ovirt(Plugin, RedHatPlugin):
 
         sensitive_keys = self.DEFAULT_SENSITIVE_KEYS
         # Handle --alloptions case which set this to True.
-        keys_opt = self.get_option('sensitive_keys')
+        keys_opt = self.get_option('sensitive-keys')
         if keys_opt and keys_opt is not True:
             sensitive_keys = keys_opt
         key_list = [x for x in sensitive_keys.split(':') if x]
