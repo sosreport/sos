@@ -131,7 +131,7 @@ class AzureKDump(KDump, AzurePlugin):
     packages = ('kexec-tools',)
 
     option_list = [
-        PluginOpt("get_vm_core", default=False, val_type=bool,
+        PluginOpt("get-vm-core", default=False, val_type=bool,
                   desc="collect vm core")
     ]
 
@@ -166,7 +166,7 @@ class AzureKDump(KDump, AzurePlugin):
         self.add_copy_spec(f"{path}/*/kexec-dmesg.log")
 
         # collect the latest vmcore created in the last 24hrs <= 2GB
-        if self.get_option("get_vm_core"):
+        if self.get_option("get-vm-core"):
             self.add_copy_spec(f"{path}/*/vmcore", sizelimit=2048, maxage=24)
 
 # vim: set et ts=4 sw=4 :

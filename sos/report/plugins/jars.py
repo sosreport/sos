@@ -24,9 +24,9 @@ class Jars(Plugin, RedHatPlugin):
     plugin_name = "jars"
     profiles = ("java",)
     option_list = [
-        PluginOpt('append_locations', default="", val_type=str,
+        PluginOpt('append-locations', default="", val_type=str,
                   desc='colon-delimited list of additional JAR paths'),
-        PluginOpt('all_known_locations', default=False,
+        PluginOpt('all-known-locations', default=False,
                   desc='scan all known paths')
     ]
 
@@ -51,11 +51,11 @@ class Jars(Plugin, RedHatPlugin):
         jar_paths = []
 
         locations = list(Jars.jar_locations)
-        if self.get_option("all_known_locations"):
+        if self.get_option("all-known-locations"):
             locations += list(Jars.extra_jar_locations)
 
         # append also user-defined locations, if any
-        user_locations = self.get_option("append_locations")
+        user_locations = self.get_option("append-locations")
         if user_locations:
             locations += user_locations.split(":")
 

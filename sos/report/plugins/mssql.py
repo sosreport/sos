@@ -20,12 +20,12 @@ class MsSQL(Plugin, RedHatPlugin):
     packages = ('mssql-server',)
 
     option_list = [
-        PluginOpt('mssql_conf', default='/var/opt/mssql/mssql.conf',
+        PluginOpt('mssql-conf', default='/var/opt/mssql/mssql.conf',
                   desc='SQL server configuration file')
     ]
 
     def setup(self):
-        mssql_conf = self.get_option('mssql_conf')
+        mssql_conf = self.get_option('mssql-conf')
 
         # Pick error log file from mssql_conf.
         # Expecting the following format

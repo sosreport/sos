@@ -29,7 +29,7 @@ RHOSP = "rhosp"
 RHOSP_DESC = "Red Hat OpenStack Platform"
 RHOSP_OPTS = SoSOptions(plugopts=[
                              'process.lsof=off',
-                             'networking.ethtool_namespaces=False',
+                             'networking.ethtool-namespaces=False',
                              'networking.namespaces=200'])
 
 RHOCP = "ocp"
@@ -40,7 +40,7 @@ RHOCP_OPTS = SoSOptions(
     plugopts=[
         'crio.timeout=600',
         'networking.timeout=600',
-        'networking.ethtool_namespaces=False',
+        'networking.ethtool-namespaces=False',
         'networking.namespaces=200'
     ])
 

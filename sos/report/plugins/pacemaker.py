@@ -25,9 +25,9 @@ class Pacemaker(Plugin):
     )
 
     option_list = [
-        PluginOpt('crm_from', default='', val_type=str,
+        PluginOpt('crm-from', default='', val_type=str,
                   desc='specfiy the start time for crm_report'),
-        PluginOpt('crm_scrub', default=True,
+        PluginOpt('crm-scrub', default=True,
                   desc='enable crm_report password scrubbing')
     ]
 
@@ -105,17 +105,17 @@ class Pacemaker(Plugin):
         # time in order to collect data.
         crm_from = (datetime.today() -
                     timedelta(hours=72)).strftime("%Y-%m-%d %H:%m:%S")
-        if self.get_option("crm_from"):
+        if self.get_option("crm-from"):
             if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',
-                        str(self.get_option("crm_from"))):
-                crm_from = self.get_option("crm_from")
+                        str(self.get_option("crm-from"))):
+                crm_from = self.get_option("crm-from")
             else:
                 self._log_error(
-                    f"crm_from parameter '{self.get_option('crm_from')}' is "
+                    f"crm_from parameter '{self.get_option('crm-from')}' is "
                     "not a valid date: using default")
 
         crm_dest = self.get_cmd_output_path(name="crm_report", make=False)
-        if self.get_option("crm_scrub"):
+        if self.get_option("crm-scrub"):
             crm_scrub = '-p "passw.*"'
         else:
             crm_scrub = ""

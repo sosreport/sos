@@ -18,7 +18,7 @@ class Npm(Plugin, IndependentPlugin):
     plugin_name = 'npm'
     profiles = ('system',)
     option_list = [
-        PluginOpt('project_path', default='', val_type=str,
+        PluginOpt('project-path', default='', val_type=str,
                   desc='Collect npm modules of project at this path')
     ]
 
@@ -35,9 +35,9 @@ class Npm(Plugin, IndependentPlugin):
         )
 
     def setup(self):
-        if self.get_option("project_path"):
+        if self.get_option("project-path"):
             project_path = os.path.abspath(os.path.expanduser(
-                self.get_option("project_path")))
+                self.get_option("project-path")))
             self._get_npm_output("npm ls --json", "npm_ls_project",
                                  working_directory=project_path)
             self._get_npm_output("npm config list -l",

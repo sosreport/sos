@@ -20,7 +20,7 @@ class Watchdog(Plugin, RedHatPlugin):
     packages = ('watchdog',)
 
     option_list = [
-        PluginOpt('conf_file', default='/etc/watchdog.conf',
+        PluginOpt('conf-file', default='/etc/watchdog.conf',
                   desc='watchdog config file')
     ]
 
@@ -55,7 +55,7 @@ class Watchdog(Plugin, RedHatPlugin):
             Collect configuration files, custom executables for test-binary
             and repair-binary, and stdout/stderr logs.
         """
-        conf_file = self.path_join(self.get_option('conf_file'))
+        conf_file = self.path_join(self.get_option('conf-file'))
         log_dir = self.path_join('/var/log/watchdog')
 
         # Get service configuration and sysconfig files

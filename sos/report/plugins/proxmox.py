@@ -26,7 +26,7 @@ class Proxmox(Plugin, DebianPlugin):
     packages = ('proxmox-ve',)
 
     option_list = [
-        PluginOpt('output_formats',
+        PluginOpt('output-formats',
                   desc='List of output formats to use '
                        'for the commands separated by ":".',
                   default='text',
@@ -34,7 +34,7 @@ class Proxmox(Plugin, DebianPlugin):
     ]
 
     def setup(self):
-        output_formats = self.get_option('output_formats').split(':')
+        output_formats = self.get_option('output-formats').split(':')
 
         commands = [
             'cluster/resources',
