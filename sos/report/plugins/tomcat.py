@@ -16,7 +16,8 @@ class Tomcat(Plugin, RedHatPlugin):
     plugin_name = 'tomcat'
     profiles = ('webserver', 'java', 'services', 'sysmgmt')
 
-    packages = ('tomcat', 'tomcat6', 'tomcat7', 'tomcat8')
+    packages = ('tomcat', 'tomcat6', 'tomcat7', 'tomcat8',
+                'pki-servlet-engine')
 
     def setup(self):
         self.add_copy_spec([
