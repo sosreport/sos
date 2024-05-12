@@ -140,7 +140,7 @@ class Foreman(Plugin):
                     --sasl-mechanism=ANONYMOUS',
             suggest_filename='qpid-stat_-q'
         )
-        self.add_cmd_output("hammer ping", tags="hammer_ping")
+        self.add_cmd_output("hammer ping", tags="hammer_ping", timeout=120)
 
         # Dynflow Sidekiq
         self.add_cmd_output('systemctl list-units dynflow*',
