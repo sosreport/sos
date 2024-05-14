@@ -23,7 +23,7 @@ X-Python3-Version: >= 3.6
 
 Package: sosreport
 Architecture: any
-Depends: ${python3:Depends}, ${misc:Depends}, python3-pexpect, python3-magic, python3-packaging
+Depends: ${python3:Depends}, ${misc:Depends}, python3-pexpect, python3-magic, python3-packaging, python3-boto3
 Description: Set of tools to gather troubleshooting data from a system
  Sos is a set of tools that gathers information about system
  hardware and configuration. The information can then be used for
