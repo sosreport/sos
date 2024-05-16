@@ -1,0 +1,97 @@
+[MAIN]
+# Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
+# number of processors available to use.
+jobs=0
+
+# When enabled, pylint would attempt to guess common misconfiguration and emit
+# user-friendly hints instead of false-positive error messages.
+suggestion-mode=yes
+
+[FORMAT]
+# Maximum number of characters on a single line.
+max-line-length=79
+
+[REPORTS]
+# Activate the evaluation score.
+score=yes
+
+[MESSAGES CONTROL]
+disable=
+    C0103, # invalid-name
+    C0114, # missing-module-docstring
+    C0115, # missing-class-docstring
+    C0116, # missing-function-docstring
+    C0302, # too-many-lines
+    C0415, # import-outside-toplevel
+    R0401, # cyclic-import
+    R0801, # duplicate-code
+    R0902, # too-many-instance-attributes
+    R0903, # too-few-public-methods
+    R0904, # too-many-public-methods
+    R0911, # too-many-return-statements
+    R0912, # too-many-branches
+    R0913, # too-many-arguments
+    R0914, # too-many-locals
+    R0915, # too-many-statements
+    R1702, # too-many-nested-blocks
+    W0201, # attribute-defined-outside-init
+    W0511, # fixme
+    ###################### VV things we should fix VV
+    W0613, # unused-argument
+    W0612, # unused-variable
+    R1705, # no-else-return
+    W0719, # broad-exception-raised
+    W1203, # logging-fstring-interpolation
+    W1406, # redundant-u-string-prefix
+    R1732, # consider-using-with
+    W1514, # unspecified-encoding
+    W0107, # unnecessary-pass
+    W0718, # broad-exception-caught
+    W0102, # dangerous-default-value
+    C0325, # superfluous-parens
+    E1111, # assignment-from-no-return
+    R1714, # consider-using-in
+    C0206, # consider-using-dict-items
+    W0221, # arguments-differ
+    R1711, # useless-return
+    R1720, # no-else-raise
+    R0205, # useless-object-inheritance
+    W3101, # missing-timeout
+    C0201, # consider-iterating-dictionary
+    R1719, # simplifiable-if-expression
+    W1201, # logging-not-lazy
+    W0707, # raise-missing-from
+    W0237, # arguments-renamed
+    E0606, # possibly-used-before-assignment
+    R1724, # no-else-continue
+    R1729, # use-a-generator
+    C0117, # unnecessary-negation
+    W0622, # redefined-builtin
+    W0212, # protected-access
+    R1728, # consider-using-generator
+    R1710, # inconsistent-return-statements
+    C1802, # use-implicit-booleaness-not-len
+    W0706, # try-except-raise
+    C1803, # use-implicit-booleaness-not-comparison
+    W0231, # super-init-not-called
+    C0123, # unidiomatic-typecheck
+    C0207, # use-maxsplit-arg
+    C2801, # unnecessary-dunder-call
+    E0203, # access-member-before-definition
+    E0611, # no-name-in-module
+    E0702, # raising-bad-type
+    E1101, # no-member
+    E1135, # unsupported-membership-test
+    R1703, # simplifiable-if-statement
+    R1718, # consider-using-set-comprehension
+    R1721, # unnecessary-comprehension
+    R1722, # consider-using-sys-exit
+    W0105, # pointless-string-statement
+    W0108, # unnecessary-lambda
+    W0222, # signature-differs
+    W0223, # abstract-method
+    W0246, # useless-parent-delegation
+    W0621, # redefined-outer-name
+    W0640, # cell-var-from-loop
+    W1509, # subprocess-popen-preexec-fn
+    W4701, # modified-iterating-list
