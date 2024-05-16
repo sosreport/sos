@@ -51,7 +51,7 @@ class JournalSizeLimitTest(StageTwoReportTest):
     def pre_sos_setup(self):
         # if the journal is already over our size limit, don't write anything
         # new to it
-        from systemd import journal
+        from systemd import journal  # pylint: disable=import-error
         _reader = journal.Reader()
         _size = _reader.get_usage() / 1024 / 1024
         if _size > 20:
