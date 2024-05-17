@@ -16,7 +16,8 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
     plugin_name = 'ceph_mds'
     profiles = ('storage', 'virt', 'container', 'ceph')
     containers = ('ceph-(.*-)?fs.*',)
-    files = ('/var/lib/ceph/mds/*', '/var/snap/microceph/common/data/mds/*')
+    files = ('/var/lib/ceph/mds/*', '/var/lib/ceph/*/mds.*',
+             '/var/snap/microceph/common/data/mds/*')
 
     def setup(self):
         all_logs = self.get_option("all_logs")
@@ -48,6 +49,7 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
             self.add_copy_spec([
                 "/var/lib/ceph/bootstrap-mds/",
                 "/var/lib/ceph/mds/",
+                "/var/lib/ceph/*/mds.*",
                 "/run/ceph/ceph-mds*",
             ])
 
