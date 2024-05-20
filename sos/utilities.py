@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
+import pwd
 import re
 import inspect
 from subprocess import Popen, PIPE, STDOUT
@@ -218,7 +219,7 @@ def is_executable(command, sysroot=None):
 def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                            chroot=None, chdir=None, env=None, foreground=False,
                            binary=False, sizelimit=None, poller=None,
-                           to_file=False):
+                           to_file=False, runas=None):
     # pylint: disable=too-many-locals,too-many-branches
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
@@ -232,12 +233,25 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             os.chroot(chroot)
         if (chdir):
             os.chdir(chdir)
+        if runas:
+            os.setgid(pwd.getpwnam(runas).pw_gid)
+            os.setuid(pwd.getpwnam(runas).pw_uid)
+            os.chdir(pwd.getpwnam(runas).pw_dir)
 
     def _check_poller(proc):
         if poller() or proc.poll() == 124:
             proc.terminate()
             raise SoSTimeoutError
         time.sleep(0.01)
+
+    if runas:
+        pwd_user = pwd.getpwnam(runas)
+        env.update({
+            'HOME': pwd_user.pw_dir,
+            'LOGNAME': runas,
+            'PWD': pwd_user.pw_dir,
+            'USER': runas
+        })
 
     cmd_env = os.environ.copy()
     # ensure consistent locale for collected command output
