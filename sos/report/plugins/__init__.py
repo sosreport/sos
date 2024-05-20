@@ -2003,7 +2003,10 @@ class Plugin():
                 return
         if self.test_predicate(cmd=True, pred=pred):
             self.collect_cmds.append(soscmd)
-            self._log_info(f"added cmd output '{soscmd.cmd}'")
+            user = ""
+            if hasattr(soscmd, "runas"):
+                user = f", as the {soscmd.runas} user"
+            self._log_info(f"added cmd output '{soscmd.cmd}'{user}")
         else:
             self.log_skipped_cmd(soscmd.cmd, pred, changes=soscmd.changes)
 
@@ -2013,7 +2016,7 @@ class Plugin():
                        sizelimit=None, pred=None, subdir=None,
                        changes=False, foreground=False, tags=[],
                        priority=10, cmd_as_tag=False, container=None,
-                       to_file=False):
+                       to_file=False, runas=None):
         """Run a program or a list of programs and collect the output
 
         Output will be limited to `sizelimit`, collecting the last X amount
@@ -2086,6 +2089,9 @@ class Plugin():
         :param to_file: Should command output be written directly to a new
                         file rather than stored in memory?
         :type to_file:  ``bool``
+
+        :param runas: Run the `cmd` as the `runas` user
+        :type runas: ``str``
         """
         if isinstance(cmds, str):
             cmds = [cmds]
@@ -2113,7 +2119,8 @@ class Plugin():
                                  pred=pred, subdir=subdir, tags=tags,
                                  changes=changes, foreground=foreground,
                                  priority=priority, cmd_as_tag=cmd_as_tag,
-                                 to_file=to_file, container_cmd=container_cmd)
+                                 to_file=to_file, container_cmd=container_cmd,
+                                 runas=runas)
 
     def add_cmd_tags(self, tagdict):
         """Retroactively add tags to any commands that have been run by this
@@ -2275,7 +2282,7 @@ class Plugin():
                             binary=False, sizelimit=None, subdir=None,
                             changes=False, foreground=False, tags=[],
                             priority=10, cmd_as_tag=False, to_file=False,
-                            container_cmd=False):
+                            container_cmd=False, runas=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
 
@@ -2303,6 +2310,7 @@ class Plugin():
             :param cmd_as_tag:          Format command string to tag
             :param to_file:             Write output directly to file instead
                                         of saving in memory
+            :param runas:               Run the `cmd` as the `runas` user
 
         :returns:       dict containing status, output, and filename in the
                         archive for the executed cmd
@@ -2353,7 +2361,7 @@ class Plugin():
             cmd, timeout=timeout, stderr=stderr, chroot=root,
             chdir=runat, env=_env, binary=binary, sizelimit=sizelimit,
             poller=self.check_timeout, foreground=foreground,
-            to_file=out_file
+            to_file=out_file, runas=runas
         )
 
         end = time()
@@ -2451,7 +2459,7 @@ class Plugin():
                            stderr=True, chroot=True, runat=None, env=None,
                            binary=False, sizelimit=None, pred=None,
                            changes=False, foreground=False, subdir=None,
-                           tags=[]):
+                           tags=[], runas=None):
         """Execute a command and save the output to a file for inclusion in the
         report, then return the results for further use by the plugin
 
@@ -2500,6 +2508,9 @@ class Plugin():
         :param tags:                Add tags in the archive manifest
         :type tags: ``str`` or a ``list`` of strings
 
+        :param runas:               Run the `cmd` as the `runas` user
+        :type runas: ``str``
+
         :returns:       `cmd` exit status, output, and the filepath within the
                         archive output was saved to
         :rtype: ``dict``
@@ -2516,12 +2527,13 @@ class Plugin():
             cmd, suggest_filename=suggest_filename, root_symlink=root_symlink,
             timeout=timeout, stderr=stderr, chroot=chroot, runat=runat,
             env=env, binary=binary, sizelimit=sizelimit, foreground=foreground,
-            subdir=subdir, tags=tags
+            subdir=subdir, tags=tags, runas=runas
         )
 
     def exec_cmd(self, cmd, timeout=None, stderr=True, chroot=True,
                  runat=None, env=None, binary=False, pred=None,
-                 foreground=False, container=False, quotecmd=False):
+                 foreground=False, container=False, quotecmd=False,
+                 runas=None):
         """Execute a command right now and return the output and status, but
         do not save the output within the archive.
 
@@ -2563,6 +2575,9 @@ class Plugin():
         :param quotecmd:            Whether the cmd should be quoted.
         :type quotecmd: ``bool``
 
+        :param runas:               Run the `cmd` as the `runas` user
+        :type runas: ``str``
+
         :returns:                   Command exit status and output
         :rtype: ``dict``
         """
@@ -2593,7 +2608,8 @@ class Plugin():
 
         return sos_get_command_output(cmd, timeout=timeout, chroot=root,
                                       chdir=runat, binary=binary, env=_env,
-                                      foreground=foreground, stderr=stderr)
+                                      foreground=foreground, stderr=stderr,
+                                      runas=runas)
 
     def _add_container_file_to_manifest(self, container, path, arcpath, tags):
         """Adds a file collection to the manifest for a particular container
@@ -3079,7 +3095,10 @@ class Plugin():
         self.collect_cmds.sort(key=lambda x: x.priority)
         for soscmd in self.collect_cmds:
             self._log_debug("unpacked command: " + soscmd.__str__())
-            self._log_info(f"collecting output of '{soscmd.cmd}'")
+            user = ""
+            if hasattr(soscmd, "runas"):
+                user = f", as the {soscmd.runas} user"
+            self._log_info(f"collecting output of '{soscmd.cmd}'{user}")
             self._collect_cmd_output(**soscmd.__dict__)
 
     def _collect_tailed_files(self):
