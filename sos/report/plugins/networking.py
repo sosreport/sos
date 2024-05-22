@@ -289,15 +289,14 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
 
     def setup(self):
 
-        ubuntu_ss_kmods = dict.fromkeys([22.04, 23.10],
-                                        ['tcp_diag', 'udp_diag',
-                                         'inet_diag', 'unix_diag',
-                                         'netlink_diag',
-                                         'af_packet_diag', 'xsk_diag',
-                                         'mptcp_diag', 'raw_diag'])
+        ubuntu_jammy_and_after_ss_kmods = ['tcp_diag', 'udp_diag',
+                                           'inet_diag', 'unix_diag',
+                                           'netlink_diag', 'af_packet_diag',
+                                           'xsk_diag', 'mptcp_diag',
+                                           'raw_diag']
 
-        if self.policy.dist_version() in ubuntu_ss_kmods:
-            self.ss_kmods = ubuntu_ss_kmods[self.policy.dist_version()]
+        if self.policy.dist_version() >= 22.04:
+            self.ss_kmods = ubuntu_jammy_and_after_ss_kmods
 
         super().setup()
 
