@@ -24,7 +24,9 @@ class OpenStackEDPM(Plugin, RedHatPlugin):
         # Notes: recursion is max 2 for edpm-config
         # Those directories are present on all OpenStack nodes
         self.edpm_log_paths = [
-            '/var/lib/edpm-config/'
+            '/etc/os-net-config/',
+            '/var/lib/config-data/',
+            '/var/lib/edpm-config/',
         ]
         self.add_copy_spec(self.edpm_log_paths)
 
