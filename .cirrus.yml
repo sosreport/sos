@@ -15,7 +15,6 @@ env:
     UBUNTU_PRIOR3_NAME: "ubuntu-18.04"
 
     CENTOS_9_NAME: "centos-stream-9"
-    CENTOS_8_NAME: "centos-stream-8"
 
     CENTOS_PROJECT: "centos-cloud"
     DEBIAN_PROJECT: "debian-cloud"
@@ -26,7 +25,6 @@ env:
 
     # Images exist on GCP already
     CENTOS_9_IMAGE_NAME: "centos-stream-9-v20240415"
-    CENTOS_8_IMAGE_NAME: "centos-stream-8-v20240415"
     DEBIAN_IMAGE_NAME: "debian-11-bullseye-v20230809"
     FEDORA_IMAGE_NAME: "fedora-cloud-base-gcp-38-1-6-x86-64"
     FEDORA_PRIOR_IMAGE_NAME: "fedora-cloud-base-gcp-37-1-7-x86-64"
@@ -108,10 +106,6 @@ rpm_build_task:
             PROJECT: ${CENTOS_PROJECT}
             BUILD_NAME: ${CENTOS_9_NAME}
             VM_IMAGE_NAME: ${CENTOS_9_IMAGE_NAME}
-        - env: &centos8
-            PROJECT: ${CENTOS_PROJECT}
-            BUILD_NAME: ${CENTOS_8_NAME}
-            VM_IMAGE_NAME: ${CENTOS_8_IMAGE_NAME}
         - env: &fedora
             PROJECT: ${FEDORA_PROJECT}
             BUILD_NAME: ${FEDORA_NAME}
@@ -193,7 +187,6 @@ report_stageone_task:
     gce_instance: *standardvm
     matrix:
         - env: *centos9
-        - env: *centos8
         - env: *fedora
         - env: *fedoraprior
         - env: &ubuntu
@@ -288,7 +281,6 @@ report_stagetwo_task:
     gce_instance: *standardvm
     matrix:
         - env: *centos9
-        - env: *centos8
         - env: *fedora
         - env: *ubuntu
         - env: *ubuntu-latest
@@ -334,15 +326,6 @@ report_foreman_task:
         <<: *standardvm
         type: e2-standard-2
     matrix:
-        - env:
-            <<: *centos8
-            FOREMAN_VER: "3.3"
-        - env:
-            <<: *centos8
-            FOREMAN_VER: "3.5"
-        - env:
-            <<: *centos8
-            FOREMAN_VER: "3.7"
         - env:
             PROJECT: ${DEBIAN_PROJECT}
             VM_IMAGE_NAME: ${DEBIAN_IMAGE_NAME}

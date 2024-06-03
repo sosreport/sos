@@ -19,7 +19,6 @@ jobs:
       - fedora-development-aarch64
       - fedora-development-ppc64le
       - fedora-development-s390x
-      - centos-stream-8
       - centos-stream-9
 
 notifications:
