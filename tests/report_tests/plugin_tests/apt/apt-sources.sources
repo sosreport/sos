@@ -1,0 +1,4 @@
+Types: deb
+URIs: http://username:somesecretpassword@archive.example.com/ubuntu
+Suites: jammy
+Components: main
