@@ -231,12 +231,12 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
     def _child_prep_fn():
         if chroot and chroot != '/':
             os.chroot(chroot)
-        if (chdir):
-            os.chdir(chdir)
         if runas:
             os.setgid(pwd.getpwnam(runas).pw_gid)
             os.setuid(pwd.getpwnam(runas).pw_uid)
             os.chdir(pwd.getpwnam(runas).pw_dir)
+        if (chdir):
+            os.chdir(chdir)
 
     def _check_poller(proc):
         if poller() or proc.poll() == 124:
