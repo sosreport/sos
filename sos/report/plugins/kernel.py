@@ -75,7 +75,7 @@ class Kernel(Plugin, IndependentPlugin):
             self.add_cmd_output(f"find {' '.join(extra_mod_paths)} -ls")
 
         self.add_cmd_output([
-            "dmesg",
+            "dmesg -T",
             "dkms status"
         ], cmd_as_tag=True)
         self.add_cmd_output("sysctl -a", tags="sysctl")
