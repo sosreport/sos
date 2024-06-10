@@ -35,11 +35,11 @@ class AAPEDAControllerPlugin(Plugin, RedHatPlugin):
             "/etc/ansible-automation-platform/eda/server.key",
         ])
 
-        self.add_cmd_output([
-            "aap-eda-manage --version",  # eda version
-            "ls -alhR /etc/ansible-automation-platform/",
-            "ls -alhR /var/log/ansible-automation-platform/",
-        ])
+        self.add_cmd_output("aap-eda-manage --version")
+        self.add_dir_listing([
+            "/etc/ansible-automation-platform/",
+            "/var/log/ansible-automation-platform/",
+        ], recursive=True)
 
         self.add_cmd_output("su - eda -c 'export'",
                             suggest_filename="eda_export")

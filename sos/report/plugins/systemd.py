@@ -30,9 +30,10 @@ class Systemd(Plugin, IndependentPlugin):
             '/etc/systemd/logind.conf': 'systemd_logind_conf'
         })
 
+        self.add_dir_listing('/lib/systemd', recursive=True)
+
         self.add_cmd_output([
             "journalctl --list-boots",
-            "ls -lR /lib/systemd",
             "systemctl list-dependencies",
             "systemctl list-jobs",
             "systemctl list-machines",

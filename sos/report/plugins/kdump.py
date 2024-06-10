@@ -94,7 +94,7 @@ class RedHatKDump(KDump, RedHatPlugin):
             # set no filesystem and default path
             path = "/var/crash"
 
-        self.add_cmd_output(f"ls -alhR {path}")
+        self.add_dir_listing(path, recursive=True)
         self.add_copy_spec(f"{path}/*/vmcore-dmesg.txt")
         self.add_copy_spec(f"{path}/*/kexec-dmesg.log")
 
@@ -131,7 +131,7 @@ class CosKDump(KDump, CosPlugin):
 
     def setup(self):
         super().setup()
-        self.add_cmd_output('ls -alRh /var/kdump*')
+        self.add_dir_listing('/var/kdump*', recursive=True)
         if self.get_option("collect-kdumps"):
             self.add_copy_spec(["/var/kdump-*"])
 
@@ -172,7 +172,7 @@ class AzureKDump(KDump, AzurePlugin):
             # set no filesystem and default path
             path = "/var/crash"
 
-        self.add_cmd_output(f"ls -alhR {path}")
+        self.add_dir_listing(path, recursive=True)
         self.add_copy_spec(f"{path}/*/vmcore-dmesg.txt")
         self.add_copy_spec(f"{path}/*/kexec-dmesg.log")
 

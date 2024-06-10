@@ -19,9 +19,10 @@ class Snapper(Plugin, IndependentPlugin):
     def setup(self):
 
         self.add_cmd_output([
-            "ls -la /usr/lib/snapper/",
             "snapper --version",
             "snapper list"
         ])
+
+        self.add_dir_listing('/usr/lib/snapper/')
 
 # vim: set et ts=4 sw=4 :

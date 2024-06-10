@@ -83,7 +83,6 @@ class Ssh(Plugin, IndependentPlugin):
         # Read the home paths of users in the system and check the ~/.ssh dirs
         for user in users_data:
             home_dir = self.path_join(user.pw_dir, '.ssh')
-            if self.path_isdir(home_dir):
-                self.add_cmd_output(f"ls -laZ {home_dir}")
+            self.add_dir_listing(home_dir)
 
 # vim: set et ts=4 sw=4 :

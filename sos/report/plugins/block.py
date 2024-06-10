@@ -25,15 +25,16 @@ class Block(Plugin, IndependentPlugin):
             '/sys/block/.*/queue/scheduler': 'scheduler'
         })
 
+        self.add_dir_listing('/dev', tags=['ls_dev'], recursive=True)
+        self.add_dir_listing('/sys/block', recursive=True)
+
         self.add_cmd_output("blkid -c /dev/null", tags="blkid")
-        self.add_cmd_output("ls -lanR /dev", tags="ls_dev")
         self.add_cmd_output("lsblk", tags="lsblk")
         self.add_cmd_output("lsblk -O -P", tags="lsblk_pairs")
         self.add_cmd_output([
             "lsblk -t",
             "lsblk -D",
             "blockdev --report",
-            "ls -lanR /sys/block",
             "losetup -a",
         ])
 

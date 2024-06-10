@@ -98,11 +98,14 @@ class Vdsm(Plugin, RedHatPlugin):
                 for pid in qemu_pids
                 for name in files
             ])
-        self.add_cmd_output([
-            "ls -ldZ /etc/vdsm",
-            "su vdsm -s /bin/sh -c 'tree -l /rhev/data-center'",
-            "su vdsm -s /bin/sh -c 'ls -lR /rhev/data-center'"
-        ])
+
+        self.add_dir_listing(
+            ['/etc/vdsm', '/rhev/data-center'],
+            runas='vdsm', recursive=True
+        )
+
+        self.add_dir_listing('/rhev/data-center', tree=True)
+
         self.add_cmd_output([
             f"lvm vgs -v -o +tags --config \'{LVM_CONFIG}\'",
             f"lvm lvs -v -o +tags --config \'{LVM_CONFIG}\'",

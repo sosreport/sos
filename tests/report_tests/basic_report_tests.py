@@ -47,6 +47,16 @@ class NormalSoSReport(StageOneReportTest):
             "Tag summary malformed"
         )
 
+    def test_dir_listing_works(self):
+        self.assertFileCollected('sos_commands/boot/ls_-alhZR_.boot')
+        boot_ls = self.get_name_in_archive('sos_commands/boot/ls_-alhZR_.boot')
+        with open(boot_ls, 'r') as ls_file:
+            # make sure we actually got ls output
+            ln = ls_file.readline().strip()
+            self.assertEqual(
+                ln, '/boot:', f"dir listing first line looks incorrect: {ln}"
+            )
+
     @redhat_only
     def test_version_matches_package(self):
         if not self.params.get('TESTLOCAL') == 'true':

@@ -42,7 +42,7 @@ class OpenStackNeutron(Plugin):
         # rather take a list of files in the dir only
         self.add_copy_spec("/var/lib/neutron/")
         self.add_forbidden_path("/var/lib/neutron/lock")
-        self.add_cmd_output("ls -laZR /var/lib/neutron/lock")
+        self.add_dir_listing('/var/lib/neutron/lock', recursive=True)
 
         if self.path_exists(self.var_puppet_gen):
             ml2_pre = self.var_puppet_gen

@@ -164,7 +164,6 @@ class Ipa(Plugin, RedHatPlugin):
         ])
 
         self.add_cmd_output([
-            "ls -la /etc/dirsrv/slapd-*/schema/",
             "certutil -L -d /etc/httpd/alias/",
             "pki-server cert-find --show-all",
             "pki-server subsystem-cert-validate ca",
@@ -172,6 +171,8 @@ class Ipa(Plugin, RedHatPlugin):
             "klist -ket /etc/httpd/conf/ipa.keytab",
             "klist -ket /var/lib/ipa/gssproxy/http.keytab"
         ])
+
+        self.add_dir_listing("/etc/dirsrv/slapd-*/schema/")
 
         getcert_pred = SoSPredicate(self,
                                     services=['certmonger'])

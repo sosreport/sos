@@ -121,8 +121,6 @@ class PowerPC(Plugin, IndependentPlugin):
             self.add_cmd_output([
                 "opal-prd --expert-mode run nvdimm_info"
             ])
-            if self.path_isdir("/var/log/dump"):
-                self.add_cmd_output("ls -l /var/log/dump")
-
+            self.add_dir_listing('/var/log/dump')
 
 # vim: set et ts=4 sw=4 :

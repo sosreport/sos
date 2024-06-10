@@ -47,9 +47,12 @@ class Puppet(Plugin, IndependentPlugin):
         self.add_cmd_output([
             'facter',
             'puppet --version',
-            'ls -lanR /etc/puppet/modules',
-            'ls -lanR /etc/puppetlabs/code/modules'
         ])
+
+        self.add_dir_listing([
+            '/etc/puppet/modules',
+            '/etc/puppetlabs/code/modules'
+        ], recursive=True)
 
     def postproc(self):
         for device_conf in glob("/etc/puppet/device.conf*"):

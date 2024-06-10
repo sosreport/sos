@@ -39,8 +39,9 @@ class Rhui(Plugin, RedHatPlugin):
         self.add_cmd_output([
             "rhui-manager status",
             "rhui-manager cert info",
-            "ls -lR /var/lib/rhui/remote_share",
         ], timeout=60, env={'PYTHONUNBUFFERED': '1'})
+
+        self.add_dir_listing('/var/lib/rhui/remote_share', recursive=True)
 
     def postproc(self):
         # hide rhui_manager_password value in (also rotated) answers file

@@ -56,12 +56,15 @@ class AAPControllerPlugin(Plugin, RedHatPlugin):
             "/var/lib/awx/venv/awx/bin/pip freeze -l",
             "/var/lib/awx/venv/ansible/bin/pip freeze",
             "/var/lib/awx/venv/ansible/bin/pip freeze -l",
-            "tree -d /var/lib/awx",
-            "ls -ll /var/lib/awx",
-            "ls -ll /var/lib/awx/venv",
-            "ls -ll /etc/tower",
             "umask -p",
         ])
+
+        self.add_dir_listing([
+            '/var/lib/awx',
+            '/var/lib/awx/venv',
+            '/etc/tower',
+        ])
+        self.add_dir_listing('/var/lib/awx', tree=True)
 
     def postproc(self):
         # remove database password

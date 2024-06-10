@@ -39,7 +39,6 @@ class Grub2(Plugin, IndependentPlugin):
             "/etc/grub2-efi.cfg"
         ])
 
-        self.add_cmd_output("ls -lanR /boot", tags="ls_boot")
         # call grub2-mkconfig with GRUB_DISABLE_OS_PROBER=true to prevent
         # possible unwanted loading of some kernel modules
         # further, check if the command supports --no-grubenv-update option

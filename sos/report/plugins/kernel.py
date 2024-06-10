@@ -51,7 +51,7 @@ class Kernel(Plugin, IndependentPlugin):
         # compat
         self.add_cmd_output("uname -a", root_symlink="uname", tags="uname")
         self.add_cmd_output("lsmod", root_symlink="lsmod", tags="lsmod")
-        self.add_cmd_output("ls -lt /sys/kernel/slab")
+        self.add_dir_listing('/sys/kernel/slab')
 
         try:
             modules = self.listdir(self.sys_module)

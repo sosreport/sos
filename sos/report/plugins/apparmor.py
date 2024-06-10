@@ -29,10 +29,11 @@ class Apparmor(Plugin, UbuntuPlugin):
             "/etc/apparmor.d/abstractions"
         ])
 
-        self.add_cmd_output([
-            "apparmor_status",
-            "ls -alh /etc/apparmor.d/abstractions",
-            "ls -alh /etc/apparmor.d/libvirt",
+        self.add_cmd_output("apparmor_status")
+
+        self.add_dir_listing([
+            '/etc/apparmor.d/abstractions',
+            '/etc/apparmor.d/libvirt'
         ])
 
 # vim: set et ts=4 sw=4 :

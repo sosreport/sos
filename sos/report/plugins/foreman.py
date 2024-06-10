@@ -127,12 +127,16 @@ class Foreman(Plugin):
             'passenger-status --show requests',
             'passenger-status --show backtraces',
             'passenger-memory-stats',
-            'ls -lanR /root/ssl-build',
-            'ls -lanR /usr/share/foreman/config/hooks',
             f'ping -c1 -W1 {_hostname}',
             f'ping -c1 -W1 {_host_f}',
             'ping -c1 -W1 localhost'
         ])
+
+        self.add_dir_listing([
+            '/root/ssl-build',
+            '/usr/share/foreman/config/hooks'
+        ], recursive=True)
+
         self.add_cmd_output(
             'qpid-stat -b amqps://localhost:5671 -q \
                     --ssl-certificate=/etc/pki/katello/qpid_router_client.crt \

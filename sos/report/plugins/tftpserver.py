@@ -21,8 +21,6 @@ class TftpServer(Plugin, IndependentPlugin):
     packages = ('tftp-server',)
 
     def setup(self):
-        self.add_cmd_output("ls -lanR /tftpboot")
-        self.add_cmd_output('ls -lanR /srv/tftp')
-
+        self.add_dir_listing(['/tftpboot', '/sr/tftp'], recursive=True)
 
 # vim: set et ts=4 sw=4 :

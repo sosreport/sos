@@ -66,7 +66,7 @@ class MsSQL(Plugin, RedHatPlugin):
                       f' but not found in {kerberoskeytabfile}')
         if kerberoskeytabfile is not None:
             if self.path_isfile(kerberoskeytabfile):
-                self.add_cmd_output(f'ls -l {kerberoskeytabfile}')
+                self.add_dir_listing(kerberoskeytabfile)
                 self.add_cmd_output(f'klist -e -k {kerberoskeytabfile}')
             else:
                 self._log_error(keytab_err)

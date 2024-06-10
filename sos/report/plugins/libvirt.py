@@ -74,7 +74,7 @@ class Libvirt(Plugin, IndependentPlugin):
         if self.path_exists(self.path_join(libvirt_keytab)):
             self.add_cmd_output(f"klist -ket {libvirt_keytab}")
 
-        self.add_cmd_output("ls -lR /var/lib/libvirt/qemu")
+        self.add_dir_listing("/var/lib/libvirt/qemu", recursive=True)
 
         # get details of processes of KVM hosts
         for pidfile in glob.glob("/run/libvirt/*/*.pid"):
