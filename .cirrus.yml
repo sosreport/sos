@@ -59,21 +59,18 @@ flake8_task:
     alias: "flake8_test"
     name: "Flake8 linting test"
     container:
-        image: alpine/flake8:latest
-    setup_script: |
-        apk update
-        apk add --upgrade py3-tox
+        image: "python:latest"
+    setup_script: &tox-lint-setup |
+        apt update
+        apt -y install tox
     flake_script: tox -e flake8
 
 pylint_task:
     alias: "pylint_test"
     name: "pylint linting test"
-    allow_failures: true
     container:
         image: "python:latest"
-    setup_script: |
-        apt update
-        apt -y install tox
+    setup_script: *tox-lint-setup
     pylint_script: tox -e pylint
 
 # Run a check on newer upstream python versions to check for possible
