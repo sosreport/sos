@@ -2011,6 +2011,45 @@ class Plugin():
         else:
             self.log_skipped_cmd(soscmd.cmd, pred, changes=soscmd.changes)
 
+    def add_dir_listing(self, paths, tree=False, recursive=False, chroot=True,
+                        env=None, sizelimit=None, pred=None, subdir=None,
+                        tags=[], runas=None, container=None,
+                        suggest_filename=None):
+        """
+        Used as a way to standardize our collections of directory listings,
+        either as an output of `ls` or `tree` depending on if the `tree`
+        parameter is set to `True`.
+
+        This is ultimately a wrapper around `add_cmd_output()` and supports
+        several, but not all, of the options for that method.
+
+        :param paths:   The path(s) to collect a listing for
+        :type paths:     ``str`` or a ``list`` of ``str``s
+
+        :param tree:    Collect output with `tree` instead of `ls`
+        :type tree:     ``bool`` (default: False)
+
+        :param recursive:   Recursively list directory contents with `ls`
+        :type recursive:    ``bool`` (default: False)
+        """
+        if isinstance(paths, str):
+            paths = [paths]
+
+        paths = [p for p in paths if self.path_exists(p)]
+
+        if not tree:
+            options = f"alhZ{'R' if recursive else ''}"
+        else:
+            options = 'lhp'
+
+        for path in paths:
+            self.add_cmd_output(
+                f"{'tree' if tree else 'ls'} -{options} {path}",
+                chroot=chroot, env=env, sizelimit=sizelimit, pred=pred,
+                subdir=subdir, tags=tags, container=container, runas=runas,
+                suggest_filename=suggest_filename
+            )
+
     def add_cmd_output(self, cmds, suggest_filename=None,
                        root_symlink=None, timeout=None, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,

@@ -51,7 +51,8 @@ class Etcd(Plugin, RedHatPlugin):
             '/etc/etcd/*.key'
         ])
 
-        self.add_cmd_output('ls -lR /var/lib/etcd/', container=etcd_con)
+        self.add_dir_listing('/var/lib/etcd/', container=etcd_con,
+                             recursive=True)
         self.add_copy_spec('/etc/etcd', container=etcd_con)
 
         subcmds = [

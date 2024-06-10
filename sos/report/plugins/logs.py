@@ -54,7 +54,7 @@ class LogsBase(Plugin):
         ])
 
         self.add_cmd_output("journalctl --disk-usage")
-        self.add_cmd_output('ls -alRh /var/log/')
+        self.add_dir_listing('/var/log', recursive=True)
 
         # collect journal logs if:
         # - there is some data present, either persistent or runtime only

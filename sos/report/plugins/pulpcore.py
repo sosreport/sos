@@ -100,7 +100,7 @@ class PulpCore(Plugin, IndependentPlugin):
                         "DJANGO_SETTINGS_MODULE": "pulpcore.app.settings"}
         self.add_cmd_output("dynaconf list", env=dynaconf_env)
         for _dir in [self.staticroot, self.uploaddir]:
-            self.add_cmd_output(f"ls -l {_dir}")
+            self.add_dir_listing(_dir)
 
         task_days = self.get_option('task-days')
         for table in ['core_task', 'core_taskgroup',

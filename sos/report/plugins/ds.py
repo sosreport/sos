@@ -77,7 +77,7 @@ class DirectoryServer(Plugin, RedHatPlugin):
                 "/opt/redhat-ds/slapd-*/logs"
             ])
 
-        self.add_cmd_output("ls -l /var/lib/dirsrv/slapd-*/db/*")
+        self.add_dir_listing("/var/lib/dirsrv/slapd-*/db/*")
 
     def postproc(self):
         # Example for scrubbing rootpw hash

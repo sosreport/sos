@@ -33,7 +33,7 @@ class Apport(Plugin, DebianPlugin, UbuntuPlugin):
             "gdbus call -y -d com.ubuntu.WhoopsiePreferences \
             -o /com/ubuntu/WhoopsiePreferences \
             -m com.ubuntu.WhoopsiePreferences.GetIdentifier")
-        self.add_cmd_output("ls -alhR /var/crash/")
+        self.add_dir_listing('/var/crash', recursive=True)
         self.add_cmd_output("bash -c 'grep -B 50 -m 1 ProcMaps /var/crash/*'")
 
 # vim: set et ts=4 sw=4 :

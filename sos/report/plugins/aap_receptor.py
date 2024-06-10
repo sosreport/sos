@@ -40,10 +40,10 @@ class AAPreceptorPlugin(Plugin, RedHatPlugin):
             "/etc/receptor/*key.pem"
         ])
 
-        self.add_cmd_output([
-            "ls -llZ /etc/receptor",
-            "ls -llZ /var/run/receptor",
-            "ls -llZ /var/run/awx-receptor"
+        self.add_dir_listing([
+            "/etc/receptor",
+            "/var/run/receptor",
+            "/var/run/awx-receptor"
         ])
 
         for s in glob.glob('/var/run/*receptor/*.sock'):

@@ -33,10 +33,10 @@ class Juju(Plugin, UbuntuPlugin):
         self.add_copy_spec("/var/lib/juju/agents/*/agent.conf")
 
         # Get a directory listing of /var/log/juju and /var/lib/juju
-        self.add_cmd_output([
-            "ls -alRh /var/log/juju*",
-            "ls -alRh /var/lib/juju*"
-        ])
+        self.add_dir_listing([
+            '/var/log/juju*',
+            '/var/lib/juju*'
+        ], recursive=True)
 
         if self.get_option("all_logs"):
             # /var/lib/juju used to be in the default capture moving here

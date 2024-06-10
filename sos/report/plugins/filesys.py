@@ -108,6 +108,6 @@ class RedHatFilesys(Filesys, RedHatPlugin):
 
     def setup(self):
         super().setup()
-        self.add_cmd_output("ls -ltradZ /tmp")
+        self.add_cmd_output('ls -ldZ /tmp')
 
 # vim: set et ts=4 sw=4 :

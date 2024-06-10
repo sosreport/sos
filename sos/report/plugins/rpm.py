@@ -27,7 +27,7 @@ class Rpm(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_spec("/var/log/rpmpkgs")
-        self.add_cmd_output("ls -lanR /var/lib/rpm")
+        self.add_dir_listing('/var/lib/rpm', recursive=True)
 
         if self.get_option("rpmq"):
             rpmq = "rpm --nodigest -qa --qf=%s"

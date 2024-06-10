@@ -46,9 +46,10 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
         ])
 
         self.add_cmd_output([
-            "ls -alhR /etc/cni",
             "crio config"
         ])
+
+        self.add_dir_listing('/etc/cni', recursive=True)
 
         # base cri-o installation does not require cri-tools, which is what
         # supplies the crictl utility

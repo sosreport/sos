@@ -71,8 +71,10 @@ class OpenStackIronic(Plugin):
             for path in ['/var/lib/ironic', '/httpboot', '/tftpboot',
                          self.ins_puppet_gen + '/var/lib/httpboot/',
                          self.ins_puppet_gen + '/var/lib/tftpboot/']:
-                self.add_cmd_output(f'ls -laRt {path}')
-                self.add_cmd_output(f'ls -laRt {self.var_puppet_gen + path}')
+                self.add_dir_listing([
+                    path,
+                    f"{self.var_puppet_gen}{path}"
+                ], recursive=True)
 
             # Let's get the packages from the containers, always helpful when
             # troubleshooting.
@@ -108,8 +110,8 @@ class OpenStackIronic(Plugin):
                     "/var/log/ironic-inspector/*.log",
                 ])
 
-            for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
-                self.add_cmd_output(f'ls -laRt {path}')
+            self.add_dir_listing(['/var/lib/ironic', '/httpboot', '/tftpboot'],
+                                 recursive=True)
 
         self.add_file_tags({
             ".*/etc/ironic/ironic.conf": "ironic_conf"

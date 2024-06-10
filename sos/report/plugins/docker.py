@@ -44,7 +44,7 @@ class Docker(Plugin, CosPlugin):
         ])
 
         self.add_journal(units="docker")
-        self.add_cmd_output("ls -alhR /etc/docker")
+        self.add_dir_listing('/etc/docker', recursive=True)
 
         self.set_cmd_predicate(SoSPredicate(self, services=["docker"]))
 

@@ -33,16 +33,17 @@ class Boot(Plugin, IndependentPlugin):
             "/boot/yaboot.conf"
         ])
 
-        self.add_cmd_output("ls -lanR /boot", tags="ls_boot")
-        self.add_cmd_output("ls -lanR /sys/firmware",
-                            tags="ls_sys_firmware")
+        self.add_dir_listing('/boot', tags=['ls_boot'], recursive=True)
+        self.add_dir_listing('/sys/firmware/', tags=['ls_sys_firmware'],
+                             recursive=True)
+        self.add_dir_listing(['/initrd.img', '/boot/initrd.img'])
+
         self.add_cmd_output("lsinitrd", tags="lsinitrd")
         self.add_cmd_output("mokutil --sb-state",
                             tags="mokutil_sbstate")
 
         self.add_cmd_output([
             "efibootmgr -v",
-            "ls -l /initrd.img /boot/initrd.img",
             "lsinitramfs -l /initrd.img",
             "lsinitramfs -l /boot/initrd.img"
         ])

@@ -30,10 +30,11 @@ class Pam(Plugin):
             "/etc/security"
         ])
         self.add_cmd_output([
-            f"ls -lanF {self.security_libs}",
             "pam_tally2",
             "faillock"
         ])
+
+        self.add_dir_listing(self.security_libs)
 
 
 class RedHatPam(Pam, RedHatPlugin):

@@ -35,11 +35,9 @@ class AAPGatewayPlugin(Plugin, RedHatPlugin):
             "/etc/ansible-automation-platform/gateway/*.cert",
         ])
 
-        self.add_cmd_output([
-            "aap-gateway-manage list_services",
-            "ls -ll /etc/ansible-automation-platform/",
-            "ls -ll /etc/ansible-automation-platform/gateway/",
-        ])
+        self.add_cmd_output("aap-gateway-manage list_services")
+        self.add_dir_listing("/etc/ansible-automation-platform/",
+                             recursive=True)
 
     def postproc(self):
         # remove database password

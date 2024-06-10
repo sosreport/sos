@@ -86,7 +86,7 @@ class Ovirt(Plugin, RedHatPlugin):
 
         if not self.get_option('heapdump'):
             self.add_forbidden_path('/var/log/ovirt-engine/dump')
-            self.add_cmd_output('ls -l /var/log/ovirt-engine/dump/')
+            self.add_dir_listing('/var/log/ovirt-engine/dump/')
 
         certificates = [
             '/etc/pki/ovirt-engine/ca.pem',

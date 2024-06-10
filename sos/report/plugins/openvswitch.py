@@ -73,12 +73,14 @@ class OpenVSwitch(Plugin):
                 "openvswitch_server_log"
         })
 
+        self.add_dir_listing([
+            '/run/openvswitch',
+            '/dev/hugepages/',
+            '/dev/vfio',
+            '/var/lib/vhost_sockets',
+        ])
+
         self.add_cmd_output([
-            # List the contents of important runtime directories
-            "ls -laZ /run/openvswitch",
-            "ls -laZ /dev/hugepages/",
-            "ls -laZ /dev/vfio",
-            "ls -laZ /var/lib/vhost_sockets",
             # List devices and their drivers
             "dpdk_nic_bind --status",
             "dpdk-devbind.py --status",
