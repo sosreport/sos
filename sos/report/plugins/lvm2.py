@@ -89,7 +89,7 @@ class Lvm2(Plugin, IndependentPlugin):
         pvs_cols = 'pv_mda_free,pv_mda_size,pv_mda_count,pv_mda_used_count'
         pvs_cols = pvs_cols + ',' + 'pe_start'
         vgs_cols = 'vg_mda_count,vg_mda_free,vg_mda_size,vg_mda_used_count'
-        vgs_cols = vgs_cols + ',' + 'vg_tags,systemid'
+        vgs_cols = vgs_cols + ',' + 'vg_tags,systemid,lock_type'
         lvs_cols = ('lv_tags,devices,lv_kernel_read_ahead,lv_read_ahead,'
                     'stripes,stripesize')
         self.add_cmd_output(f"lvs -a -o +{lvs_cols} {lvm_opts_foreign}",
