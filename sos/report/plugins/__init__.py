@@ -2004,7 +2004,7 @@ class Plugin():
         if self.test_predicate(cmd=True, pred=pred):
             self.collect_cmds.append(soscmd)
             user = ""
-            if hasattr(soscmd, "runas"):
+            if getattr(soscmd, "runas", None) is not None:
                 user = f", as the {soscmd.runas} user"
             self._log_info(f"added cmd output '{soscmd.cmd}'{user}")
         else:
@@ -3096,7 +3096,7 @@ class Plugin():
         for soscmd in self.collect_cmds:
             self._log_debug("unpacked command: " + soscmd.__str__())
             user = ""
-            if hasattr(soscmd, "runas"):
+            if getattr(soscmd, "runas", None) is not None:
                 user = f", as the {soscmd.runas} user"
             self._log_info(f"collecting output of '{soscmd.cmd}'{user}")
             self._collect_cmd_output(**soscmd.__dict__)
