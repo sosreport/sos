@@ -455,7 +455,7 @@ support representative.
         try:
             if self.get_upload_url().startswith(RH_API_HOST):
                 self.upload_url = self.check_file_too_big(archive)
-            uploaded = super(RHELPolicy, self).upload_archive(archive)
+            uploaded = super().upload_archive(archive)
         except Exception as e:
             uploaded = False
             if not self.upload_url.startswith(RH_API_HOST):
