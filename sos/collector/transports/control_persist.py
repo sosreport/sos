@@ -48,14 +48,14 @@ class SSHControlPersist(RemoteTransport):
         ControlPersist allows OpenSSH to keep a single open connection to a
         remote host rather than building a new session each time. This is the
         same feature that Ansible uses in place of paramiko, which we have a
-        need to drop in sos-collector.
+        need to drop in sos collect.
 
         This check relies on feedback from the ssh binary. The command being
         run should always generate stderr output, but depending on what that
         output reads we can determine if ControlPersist is supported or not.
 
         For our purposes, a host that does not support ControlPersist is not
-        able to run sos-collector.
+        able to run sos collect.
 
         Returns
             True if ControlPersist is supported, else raise Exception.
@@ -74,7 +74,7 @@ class SSHControlPersist(RemoteTransport):
         Using ControlPersist, create the initial connection to the node.
 
         This will generate an OpenSSH ControlPersist socket within the tmp
-        directory created or specified for sos-collector to use.
+        directory created or specified for sos collect to use.
 
         At most, we will wait 30 seconds for a connection. This involves a 15
         second wait for the initial connection attempt, and a subsequent 15

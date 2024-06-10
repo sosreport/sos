@@ -982,7 +982,7 @@ class LinuxPolicy(Policy):
             raise Exception(f"Failed to upload to S3: {str(e)}") from e
 
     def set_sos_prefix(self):
-        """If sosreport commands need to always be prefixed with something,
+        """If sos report commands need to always be prefixed with something,
         for example running in a specific container image, then it should be
         defined here.
 

@@ -279,7 +279,7 @@ class SoSOptions():
         """Return command arguments for this object.
 
             Return a list of the non-default options of this ``SoSOptions``
-            object in ``sosreport`` command line argument notation:
+            object in ``sos report`` command line argument notation:
 
                 ``["--all-logs", "-vvv"]``
 

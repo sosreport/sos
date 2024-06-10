@@ -22,8 +22,9 @@ except KeyboardInterrupt:
     raise SystemExit()
 
 if __name__ == '__main__':
-    msg = ("Please note the 'sosreport' command has been deprecated in favor "
-           "of the new 'sos' command, E.G. 'sos report'.\n"
+    msg = ("WARNING: the 'sosreport' command has been deprecated in favor "
+           "of the new 'sos' command, E.G. 'sos report', and will be removed "
+           "in the upcoming sos-4.9 release.\n"
            "Redirecting to 'sos report %s'" % (' '.join(sys.argv[1:]) or ''))
     print(msg)
     time.sleep(0.5)

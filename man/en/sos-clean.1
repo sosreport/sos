@@ -1,6 +1,6 @@
 .TH SOS CLEAN 1 "Thu May 21 2020"
 .SH NAME
-sos clean - Obfuscate sensitive data from one or more sosreports
+sos clean - Obfuscate sensitive data from one or more sos reports
 .SH SYNOPSIS
 .B sos clean TARGET [options]
     [\-\-domains]
@@ -16,11 +16,11 @@ sos clean - Obfuscate sensitive data from one or more sosreports
 
 .SH DESCRIPTION
 \fBsos clean\fR or \fBsos mask\fR is an sos subcommand used to obfuscate sensitive information from
-previously generated sosreports that is not covered by the standard plugin-based post
+previously generated sos reports that is not covered by the standard plugin-based post
 processing executed during report generation, for example IP addresses.
 .LP
 Data obfuscated via this utility is done so consistently, meaning for example an IP address of
-192.168.1.1 in an unprocessed sosreport that gets obfuscated to, for example, 100.0.0.1, will be
+192.168.1.1 in an unprocessed sos report that gets obfuscated to, for example, 100.0.0.1, will be
 changed to 100.0.0.1 in all occurrences found in the report.
 
 Additionally, by default all such obfuscations are stored in "maps" that will be persistently
@@ -47,7 +47,7 @@ using the same compression method as the original.
 .TP
 .B \-\-domains DOMAINS
 Provide a comma-delimited list of domain names to obfuscate, in addition to those
-matching the hostname of the system that created the sosreport. Subdomains that
+matching the hostname of the system that created the sos report. Subdomains that
 match a domain given via this option will also be obfuscated.
 
 For example, if \fB\-\-domains redhat.com\fR is specified, then 'redhat.com' will

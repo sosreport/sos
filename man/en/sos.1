@@ -10,7 +10,7 @@ sos \- A unified tool for collecting system logs and other debug information
 support representatives, and the like to assist in troubleshooting issues with
 a system or group of systems.
 
-The most well known function is \fB sos report\fR or \fBsosreport\fR as it was
+The most well known function is \fB sos report\fR or \fBsos report\fR as it was
 previously known.
 
 An sos archive is typically requested by support organizations to collect baseline
@@ -31,7 +31,7 @@ services, or system architecture is detected.
 
 See \fBsos report --help\fR and \fBman sos-report\fR for more information.
 
-May also be invoked via the alias \fBrep\fR or the deprecated command \fBsosreport\fR.
+May also be invoked via the alias \fBrep\fR or the deprecated command \fBsos report\fR.
 
 .TP
 .B collect
@@ -51,9 +51,9 @@ May also be invoked via the alias \fBsos collector\fR or the deprecated command
 
 .TP
 .B clean|cleaner|mask
-This subcommand takes input of either 1) an sosreport tarball, 2) a collection
-of sosreport tarballs such as from \fBcollect\fR, or 3) the unpackaged
-directory of an sosreport and obfuscates potentially sensitive system information
+This subcommand takes input of either 1) an sos report tarball, 2) a collection
+of sos report tarballs such as from \fBcollect\fR, or 3) the unpackaged
+directory of an sos report and obfuscates potentially sensitive system information
 that is not covered by the standard postprocessing of \fBsos report\fR.
 
 Such data includes IP addresses, networks, MAC addresses, and more. Data obfuscated
@@ -103,13 +103,13 @@ See the sections on \fB--encrypt-key\fR and \fB--encrypt-pass\fR below for more
 information.
 .TP
 .B \--encrypt-key KEY
-Encrypts the resulting archive that sosreport produces using GPG. KEY must be
+Encrypts the resulting archive that sos report produces using GPG. KEY must be
 an existing key in the user's keyring as GPG does not allow for keyfiles.
 KEY can be any value accepted by gpg's 'recipient' option.
 
-Note that the user running sosreport must match the user owning the keyring
+Note that the user running sos report must match the user owning the keyring
 from which keys will be obtained. In particular this means that if sudo is
-used to run sosreport, the keyring must also be set up using sudo
+used to run sos report, the keyring must also be set up using sudo
 (or direct shell access to the account).
 
 Users should be aware that encrypting the final archive will result in sos
@@ -139,7 +139,7 @@ Specify an alternate root file system path.
 Specify alternate temporary directory to copy data during execution.
 .TP
 .B \--threads THREADS
-Specify the number of threads sosreport will use for concurrency. Defaults to 4. 
+Specify the number of threads sos report will use for concurrency. Defaults to 4. 
 .TP
 .B \-v, \--verbose
 Increase logging verbosity. May be specified multiple times to enable
@@ -165,7 +165,7 @@ Display usage message.
 .BR sos.conf (5)
 .SH MAINTAINER
 .nf
-Maintained on GitHub at https://github.com/sosreport/sos
+Maintained on GitHub at https://github.com/sos report/sos
 .fi
 .SH AUTHORS & CONTRIBUTORS
 See \fBAUTHORS\fR file in the package documentation.

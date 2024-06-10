@@ -9,7 +9,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-""" This provides a restricted tag language to define the sosreport
+""" This provides a restricted tag language to define the sos report
     index/report
 """
 

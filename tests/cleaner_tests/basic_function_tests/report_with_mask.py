@@ -101,7 +101,7 @@ class ReportWithUserCustomisations(StageOneReportTest):
     # Policy returning '/var/tmp' as temp.dir
     def test_keyword_in_tempdir_path(self):
         self.assertOutputContains(
-            'Your sosreport has been generated and saved in:'
+            'Your sos report has been generated and saved in:'
         )
         self.assertTrue('tmp/' in self.archive)
 

@@ -311,7 +311,7 @@ any third party.
 
     def post_work(self):
         """
-        This function is called after the sosreport has been generated.
+        This function is called after the sos report has been generated.
         """
         pass
 
@@ -441,7 +441,7 @@ any third party.
 
         if archive:
             self.ui_log.info(
-                _(f"\nYour sosreport has been generated and saved in:"
+                _(f"\nYour sos report has been generated and saved in:"
                   f"\n\t{archive}\n")
             )
             self.ui_log.info(
@@ -452,7 +452,7 @@ any third party.
             )
         else:
             self.ui_log.info(
-                _(f"Your sosreport build tree has been generated in:"
+                _(f"Your sos report build tree has been generated in:"
                   f"\n\t{directory}\n")
             )
         if checksum:

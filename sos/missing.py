@@ -16,14 +16,14 @@ class MissingCollect(SoSComponent):
     desc = '(unavailable) Collect an sos report from multiple nodes'
     missing_msg = (
         'It appears likely that your distribution separately ships a package '
-        'called sos-collector. Please install it to enable this function'
+        'called sos collect. Please install it to enable this function'
     )
 
     def execute(self):
         sys.stderr.write(
             "The collect command is unavailable as it appears to be packaged "
             "separately for your distribution.\n\nPlease install the latest "
-            "sos-collector package to enable this functionality.\n"
+            "sos collect package to enable this functionality.\n"
         )
 
     def load_options(self):

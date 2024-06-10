@@ -65,7 +65,7 @@ class Mysql(Plugin):
                 dbpass = os.environ['MYSQL_PWD']
 
             if dbuser is True or dbpass is True:
-                # sosreport -a or -k mysql.{dbuser,dbpass}
+                # sos report -a or -k mysql.{dbuser,dbpass}
                 self.soslog.warning(dbdump_err)
                 return
 

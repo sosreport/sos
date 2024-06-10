@@ -72,7 +72,7 @@ class SaltStackMaster(RemoteTransport):
         output reads we can determine if SaltStack Master is supported or not.
 
         For our purposes, a host that does not support SaltStack Master is not
-        able to run sos-collector.
+        able to run sos collect.
 
         Returns
             True if SaltStack Master is supported, else raise Exception

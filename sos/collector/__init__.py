@@ -306,7 +306,7 @@ class SoSCollector(SoSComponent):
                              help='Collect logs regardless of size')
         sos_grp.add_argument('--allow-system-changes', action='store_true',
                              default=False,
-                             help=('Allow sosreport to run commands that may '
+                             help=('Allow sos report to run commands that may '
                                    'alter system state'))
         sos_grp.add_argument('--chroot', default='',
                              choices=['auto', 'always', 'never'],
@@ -315,7 +315,7 @@ class SoSCollector(SoSComponent):
                              help="Default container runtime to use for "
                                   "collections. 'auto' for policy control.")
         sos_grp.add_argument('-e', '--enable-plugins', action="extend",
-                             help='Enable specific plugins for sosreport')
+                             help='Enable specific plugins for sos report')
         sos_grp.add_argument('--journal-size', type=int, default=0,
                              help='Limit the size of journals in MiB')
         sos_grp.add_argument('-k', '--plugin-option', '--plugopts',
@@ -336,7 +336,7 @@ class SoSCollector(SoSComponent):
                                   'output for - 0 means unlimited')
         sos_grp.add_argument('--no-env-vars', action='store_true',
                              default=False,
-                             help='Do not collect env vars in sosreports')
+                             help='Do not collect env vars in sos reports')
         sos_grp.add_argument('--plugin-timeout', type=int, default=None,
                              help='Set the global plugin timeout value')
         sos_grp.add_argument('--cmd-timeout', type=int, default=None,
@@ -427,7 +427,7 @@ class SoSCollector(SoSComponent):
         collect_grp.add_argument('--ssh-user',
                                  help='Specify an SSH user. Default root')
         collect_grp.add_argument('--timeout', type=int, required=False,
-                                 help='Timeout for sosreport on each node.')
+                                 help='Timeout for sos report on each node.')
         collect_grp.add_argument('--transport', default='auto', type=str,
                                  help='Remote connection transport to use')
         collect_grp.add_argument("--upload", action="store_true",
@@ -691,7 +691,7 @@ class SoSCollector(SoSComponent):
                          '"pacemaker.offline=False"\n')
 
     def delete_tmp_dir(self):
-        """Removes the temp directory and all collected sosreports"""
+        """Removes the temp directory and all collected sos reports"""
         shutil.rmtree(self.tmpdir)
 
     def _get_archive_name(self):
@@ -713,7 +713,7 @@ class SoSCollector(SoSComponent):
 
     def _get_archive_path(self):
         """Returns the path, including filename, of the tarball we build
-        that contains the collected sosreports
+        that contains the collected sos reports
         """
         self.arc_name = self._get_archive_name()
         compr = 'gz'
@@ -766,11 +766,11 @@ class SoSCollector(SoSComponent):
 
     def write_host_group(self):
         """
-        Saves the results of this run of sos-collector to a host group file
+        Saves the results of this run of sos collect to a host group file
         on the system so it can be used later on.
 
         The host group will save the options primary, cluster_type, and nodes
-        as determined by sos-collector prior to execution of sosreports.
+        as determined by sos collect prior to execution of sos reports.
         """
         cfg = {
             'name': self.opts.save_group,
@@ -795,7 +795,7 @@ class SoSCollector(SoSComponent):
         if (not self.opts.password and not
                 self.opts.password_per_node):
             self.log_debug('password not specified, assuming SSH keys')
-            msg = ('sos-collector ASSUMES that SSH keys are installed on all '
+            msg = ('sos collect ASSUMES that SSH keys are installed on all '
                    'nodes unless the --password option is provided.\n')
             self.ui_log.info(self._fmt_msg(msg))
 
@@ -972,7 +972,7 @@ class SoSCollector(SoSComponent):
                 self.exit(repr(e), 1)
 
     def configure_sos_cmd(self):
-        """Configures the sosreport command that is run on the nodes"""
+        """Configures the sos report command that is run on the nodes"""
         sos_cmd = 'sosreport --batch '
 
         sos_options = {}
@@ -1092,7 +1092,7 @@ class SoSCollector(SoSComponent):
         return False
 
     def get_nodes(self):
-        """ Sets the list of nodes to collect sosreports from """
+        """ Sets the list of nodes to collect sos reports from """
         if not self.primary and not self.cluster:
             msg = ('Could not determine a cluster type and no list of '
                    'nodes or primary node was provided.\nAborting...'
@@ -1141,7 +1141,7 @@ class SoSCollector(SoSComponent):
 
     def _connect_to_node(self, node):
         """Try to connect to the node, and if we can add to the client list to
-        run sosreport on
+        run sos report on
 
         Positional arguments
             node - a tuple specifying (address, password). If no password, set
@@ -1180,7 +1180,7 @@ organization before being passed to any third party.
 No configuration changes will be made to the system running \
 this utility or remote systems that it connects to.
 """)
-        self.ui_log.info(f"\nsos-collector (version {__version__})\n")
+        self.ui_log.info(f"\nsos collect (version {__version__})\n")
         intro_msg = self._fmt_msg(disclaimer % self.tmpdir)
         self.ui_log.info(intro_msg)
 
@@ -1215,7 +1215,7 @@ this utility or remote systems that it connects to.
 
     def collect(self):
         """ For each node, start a collection thread and then tar all
-        collected sosreports """
+        collected sos reports """
         filters = set([self.primary.address, self.primary.hostname])
         # add primary if:
         # - we are connected to it and
@@ -1262,7 +1262,7 @@ this utility or remote systems that it connects to.
                         "Aborting...", 1
                     )
 
-            self.ui_log.info("\nBeginning collection of sosreports from "
+            self.ui_log.info("\nBeginning collection of sos reports from "
                              f"{self.report_num} nodes, collecting a maximum "
                              f"of {self.opts.jobs} concurrently\n")
 
@@ -1284,13 +1284,13 @@ this utility or remote systems that it connects to.
             files = self.cluster._run_extra_cmd()
             if files:
                 self.primary.collect_extra_cmd(files)
-        msg = '\nSuccessfully captured %s of %s sosreports'
+        msg = '\nSuccessfully captured %s of %s sos reports'
         self.log_info(msg % (self.retrieved, self.report_num))
         self.close_all_connections()
         if self.retrieved > 0:
             arc_name = self.create_cluster_archive()
         else:
-            msg = 'No sosreports were collected, nothing to archive...'
+            msg = 'No sos reports were collected, nothing to archive...'
             self.exit(msg, 1)
 
         if (self.opts.upload and self.policy.get_upload_url()) or \
@@ -1312,7 +1312,7 @@ this utility or remote systems that it connects to.
                            f"{client.address}: {err}")
 
     def _collect(self, client):
-        """Runs sosreport on each node"""
+        """Runs sos report on each node"""
         try:
             if not client.local:
                 client.sosreport()
@@ -1322,7 +1322,7 @@ this utility or remote systems that it connects to.
             if client.retrieved:
                 self.retrieved += 1
         except Exception as err:
-            self.log_error(f"Error running sosreport: {err}")
+            self.log_error(f"Error running sos report: {err}")
 
     def close_all_connections(self):
         """Close all sessions for nodes"""
@@ -1333,7 +1333,7 @@ this utility or remote systems that it connects to.
 
     def create_cluster_archive(self):
         """Calls for creation of tar archive then cleans up the temporary
-        files created by sos-collector"""
+        files created by sos collect"""
         map_file = None
         arc_paths = []
         for host in self.client_list:
@@ -1360,7 +1360,7 @@ this utility or remote systems that it connects to.
                 self.ui_log.error(f"ERROR: unable to obfuscate reports: {err}")
 
         try:
-            self.log_info('Creating archive of sosreports...')
+            self.log_info('Creating archive of sos reports...')
             for fname in arc_paths:
                 dest = fname.split('/')[-1]
                 if do_clean:
