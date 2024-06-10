@@ -7,13 +7,15 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-# This sosreport plugin is meant for sas adapters.
-# This plugin logs inforamtion on each adapter it finds.
-
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class SAS3ircu(Plugin, IndependentPlugin):
+    """
+    The sas3ircu plugin is intended to gather information for sas adapters,
+    particularly sas-3 RAID adapters, and will collect information on each
+    adapter discovered on the system.
+    """
 
     short_desc = 'SAS-3 Integrated RAID adapter information'
 

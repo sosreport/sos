@@ -22,8 +22,9 @@ except KeyboardInterrupt:
     raise SystemExit()
 
 if __name__ == '__main__':
-    msg = ("Please note the 'sos-collector' command has been deprecated in "
-           " favor of the new 'sos' command, E.G. 'sos collect'.\n"
+    msg = ("WARNING: the 'sos-collector' command has been deprecated in "
+           " favor of the new 'sos' command, E.G. 'sos collect', and will be "
+           "removed in the upcoming sos-4.9 release.\n"
            "Redirecting to 'sos collect %s'" % (' '.join(sys.argv[1:]) or ''))
     print(msg)
     time.sleep(0.5)

@@ -57,6 +57,9 @@ Sos is modular in design and is able to collect data from a wide
 range of subsystems and packages that may be installed. An
 HTML report summarizing the collected information is optionally
 generated and stored within the archive.
+.LP
+\fBNote:\fR the \fBsosreport\fR command has been deprecated and will be removed in
+sos-4.9. Use the new \fBsos report\fR syntax instead.
 .SH OPTIONS
 .TP
 .B \-l, \--list-plugins
@@ -260,13 +263,13 @@ See the sections on \fB--encrypt-key\fR and \fB--encrypt-pass\fR below for more
 information.
 .TP
 .B \--encrypt-key KEY
-Encrypts the resulting archive that sosreport produces using GPG. KEY must be
+Encrypts the resulting archive that sos report produces using GPG. KEY must be
 an existing key in the user's keyring as GPG does not allow for keyfiles.
 KEY can be any value accepted by gpg's 'recipient' option.
 
-Note that the user running sosreport must match the user owning the keyring
+Note that the user running sos report must match the user owning the keyring
 from which keys will be obtained. In particular this means that if sudo is
-used to run sosreport, the keyring must also be set up using sudo
+used to run sos report, the keyring must also be set up using sudo
 (or direct shell access to the account).
 
 Users should be aware that encrypting the final archive will result in sos
@@ -298,7 +301,7 @@ Labels will be appended after the system's short hostname and may contain
 alphanumeric characters.
 .TP
 .B \--threads THREADS
-Specify the number of threads sosreport will use for concurrency. Defaults to 4.
+Specify the number of threads sos report will use for concurrency. Defaults to 4.
 .TP
 .B \--plugin-timeout TIMEOUT
 Specify a timeout in seconds to allow each plugin to run for. A value of 0
@@ -360,7 +363,7 @@ Specify a case identifier to associate with the archive.
 Identifiers may include alphanumeric characters, commas and periods ('.').
 .TP
 .B \--build
-Do not archive copied data. Causes sosreport to leave an uncompressed
+Do not archive copied data. Causes sos report to leave an uncompressed
 archive as a temporary file or directory tree.
 .TP
 .B \--debug
@@ -375,7 +378,7 @@ option.
 .TP
 .B \--estimate-only
 Estimate disk space requirements when running sos report. This can be valuable
-to prevent sosreport working dir to consume all free disk space. No plugin data
+to prevent sos report working dir to consume all free disk space. No plugin data
 is available at the end.
 
 Plugins will be collected sequentially, size of collected files and commands outputs
@@ -398,7 +401,7 @@ as well. If these credentials are not provided, sos will still run and create an
 but will not attempt an automatic upload, instead relying on the end user to upload it
 as needed.
 
-The sosreport archive will still remain on the local filesystem even after a successful
+The sos report archive will still remain on the local filesystem even after a successful
 upload.
 
 Note that depending on the distribution sos is being run on, or the vendor policy detected during

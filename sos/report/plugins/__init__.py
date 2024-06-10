@@ -478,7 +478,7 @@ class PluginOpt():
 
 
 class Plugin():
-    """This is the base class for sosreport plugins. Plugins should subclass
+    """This is the base class for sos report plugins. Plugins should subclass
     this and set the class variables where applicable.
 
     :param commons:     A set of information that is shared internally so that
@@ -1176,7 +1176,7 @@ class Plugin():
         return self.do_cmd_output_sub(cmd, _certmatch, replace)
 
     def do_cmd_output_sub(self, cmd, regexp, subst):
-        """Apply a regexp substitution to command output archived by sosreport.
+        """Apply a regexp substitution to command output archived by sos
 
         This is used to obfuscate sensitive information captured by command
         output collection via plugins.
@@ -1259,7 +1259,7 @@ class Plugin():
             self.do_file_sub(path, _certmatch, replace)
 
     def do_file_sub(self, srcpath, regexp, subst):
-        """Apply a regexp substitution to a file archived by sosreport.
+        """Apply a regexp substitution to a file archived by sos report.
 
         :param srcpath: Path in the archive where the file can be found
         :type srcpath: ``str``

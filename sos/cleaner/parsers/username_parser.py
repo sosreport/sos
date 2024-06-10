@@ -13,7 +13,7 @@ from sos.cleaner.mappings.username_map import SoSUsernameMap
 
 
 class SoSUsernameParser(SoSCleanerParser):
-    """Parser for obfuscating usernames within an sosreport archive.
+    """Parser for obfuscating usernames within an sos report archive.
 
     Note that this parser does not rely on regex matching directly, like most
     other parsers do. Instead, usernames are discovered via scraping the

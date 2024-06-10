@@ -1,7 +1,7 @@
 .TH SOS COLLECT 1 "April 2020"
 
 .SH NAME
-sos collect \- Collect sosreports from multiple (cluster) nodes
+sos collect \- Collect sos reports from multiple (cluster) nodes
 .SH SYNOPSIS
 .B sos collect
     [\-a|\-\-all\-options]
@@ -51,20 +51,22 @@ sos collect \- Collect sosreports from multiple (cluster) nodes
 
 .PP
 .SH DESCRIPTION
-collect is an sos subcommand to collect sosreports from multiple nodes and package
+collect is an sos subcommand to collect sos reports from multiple nodes and package
 them in a single useful tar archive. 
 
 sos collect can be run either on a workstation that has SSH key authentication setup
 for the nodes in a given cluster, or from a "primary" node in a cluster that has SSH
 keys configured for the other nodes.
 
-Some sosreport options are supported by sos-collect and are passed directly to 
-the sosreport command run on each node.
-
+Some sos report options are supported by sos-collect and are passed directly to
+the sos report command run on each node.
+.LP
+\fBNote:\fR the \fBsos-collector\fR command has been deprecated and will be removed in
+sos-4.9. Use the new \fBsos collect\fR syntax instead.
 .SH OPTIONS
 .TP
 \fB\-a\fR, \fB\-\-alloptions\fR
-Enables all sosreport options. 
+Enables all sos report options.
 
 This does NOT enable all sos collect options.
 .TP
@@ -76,7 +78,7 @@ Run in non-interactive mode. This will skip prompts for user input, with the
 exception of a prompt for the SSH password.
 .TP
 \fB\-\-all\-logs\fR
-Sosreport option. Collects all logs regardless of size. 
+Report option. Collects all logs regardless of size. 
 
 Default: no
 .TP
@@ -89,13 +91,13 @@ a specific cluster you would use \fB'-c ovirt.cluster=example_cluster'\fR.
 Available cluster options can be listed by running \fB'sos collect -l'\fR.
 .TP
 \fB\-\-chroot\fR CHROOT
-Sosreport option. Set the chroot mode. When \fB\-\-sysroot\fR is used commands default
+Report option. Set the chroot mode. When \fB\-\-sysroot\fR is used commands default
 to executing with SYSROOT as the root directory. This can be overridden by setting
 \fB\-\-chroot\fR to "always" (always chroot) or "never" (always run in the host
 namespace).
 .TP
 \fB\-\-case\-id\fR CASE_ID
-Sosreport option. Specifies a case number identifier.
+Report option. Specifies a case number identifier.
 .TP
 \fB\-\-cluster\-type\fR CLUSTER_TYPE
 When run by itself, sos collect will attempt to identify the type of cluster at play.
@@ -110,7 +112,7 @@ specified by the \fB--nodes\fR option. Note that in this scenario, regex string(
 for node names will be ignored.
 
 Example: \fBsos collect --cluster-type=kubernetes\fR will force the kubernetes profile
-to be run, and thus set sosreport options and attempt to determine a list of nodes using
+to be run, and thus set sos report options and attempt to determine a list of nodes using
 that profile. 
 .TP
 \fB\-\-container\-runtime\fR RUNTIME
@@ -119,7 +121,7 @@ to nodes with sos version 4.3 or later. This option controls the default contain
 runtime plugins will use for collections. See \fBman sos-report\fR.
 .TP
 \fB\-e\fR ENABLE_PLUGINS, \fB\-\-enable\-plugins\fR ENABLE_PLUGINS
-Sosreport option. Use this to enable a plugin that would otherwise not be run.
+Report option. Use this to enable a plugin that would otherwise not be run.
 
 This option supports providing a comma-delimited list of plugins.
 .TP
@@ -186,7 +188,7 @@ Specify the number of concurrent node collections that should be run.
 
 If the number of nodes enumerated exceeds the number of JOBS, then sos collect
 will start collecting from the first X number of nodes and then continue to iterate
-through the remaining nodes as sosreport collection finishes.
+through the remaining nodes as sos report collection finishes.
 
 Defaults to 4.
 .TP
@@ -195,17 +197,17 @@ Use this option when connecting as a non-root user that has passwordless sudo
 configured.
 
 If this option is omitted and a bogus sudo password is supplied, collection of
-sosreports may exhibit unexpected behavior and/or fail entirely.
+sos reports may exhibit unexpected behavior and/or fail entirely.
 .TP
 \fB\-k\fR PLUGIN_OPTION, \fB\-\-plugin\-option\fR PLUGIN_OPTION
-Sosreport option. Set a plugin option to a particular value. This takes the form of
+Report option. Set a plugin option to a particular value. This takes the form of
 plugin_name.option_name=value.
 
-Example: To enable the kubernetes "all" option in sosreport use \fB-k kubernetes.all=on\fR.
+Example: To enable the kubernetes "all" option in sos report use \fB-k kubernetes.all=on\fR.
 .TP
 \fB\-\-label\fR LABEL
 Specify a label to be added to the archive names. This label will be applied to
-both the sos collect archive and the sosreport archives.
+both the sos collect archive and the sos report archives.
 
 If a cluster sets a default label, the user-provided label will be appended to
 that cluster default.
@@ -223,13 +225,13 @@ size of the final sos report tarball and the memory usage of sos during collecti
 of commands, such as very large journals that may be several GiB in size.
 .TP
 \fB\-n\fR SKIP_PLUGINS, \fB\-\-skip\-plugins\fR SKIP_PLUGINS
-Sosreport option. Disable (skip) a particular plugin that would otherwise run.
+Report option. Disable (skip) a particular plugin that would otherwise run.
 This is useful if a particular plugin is prone to hanging for one reason or another.
 
 This option supports providing a comma-delimited list of plugins.
 .TP
 \fB\-\-nodes\fR NODES
-Provide a comma-delimited list of nodes to collect sosreports from, or a regex string to
+Provide a comma-delimited list of nodes to collect sos reports from, or a regex string to
 be used to compare discovered node names against. If using a regex, only nodes matching the regex
 will be used - i.e. it can be used as a whitelist but not a blacklist.
 
@@ -243,10 +245,10 @@ if the cluster profile should be applied or not.
 Use this with \fB\-\-cluster-type\fR if there are rpm or apt issues on the primary/local node.
 .TP
 \fB\-\-no\-local\fR
-Do not collect a sosreport from the local system. 
+Do not collect a sos report from the local system. 
 
-If \fB--primary\fR is not supplied, it is assumed that the host running sosreport is part of
-the cluster that is to be collected. Use this option to skip collection of a local sosreport.
+If \fB--primary\fR is not supplied, it is assumed that the host running sos report is part of
+the cluster that is to be collected. Use this option to skip collection of a local sos report.
 
 This option is NOT needed if \fB--primary\fR is provided.
 .TP
@@ -288,9 +290,9 @@ Note that this file must exist on the node(s) performing the pull operations, no
 node from which \fBsos collect\fR was run.
 .TP
 \fB\-o\fR ONLY_PLUGINS, \fB\-\-only\-plugins\fR ONLY_PLUGINS
-Sosreport option. Run ONLY the plugins listed.
+Report option. Run ONLY the plugins listed.
 
-Note that a cluster profile will NOT override this option. This may cause the sosreports
+Note that a cluster profile will NOT override this option. This may cause the sos reports
 generated to not contain the relevant output for a given type of cluster.
 
 This option supports providing a comma-delimited list of plugins.
@@ -304,7 +306,7 @@ ideally deploy SSH keys, but the \-\-password\-per\-node option is also availabl
 .TP
 \fB\-\-password\-per\-node\fR
 When using this option, sos collect will prompt the user for the SSH password for
-each node that will have an sosreport collected from it individually before attempting
+each node that will have an sos report collected from it individually before attempting
 to connect to the nodes.
 .TP
 \fB\-\-preset\fR PRESET
@@ -336,7 +338,7 @@ Specify an SSH user for sos collect to connect to nodes with. Default is root.
 sos collect will prompt for a sudo password for non-root users.
 .TP
 \fB\-s\fR SYSROOT, \fB\-\-sysroot\fR SYSROOT
-Sosreport option. Specify an alternate root file system path.
+Report option. Specify an alternate root file system path.
 .TP
 \fB\-t\fR THREADS \fB\-\-threads\fR THREADS
 Report option. Specify the number of collection threads to run.
@@ -347,9 +349,9 @@ during the collection process.
 Defaults to 4.
 .TP
 \fB\-\-timeout\fR TIMEOUT
-Timeout for sosreport generation on each node, in seconds.
+Timeout for sos report generation on each node, in seconds.
 
-Note that sosreports are collected in parallel, so you can approximate the total
+Note that sos reports are collected in parallel, so you can approximate the total
 runtime of sos collect via timeout*(number of nodes/jobs).
 
 Default is 180 seconds.
@@ -373,20 +375,20 @@ The types of transports supported are currently as follows:
 Specify a temporary directory to save sos archives to. By default one will be created in
 /tmp and then removed after sos collect has finished running.
 
-This is NOT the same as specifying a temporary directory for sosreport on the remote nodes.
+This is NOT the same as specifying a temporary directory for sos report on the remote nodes.
 .TP
 \fB\-v\fR \fB\-\-verbose\fR
 Print debug information to screen.
 .TP
 \fB\-\-verify\fR
-Sosreport option. Passes the "--verify" option to sosreport on the nodes which 
-causes sosreport to validate plugin-specific data during collection.
+Report option. Passes the "--verify" option to sos report on the nodes which 
+causes sos report to validate plugin-specific data during collection.
 
-Note that this option may considerably extend the time it takes sosreport to run on
+Note that this option may considerably extend the time it takes sos report to run on
 the nodes. Consider increasing \fB\-\-timeout\fR when using this option.
 .TP
 \fB\-z\fR COMPRESSION, \fB\-\-compression-type\fR COMPRESSION
-Sosreport option. Override the default compression type.
+Report option. Override the default compression type.
 
 .SH SEE ALSO
 .BR sos (1)

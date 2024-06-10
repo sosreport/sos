@@ -839,7 +839,7 @@ class SosNode():
             return False
 
     def retrieve_sosreport(self):
-        """Collect the sosreport archive from the node"""
+        """Collect the sos report archive from the node"""
         if self.need_sudo or self.opts.become_root:
             try:
                 self.make_archive_readable(self.sos_path)
@@ -862,7 +862,7 @@ class SosNode():
             return False
 
     def remove_sos_archive(self):
-        """Remove the sosreport archive from the node, since we have
+        """Remove the sos report archive from the node, since we have
         collected it and it would be wasted space otherwise"""
         if self.sos_path is None or self.local:
             # local transport moves the archive rather than copies it, so there

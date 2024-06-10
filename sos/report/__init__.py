@@ -444,7 +444,7 @@ class SoSReport(SoSComponent):
         ssec.add_text(helpln)
 
     def print_header(self):
-        print(f"\n{_(f'sosreport (version {__version__})')}\n")
+        print(f"\n{_(f'sos report (version {__version__})')}\n")
 
     def _get_hardware_devices(self):
         self.devices = {
@@ -1273,7 +1273,7 @@ class SoSReport(SoSComponent):
         version file"""
 
         versions = []
-        versions.append(f"sosreport: {__version__}")
+        versions.append(f"sos report: {__version__}")
 
         self.archive.add_string(content="\n".join(versions),
                                 dest='version.txt')

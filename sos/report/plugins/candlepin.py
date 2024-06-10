@@ -79,7 +79,7 @@ class Candlepin(Plugin, RedHatPlugin):
             "/var/log/candlepin/error.log[.-]*",
             # Specific to candlepin, ALL catalina logs are relevant. Adding it
             # here rather than the tomcat plugin to ease maintenance and not
-            # pollute non-candlepin sosreports that enable the tomcat plugin
+            # pollute non-candlepin sos reports that enable the tomcat plugin
             "/var/log/tomcat*/catalina*log*",
             "/var/log/tomcat*/host-manager*log*",
             "/var/log/tomcat*/localhost*log*",

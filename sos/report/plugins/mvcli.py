@@ -7,13 +7,14 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-# This sosreport plugin is meant for sas adapters.
-# This plugin logs inforamtion on each adapter it finds.
-
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class MvCLI(Plugin, IndependentPlugin):
+    """
+    The mvCLI plugin is meant for sas adapters, and collects information for
+    each adapter discovered on the system.
+    """
 
     short_desc = 'mvCLI Integrated RAID adapter information'
 

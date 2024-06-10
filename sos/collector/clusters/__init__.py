@@ -18,7 +18,7 @@ from sos.utilities import bold
 class Cluster():
     """This is the class that cluster profiles should subclass in order to
     add support for different clustering technologies and environments to
-    sos-collector.
+    sos collect.
 
     A profile should at minimum define a package that indicates the node is
     configured for the type of cluster the profile is intended to serve and
@@ -392,7 +392,7 @@ class Cluster():
         """This may be overridden by clusters profiles subclassing this class
 
         If there is a distinction between primaries and nodes, or types of
-        nodes, then this can be used to label the sosreport archive differently
+        nodes, then this can be used to label the sos report archives as needed
         """
         return ''
 
@@ -424,7 +424,7 @@ class Cluster():
         """
         Ensures that any files returned by a cluster's run_extra_cmd()
         method are properly typed as a list for iterative collection. If any
-        of the files are an additional sosreport (e.g. the ovirt db dump) then
+        of the files are an additional sos report (e.g. the ovirt db dump) then
         the md5 sum file is automatically added to the list
         """
         files = []
