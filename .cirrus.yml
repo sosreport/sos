@@ -73,6 +73,18 @@ pylint_task:
     setup_script: *tox-lint-setup
     pylint_script: tox -e pylint
 
+coverage_task:
+    alias: "unit_coverage_test"
+    name: "unit and coverage test"
+    container:
+        image: "python:latest"
+    setup_script: *tox-lint-setup
+    coverage_script: tox -e coverage
+    prep_artefacts_script: |
+        ls -d ./cover 2> /dev/null | xargs tar cf coverage-html.tar
+    packages_artifacts:
+        path: "coverage-html.tar"
+
 # Run a check on newer upstream python versions to check for possible
 # breaks/changes in common modules. This is not meant to check any of the actual
 # collections or archive integrity.

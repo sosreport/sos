@@ -1,0 +1,4 @@
+[run]
+concurrency = multiprocessing
+source = sos
+parallel = true
