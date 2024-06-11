@@ -34,6 +34,12 @@ class JujuAgentConfScrubbedTest(StageTwoReportTest):
             'MIIG/AIBADANBgkqhkiG9w0BAQEFAASCBuYwggbiAgEAAoIBgQC86bxFnYDYFssg',
             'MIIG/gIBADANBgkqhkiG9w0BAQEFAASCBugwggbkAgEAAoIBgQCfDj2vFQlsDlV4',
             'MIIEowIBAAKCAQEAsQmlk3a4OBmBNSy43bl66+rX+5sTsu+2yO93E/iGuzmGqX0t',
+            'EB+ZKAkbUOMtPnhcFnZImnvxy658IPxGxr1ZoigInbnRr13h5/g=',
+            'BjEUrba1VcDLW3fJQOxTH7R7wzM1bbu2p8R2ZnfUAWNXjr+mHuMc3mCnkEFL/X+/',
+            'EB+ZKAkbUOMtPnhcFnZImnvxy658IPxGxr1ZoigInbnRr13h5/g=',
+            'MK5DNKHKNIynw+tXbuJ2pQ==',
+            'gGizOraTiFeIuvHMD3KATTLc',
+            'L/x36ewmw1rsKYlFI5X/6qM6n5DIKU+IJGNj5VSYb1u3Q7TZZ1yF',
         ]
         for text in check_text_scrub:
             self.assertFileNotHasContent(
