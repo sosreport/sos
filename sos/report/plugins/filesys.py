@@ -52,7 +52,7 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
         self.add_cmd_output("df -al -x autofs", root_symlink="df",
                             tags='df__al')
         self.add_cmd_output([
-            "df -ali -x autofs",
+            "df -aliT -x autofs",
             "findmnt",
             "lslocks"
         ])
