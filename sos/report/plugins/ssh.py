@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import pwd
 from glob import glob
 from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
@@ -77,29 +78,12 @@ class Ssh(Plugin, IndependentPlugin):
 
         Bad permissions can prevent SSH from allowing access to given user.
         """
-        users_data = self.exec_cmd('getent passwd')
-
-        if users_data['status']:
-            # If getent fails, fallback to just reading /etc/passwd
-            try:
-                with open(self.path_join('/etc/passwd'), 'r',
-                          encoding='UTF-8') as passwd_file:
-                    users_data_lines = passwd_file.readlines()
-            except Exception:  # pylint: disable=broad-except
-                # If we can't read /etc/passwd, then there's something wrong.
-                self._log_error("Couldn't read /etc/passwd")
-                return
-        else:
-            users_data_lines = users_data['output'].splitlines()
+        users_data = pwd.getpwall()
 
         # Read the home paths of users in the system and check the ~/.ssh dirs
-        for usr_line in users_data_lines:
-            try:
-                home_dir = self.path_join(usr_line.split(':')[5], '.ssh')
-                if self.path_isdir(home_dir):
-                    self.add_cmd_output(f"ls -laZ {home_dir}")
-            except IndexError:
-                # invalid line for home dir parsing, ignore
-                pass
+        for user in users_data:
+            home_dir = self.path_join(user.pw_dir, '.ssh')
+            if self.path_isdir(home_dir):
+                self.add_cmd_output(f"ls -laZ {home_dir}")
 
 # vim: set et ts=4 sw=4 :
