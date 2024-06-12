@@ -15,7 +15,6 @@ import json
 import os
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
-from sos.utilities import is_executable
 
 
 KUBE_PACKAGES = (
@@ -276,15 +275,9 @@ class Kubernetes(Plugin):
 
 class RedHatKubernetes(Kubernetes, RedHatPlugin):
 
-    packages = KUBE_PACKAGES + (
-        'kubernetes-master',
-        'atomic-openshift-master',
-    )
+    packages = KUBE_PACKAGES
 
-    files = KUBECONFIGS + (
-        '/etc/origin/master/admin.kubeconfig',
-        '/etc/origin/node/pods/master-config.yaml',
-    )
+    files = KUBECONFIGS
 
     services = KUBE_SVCS
 
@@ -296,18 +289,6 @@ class RedHatKubernetes(Kubernetes, RedHatPlugin):
 
     def setup(self):
         self.set_kubeconfig()
-
-        # if present, use `oc` command and add some OCP specific ressources
-        if is_executable('oc'):
-            self.kube_cmd = 'oc'
-            self.resources.extend([
-                'policies',
-                'routes'
-            ])
-            self.global_resources.extend([
-                'projects',
-                'pvs'
-            ])
         super().setup()
 
 
