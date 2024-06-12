@@ -35,9 +35,9 @@ class SoSIPv6Parser(SoSCleanerParser):
     ]
     compile_regexes = False
 
-    def __init__(self, config, skip_clean_files=[]):
+    def __init__(self, config, skip_cleaning_files=[]):
         self.mapping = SoSIPv6Map()
-        super().__init__(config, skip_clean_files)
+        super().__init__(config, skip_cleaning_files)
 
     def get_map_contents(self):
         """Structure the dataset contents properly so that they can be reloaded
