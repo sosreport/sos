@@ -34,4 +34,12 @@ class Gfs2(Plugin, IndependentPlugin):
         if self.get_option("gfs2lockdump"):
             self.add_copy_spec("/sys/kernel/debug/gfs2/*")
 
+        tunegfs2_opts = '-l'
+        mounts = '/proc/mounts'
+        gfs2_fs_regex = r"^(/dev/\S+).+gfs2\s+"
+        for dev in self.do_regex_find_all(gfs2_fs_regex, mounts):
+            self.add_cmd_output(f"tunegfs2 {tunegfs2_opts} {dev}",
+                                tags="tunegfs2_l")
+
+
 # vim: et ts=4 sw=4
