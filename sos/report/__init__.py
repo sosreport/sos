@@ -91,7 +91,7 @@ class SoSReport(SoSComponent):
         'desc': '',
         'domains': [],
         'disable_parsers': [],
-        'skip_clean_files': [],
+        'skip_cleaning_files': [],
         'dry_run': False,
         'estimate_only': False,
         'experimental': False,
@@ -363,7 +363,7 @@ class SoSReport(SoSComponent):
                                        'those elements are not obfuscated'))
         cleaner_grp.add_argument('--skip-cleaning-files',
                                  '--skip-masking-files', action='extend',
-                                 default=[], dest='skip_clean_files',
+                                 default=[], dest='skip_cleaning_files',
                                  help=('List of files to skip/ignore during '
                                        'cleaning. Globs are supported.'))
         cleaner_grp.add_argument('--keywords', action='extend', default=[],

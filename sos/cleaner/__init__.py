@@ -84,7 +84,7 @@ class SoSCleaner(SoSComponent):
         'archive_type': 'auto',
         'domains': [],
         'disable_parsers': [],
-        'skip_clean_files': [],
+        'skip_cleaning_files': [],
         'jobs': 4,
         'keywords': [],
         'keyword_file': None,
@@ -129,14 +129,14 @@ class SoSCleaner(SoSComponent):
 
         self.cleaner_md = self.manifest.components.add_section('cleaner')
 
-        skip_clean_files = self.opts.skip_clean_files
+        skip_cleaning_files = self.opts.skip_cleaning_files
         self.parsers = [
-            SoSHostnameParser(self.cleaner_mapping, skip_clean_files),
-            SoSIPParser(self.cleaner_mapping, skip_clean_files),
-            SoSIPv6Parser(self.cleaner_mapping, skip_clean_files),
-            SoSMacParser(self.cleaner_mapping, skip_clean_files),
-            SoSKeywordParser(self.cleaner_mapping, skip_clean_files),
-            SoSUsernameParser(self.cleaner_mapping, skip_clean_files)
+            SoSHostnameParser(self.cleaner_mapping, skip_cleaning_files),
+            SoSIPParser(self.cleaner_mapping, skip_cleaning_files),
+            SoSIPv6Parser(self.cleaner_mapping, skip_cleaning_files),
+            SoSMacParser(self.cleaner_mapping, skip_cleaning_files),
+            SoSKeywordParser(self.cleaner_mapping, skip_cleaning_files),
+            SoSUsernameParser(self.cleaner_mapping, skip_cleaning_files)
         ]
 
         for _parser in self.opts.disable_parsers:
@@ -268,7 +268,7 @@ third party.
                                      'elements are not obfuscated'))
         clean_grp.add_argument('--skip-cleaning-files', '--skip-masking-files',
                                action='extend', default=[],
-                               dest='skip_clean_files',
+                               dest='skip_cleaning_files',
                                help=('List of files to skip/ignore during '
                                      'cleaning. Globs are supported.'))
         clean_grp.add_argument('-j', '--jobs', default=4, type=int,
@@ -344,8 +344,8 @@ third party.
                     f"Invalid value '{_dom}' given: --domains values must be "
                     "actual domains"
                 )
-        self.opts.skip_clean_files = [fnmatch.translate(p) for p in
-                                      self.opts.skip_clean_files]
+        self.opts.skip_cleaning_files = [fnmatch.translate(p) for p in
+                                         self.opts.skip_cleaning_files]
 
     def execute(self):
         """SoSCleaner will begin by inspecting the TARGET option to determine
@@ -769,15 +769,21 @@ third party.
         if not os.path.islink(filename):
             # don't run the obfuscation on the link, but on the actual file
             # at some other point.
-            self.log_debug(f"Obfuscating {short_name or filename}",
-                           caller=arc_name)
-            tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
             _parsers = [
                 _p for _p in self.parsers if not
                 any(
                     _skip.match(short_name) for _skip in _p.skip_patterns
                 )
             ]
+            if not _parsers:
+                self.log_debug(
+                    f"Skipping obfuscation of {short_name or filename} due to "
+                    f"matching file skip pattern"
+                )
+                return 0
+            self.log_debug(f"Obfuscating {short_name or filename}",
+                           caller=arc_name)
+            tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
             with open(filename, 'r', errors='replace') as fname:
                 for line in fname:
                     try:
@@ -831,6 +837,18 @@ third party.
             try:
                 # relative name of the symlink in the archive
                 _sym = symlink.split(archive.extracted_path)[1].lstrip('/')
+                # don't obfuscate symlinks for files that we skipped the first
+                # obfuscation of, as that would create broken links
+                _parsers = [
+                    _p for _p in self.parsers if not
+                    any(_skip.match(_sym) for _skip in _p.skip_patterns)
+                ]
+                if not _parsers:
+                    self.log_debug(
+                        f"Skipping obfuscation of symlink {_sym} due to skip "
+                        f"pattern match"
+                    )
+                    continue
                 self.log_debug(f"Obfuscating symlink {_sym}",
                                caller=archive.archive_name)
                 # current target of symlink, again relative to the archive
