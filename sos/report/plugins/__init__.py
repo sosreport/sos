@@ -1796,8 +1796,9 @@ class Plugin():
                 if ((logarchive_pattern.search(path) is None) or
                    (configfile_pattern.search(path) is not None)):
                     return True
-                filetime = datetime.fromtimestamp(getmtime(path))
-                if ((since and filetime < since) or
+                filetime = getmtime(path)
+                filedatetime = datetime.fromtimestamp(filetime)
+                if ((since and filedatetime < since) or
                    (maxage and (time()-filetime < maxage*3600))):
                     return False
                 return True
