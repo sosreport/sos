@@ -8,19 +8,29 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, UbuntuPlugin, PluginOpt
+import os
+from sos.report.plugins import Plugin, UbuntuPlugin
 
 
-class Maas(Plugin, UbuntuPlugin):
+class MAAS(Plugin, UbuntuPlugin):
 
-    short_desc = 'Ubuntu Metal-As-A-Service'
+    short_desc = 'MAAS | Metal as a Service'
 
     plugin_name = 'maas'
+    plugin_timeout = 1800
     profiles = ('sysmgmt',)
-    packages = ('maas', 'maas-common')
 
-    services = (
-        # For the deb:
+    packages = (
+        'maas',
+        'maas-region-api',
+        'maas-region-controller',
+        'maas-rack-controller',
+        'maas-agent',
+    )
+
+    _services = (
+        'maas-agent',
+        'maas-apiserver',
         'maas-dhcpd',
         'maas-dhcpd6',
         'maas-http',
@@ -28,104 +38,141 @@ class Maas(Plugin, UbuntuPlugin):
         'maas-rackd',
         'maas-regiond',
         'maas-syslog',
-        # MAAS 3.5 deb:
         'maas-temporal',
-        'maas-apiserver',
-        'maas-agent',
-        # For the pre-3.5 snap:
+        'maas-temporal-worker',
         'snap.maas.supervisor',
-        # MAAS 3.5 snap uses `snap.maas.pebble` service, but it's not
-        # included here to prevent automatic journald log collection.
+        'snap.maas.pebble',
     )
 
-    option_list = [
-        PluginOpt('profile-name', default='', val_type=str,
-                  desc='Name of the remote API'),
-        PluginOpt('url', default='', val_type=str,
-                  desc='URL of the remote API'),
-        PluginOpt('credentials', default='', val_type=str,
-                  desc='Credentials, or the API key')
-    ]
+    def _get_machines_syslog(self, dir):
+        if not self.path_exists(dir):
+            return []
 
-    def _has_login_options(self):
-        return self.get_option("url") and self.get_option("credentials") \
-            and self.get_option("profile-name")
+        # Machine messages are collected with syslog and are stored under:
+        #   $template "{{log_dir}}/rsyslog/%HOSTNAME%/%$YEAR%-%$MONTH%-%$DAY%"
+        # Collect only the most recent "%$YEAR%-%$MONTH%-%$DAY%"
+        # for each "%HOSTNAME%".
+        recent = []
+        for host_dir in self.listdir(dir):
+            host_path = self.path_join(dir, host_dir)
+            if not self.path_isdir(host_path):
+                continue
 
-    def _remote_api_login(self):
-        ret = self.exec_cmd(
-            f"maas login {self.get_option('profile-name')} "
-            f"{self.get_option('url')} {self.get_option('credentials')}"
+            subdirs = [
+                self.path_join(host_path, d)
+                for d in self.listdir(host_path)
+                if self.path_isdir(host_path)
+            ]
+
+            if not subdirs:
+                continue
+
+            sorted_subdirs = sorted(
+                subdirs, key=lambda d: os.stat(d).st_mtime, reverse=True
+            )
+
+            all_logs = self.get_option("all_logs")
+            since = self.get_option("since")
+
+            if not all_logs and not since:
+                recent.append(sorted_subdirs[0])
+            else:
+                since = since.timestamp() if since else 0
+                recent.extend(
+                    [d for d in sorted_subdirs if os.stat(d).st_mtime >= since]
+                )
+
+        return recent
+
+    def _snap_collect(self):
+        self.add_cmd_output([
+            'snap info maas',
+            'maas status',
+        ])
+
+        self.add_forbidden_path([
+            "/var/snap/maas/**/*.key",
+            "/var/snap/maas/**/*.pem",
+            "/var/snap/maas/**/secret",
+        ])
+
+        self.add_copy_spec([
+            "/var/snap/maas/common/snap_mode",
+            "/var/snap/maas/common/log/**/*.log",
+            "/var/snap/maas/current/**/*.conf",
+            "/var/snap/maas/current/**/*.yaml",
+            "/var/snap/maas/current/bind",
+            "/var/snap/maas/current/preseeds",
+            "/var/snap/maas/current/supervisord/*.log",
+        ])
+
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/snap/maas/common/log/**/*.log.*",
+                "/var/snap/maas/current/supervisord/*.log.*",
+            ])
+
+        self.add_copy_spec(
+            self._get_machines_syslog(
+                "/var/snap/maas/common/log/rsyslog"
+            )
         )
 
-        return ret['status'] == 0
+    def _deb_collect(self):
+        self.add_cmd_output([
+            "apt-cache policy maas maas-*",
+        ])
+
+        self.add_forbidden_path([
+            "/var/lib/maas/**/*.key",
+            "/var/lib/maas/**/*.pem",
+            "/var/lib/maas/**/secret",
+            "/etc/maas/**/*.key",
+            "/etc/maas/**/*.pem",
+            "/etc/maas/**/secret",
+        ])
+
+        self.add_copy_spec([
+            "/etc/maas/**/*.conf",
+            "/etc/maas/**/*.yaml",
+            "/etc/maas/preseeds",
+            "/var/lib/maas/**/*.conf",
+            "/var/lib/maas/dhcp/*.leases",
+            "/var/lib/maas/temporal",
+            "/var/log/maas/**/*.log",
+        ])
+
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/maas/**/*.log.*",
+            ])
+
+        self.add_copy_spec(
+            self._get_machines_syslog(
+                "/var/log/maas/rsyslog"
+            )
+        )
 
     def setup(self):
+        for service in self._services:
+            if self.is_service(service):
+                self.add_service_status(service)
+                if not self.get_option('all_logs'):
+                    since = self.get_option("since") or "-1days"
+                    self.add_journal(service, since=since)
+                else:
+                    self.add_journal(service)
+
         if self.is_snap:
-            self.add_cmd_output([
-                'snap info maas',
-                'maas status'
-            ])
-
-            if self.is_service("snap.maas.pebble"):
-                # Because `snap.maas.pebble` is not in the services
-                # tuple to prevent timeouts caused by log collection,
-                # service status and logs are collected here.
-                self.add_service_status("snap.maas.pebble")
-                since = self.get_option("since") or "-1days"
-                self.add_journal(units="snap.maas.pebble", since=since)
-
-            # Don't send secrets
-            self.add_forbidden_path([
-                "/var/snap/maas/current/bind/session.key",
-                "/var/snap/maas/current/http/certs/regiond-proxy-key.pem",
-            ])
-            self.add_copy_spec([
-                "/var/snap/maas/common/log",
-                "/var/snap/maas/common/snap_mode",
-                "/var/snap/maas/current/*.conf",
-                "/var/snap/maas/current/bind",
-                "/var/snap/maas/current/http",
-                "/var/snap/maas/current/supervisord",
-                "/var/snap/maas/current/preseeds",
-                "/var/snap/maas/current/proxy",
-                "/var/snap/maas/current/syslog",
-            ])
+            self._snap_collect()
         else:
-            self.add_copy_spec([
-                "/etc/squid-deb-proxy",
-                "/etc/maas",
-                "/var/lib/maas/dhcp*",
-                "/var/lib/maas/http/*.conf",
-                "/var/lib/maas/*.conf",
-                "/var/lib/maas/rsyslog",
-                "/var/log/maas*",
-                "/var/log/upstart/maas-*",
-            ])
-            self.add_cmd_output([
-                "apt-cache policy maas-*",
-                "apt-cache policy python-django-*",
-            ])
-
-        if self.is_installed("maas-region-controller"):
-            self.add_cmd_output([
-                "maas-region dumpdata",
-            ])
-
-        if self._has_login_options():
-            if self._remote_api_login():
-                self.add_cmd_output(f"maas {self.get_option('profile-name')} "
-                                    "commissioning-results list")
-            else:
-                self._log_error(
-                    "Cannot login into MAAS remote API with provided creds.")
+            self._deb_collect()
 
     def postproc(self):
-        if self.is_snap:
-            regiond_path = "/var/snap/maas/current/maas/regiond.conf"
-        else:
-            regiond_path = "/etc/maas/regiond.conf"
-        self.do_file_sub(regiond_path,
-                         r"(database_pass\s*:\s*)(.*)",
-                         r"\1********")
+        self.do_path_regex_sub(
+            r"(.*)\.(conf|yaml|yml|toml)$",
+            r"((?:.*secret|.*password|.*pass)(?::\s*|=\s*))(.*)",
+            r"\1*****"
+        )
 
 # vim: set et ts=4 sw=4 :
