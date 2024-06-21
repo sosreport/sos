@@ -25,7 +25,7 @@ class Grafana(Plugin, IndependentPlugin):
             log_path = "/var/snap/grafana/common/data/log/"
             config_path = "/var/snap/grafana/current/conf/grafana.ini"
 
-            self.add_cmd_output("snap info grafana")
+            self.add_cmd_output("snap info grafana", snap_cmd=True)
         else:
             grafana_cli = "grafana-cli"
             log_path = "/var/log/grafana/"
@@ -36,7 +36,7 @@ class Grafana(Plugin, IndependentPlugin):
             f'{grafana_cli} plugins list-remote',
             f'{grafana_cli} -v',
             'grafana-server -v',
-        ])
+        ], snap_cmd=self.is_snap)
 
         log_file_pattern = "*.log*" if self.get_option("all_logs") else "*.log"
 
