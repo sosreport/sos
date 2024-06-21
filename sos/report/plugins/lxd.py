@@ -26,7 +26,7 @@ class LXD(Plugin, UbuntuPlugin):
             lxd_pred = SoSPredicate(self, services=['snap.lxd.daemon'],
                                     required={'services': 'all'})
 
-            self.add_cmd_output("lxd.buginfo", pred=lxd_pred)
+            self.add_cmd_output("lxd.buginfo", pred=lxd_pred, snap_cmd=True)
 
             self.add_copy_spec([
                 '/var/snap/lxd/common/config',

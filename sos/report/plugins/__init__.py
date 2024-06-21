@@ -2007,8 +2007,11 @@ class Plugin():
             kwargs['priority'] = 10
         if 'changes' not in kwargs:
             kwargs['changes'] = False
-        if self.get_option('all_logs') or kwargs['sizelimit'] == 0:
+        if (not getattr(SoSCommand(**kwargs), "snap_cmd", False) and
+           (self.get_option('all_logs') or kwargs['sizelimit'] == 0)):
             kwargs['to_file'] = True
+        if "snap_cmd" in kwargs:
+            kwargs.pop("snap_cmd")
         soscmd = SoSCommand(**kwargs)
         self._log_debug("packed command: " + soscmd.__str__())
         for _skip_cmd in self.skip_commands:
@@ -2073,7 +2076,7 @@ class Plugin():
                        sizelimit=None, pred=None, subdir=None,
                        changes=False, foreground=False, tags=[],
                        priority=10, cmd_as_tag=False, container=None,
-                       to_file=False, runas=None):
+                       to_file=False, runas=None, snap_cmd=False):
         """Run a program or a list of programs and collect the output
 
         Output will be limited to `sizelimit`, collecting the last X amount
@@ -2149,6 +2152,9 @@ class Plugin():
 
         :param runas: Run the `cmd` as the `runas` user
         :type runas: ``str``
+
+        :param snap_cmd: Are the commands being run from a snap?
+        :type snap_cmd: ``bool``
         """
         if isinstance(cmds, str):
             cmds = [cmds]
@@ -2177,7 +2183,7 @@ class Plugin():
                                  changes=changes, foreground=foreground,
                                  priority=priority, cmd_as_tag=cmd_as_tag,
                                  to_file=to_file, container_cmd=container_cmd,
-                                 runas=runas)
+                                 runas=runas, snap_cmd=snap_cmd)
 
     def add_cmd_tags(self, tagdict):
         """Retroactively add tags to any commands that have been run by this
