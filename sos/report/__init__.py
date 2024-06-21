@@ -122,6 +122,7 @@ class SoSReport(SoSComponent):
         'cmd_timeout': TIMEOUT_DEFAULT,
         'profiles': [],
         'since': None,
+        'maxhours': None,
         'verify': False,
         'allow_system_changes': False,
         'usernames': [],
@@ -200,6 +201,12 @@ class SoSReport(SoSComponent):
                                 help="Escapes archived files older than date. "
                                      "This will also affect --all-logs. "
                                      "Format: YYYYMMDD[HHMMSS]")
+        report_grp.add_argument("--maxhours", action="store",
+                                dest="maxhours", default=None, type=int,
+                                help="Escapes archived files older (according "
+                                "to `mktime`) than this many hours. This will "
+                                "also affect --all-logs (sets the default for "
+                                "all plugins)")
         report_grp.add_argument("--build", action="store_true",
                                 dest="build", default=False,
                                 help="preserve the temporary directory and do "
@@ -904,6 +911,12 @@ class SoSReport(SoSComponent):
                         opt.value = True
 
     def _set_tunables(self):
+        # Set plugin option's defaults to the global argument values
+        for pluginname, plugin in self.loaded_plugins:
+            for optname in plugin.options:
+                if hasattr(self.opts, optname):
+                    plugin.options[optname].value = getattr(self.opts, optname)
+
         if self.opts.plugopts:
             opts = {}
             for opt in self.opts.plugopts:
@@ -1063,12 +1076,13 @@ class SoSReport(SoSComponent):
                         val = TIMEOUT_DEFAULT
                 if opt.name == 'postproc':
                     val = not self.opts.no_postproc
-                self.ui_log.info(f"{opt.param_name:<25} {val:<15} {opt.desc}")
+                self.ui_log.info(
+                    f"{opt.param_name:<25} {val!s:<15} {opt.desc}")
             self.ui_log.info("")
 
             self.ui_log.info(_("The following plugin options are available:"))
             for opt in self.all_options:
-                if opt.name in ('timeout', 'postproc', 'cmd-timeout'):
+                if opt.name in _defaults:
                     if opt.value == opt.default:
                         continue
                 # format option value based on its type (int or bool)

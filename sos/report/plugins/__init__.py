@@ -594,7 +594,19 @@ class Plugin():
         self.set_predicate(SoSPredicate(self))
 
     def get_default_plugin_opts(self):
+        # The default of options that have a global argument counterpart with
+        # the same name must use the same default in both places.
         return {
+            'maxhours': PluginOpt(
+                'maxhours', default=None, val_type=int,
+                desc='Escapes archived files older (according to `mktime`) '
+                'than this many hours'
+            ),
+            'all_logs': PluginOpt(
+                'all_logs', default=False, val_type=bool,
+                param_name='all-logs',
+                desc='collect all available logs regardless of size',
+            ),
             'timeout': PluginOpt(
                 'timeout', default=-1, val_type=int,
                 desc='Timeout in seconds for plugin to finish all collections'
@@ -1567,9 +1579,12 @@ class Plugin():
         :returns: The value of `optionname` if found, else `default`
         """
 
+        # These are Global options that can only be set globally. Options that
+        # can be set globally and per-plugin (those also returned by
+        # get_default_plugin_opts) are handled by the `_set_tunables` method.
         global_options = (
-            'all_logs', 'allow_system_changes', 'cmd_timeout', 'journal_size',
-            'log_size', 'plugin_timeout', 'since', 'verify'
+            'allow_system_changes', 'cmd_timeout', 'journal_size', 'log_size',
+            'plugin_timeout', 'since', 'verify'
         )
 
         if optionname in global_options:
@@ -1636,7 +1651,7 @@ class Plugin():
                 manifest_data['files_copied'] = matched_files
                 self.manifest.files.append(manifest_data)
 
-    def add_copy_spec(self, copyspecs, sizelimit=None, maxage=None,
+    def add_copy_spec(self, copyspecs, sizelimit=None, maxhours=None,
                       tailit=True, pred=None, tags=[], container=None):
         """Add a file, directory, or globs matching filepaths to the archive
 
@@ -1647,9 +1662,9 @@ class Plugin():
                           to this size in MB
         :type sizelimit: ``int``
 
-        :param maxage: Collect files with `mtime` not older than this many
-                       hours
-        :type maxage: ``int``
+        :param maxhours: Collect files with `mtime` not older than this many
+                         hours
+        :type maxhours: ``int``
 
         :param tailit: Should a file that exceeds `sizelimit` be tail'ed to fit
                        the remaining space to meet `sizelimit`
@@ -1679,9 +1694,10 @@ class Plugin():
         sos will collect up to 25MB worth of files within `/etc/foo`, and will
         collect the last 25MB of `/etc/bar.conf`.
         """
-        since = None
-        if self.get_option('since'):
-            since = self.get_option('since')
+        since = self.get_option('since') or None
+
+        # User's plugin option argument takes precedence over plugin passed arg
+        maxhours = self.get_option('maxhours') or maxhours
 
         logarchive_pattern = re.compile(r'.*((\.(zip|gz|bz2|xz))|[-.][\d]+)$')
         configfile_pattern = re.compile(fr"^{self.path_join('etc')}/*")
@@ -1798,8 +1814,8 @@ class Plugin():
                     return 0
 
             def time_filter(path):
-                """ When --since is passed, or maxage is coming from the
-                plugin, we need to filter out older files """
+                """ When --since is passed, or maxhours is coming from the
+                plugin or its options, we need to filter out older files """
 
                 # skip config files or not-logarchive files from the filter
                 if ((logarchive_pattern.search(path) is None) or
@@ -1808,11 +1824,11 @@ class Plugin():
                 filetime = getmtime(path)
                 filedatetime = datetime.fromtimestamp(filetime)
                 if ((since and filedatetime < since) or
-                   (maxage and (time()-filetime < maxage*3600))):
+                   (maxhours and (time()-filetime < maxhours*3600))):
                     return False
                 return True
 
-            if since or maxage:
+            if since or maxhours:
                 files = list(filter(lambda f: time_filter(f), files))
 
             files.sort(key=getmtime, reverse=True)
