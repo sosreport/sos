@@ -23,16 +23,8 @@ class Kafka(Plugin, UbuntuPlugin):
     profiles = ('services',)
     packages = ('charmed-kafka',)
     services = ('kafka',)
-    is_snap = False
-
-    def _is_snap_installed(self):
-        kafka_pkg = self.policy.package_manager.pkg_by_name('charmed-kafka')
-        if kafka_pkg:
-            return kafka_pkg['pkg_manager'] == 'snap'
-        return False
 
     def setup(self):
-        self.is_snap = self._is_snap_installed()
         log_file_pattern = "*.log*" if self.get_option("all_logs") else "*.log"
 
         if self.is_snap:

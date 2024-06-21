@@ -47,8 +47,6 @@ class Maas(Plugin, UbuntuPlugin):
                   desc='Credentials, or the API key')
     ]
 
-    is_snap = False
-
     def _has_login_options(self):
         return self.get_option("url") and self.get_option("credentials") \
             and self.get_option("profile-name")
@@ -61,14 +59,7 @@ class Maas(Plugin, UbuntuPlugin):
 
         return ret['status'] == 0
 
-    def _is_snap_installed(self):
-        maas_pkg = self.policy.package_manager.pkg_by_name('maas')
-        if maas_pkg:
-            return maas_pkg['pkg_manager'] == 'snap'
-        return False
-
     def setup(self):
-        self.is_snap = self._is_snap_installed()
         if self.is_snap:
             self.add_cmd_output([
                 'snap info maas',

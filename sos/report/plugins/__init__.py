@@ -541,6 +541,7 @@ class Plugin():
     cmdtags = {}
     filetags = {}
     option_list = []
+    is_snap = False
 
     # Default predicates
     predicate = None
@@ -580,6 +581,11 @@ class Plugin():
         for opt in self.option_list:
             opt.plugin = self.name()
             self.options[opt.name] = opt
+
+        # Check if any of the packages tuple is a snap
+        self.is_snap = any(
+            self.is_snap_installed(pkg) for pkg in list(self.packages)
+        )
 
         # Initialise the default --dry-run predicate
         self.set_predicate(SoSPredicate(self))
@@ -998,6 +1004,18 @@ class Plugin():
         return (
             len(self.policy.package_manager.all_pkgs_by_name(package_name)) > 0
         )
+
+    def is_snap_installed(self, package_name):
+        """Is the snap package $package_name installed?
+
+        :param package_name:    The name of the package to check
+        :type package_name:     ``str``
+
+        :returns: ``True`` if the snap package is installed, else ``False``
+        :rtype: ``bool``
+        """
+        pkg = self.policy.package_manager.pkg_by_name(package_name)
+        return pkg is not None and pkg['pkg_manager'] == 'snap'
 
     def is_service(self, name):
         """Does the service $name exist on the system?

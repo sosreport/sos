@@ -18,16 +18,8 @@ class Grafana(Plugin, IndependentPlugin):
     profiles = ('services', 'openstack', 'openstack_controller')
 
     packages = ('grafana',)
-    is_snap = False
-
-    def _is_snap_installed(self):
-        grafana_pkg = self.policy.package_manager.pkg_by_name('grafana')
-        if grafana_pkg:
-            return grafana_pkg['pkg_manager'] == 'snap'
-        return False
 
     def setup(self):
-        self.is_snap = self._is_snap_installed()
         if self.is_snap:
             grafana_cli = "grafana.grafana-cli"
             log_path = "/var/snap/grafana/common/data/log/"

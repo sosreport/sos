@@ -21,9 +21,7 @@ class LXD(Plugin, UbuntuPlugin):
     services = ('snap.lxd.daemon', 'snap.lxd.activate')
 
     def setup(self):
-
-        lxd_pkg = self.policy.package_manager.pkg_by_name('lxd')
-        if lxd_pkg and lxd_pkg['pkg_manager'] == 'snap':
+        if self.is_snap:
 
             lxd_pred = SoSPredicate(self, services=['snap.lxd.daemon'],
                                     required={'services': 'all'})
