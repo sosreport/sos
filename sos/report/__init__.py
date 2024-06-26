@@ -940,13 +940,17 @@ class SoSReport(SoSComponent):
 
             for plugname, plug in self.loaded_plugins:
                 if plugname in opts:
-                    for opt in opts[plugname]:
-                        if opt not in plug.options:
-                            self.soslog.error(f'no such option "{opt}" for '
+                    # Map from parameter names to internal option names
+                    plug_param_map = {o.param_name: o.name
+                                      for o in plug.options.values()}
+                    for param in opts[plugname]:
+                        opt = plug_param_map.get(param)
+                        if not opt:
+                            self.soslog.error(f'no such option "{param}" for '
                                               f'plugin ({plugname})')
                             self._exit(1)
                         try:
-                            plug.options[opt].set_value(opts[plugname][opt])
+                            plug.options[opt].set_value(opts[plugname][param])
                             self.soslog.debug(
                                 f"Set {plugname} plugin option to "
                                 f"{plug.options[opt]}")
@@ -1059,7 +1063,7 @@ class SoSReport(SoSComponent):
                         val = TIMEOUT_DEFAULT
                 if opt.name == 'postproc':
                     val = not self.opts.no_postproc
-                self.ui_log.info(f"{opt.name:<25} {val:<15} {opt.desc}")
+                self.ui_log.info(f"{opt.param_name:<25} {val:<15} {opt.desc}")
             self.ui_log.info("")
 
             self.ui_log.info(_("The following plugin options are available:"))
@@ -1079,7 +1083,7 @@ class SoSReport(SoSComponent):
                 if tmpopt is None:
                     tmpopt = 0
 
-                self.ui_log.info(f" {f'{opt.plugin}.{opt.name}':<25} "
+                self.ui_log.info(f" {f'{opt.plugin}.{opt.param_name}':<25} "
                                  f"{tmpopt:<15} {opt.desc}")
         else:
             self.ui_log.info(_("No plugin options available."))

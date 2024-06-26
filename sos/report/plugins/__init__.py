@@ -401,7 +401,8 @@ class PluginOpt():
     to define options alongside their distro-specific classes in order to add
     support for user-controlled changes in Plugin behavior.
 
-    :param name:        The name of the plugin option
+    :param name:        The name of the plugin option as used by the code.
+                        Equivalent to the `dest` in arg parser terminology.
     :type name:         ``str``
 
     :param default:     The default value of the option
@@ -417,9 +418,15 @@ class PluginOpt():
     :param val_type:    The type of object the option accepts for values. If
                         not provided, auto-detect from the type of ``default``
     :type val_type:     A single type or a ``list`` of types
+
+    :param param_name:  The name of the parameter in the command line. Defaults
+                        to ``name`` if unset.
+    :type param_name:   ``str``
+
     """
 
     name = ''
+    param_name = ''
     default = None
     enabled = False
     desc = ''
@@ -429,8 +436,9 @@ class PluginOpt():
     plugin = ''
 
     def __init__(self, name='undefined', default=None, desc='', long_desc='',
-                 val_type=None):
+                 val_type=None, param_name=None):
         self.name = name
+        self.param_name = param_name or name
         self.default = default
         self.desc = desc
         self.long_desc = long_desc
@@ -445,6 +453,7 @@ class PluginOpt():
     def __str__(self):
         items = [
             f'name={self.name}',
+            f'param_name={self.param_name}',
             f'desc=\'{self.desc}\'',
             f'value={self.value}',
             f'default={self.default}'
@@ -861,7 +870,7 @@ class Plugin():
                     _def = "True/On"
                 else:
                     _def = "False/Off"
-            _ln = f"{' ':<4}{opt.name:<20}{_def:<30}{opt.desc:<20}"
+            _ln = f"{' ':<4}{opt.param_name:<20}{_def:<30}{opt.desc:<20}"
             optsec.add_text(
                 textwrap.fill(_ln, width=TERMSIZE,
                               subsequent_indent=opt_indent),
