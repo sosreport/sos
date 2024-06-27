@@ -39,7 +39,9 @@ class Process(Plugin, IndependentPlugin):
 
         self.add_copy_spec([
             "/proc/sched_debug",
-            "/proc/stat"
+            "/proc/stat",
+            "/sys/kernel/debug/sched/debug",
+            "/sys/kernel/debug/sched/features"
         ])
 
         procs = [p for p in self.listdir("/proc") if re.match("[0-9]", p)]
