@@ -5,12 +5,12 @@ description: |
   primarily aimed at Linux distributions and other UNIX-like operating
   systems.
 grade: stable
-base: core22
+base: core24
 confinement: classic
 adopt-info: sos
 license: GPL-2.0-or-later
 environment:
-  PYTHONPATH: ${SNAP}/lib/python3.10/site-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
+  PYTHONPATH: ${SNAP}/lib/python3.12/site-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
 
 parts:
   sos:
@@ -24,13 +24,12 @@ parts:
     build-packages:
       - git
       - python3
-      - snapcraft
       - gettext
       - python3-venv
     stage-packages:
-      - python3.10-minimal
-      - libpython3.10-minimal
-      - libpython3.10-stdlib
+      - python3.12-minimal
+      - libpython3.12-minimal
+      - libpython3.12-stdlib
     python-packages:
       - pip
       - setuptools
