@@ -412,7 +412,7 @@ class SoSReport(SoSComponent):
 
         psec = section.add_section(title='How Collections Are Determined')
         psec.add_text(
-            'SoS report performs it\'s collections by way of \'plugins\' that '
+            'SoS report performs its collections by way of \'plugins\' that '
             'individually specify what files to copy and what commands to run.'
             ' Plugins typically map to specific components or software '
             'packages.'
@@ -421,9 +421,9 @@ class SoSReport(SoSComponent):
             'Plugins may specify different collections on different distribu'
             'tions, and some plugins may only be for specific distributions. '
             'Distributions are represented within SoS by \'policies\' and may '
-            'influence how other SoS commands or options function. For example'
-            'policies can alter where the --upload option defaults to or '
-            'functions.'
+            'influence how other SoS commands or options function. For '
+            'example policies can alter where the --upload option defaults '
+            'to or functions.'
         )
 
         ssec = section.add_section(title='See Also')
