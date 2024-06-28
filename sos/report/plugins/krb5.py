@@ -8,6 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import re
+import socket
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
@@ -33,9 +35,37 @@ class Krb5(Plugin):
             f"{self.kdcdir}/kdc.conf",
             "/var/log/kadmind.log"
         ])
+        self.collect_kinit()
         self.add_copy_spec("/var/log/krb5kdc.log", tags="kerberos_kdc_log")
         self.add_cmd_output(f"klist -ket {self.kdcdir}/.k5*")
         self.add_cmd_output("klist -ket /etc/krb5.keytab")
+
+    def collect_kinit(self):
+        """
+        Collect the kinit command output for the system with id_provider "AD"
+        or "IPA" domains.
+
+        While integrating the Linux M/c with AD the realmd will create a
+        computer object on the AD side. The realmd and AD restrict the
+        Hostname/SPN to 15 Characters.
+        """
+
+        hostname = socket.getfqdn()
+        sssd_conf = "/etc/sssd/sssd.conf"
+        if self.path_isfile(sssd_conf):
+            with open(sssd_conf, 'r') as f:
+                for line in f:
+                    if re.match(r'\s*id_provider\s*=\s*ad',
+                                line, re.IGNORECASE):
+                        hostname = hostname.split('.')[0][:15].upper()
+                        self.add_cmd_output(f"KRB5_TRACE=/dev/stdout \
+                                            kinit -k '{hostname}$'")
+                        break
+                    if re.match(r'\s*id_provider\s*=\s*ipa',
+                                line, re.IGNORECASE):
+                        self.add_cmd_output(f"KRB5_TRACE=/dev/stdout \
+                                            kinit -k '{hostname}'")
+                        break
 
 
 class RedHatKrb5(Krb5, RedHatPlugin):
