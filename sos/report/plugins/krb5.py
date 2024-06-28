@@ -9,6 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+import socket
 
 
 class Krb5(Plugin):
@@ -36,6 +37,8 @@ class Krb5(Plugin):
         self.add_copy_spec("/var/log/krb5kdc.log", tags="kerberos_kdc_log")
         self.add_cmd_output(f"klist -ket {self.kdcdir}/.k5*")
         self.add_cmd_output("klist -ket /etc/krb5.keytab")
+        hostname = socket.gethostname()[:11].upper()
+        self.add_cmd_output(f"kinit -k '{hostname}$@REDHAT.LOCAL'")
 
 
 class RedHatKrb5(Krb5, RedHatPlugin):
