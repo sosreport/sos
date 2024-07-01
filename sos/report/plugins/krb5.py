@@ -8,8 +8,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+import os
 import socket
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Krb5(Plugin):
@@ -34,11 +35,31 @@ class Krb5(Plugin):
             f"{self.kdcdir}/kdc.conf",
             "/var/log/kadmind.log"
         ])
+        self.collect_kinit()
         self.add_copy_spec("/var/log/krb5kdc.log", tags="kerberos_kdc_log")
         self.add_cmd_output(f"klist -ket {self.kdcdir}/.k5*")
         self.add_cmd_output("klist -ket /etc/krb5.keytab")
+
+    def collect_kinit(self):
+        """
+        Collect the kinit command output for the system with id_provider "AD"
+        or "IPA" domains.
+        """
+
         hostname = socket.gethostname()[:11].upper()
-        self.add_cmd_output(f"kinit -k '{hostname}$@REDHAT.LOCAL'")
+        hostname_fqdn = socket.getfqdn()
+        sssd_conf = "/etc/sssd/sssd.conf"
+        if os.path.isfile(sssd_conf):
+            with open(sssd_conf, 'r') as f:
+                content = f.read()
+                if 'id_provider = ad' in content:
+                    self.add_cmd_output(f"kinit -k '{hostname}$'")
+                elif 'id_provider = ipa' in content:
+                    self.add_cmd_output(f"kinit -k 'host/{hostname_fqdn}'")
+                else:
+                    pass
+        else:
+            pass
 
 
 class RedHatKrb5(Krb5, RedHatPlugin):
