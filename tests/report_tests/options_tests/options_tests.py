@@ -28,11 +28,12 @@ class OptionsFromConfigTest(StageTwoReportTest):
     def test_plugopts_logged_from_config(self):
         self.assertSosLogContains(
             r"Set kernel plugin option to \(name=with-timer, "
+            r"param_name=with-timer, "
             r"desc='gather /proc/timer\* statistics', value=True, "
             r"default=False\)"
         )
         self.assertSosLogContains(
-            r"Set kernel plugin option to \(name=trace, "
+            r"Set kernel plugin option to \(name=trace, param_name=trace, "
             "desc='gather /sys/kernel/debug/tracing/trace file', "
             r"value=True, default=False\)"
         )
