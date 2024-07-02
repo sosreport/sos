@@ -290,7 +290,7 @@ report_stagetwo_task:
             dnf -y install python3-pexpect
         fi
     main_script: &stagetwo_test |
-        PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+        PYTHONPATH=tests/:. avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t stagetwo tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: *faillogs
         log_artifacts: *logs
