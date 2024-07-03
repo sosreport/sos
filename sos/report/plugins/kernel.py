@@ -135,6 +135,7 @@ class Kernel(Plugin, IndependentPlugin):
             "/sys/kernel/debug/dynamic_debug/control",
             "/sys/kernel/debug/extfrag/unusable_index",
             "/sys/kernel/debug/extfrag/extfrag_index",
+            "/sys/kernel/debug/hv-balloon",
             clocksource_path + "available_clocksource",
             clocksource_path + "current_clocksource",
             "/proc/pressure/",
