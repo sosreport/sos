@@ -20,7 +20,7 @@ class FullCleanTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    sos_cmd = '-v --clean'
+    sos_cmd = '--clean'
     sos_timeout = 600
     # replace with an empty placeholder, make sure that this test case is not
     # influenced by previous clean runs

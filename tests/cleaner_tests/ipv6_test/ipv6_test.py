@@ -20,7 +20,7 @@ class IPv6Test(StageTwoReportTest):
     """
 
     install_plugins = ['ipv6']
-    sos_cmd = '-v --clean -o ipv6'
+    sos_cmd = '--clean -o ipv6'
     sos_timeout = 600
     # replace default mapping to avoid being influenced by previous runs
     # place mock file with crafted address used by mocked plugin
