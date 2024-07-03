@@ -17,7 +17,7 @@ class OptionsFromConfigTest(StageTwoReportTest):
     """
 
     files = [('options_tests_sos.conf', '/etc/sos/sos.conf')]
-    sos_cmd = '-v '
+    sos_cmd = ''
 
     def test_case_id_from_config(self):
         self.assertTrue('8675309' in self.archive)

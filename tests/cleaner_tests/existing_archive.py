@@ -23,7 +23,7 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    sos_cmd = '-v tests/test_data/%s.tar.xz' % ARCHIVE
+    sos_cmd = 'tests/test_data/%s.tar.xz' % ARCHIVE
     sos_component = 'clean'
 
     def test_obfuscation_log_created(self):
@@ -124,7 +124,7 @@ class ExistingArchiveCleanTmpTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    sos_cmd = f'-v --keywords var,tmp,avocado --disable-parsers \
+    sos_cmd = f'--keywords var,tmp,avocado --disable-parsers \
         ip,ipv6,mac,username --no-update tests/test_data/{ARCHIVE}.tar.xz'
     sos_component = 'clean'
 
