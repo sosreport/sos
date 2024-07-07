@@ -1,0 +1,25 @@
+name: Build Debian Package
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python (if needed)
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+
+    - name: Install build dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y devscripts debhelper
+        sudo apt install dh-python python3-all python3-coverage python3-nose python3-sphinx python3-packaging
+    - name: Build Debian package
+      run: |
+        debuild -us -uc -b
