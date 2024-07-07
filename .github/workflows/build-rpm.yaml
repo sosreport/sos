@@ -1,0 +1,28 @@
+name: Build RPM
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: rockylinux:8
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install RPM tools
+      run: |
+        dnf install -y rpm-build rpmdevtools gettext python3-devel
+        dnf install -y 'dnf-command(builddep)'
+
+    - name: Prepare build environment
+      run: |
+        mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+        cp sos.spec ~/rpmbuild/SPECS/
+        python3 setup.py sdist
+        cp dist/* ~/rpmbuild/SOURCES/
+
+    - name: Build RPM
+      run: |
+        rpmbuild -ba ~/rpmbuild/SPECS/sos.spec
