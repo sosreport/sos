@@ -5,7 +5,7 @@ from sos import __version__ as VERSION
 
 
 setup(
-    name='sos',
+    name='doca-sosreport',
     version=VERSION,
     # to avoid a packaging dependency on older RHELs
     # we only declare it on recent Python versions
@@ -26,9 +26,10 @@ setup(
                             'man/en/sos-mask.1', 'man/en/sos-help.1',
                             'man/en/sos-upload.1']),
         ('share/man/man5', ['man/en/sos.conf.5']),
-        ('share/licenses/sos', ['LICENSE']),
-        ('share/doc/sos', ['AUTHORS', 'README.md']),
-        ('config', ['sos.conf', 'tmpfiles/tmpfilesd-sos-rh.conf'])
+        ('share/licenses/doca-sosreport', ['LICENSE']),
+        ('share/doc/doca-sosreport', ['AUTHORS', 'README.md']),
+        ('config', ['sos.conf', 'sos-mlx-cloud-verification.conf',
+                    'tmpfiles/tmpfilesd-sos-rh.conf'])
     ],
     packages=find_packages(include=['sos', 'sos.*'])
 )

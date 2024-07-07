@@ -1,13 +1,10 @@
-Source: sos
-Maintainer: sosreport Dev Team <sosreport-dev@lists.canonical.com>
-Uploaders:
- Arif Ali <arif.ali@canonical.com>,
+Source: doca-sosreport
+Maintainer: Michael Filanov <mfilanov@nvidia.com>
 Section: admin
 Priority: optional
-Standards-Version: 4.7.0
-Rules-Requires-Root: no
+Standards-Version: 4.6.1
 Build-Depends:
- debhelper-compat (= 13),
+ debhelper-compat (= 12),
  dh-python,
  fdisk,
  gettext,
@@ -18,15 +15,11 @@ Build-Depends:
  python3-setuptools,
  python3-sphinx,
  python3-yaml,
-Homepage: https://github.com/sosreport/sos
+Homepage: https://github.com/nvidia/doca-sosreport
 Vcs-Browser: https://salsa.debian.org/sosreport-team/sosreport
 Vcs-Git: https://salsa.debian.org/sosreport-team/sosreport.git
 
-Package: sos
-Replaces:
- sosreport (<< 4.8.2-4~),
-Breaks:
- sosreport (<< 4.8.2-4~),
+Package: doca-sosreport
 Architecture: any
 Depends:
  python3-magic,
@@ -35,6 +28,11 @@ Depends:
  python3-yaml,
  ${misc:Depends},
  ${python3:Depends},
+rovides: doca-sosreport (= ${source:Version}),
+          sosreport
+Conflicts: sosreport
+Replaces: sosreport,
+          doca-sosreport (<< ${source:Version})
 Recommends:
  e2fsprogs,
  lsof,
