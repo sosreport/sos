@@ -1,8 +1,8 @@
 Summary: A set of tools to gather troubleshooting information from a system
-Name: sos
+Name: doca-sosreport
 Version: 4.9.0
 Release: 1%{?dist}
-Source0: https://github.com/sosreport/sos/archive/%{name}-%{version}.tar.gz
+Source0: %{name}-%{version}.tar.gz
 License: GPL-2.0-only
 BuildArch: noarch
 Url: https://github.com/sosreport/sos
@@ -30,6 +30,8 @@ hardware and configuration. The information can then be used for
 diagnostic purposes and debugging. Sos is commonly used to help
 support technicians and developers.
 
+%define sosname sos
+
 %prep
 %setup -qn %{name}-%{version}
 
@@ -53,21 +55,21 @@ support technicians and developers.
 %py3_install '--install-scripts=%{_sbindir}'
 %endif
 
-install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}
-install -d -m 700 %{buildroot}%{_sysconfdir}/%{name}/cleaner
-install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}/presets.d
-install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}/groups.d
-install -d -m 755 %{buildroot}%{_sysconfdir}/%{name}/extras.d
+install -d -m 755 %{buildroot}%{_sysconfdir}/%{sosname}
+install -d -m 700 %{buildroot}%{_sysconfdir}/%{sosname}/cleaner
+install -d -m 755 %{buildroot}%{_sysconfdir}/%{sosname}/presets.d
+install -d -m 755 %{buildroot}%{_sysconfdir}/%{sosname}/groups.d
+install -d -m 755 %{buildroot}%{_sysconfdir}/%{sosname}/extras.d
 install -d -m 755 %{buildroot}%{_tmpfilesdir}
-install -m 644 %{name}.conf %{buildroot}%{_sysconfdir}/%{name}/%{name}.conf
-install -m 644 tmpfiles/tmpfilesd-sos-rh.conf %{buildroot}%{_tmpfilesdir}/%{name}.conf
+install -m 644 %{sosname}.conf %{buildroot}%{_sysconfdir}/%{sosname}/%{sosname}.conf
+install -m 644 tmpfiles/tmpfilesd-sos-rh.conf %{buildroot}%{_tmpfilesdir}/%{sosname}.conf
 
 rm -rf %{buildroot}/usr/config/
 
-%find_lang %{name} || echo 0
+%find_lang %{sosname} || echo 0
 
 # internationalization is currently broken. Uncomment this line once fixed.
-# %%files -f %%{name}.lang
+# %%files -f %%{sosname}.lang
 %files
 %if 0%{?fedora} >= 39
 %{_bindir}/sos
@@ -78,7 +80,7 @@ rm -rf %{buildroot}/usr/config/
 %dir /etc/sos/presets.d
 %dir /etc/sos/extras.d
 %dir /etc/sos/groups.d
-%{_tmpfilesdir}/%{name}.conf
+%{_tmpfilesdir}/%{sosname}.conf
 %{python3_sitelib}/*
 %{_mandir}/man1/*
 %{_mandir}/man5/*
