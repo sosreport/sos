@@ -28,7 +28,7 @@ Depends:
  python3-yaml,
  ${misc:Depends},
  ${python3:Depends},
-rovides: doca-sosreport (= ${source:Version}),
+Provides: doca-sosreport (= ${source:Version}),
           sosreport
 Conflicts: sosreport
 Replaces: sosreport,
