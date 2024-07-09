@@ -55,6 +55,9 @@ support technicians and developers.
 %py3_install '--install-scripts=%{_sbindir}'
 %endif
 
+# cleanup to avoid conflicts with sos already installed
+rm -rf %{buildroot}%{_sysconfdir}/%{sosname}
+
 install -d -m 755 %{buildroot}%{_sysconfdir}/%{sosname}
 install -d -m 700 %{buildroot}%{_sysconfdir}/%{sosname}/cleaner
 install -d -m 755 %{buildroot}%{_sysconfdir}/%{sosname}/presets.d
