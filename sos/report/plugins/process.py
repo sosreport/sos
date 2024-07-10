@@ -50,6 +50,7 @@ class Process(Plugin, IndependentPlugin):
 
         for proc in procs:
             self.add_copy_spec([
+                f"/proc/{proc}/stat",
                 f"/proc/{proc}/status",
                 f"/proc/{proc}/cpuset",
                 f"/proc/{proc}/oom_*",
