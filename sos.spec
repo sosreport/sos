@@ -18,7 +18,8 @@ Recommends: python3-file-magic
 # Mandatory just for uploading to a SFTP server:
 Recommends: python3-requests
 Recommends: python3-pyyaml
-Obsoletes: sos-collector <= 1.9, sos <= 4.0
+Obsoletes: sos-collector <= 1.9, sos
+Provides: sos
 # For the _tmpfilesdir macro.
 BuildRequires: systemd
 # Mandatory just for uploading to an S3 bucket:
