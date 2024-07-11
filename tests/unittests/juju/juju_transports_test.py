@@ -33,6 +33,9 @@ class JujuSSHTest(unittest.TestCase):
             address="model_abc:unit_abc",
         )
 
+    def get_juju_version():
+        return "2.9.45"
+
     @patch("sos.collector.transports.juju.subprocess.check_output")
     def test_check_juju_installed_err(self, mock_subprocess_check_output):
         """Raise error if juju is not installed."""
@@ -71,11 +74,15 @@ class JujuSSHTest(unittest.TestCase):
         )
 
     @patch(
+        "sos.collector.transports.juju.JujuSSH._get_juju_version",
+        side_effect=get_juju_version,
+    )
+    @patch(
         "sos.collector.transports.juju.sos_get_command_output",
         return_value={"status": 0},
     )
     @patch("sos.collector.transports.juju.JujuSSH._chmod", return_value=True)
-    def test_retrieve_file(self, mock_chmod, mock_sos_get_cmd_output):
+    def test_retrieve_file(self, mock_chmod, mock_sos_get_cmd_output, mock_get_juju_version):
         self.juju_ssh._retrieve_file(fname="file_abc", dest="/tmp/sos-juju/")
         mock_sos_get_cmd_output.assert_called_with(
             "juju scp -m model_abc -- -r unit_abc:file_abc /tmp/sos-juju/"

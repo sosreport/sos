@@ -13,7 +13,7 @@ import subprocess
 
 from sos.collector.exceptions import JujuNotInstalledException
 from sos.collector.transports import RemoteTransport
-from sos.utilities import sos_get_command_output
+from sos.utilities import sos_get_command_output, parse_version
 
 
 class JujuSSH(RemoteTransport):
@@ -72,12 +72,29 @@ class JujuSSH(RemoteTransport):
         option = f"{model_option} {target_option}"
         return f"juju ssh {option}"
 
+    def _get_juju_version(self):
+        """Grab the version of juju"""
+        res = sos_get_command_output("juju version")
+        return res['output'].split("-")[0]
+
     def _retrieve_file(self, fname, dest):
         self._chmod(fname)  # juju scp needs the archive to be world-readable
         model, unit = self.address.split(":")
         model_option = f"-m {model}" if model else ""
-        cmd = f"juju scp {model_option} -- -r {unit}:{fname} {dest}"
-        res = sos_get_command_output(cmd)
+        if parse_version(self._get_juju_version()) > parse_version("3"):
+            # juju version above 3 is strictly confined, and therefore
+            # the way we grab the data is slightly different
+            juju_tmpdir = f"/tmp/snap-private-tmp/snap.juju/{self.tmpdir}"
+            sos_get_command_output(f"sudo mkdir {juju_tmpdir}")
+            sos_get_command_output(f"sudo chmod o+rwx {juju_tmpdir}")
+            cmd = f"juju scp {model_option} -- -r {unit}:{fname} {self.tmpdir}"
+            res = sos_get_command_output(cmd)
+            cmd2 = f"sudo cp {juju_tmpdir}/{fname.split('/')[-1]} {dest}"
+            sos_get_command_output(cmd2)
+            sos_get_command_output(f"sudo chmod 644 {dest}")
+        else:
+            cmd = f"juju scp {model_option} -- -r {unit}:{fname} {dest}"
+            res = sos_get_command_output(cmd)
         return res["status"] == 0
 
 
