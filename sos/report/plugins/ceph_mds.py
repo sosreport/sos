@@ -75,7 +75,7 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
             "counter schema",
             "damage ls",
             "dump loads",
-            "dump tree",
+            "dump tree /",
             "dump_blocked_ops",
             "dump_historic_ops",
             "dump_historic_ops_by_duration",
