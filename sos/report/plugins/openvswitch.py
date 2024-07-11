@@ -413,12 +413,12 @@ class RedHatOpenVSwitch(OpenVSwitch, RedHatPlugin):
 
     packages = ('openvswitch', 'openvswitch[2-9].*',
                 'openvswitch-dpdk', 'nuage-openvswitch'
-                '6windgate-fp')
+                '6windgate-fp', 'doca-openvswitch')
 
 
 class DebianOpenVSwitch(OpenVSwitch, DebianPlugin, UbuntuPlugin):
 
-    packages = ('openvswitch-switch', 'nuage-openvswitch')
+    packages = ('openvswitch-switch', 'nuage-openvswitch', 'doca-openvswitch')
 
     files = (
         '/var/snap/openstack-hypervisor/common/etc/openvswitch/system-id.conf',
