@@ -1,0 +1,21 @@
+@Library('doca-jenkins-library@coverity') _
+
+pipeline {
+    agent {
+        kubernetes {
+            yaml libraryResource("pods/jnlp.yaml")
+        }
+    }
+    stages {
+        stage("Coverity") {
+            steps {
+                script {
+                    Coverity([
+                            gitUrl:  "https://github.com/NVIDIA/doca-sosreport.git",
+                            projectName: "doca-sosreport"
+                    ])
+                }
+            }
+        }
+    }
+}

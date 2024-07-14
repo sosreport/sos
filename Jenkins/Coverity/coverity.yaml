@@ -1,0 +1,10 @@
+#spesific configurations
+coverity.project: doca-sosreport
+coverity.project.triage: doca-sosreport
+coverity.project.stream: doca-sosreport-main
+project.build.type: Python
+#generic config
+coverity.user: $COVERITY_USER
+coverity.password: $COVERITY_PASSWORD
+coverity.admin.user: $COVERITY_USER
+coverity.admin.password: $COVERITY_PASSWORD
