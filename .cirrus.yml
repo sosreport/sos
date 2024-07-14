@@ -56,6 +56,7 @@ gcp_credentials: ENCRYPTED[!77d4c8251094346c41db63cb05eba2ff98eaff04e58c5d0e2a8e
 
 # Run a simple lint on the community cluster
 flake8_task:
+    skip: &man-changes-include "changesIncludeOnly('man/*')"
     alias: "flake8_test"
     name: "Flake8 linting test"
     container:
@@ -66,6 +67,7 @@ flake8_task:
     flake_script: tox -e flake8
 
 pylint_task:
+    skip: *man-changes-include
     alias: "pylint_test"
     name: "pylint linting test"
     container:
@@ -77,6 +79,7 @@ pylint_task:
 # breaks/changes in common modules. This is not meant to check any of the actual
 # collections or archive integrity.
 py_break_task:
+    skip: *man-changes-include
     alias: "py_break"
     name: "Breakage test python-$PY_VERSION"
     container:
@@ -92,6 +95,7 @@ py_break_task:
 
 # Make sure a user can manually build an rpm from the checkout
 rpm_build_task:
+    skip: *man-changes-include
     alias: "rpm_build"
     name: "rpm Build From Checkout - ${BUILD_NAME}"
     gce_instance: &standardvm
@@ -130,6 +134,7 @@ rpm_build_task:
 
 # Make sure a user can manually build a deb from the checkout
 deb_build_task:
+    skip: *man-changes-include
     alias: "deb_build"
     name: "deb Build From Checkout"
     gce_instance:
@@ -151,6 +156,7 @@ deb_build_task:
 
 # Make sure a user can manually build a snap from the checkout
 snap_build_task:
+    skip: *man-changes-include
     alias: "snap_build"
     name: "snap Build From Checkout"
     gce_instance:
@@ -175,6 +181,7 @@ snap_build_task:
 
 # Run the stage one (no mocking) tests across all distros on GCP
 report_stageone_task:
+    skip: *man-changes-include
     alias: "stageone_report"
     name: "Report Stage One - $BUILD_NAME"
     depends_on:
@@ -251,6 +258,7 @@ report_stageone_task:
             path: "sos-fail-logs.tar"
 
 report_stageone_daily_task:
+    skip: *man-changes-include
     alias: "stageone_daily_report"
     name: "Report Stage One - ${UBUNTU_DEVEL_FAMILY_NAME}"
     allow_failures: true
@@ -271,6 +279,7 @@ report_stageone_daily_task:
 
 # IFF the stage one tests all pass, then run stage two for latest distros
 report_stagetwo_task:
+    skip: *man-changes-include
     alias: "stagetwo_report"
     name: "Report Stage Two - $BUILD_NAME"
     depends_on: stageone_report
@@ -296,6 +305,7 @@ report_stagetwo_task:
         log_artifacts: *logs
 
 report_stagetwo_daily_task:
+    skip: *man-changes-include
     alias: "stagetwo_daily_report"
     name: "Report Stage Two - ${UBUNTU_DEVEL_FAMILY_NAME}"
     allow_failures: true
