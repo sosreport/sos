@@ -100,7 +100,7 @@ class RedHatKDump(KDump, RedHatPlugin):
 
         # collect the latest vmcore created in the last 24hrs <= 2GB
         if self.get_option("get-vm-core"):
-            self.add_copy_spec(f"{path}/*/vmcore", sizelimit=2048, maxage=24)
+            self.add_copy_spec(f"{path}/*/vmcore", sizelimit=2048, maxhours=24)
 
 
 class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
@@ -178,6 +178,6 @@ class AzureKDump(KDump, AzurePlugin):
 
         # collect the latest vmcore created in the last 24hrs <= 2GB
         if self.get_option("get-vm-core"):
-            self.add_copy_spec(f"{path}/*/vmcore", sizelimit=2048, maxage=24)
+            self.add_copy_spec(f"{path}/*/vmcore", sizelimit=2048, maxhours=24)
 
 # vim: set et ts=4 sw=4 :
