@@ -27,7 +27,8 @@ class Pam(Plugin):
 
         self.add_copy_spec([
             "/etc/pam.d",
-            "/etc/security"
+            "/etc/security",
+            '/etc/authselect/authselect.conf',
         ])
         self.add_cmd_output([
             "pam_tally2",
