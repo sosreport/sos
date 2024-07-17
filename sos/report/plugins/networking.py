@@ -96,6 +96,7 @@ class Networking(Plugin):
         self.add_cmd_output([
             "nstat -zas",
             "netstat -s",
+            "netstat -s -6",
             f"netstat {self.ns_wide} -agn",
             "networkctl status -a",
             "ip -6 route show table all",
@@ -197,6 +198,7 @@ class Networking(Plugin):
                                required={'kmods': 'all'})
         self.add_cmd_output(ss_cmd, pred=ss_pred, changes=True)
 
+        self.add_cmd_output("ss -s")
         # Get ethtool output for every device that does not exist in a
         # namespace.
         _ecmds = [f"ethtool -{opt}" for opt in self.ethtool_shortopts]
@@ -209,6 +211,8 @@ class Networking(Plugin):
             "ethtool --phy-statistics %(dev)s",
             "ethtool --show-priv-flags %(dev)s",
             "ethtool --show-eee %(dev)s",
+            "ethtool --show-fec %(dev)s",
+            "ethtool --show-ntuple %(dev)s",
             "tc -s filter show dev %(dev)s",
             "tc -s filter show dev %(dev)s ingress",
         ], devices="ethernet")
