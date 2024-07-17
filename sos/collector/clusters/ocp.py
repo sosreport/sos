@@ -79,7 +79,7 @@ class ocp(Cluster):
             self._oc_cmd = 'oc'
             if self.primary.host.in_container():
                 _oc_path = self.primary.run_command(
-                    'which oc', chroot=self.primary.host.sysroot
+                    'which oc'
                 )
                 if _oc_path['status'] == 0:
                     self._oc_cmd = os.path.join(
