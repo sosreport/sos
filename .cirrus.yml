@@ -144,10 +144,47 @@ deb_build_task:
         pip3 install -r test-requirements.txt --break-system-packages
     main_script: |
         dpkg-buildpackage -b -us -uc -rfakeroot -m --build-by="noreply@canonical.com"
-    prep_artifacts_script: mv ../*.deb ./sos_cirrus.deb
+    prep_artifacts_script: |
+        tar cf sos_cirrus_deb.tgz ../*.buildinfo ../*.changes ../*.deb
+        mv ../*.deb ./sos_cirrus.deb
     packages_artifacts:
         path: ./sos_cirrus.deb
         type: application/octet-stream
+    pkgsrc_artifacts:
+        path: ./sos_cirrus_deb.tgz
+
+# Run lintian on the deb package sources
+deb_lintian_task:
+    alias: "deb_lintian"
+    name: "deb lintian from Checkout build"
+    depends_on:
+        - deb_build
+    gce_instance:
+        image_project: "${UBUNTU_PROJECT}"
+        image_name: "${UBUNTU_DEB_IMAGE_NAME}"
+        type: e2-micro
+    setup_script: |
+        apt update --allow-releaseinfo-change
+        apt -y install lintian
+        $ARTCURL/deb%20Build%20From%20Checkout/pkgsrc/sos_cirrus_deb.tgz
+        tar xf sos_cirrus_deb.tgz
+    main_script:
+        lintian -v -i -I -E --pedantic --profile debian *.changes
+
+# Check license of all files based on debian/copyright file
+deb_license_check_task:
+    alias: "deb_license_check"
+    name: "deb license check from Checkout"
+    allow_failures: true
+    gce_instance:
+        image_project: "${UBUNTU_PROJECT}"
+        image_name: "${UBUNTU_DEB_IMAGE_NAME}"
+        type: e2-micro
+    setup_script: |
+        apt update --allow-releaseinfo-change
+        apt -y install licenserecon
+    main_script:
+        lrc
 
 # Make sure a user can manually build a snap from the checkout
 snap_build_task:
