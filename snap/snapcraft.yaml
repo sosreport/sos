@@ -8,7 +8,7 @@ grade: stable
 base: core24
 confinement: classic
 adopt-info: sos
-license: GPL-2.0-or-later
+license: GPL-2.0
 environment:
   PYTHONPATH: ${SNAP}/lib/python3.12/site-packages:${SNAP}/usr/lib/python3/dist-packages:${PYTHONPATH}
 
