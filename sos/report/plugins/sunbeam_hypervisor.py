@@ -66,15 +66,33 @@ class SunbeamHypervisor(Plugin, UbuntuPlugin):
         connection_keys = ["connection", "sql_connection"]
 
         self.do_path_regex_sub(
-            fr"{self.common_dir}/etc/(nova|neutron)/*",
+            fr"{self.common_dir}/etc/(nova|neutron|ceilometer)/*",
             fr'(^\s*({"|".join(protect_keys)})\s*=\s*)(.*)',
             r"\1*********"
         )
         self.do_path_regex_sub(
-            fr"{self.common_dir}/etc/(nova|neutron)/*",
+            fr"{self.common_dir}/etc/(nova|neutron|ceilometer)/*",
             fr'(^\s*({"|".join(connection_keys)})\s*=\s*(.*)'
             r'://(\w*):)(.*)(@(.*))',
             r"\1*********\6"
+        )
+
+        # hooks.log
+        protect_hook_keys = [
+            "password",
+            "ovn_metadata_proxy_shared_secret",
+            "cacert",
+            "cert",
+            "key",
+            "ovn_cacert",
+            "ovn_cert",
+            "ovn_key",
+        ]
+
+        self.do_file_sub(
+            f'{self.common_dir}/hooks.log',
+            fr'(\'({"|".join(protect_hook_keys)})\'):\s?\'(.+?)\'',
+            r"\1: **********"
         )
 
 # vim: et ts=4 sw=4
