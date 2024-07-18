@@ -269,7 +269,19 @@ class LinuxPolicy(Policy):
             'dm_mod': 'CONFIG_BLK_DEV_DM'
         }
 
-        booted_config = self.join_sysroot(f"/boot/config-{release}")
+        kconfigs = (
+            f"/boot/config-{release}",
+            f"/lib/modules/{release}/config",
+        )
+        for kconfig in kconfigs:
+            kconfig = self.join_sysroot(kconfig)
+            if os.path.exists(kconfig):
+                booted_config = kconfig
+                break
+        else:
+            self.soslog.warning("Unable to find booted kernel config")
+            return
+
         kconfigs = []
         try:
             with open(booted_config, "r") as kfile:
