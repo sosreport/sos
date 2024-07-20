@@ -20,8 +20,9 @@ import pdb
 from datetime import datetime
 import glob
 
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FuturesTimeoutError
 from shutil import rmtree
-from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 import sos.report.plugins
 from sos.utilities import (ImporterHelper, SoSTimeoutError, bold,
@@ -1318,7 +1319,7 @@ class SoSReport(SoSComponent):
                 end = datetime.now()
                 _plug.manifest.add_field('end_time', end)
                 _plug.manifest.add_field('run_time', end - start)
-            except TimeoutError:
+            except FuturesTimeoutError:
                 msg = f"Plugin {plugin[1]} timed out"
                 # log to ui_log.error to show the user, log to soslog.info
                 # so that someone investigating the sos execution has it all

@@ -34,12 +34,6 @@ def _default(msg):
 
 _sos = _default
 
-# py3 < 3.6 compat
-try:
-    ModuleNotFoundError
-except NameError:
-    ModuleNotFoundError = ImportError
-
 
 class SoS():
     """Main entrypoint for sos from the command line

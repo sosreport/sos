@@ -66,7 +66,6 @@ disable=
     R1724, # no-else-continue
     R1729, # use-a-generator
     C0117, # unnecessary-negation
-    W0622, # redefined-builtin
     W0212, # protected-access
     R1728, # consider-using-generator
     R1710, # inconsistent-return-statements
