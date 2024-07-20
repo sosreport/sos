@@ -23,8 +23,8 @@ class MockOptions:
 
 
 def get_juju_output(model):
-    dir = pathlib.Path(__file__).parent.resolve()
-    with open(dir / "data" / f"juju_output_{model}.json") as f:
+    _dir = pathlib.Path(__file__).parent.resolve()
+    with open(_dir / "data" / f"juju_output_{model}.json") as f:
         return f.read()
 
 

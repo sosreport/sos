@@ -26,8 +26,8 @@ def j(filename):
     return os.path.join(PATH, filename)
 
 
-def create_file(size, dir=None):
-    f = tempfile.NamedTemporaryFile(delete=False, dir=dir, mode='w')
+def create_file(size, dirname=None):
+    f = tempfile.NamedTemporaryFile(delete=False, dir=dirname, mode='w')
     fsize = size * 1024 * 1024
     content = ''.join(random.choice(ascii_lowercase) for x in range(fsize))
     f.write(content)
@@ -376,8 +376,8 @@ class AddCopySpecTests(unittest.TestCase):
     def test_glob_file_limit_no_limit(self):
         self.mp.sysroot = '/'
         tmpdir = tempfile.mkdtemp()
-        create_file(2, dir=tmpdir)
-        create_file(2, dir=tmpdir)
+        create_file(2, dirname=tmpdir)
+        create_file(2, dirname=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*")
         self.assertEqual(len(self.mp.copy_paths), 2)
         shutil.rmtree(tmpdir)
@@ -385,8 +385,8 @@ class AddCopySpecTests(unittest.TestCase):
     def test_glob_file_over_limit(self):
         self.mp.sysroot = '/'
         tmpdir = tempfile.mkdtemp()
-        create_file(2, dir=tmpdir)
-        create_file(2, dir=tmpdir)
+        create_file(2, dirname=tmpdir)
+        create_file(2, dirname=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*", 1)
         self.assertEqual(len(self.mp._tail_files_list), 1)
         fname, _size = self.mp._tail_files_list[0]
