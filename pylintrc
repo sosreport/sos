@@ -86,7 +86,6 @@ disable=
     R1718, # consider-using-set-comprehension
     R1721, # unnecessary-comprehension
     R1722, # consider-using-sys-exit
-    W0105, # pointless-string-statement
     W0108, # unnecessary-lambda
     W0222, # signature-differs
     W0223, # abstract-method
