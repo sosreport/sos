@@ -727,11 +727,6 @@ class TarFileArchive(FileCacheArchive):
     def name(self):
         return f"{self._archive_root}.{self._suffix}"
 
-    def name_max(self):
-        # GNU Tar format supports unlimited file name length. Just return
-        # the limit of the underlying FileCacheArchive.
-        return super().name_max()
-
     def _build_archive(self, method):
         if method == 'auto':
             method = 'xz' if find_spec('lzma') is not None else 'gzip'
