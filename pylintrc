@@ -87,7 +87,6 @@ disable=
     W0108, # unnecessary-lambda
     W0222, # signature-differs
     W0223, # abstract-method
-    W0621, # redefined-outer-name
     W0640, # cell-var-from-loop
     W1509, # subprocess-popen-preexec-fn
     W4701, # modified-iterating-list

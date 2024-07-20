@@ -394,10 +394,10 @@ class BaseSoSReportTest(BaseSoSTest):
     def encrypted_path(self):
         return self.get_encrypted_path()
 
-    def _decrypt_archive(self, archive):
-        _archive = archive.strip('.gpg')
+    def _decrypt_archive(self, archive_arg):
+        _archive = archive_arg.strip('.gpg')
         cmd = (f"gpg --batch --passphrase {self.encrypt_pass} -o {_archive} "
-               f"--decrypt {archive}")
+               f"--decrypt {archive_arg}")
         try:
             process.run(cmd, timeout=10)
         except Exception as err:
