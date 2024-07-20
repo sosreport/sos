@@ -28,6 +28,8 @@ try:
 except ImportError:
     from pkg_resources import parse_version
 
+log = logging.getLogger('sos')
+
 # try loading magic>=0.4.20 which implements detect_from_filename method
 magic_mod = False
 try:
@@ -35,7 +37,6 @@ try:
     magic.detect_from_filename(__file__)
     magic_mod = True
 except (ImportError, AttributeError):
-    log = logging.getLogger('sos')
     from textwrap import fill
     msg = ("""\
 WARNING: Failed to load 'magic' module version >= 0.4.20 which sos aims to \
@@ -114,7 +115,6 @@ def fileobj(path_or_file, mode='r'):
         try:
             return open(path_or_file, mode)
         except IOError:
-            log = logging.getLogger('sos')
             log.debug(f"fileobj: {path_or_file} could not be opened")
             return closing(io.StringIO())
     else:
