@@ -15,7 +15,7 @@ Requires: python3-setuptools
 %else
 Requires: python3-packaging
 %endif
-Recommends: python3-magic
+Recommends: python3-file-magic
 # Mandatory just for uploading to a SFTP server:
 Recommends: python3-requests
 Recommends: python3-pyyaml
