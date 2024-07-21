@@ -364,7 +364,7 @@ class Cluster():
         :returns: A list of node FQDNs or IP addresses
         :rtype: ``list`` or ``None``
         """
-        pass
+        raise NotImplementedError
 
     def _get_nodes(self):
         try:
