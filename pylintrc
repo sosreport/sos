@@ -48,7 +48,6 @@ disable=
     W0718, # broad-exception-caught
     W0102, # dangerous-default-value
     C0325, # superfluous-parens
-    E1111, # assignment-from-no-return
     R1714, # consider-using-in
     C0206, # consider-using-dict-items
     W0221, # arguments-differ

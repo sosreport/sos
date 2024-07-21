@@ -668,7 +668,7 @@ class FileCacheArchive(Archive):
         raise Exception(msg)
 
     def _build_archive(self, method):
-        pass
+        return self.name()
 
 
 class TarFileArchive(FileCacheArchive):
