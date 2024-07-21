@@ -102,8 +102,7 @@ class SoSObfuscationArchive():
             toplevel = self.tarobj.firstmember
             if toplevel.isdir():
                 return toplevel.name
-            else:
-                return os.path.dirname(toplevel.name) or os.sep
+            return os.path.dirname(toplevel.name) or os.sep
         return os.path.abspath(self.archive_path)
 
     def report_msg(self, msg):
@@ -160,8 +159,7 @@ class SoSObfuscationArchive():
             if not self.archive_root:
                 self.archive_root = self.get_archive_root()
             return os.path.join(self.archive_root, fname)
-        else:
-            return os.path.join(self.extracted_path, fname)
+        return os.path.join(self.extracted_path, fname)
 
     def get_file_content(self, fname):
         """Return the content from the specified fname. Particularly useful for

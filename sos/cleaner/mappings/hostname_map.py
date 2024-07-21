@@ -122,7 +122,7 @@ class SoSHostnameMap(SoSMap):
         if len(host) == 1:
             # don't block on host's shortname
             return host[0] in self.hosts
-        elif any([no_tld.endswith(_d) for _d in self._domains]):
+        if any([no_tld.endswith(_d) for _d in self._domains]):
             return True
 
         return False

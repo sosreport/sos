@@ -47,7 +47,6 @@ class kubernetes(Cluster):
                     if node[2] in roles:
                         nodes.append(node[0])
             return nodes
-        else:
-            raise Exception('Node enumeration did not return usable output')
+        raise Exception('Node enumeration did not return usable output')
 
 # vim: set et ts=4 sw=4 :

@@ -532,7 +532,7 @@ class LinuxPolicy(Policy):
         }
         if self.commons['cmdlineopts'].upload_protocol in prots.keys():
             return prots[self.commons['cmdlineopts'].upload_protocol]
-        elif '://' not in self.upload_url:
+        if '://' not in self.upload_url:
             raise Exception("Must provide protocol in upload URL")
         prot, url = self.upload_url.split('://')
         if prot not in prots.keys():
@@ -764,7 +764,7 @@ class LinuxPolicy(Policy):
         if put_success == 0:
             ret.sendline('bye')
             return True
-        elif put_success == 1:
+        if put_success == 1:
             raise Exception("Timeout expired while uploading")
         elif put_success == 2:
             raise Exception(f"Unknown error during upload: {ret.before}")
@@ -1055,8 +1055,7 @@ class LinuxPolicy(Policy):
         if self.container_runtime:
             return (f'{self.container_runtime} exec {self.sos_container_name} '
                     f'{cmd}')
-        else:
-            return cmd
+        return cmd
 
 
 class GenericLinuxPolicy(LinuxPolicy):

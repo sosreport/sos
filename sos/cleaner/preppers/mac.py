@@ -21,7 +21,7 @@ class MacPrepper(SoSPrepper):
     def _get_mac_file_list(self, archive):
         if archive.is_sos:
             return ['sos_commands/networking/ip_-d_address']
-        elif archive.is_insights:
+        if archive.is_insights:
             return ['data/insights_commands/ip_addr']
         return []
 

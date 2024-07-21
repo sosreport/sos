@@ -126,14 +126,13 @@ def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
     fn = float(bytes_)
     if bytes_ >= T:
         return f'{(fn / T):.1fT}'
-    elif bytes_ >= G:
+    if bytes_ >= G:
         return f'{(fn / G):.1fG}'
-    elif bytes_ >= M:
+    if bytes_ >= M:
         return f'{(fn / M):.1fM}'
-    elif bytes_ >= K:
+    if bytes_ >= K:
         return f'{(fn / K):.1fK}'
-    else:
-        return f'{bytes_}'
+    return f'{bytes_}'
 
 
 def file_is_binary(fname):
@@ -327,8 +326,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             _output.close()
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': "", 'truncated': ''}
-        else:
-            raise e
+        raise e
 
     if p.returncode == 126 or p.returncode == 127:
         stdout = b""
@@ -554,8 +552,7 @@ class AsyncReader(threading.Thread):
             time.sleep(0.01)
         if not self.binary:
             return ''.join(ln.decode('utf-8', 'ignore') for ln in self.deque)
-        else:
-            return b''.join(ln for ln in self.deque)
+        return b''.join(ln for ln in self.deque)
 
     @property
     def is_full(self):

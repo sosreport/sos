@@ -22,10 +22,9 @@ def str_to_bool(val):
     _val = val.lower()
     if _val in ['true', 'on', 'yes']:
         return True
-    elif _val in ['false', 'off', 'no']:
+    if _val in ['false', 'off', 'no']:
         return False
-    else:
-        return None
+    return None
 
 
 class SoSOptions():

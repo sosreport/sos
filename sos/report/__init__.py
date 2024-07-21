@@ -1870,5 +1870,7 @@ class SoSReport(SoSComponent):
             sys.exit(e.code)
 
         self._exit(1)
+        # Never gets here. This is to fix "inconsistent-return-statements
+        return False
 
 # vim: set et ts=4 sw=4 :

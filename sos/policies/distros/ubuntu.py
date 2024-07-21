@@ -82,14 +82,12 @@ class UbuntuPolicy(DebianPolicy):
     def get_upload_https_auth(self):
         if self.upload_url.startswith(self._upload_url):
             return (self._upload_user, self._upload_password)
-        else:
-            return super().get_upload_https_auth()
+        return super().get_upload_https_auth()
 
     def get_upload_url_string(self):
         if self.upload_url.startswith(self._upload_url):
             return "Canonical Support File Server"
-        else:
-            return self.get_upload_url()
+        return self.get_upload_url()
 
     def get_upload_url(self):
         if not self.upload_url or self.upload_url.startswith(self._upload_url):

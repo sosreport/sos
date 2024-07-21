@@ -138,9 +138,8 @@ class RedHatPolicy(LinuxPolicy):
         """
         if 'filesystem' not in pkgs:
             return os.path.islink('/bin') and os.path.islink('/sbin')
-        else:
-            filesys_version = pkgs['filesystem']['version']
-            return True if filesys_version[0] == '3' else False
+        filesys_version = pkgs['filesystem']['version']
+        return filesys_version[0] == '3'
 
     def mangle_package_path(self, files):
         """Mangle paths for post-UsrMove systems.
@@ -165,8 +164,7 @@ class RedHatPolicy(LinuxPolicy):
             for f in files:
                 paths.extend(transform_path(f))
             return paths
-        else:
-            return files
+        return files
 
     def get_tmp_dir(self, opt_tmp_dir):
         if not opt_tmp_dir:
@@ -292,16 +290,15 @@ support representative.
     def get_upload_url(self):
         if self.upload_url:
             return self.upload_url
-        elif self.commons['cmdlineopts'].upload_url:
+        if self.commons['cmdlineopts'].upload_url:
             return self.commons['cmdlineopts'].upload_url
-        elif self.commons['cmdlineopts'].upload_protocol == 'sftp':
+        if self.commons['cmdlineopts'].upload_protocol == 'sftp':
             return RH_SFTP_HOST
-        elif not self.commons['cmdlineopts'].case_id:
+        if not self.commons['cmdlineopts'].case_id:
             self.ui_log.info("No case id provided, uploading to SFTP")
             return RH_SFTP_HOST
-        else:
-            rh_case_api = "/support/v1/cases/%s/attachments"
-            return RH_API_HOST + rh_case_api % self.case_id
+        rh_case_api = "/support/v1/cases/%s/attachments"
+        return RH_API_HOST + rh_case_api % self.case_id
 
     def _get_upload_https_auth(self):
         str_auth = f"Bearer {self._device_token}"
@@ -340,7 +337,7 @@ support representative.
     def get_upload_url_string(self):
         if self.get_upload_url().startswith(RH_API_HOST):
             return "Red Hat Customer Portal"
-        elif self.get_upload_url().startswith(RH_SFTP_HOST):
+        if self.get_upload_url().startswith(RH_SFTP_HOST):
             return "Red Hat Secure FTP"
         return self.upload_url
 
@@ -444,8 +441,7 @@ support representative.
                   " via sos http upload. \n")
                   )
             return RH_SFTP_HOST
-        else:
-            return RH_API_HOST
+        return RH_API_HOST
 
     def upload_archive(self, archive):
         """Override the base upload_archive to provide for automatic failover

@@ -186,13 +186,13 @@ class ObfuscatedIPv6Network():
         """
         if self.addr.is_global:
             return self._obfuscate_global_address()
-        elif self.addr.is_link_local:
+        if self.addr.is_link_local:
             # link-local addresses are always fe80::/64. This is not sensitive
             # in itself, and retaining the information that an address is a
             # link-local address is important for problem analysis, so don't
             # obfuscate this network information.
             return self.network_addr
-        elif self.addr.is_private:
+        if self.addr.is_private:
             return self._obfuscate_private_address()
         return self.network_addr
 

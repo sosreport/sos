@@ -515,8 +515,8 @@ class FileCacheArchive(Archive):
         if 'PC_NAME_MAX' in os.pathconf_names:
             pc_name_max = os.pathconf_names['PC_NAME_MAX']
             return os.pathconf(self._archive_root, pc_name_max)
-        else:
-            return 255
+
+        return 255
 
     def get_tmp_dir(self):
         return self._archive_root
@@ -656,7 +656,7 @@ class FileCacheArchive(Archive):
         r = sos_get_command_output(enc_cmd, timeout=0, env=env)
         if r["status"] == 0:
             return arc_name
-        elif r["status"] == 2:
+        if r["status"] == 2:
             if self.enc_opts["key"]:
                 msg = "Specified key not in keyring"
             else:
