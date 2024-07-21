@@ -769,7 +769,7 @@ class SoSCollector(SoSComponent):
             'name': self.opts.save_group,
             'primary': self.opts.primary,
             'cluster_type': self.cluster.cluster_type[0],
-            'nodes': [n for n in self.node_list]
+            'nodes': list(self.node_list)
         }
         if os.getuid() != 0:
             group_path = os.path.join(Path.home(), '.config/sos/groups.d')

@@ -45,10 +45,6 @@ disable=
     C0201, # consider-iterating-dictionary
     W1201, # logging-not-lazy
     W0707, # raise-missing-from
-    C0117, # unnecessary-negation
     W0212, # protected-access
-    C2801, # unnecessary-dunder-call
-    R1721, # unnecessary-comprehension
-    W0108, # unnecessary-lambda
     W0223, # abstract-method
     W1509, # subprocess-popen-preexec-fn

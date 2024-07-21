@@ -63,7 +63,7 @@ class pacemaker(Cluster):
         _ver = self.exec_primary_cmd('crm_mon --version')
         if _ver['status'] == 0:
             cver = _ver['output'].split()[1].split('-')[0]
-            if not sos_parse_version(cver) > sos_parse_version('2.0.3'):
+            if sos_parse_version(cver) <= sos_parse_version('2.0.3'):
                 xmlopt = '--as-xml'
         else:
             return
