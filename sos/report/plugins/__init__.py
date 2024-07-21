@@ -1821,7 +1821,7 @@ class Plugin():
                 continue
 
             if since or maxage:
-                files = list(filter(lambda f: time_filter(f), files))
+                files = list(filter(time_filter, files))
 
             files.sort(key=getmtime, reverse=True)
             current_size = 0
@@ -2013,7 +2013,7 @@ class Plugin():
         if "snap_cmd" in kwargs:
             kwargs.pop("snap_cmd")
         soscmd = SoSCommand(**kwargs)
-        self._log_debug("packed command: " + soscmd.__str__())
+        self._log_debug(f"packed command: {str(soscmd)}")
         for _skip_cmd in self.skip_commands:
             # This probably seems weird to be doing filename matching on the
             # commands, however we want to remain consistent with our regex
@@ -3156,7 +3156,7 @@ class Plugin():
     def _collect_cmds(self):
         self.collect_cmds.sort(key=lambda x: x.priority)
         for soscmd in self.collect_cmds:
-            self._log_debug("unpacked command: " + soscmd.__str__())
+            self._log_debug(f"unpacked command: {str(soscmd)}")
             user = ""
             if getattr(soscmd, "runas", None) is not None:
                 user = f", as the {soscmd.runas} user"
@@ -3558,52 +3558,42 @@ class PluginDistroTag():
 
     Use IndependentPlugin for plugins that are distribution agnostic
     """
-    pass
 
 
 class RedHatPlugin(PluginDistroTag):
     """Tagging class for Red Hat's Linux distributions"""
-    pass
 
 
 class UbuntuPlugin(PluginDistroTag):
     """Tagging class for Ubuntu Linux"""
-    pass
 
 
 class DebianPlugin(PluginDistroTag):
     """Tagging class for Debian Linux"""
-    pass
 
 
 class SuSEPlugin(PluginDistroTag):
     """Tagging class for SuSE Linux distributions"""
-    pass
 
 
 class OpenEulerPlugin(PluginDistroTag):
     """Tagging class for openEuler linux distributions"""
-    pass
 
 
 class CosPlugin(PluginDistroTag):
     """Tagging class for Container-Optimized OS"""
-    pass
 
 
 class IndependentPlugin(PluginDistroTag):
     """Tagging class for plugins that can run on any platform"""
-    pass
 
 
 class ExperimentalPlugin(PluginDistroTag):
     """Tagging class that indicates that this plugin is experimental"""
-    pass
 
 
 class AzurePlugin(PluginDistroTag):
     """Tagging class for Azure Linux"""
-    pass
 
 
 def import_plugin(name, superclasses=None):
