@@ -33,7 +33,6 @@ class Node:
 
 class Leaf(Node):
     """Marker class that can be added to a Section node"""
-    pass
 
 
 class Report(Node):

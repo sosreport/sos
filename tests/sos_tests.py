@@ -319,20 +319,17 @@ class BaseSoSTest(Test):
         """Called at the end of a test run to ensure that any needed per-test
         cleanup can be done.
         """
-        pass
 
     def setup_mocking(self):
         """Since we need to use setUp() in our overrides of avocado.Test,
         provide an alternate method for test cases that subclass BaseSoSTest
         to use.
         """
-        pass
 
     def pre_sos_setup(self):
         """Do any needed non-mocking setup prior to the sos execution that is
         called in setUp()
         """
-        pass
 
     def assertFileExists(self, fname):
         """Asserts that fname exists on the filesystem"""
