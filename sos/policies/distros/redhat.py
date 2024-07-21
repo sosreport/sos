@@ -288,7 +288,6 @@ support representative.
                 _("The option --upload-pass has been deprecated in favour"
                   " of device authorization in RHEL")
             )
-        return
 
     def get_upload_url(self):
         if self.upload_url:

@@ -360,8 +360,6 @@ class LinuxPolicy(Policy):
             except KeyboardInterrupt:
                 raise
 
-        return
-
     def _configure_low_priority(self):
         """Used to constrain sos to a 'low priority' execution, potentially
         letting individual policies set their own definition of what that is.
