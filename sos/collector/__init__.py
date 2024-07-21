@@ -1427,3 +1427,5 @@ this utility or remote systems that it connects to.
             msg = (f"Could not finalize archive: {err}\n\nData may still be "
                    f"available uncompressed at {self.archive_path}")
             self.exit(msg, 2)
+            # Never gets here. This is to fix "inconsistent-return-statements
+            return "Archive error"

@@ -69,7 +69,6 @@ disable=
     W0622, # redefined-builtin
     W0212, # protected-access
     R1728, # consider-using-generator
-    R1710, # inconsistent-return-statements
     C1802, # use-implicit-booleaness-not-len
     W0706, # try-except-raise
     C1803, # use-implicit-booleaness-not-comparison

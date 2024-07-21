@@ -106,6 +106,7 @@ class SosNode():
             if self.host.containerized:
                 self.create_sos_container()
             self._load_sos_info()
+        return None
 
     @property
     def connected(self):
