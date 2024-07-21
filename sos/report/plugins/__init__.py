@@ -185,9 +185,9 @@ class SoSPredicate(object):
         """
         if required == 'any':
             return any(items)
-        elif required == 'all':
+        if required == 'all':
             return all(items)
-        elif required == 'none':
+        if required == 'none':
             return not any(items)
         raise ValueError(
             f"predicate requires must be 'any', 'all', or 'none' "
@@ -1483,14 +1483,13 @@ class Plugin():
         if stat.S_ISLNK(st.st_mode):
             self._copy_symlink(srcpath)
             return None
-        else:
-            if stat.S_ISDIR(st.st_mode) and os.access(srcpath, os.R_OK):
-                # copy empty directory
-                if not self.listdir(srcpath):
-                    self.archive.add_dir(dest)
-                    return None
-                self._copy_dir(srcpath)
+        if stat.S_ISDIR(st.st_mode) and os.access(srcpath, os.R_OK):
+            # copy empty directory
+            if not self.listdir(srcpath):
+                self.archive.add_dir(dest)
                 return None
+            self._copy_dir(srcpath)
+            return None
 
         # handle special nodes (block, char, fifo, socket)
         if not (stat.S_ISREG(st.st_mode) or stat.S_ISDIR(st.st_mode)):
@@ -2808,8 +2807,7 @@ class Plugin():
         if _runtime is not None:
             if get_all:
                 return _runtime.get_containers(get_all=True)
-            else:
-                return _runtime.containers
+            return _runtime.containers
         return []
 
     def get_container_images(self, runtime=None):

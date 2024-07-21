@@ -39,7 +39,6 @@ disable=
     ###################### VV things we should fix VV
     W0613, # unused-argument
     W0612, # unused-variable
-    R1705, # no-else-return
     W0719, # broad-exception-raised
     W1203, # logging-fstring-interpolation
     W1406, # redundant-u-string-prefix
@@ -67,7 +66,6 @@ disable=
     C0117, # unnecessary-negation
     W0212, # protected-access
     R1728, # consider-using-generator
-    R1710, # inconsistent-return-statements
     C1802, # use-implicit-booleaness-not-len
     W0706, # try-except-raise
     C1803, # use-implicit-booleaness-not-comparison

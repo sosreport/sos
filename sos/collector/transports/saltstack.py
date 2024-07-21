@@ -82,8 +82,7 @@ class SaltStackMaster(RemoteTransport):
         res = sos_get_command_output(cmd)
         if res['status'] == 0:
             return res['status'] == 0
-        else:
-            raise SaltStackMasterUnsupportedException
+        raise SaltStackMasterUnsupportedException
 
     def _connect(self, password=None):
         """Connect to the remote host using SaltStack Master.

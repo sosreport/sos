@@ -142,13 +142,11 @@ class DeviceAuthorizationClass:
         """
         if self.is_access_token_valid():
             return self._access_token
-        else:
-            if self.is_refresh_token_valid():
-                self._use_refresh_token_grant()
-                return self._access_token
-            else:
-                self._use_device_code_grant()
-                return self._access_token
+        if self.is_refresh_token_valid():
+            self._use_refresh_token_grant()
+            return self._access_token
+        self._use_device_code_grant()
+        return self._access_token
 
     def is_access_token_valid(self):
         """

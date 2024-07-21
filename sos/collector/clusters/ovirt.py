@@ -127,9 +127,7 @@ class ovirt(Cluster):
         if res['status'] == 0:
             nodes = res['output'].splitlines()[2:-1]
             return [n.split('(')[0].strip() for n in nodes]
-        else:
-            raise Exception('database query failed, return code: '
-                            f'{res["status"]}')
+        raise Exception(f'database query failed, return code: {res["status"]}')
 
     def run_extra_cmd(self):
         if not self.get_option('no-database') and self.conf:
@@ -188,8 +186,7 @@ class rhv(ovirt):
             return 'manager'
         if node.is_installed('ovirt-node-ng-nodectl'):
             return 'rhvh'
-        else:
-            return 'rhelh'
+        return 'rhelh'
 
 
 class rhhi_virt(rhv):

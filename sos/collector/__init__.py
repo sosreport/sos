@@ -619,18 +619,13 @@ class SoSCollector(SoSComponent):
                 msg = "Invalid option type for %s. Expected %s got %s"
                 self.exit(msg % (cli.name, default.opt_type, cli.opt_type), 1)
             return cli.value
-        else:
-            val = cli.value.lower()
-            if val not in ['true', 'on', 'yes', 'false', 'off', 'no']:
-                msg = ("Invalid value for %s. Accepted values are: 'true', "
-                       "'false', 'on', 'off', 'yes', 'no'.")
-                self.exit(msg % cli.name, 1)
-            else:
-                if val in ['true', 'on', 'yes']:
-                    return True
-                else:
-                    return False
-        self.exit(f"Unknown option type: {cli.opt_type}")
+
+        val = cli.value.lower()
+        if val not in ['true', 'on', 'yes', 'false', 'off', 'no']:
+            msg = ("Invalid value for %s. Accepted values are: 'true', "
+                   "'false', 'on', 'off', 'yes', 'no'.")
+            self.exit(msg % cli.name, 1)
+        return val in ['true', 'on', 'yes']
 
     def log_info(self, msg):
         """Log info messages to both console and log file"""
@@ -1427,3 +1422,5 @@ this utility or remote systems that it connects to.
             msg = (f"Could not finalize archive: {err}\n\nData may still be "
                    f"available uncompressed at {self.archive_path}")
             self.exit(msg, 2)
+            # Never gets here. This is to fix "inconsistent-return-statements
+            return "Archive error"

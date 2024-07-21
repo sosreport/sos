@@ -430,11 +430,10 @@ class BaseSoSReportTest(BaseSoSTest):
             # grep will return an exit code of 1 if no matches are found,
             # which is what we want
             return False
-        else:
-            flist = []
-            for ln in out.stdout.decode('utf-8').splitlines():
-                flist.append(ln.split(self.tmpdir)[-1])
-            return flist
+        flist = []
+        for ln in out.stdout.decode('utf-8').splitlines():
+            flist.append(ln.split(self.tmpdir)[-1])
+        return flist
 
     def get_encrypted_path(self):
         """Since avocado re-instantiates a new object for every test_ method,

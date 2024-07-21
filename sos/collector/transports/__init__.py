@@ -304,7 +304,7 @@ class RemoteTransport():
             out = result.before
             result.close()
             return {'status': result.exitstatus, 'output': out}
-        elif index == 1:
+        if index == 1:
             raise CommandTimeoutException(cmd)
         # if we somehow manage to flow to this point, use this bogus exit code
         # as a signal to debugging efforts that whatever went sideways did so
@@ -399,12 +399,11 @@ class RemoteTransport():
         res = self.run_command(f"cat {fname}", timeout=10)
         if res['status'] == 0:
             return res['output']
+        if 'No such file' in res['output']:
+            self.log_debug(f"File {fname} does not exist on node")
         else:
-            if 'No such file' in res['output']:
-                self.log_debug(f"File {fname} does not exist on node")
-            else:
-                self.log_error(f"Error reading {fname}: "
-                               f"{res['output'].split(':')[1:]}")
-            return ''
+            self.log_error(f"Error reading {fname}: "
+                           f"{res['output'].split(':')[1:]}")
+        return ''
 
 # vim: set et ts=4 sw=4 :

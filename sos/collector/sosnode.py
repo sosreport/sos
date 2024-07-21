@@ -106,6 +106,7 @@ class SosNode():
             if self.host.containerized:
                 self.create_sos_container()
             self._load_sos_info()
+        return None
 
     @property
     def connected(self):
@@ -126,9 +127,9 @@ class SosNode():
         if self.address in ['localhost', '127.0.0.1']:
             self.local = True
             return LocalTransport(self.address, commons)
-        elif self.opts.transport in TRANSPORTS.keys():
+        if self.opts.transport in TRANSPORTS.keys():
             return TRANSPORTS[self.opts.transport](self.address, commons)
-        elif self.opts.transport != 'auto':
+        if self.opts.transport != 'auto':
             self.log_error(
                 "Connection failed: unknown or unsupported transport "
                 f"{self.opts.transport}"
@@ -207,10 +208,9 @@ class SosNode():
                     self.log_info("Temporary container "
                                   f"{self.host.sos_container_name} created")
                     return True
-                else:
-                    self.log_error("Could not start container after create: "
-                                   f"{ret['output']}")
-                    raise Exception
+                self.log_error("Could not start container after create: "
+                               f"{ret['output']}")
+                raise Exception
             else:
                 self.log_error("Could not create container on host: "
                                f"{res['output']}")
@@ -226,10 +226,9 @@ class SosNode():
                 self.opts.registry_user,
                 self.opts.registry_password
             )
-        else:
-            return self.host.runtimes['default'].fmt_registry_authfile(
-                self.opts.registry_authfile or self.host.container_authfile
-            )
+        return self.host.runtimes['default'].fmt_registry_authfile(
+            self.opts.registry_authfile or self.host.container_authfile
+        )
 
     def file_exists(self, fname, need_root=False):
         """Checks for the presence of fname on the remote node"""
@@ -751,8 +750,7 @@ class SosNode():
             return 'sos report terminated unexpectedly. Check disk space'
         if len(stdout) > 0:
             return stdout.split('\n')[0:1]
-        else:
-            return f'sos exited with code {rc}'
+        return f'sos exited with code {rc}'
 
     def execute_sos_command(self):
         """Run sos report and capture the resulting file path"""
@@ -807,10 +805,9 @@ class SosNode():
             if self.file_exists(path):
                 self.log_info(f"Copying remote {path} to local {destdir}")
                 return self._transport.retrieve_file(path, dest)
-            else:
-                self.log_debug(f"Attempting to copy remote file {path}, but it"
-                               " does not exist on filesystem")
-                return False
+            self.log_debug(f"Attempting to copy remote file {path}, but it"
+                           " does not exist on filesystem")
+            return False
         except Exception as err:
             self.log_debug(f"Failed to retrieve {path}: {err}")
             return False
@@ -830,10 +827,9 @@ class SosNode():
                 cmd = f"rm -f {path}"
                 res = self.run_command(cmd, need_root=True)
                 return res['status'] == 0
-            else:
-                self.log_debug(f"Attempting to remove remote file {path}, but "
-                               "it does not exist on filesystem")
-                return False
+            self.log_debug(f"Attempting to remove remote file {path}, but "
+                           "it does not exist on filesystem")
+            return False
         except Exception as e:
             self.log_debug(f'Failed to remove {path}: {e}')
             return False
@@ -857,9 +853,8 @@ class SosNode():
             self.ui_msg('Successfully collected sos report')
             self.file_list.append(self.sos_path.split('/')[-1])
             return True
-        else:
-            self.ui_msg('Failed to retrieve sos report')
-            return False
+        self.ui_msg('Failed to retrieve sos report')
+        return False
 
     def remove_sos_archive(self):
         """Remove the sos report archive from the node, since we have
@@ -919,9 +914,8 @@ class SosNode():
         res = self.run_command(cmd, timeout=10, need_root=True)
         if res['status'] == 0:
             return True
-        else:
-            msg = "Exception while making %s readable. Return code was %s"
-            self.log_error(msg % (filepath, res['status']))
-            raise Exception
+        msg = "Exception while making %s readable. Return code was %s"
+        self.log_error(msg % (filepath, res['status']))
+        raise Exception
 
 # vim: set et ts=4 sw=4 :

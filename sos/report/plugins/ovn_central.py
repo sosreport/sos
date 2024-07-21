@@ -90,8 +90,7 @@ class OVNCentral(Plugin):
         """ Collect OVN database output """
         if tables:
             return [f"{ovn_cmd} list {table}" for table in tables]
-        else:
-            return None
+        return None
 
     def setup(self):
         # check if env is a clustered or non-clustered one
