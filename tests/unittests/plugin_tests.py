@@ -110,6 +110,7 @@ class ForbiddenMockPlugin(Plugin):
 
 class EnablerPlugin(Plugin):
 
+    # pylint: disable=unused-argument
     def is_installed(self, pkg):
         return self.is_installed
 
@@ -389,7 +390,7 @@ class AddCopySpecTests(unittest.TestCase):
         create_file(2, dirname=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*", 1)
         self.assertEqual(len(self.mp._tail_files_list), 1)
-        fname, _size = self.mp._tail_files_list[0]
+        _, _size = self.mp._tail_files_list[0]
         self.assertEqual(1024 * 1024, _size)
         shutil.rmtree(tmpdir)
 

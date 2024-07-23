@@ -164,7 +164,7 @@ class SoSIPMap(SoSMap):
     def _new_obfuscated_single_address(self):
         def _gen_address():
             _octets = []
-            for i in range(0, 4):
+            for _ in range(0, 4):
                 _octets.append(random.randint(11, 99))
             return f"{_octets[0]}.{_octets[1]}.{_octets[2]}.{_octets[3]}"
 

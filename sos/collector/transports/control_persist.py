@@ -63,7 +63,7 @@ class SSHControlPersist(RemoteTransport):
         ssh_cmd = ['ssh', '-o', 'ControlPersist']
         cmd = subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
-        out, err = cmd.communicate()
+        _, err = cmd.communicate()
         err = err.decode('utf-8')
         if 'Bad configuration option' in err or 'Usage:' in err:
             raise ControlPersistUnsupportedException

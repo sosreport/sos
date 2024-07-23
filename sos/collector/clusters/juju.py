@@ -89,9 +89,9 @@ def _get_index(model_name):
                         continue
 
                     units = juju_status["applications"][parent]["units"]
-                    for unit, unit_info in units.items():
+                    for _, unit_info in units.items():
                         node = f"{self.model_name}:{unit_info['machine']}"
-                        for sub_key, sub_value in unit_info.get(
+                        for sub_key, _ in unit_info.get(
                             "subordinates", {}
                         ).items():
                             if sub_key.startswith(app + "/"):

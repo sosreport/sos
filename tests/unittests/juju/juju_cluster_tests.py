@@ -59,6 +59,7 @@ class JujuTest(unittest.TestCase):
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
+    # pylint: disable=unused-argument
     def test_get_nodes_no_filter(self, mock_exec_primary_cmd):
         """No filter."""
         mock_opts = MockOptions()
@@ -79,6 +80,7 @@ class JujuTest(unittest.TestCase):
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
+    # pylint: disable=unused-argument
     def test_get_nodes_app_filter(
         self, mock_exec_primary_cmd, mock_get_juju_version
     ):
@@ -113,6 +115,7 @@ class JujuTest(unittest.TestCase):
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
+    # pylint: disable=unused-argument
     def test_get_nodes_app_regex_filter(
         self, mock_exec_primary_cmd, mock_get_juju_version
     ):
@@ -147,6 +150,7 @@ class JujuTest(unittest.TestCase):
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
+    # pylint: disable=unused-argument
     def test_get_nodes_model_filter_multiple_models(
         self, mock_exec_primary_cmd, mock_get_juju_version
     ):
@@ -198,6 +202,7 @@ class JujuTest(unittest.TestCase):
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
+    # pylint: disable=unused-argument
     def test_get_nodes_model_filter(
         self, mock_exec_primary_cmd, mock_get_juju_version
     ):
@@ -246,6 +251,7 @@ class JujuTest(unittest.TestCase):
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
+    # pylint: disable=unused-argument
     def test_get_nodes_unit_filter(
         self, mock_exec_primary_cmd, mock_get_juju_version
     ):
@@ -277,6 +283,7 @@ class JujuTest(unittest.TestCase):
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
+    # pylint: disable=unused-argument
     def test_get_nodes_machine_filter(
         self, mock_exec_primary_cmd, mock_get_juju_version
     ):
@@ -309,6 +316,7 @@ class JujuTest(unittest.TestCase):
         "sos.collector.clusters.juju.juju.exec_primary_cmd",
         side_effect=get_juju_status,
     )
+    # pylint: disable=unused-argument
     def test_subordinates(self, mock_exec_primary_cmd, mock_get_juju_version):
         """Subordinate filter."""
         mock_opts = MockOptions()

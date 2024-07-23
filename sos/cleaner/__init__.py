@@ -455,7 +455,7 @@ third party.
             if checksum is not None:
                 dname = f"checksums/{arc_dest}.{self.hash_name}"
                 self.archive.add_string(checksum, dest=dname)
-        for dirn, dirs, files in os.walk(self.nested_archive.extracted_path):
+        for dirn, _, files in os.walk(self.nested_archive.extracted_path):
             for filename in files:
                 fname = os.path.join(dirn, filename)
                 dname = fname.split(self.nested_archive.extracted_path)[-1]

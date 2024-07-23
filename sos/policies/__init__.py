@@ -141,7 +141,7 @@ any third party.
         self.sysroot = sysroot
         self.register_presets(GENERIC_PRESETS)
 
-    def check(self, remote=''):
+    def check(self, remote=''):  # pylint: disable=unused-argument
         """
         This function is responsible for determining if the underlying system
         is supported by this policy.
@@ -328,7 +328,7 @@ any third party.
 
     def _parse_uname(self):
         (system, node, release,
-         version, machine, processor) = platform.uname()
+         version, machine, _) = platform.uname()
         self.system = system
         self.hostname = node
         self.release = release

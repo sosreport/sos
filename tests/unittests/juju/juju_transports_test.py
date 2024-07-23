@@ -43,6 +43,7 @@ class JujuSSHTest(unittest.TestCase):
             self.juju_ssh._check_juju_installed()
 
     @patch("sos.collector.transports.juju.subprocess.check_output")
+    # pylint: disable=unused-argument
     def test_check_juju_installed_true(self, mock_subprocess_check_output):
         """Return True if juju is installed."""
         result = self.juju_ssh._check_juju_installed()
@@ -61,6 +62,7 @@ class JujuSSHTest(unittest.TestCase):
         "sos.collector.transports.juju.JujuSSH._check_juju_installed",
         return_value=True,
     )
+    # pylint: disable=unused-argument
     def test_connect(self, mock_result):
         self.juju_ssh.connect(password=None)
         assert self.juju_ssh.connected
@@ -75,6 +77,7 @@ class JujuSSHTest(unittest.TestCase):
         return_value={"status": 0},
     )
     @patch("sos.collector.transports.juju.JujuSSH._chmod", return_value=True)
+    # pylint: disable=unused-argument
     def test_retrieve_file(self, mock_chmod, mock_sos_get_cmd_output):
         self.juju_ssh._retrieve_file(fname="file_abc", dest="/tmp/sos-juju/")
         mock_sos_get_cmd_output.assert_called_with(

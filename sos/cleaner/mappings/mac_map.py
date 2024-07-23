@@ -64,7 +64,7 @@ class SoSMacMap(SoSMap):
         """
         hexdigits = "0123456789abdcef"
         hextets = []
-        for i in range(0, 3):
+        for _ in range(0, 3):
             hextets.append(''.join(random.choice(hexdigits) for x in range(2)))
 
         hextets = tuple(hextets)

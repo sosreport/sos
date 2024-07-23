@@ -667,7 +667,7 @@ class FileCacheArchive(Archive):
             msg = f"gpg exited with code {r['status']}"
         raise Exception(msg)
 
-    def _build_archive(self, method):
+    def _build_archive(self, method):  # pylint: disable=unused-argument
         return self.name()
 
 
@@ -719,7 +719,7 @@ class TarFileArchive(FileCacheArchive):
 
     def get_selinux_context(self, path):
         try:
-            (rc, c) = selinux.getfilecon(path)
+            (_, c) = selinux.getfilecon(path)
             return c
         except Exception:
             return None
