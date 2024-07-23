@@ -23,7 +23,7 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    sos_cmd = 'tests/test_data/%s.tar.xz' % ARCHIVE
+    sos_cmd = f'tests/test_data/{ARCHIVE}.tar.xz'
     sos_component = 'clean'
 
     def test_obfuscation_log_created(self):
@@ -36,7 +36,7 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
                 self.tmpdir,
                 f'{ARCHIVE}-obfuscation.log'), 'r') as log:
             for line in log:
-                if "Loaded %s" % ARCHIVE in line:
+                if f"Loaded {ARCHIVE}" in line:
                     assert \
                         'as type sos report archive' in line, \
                         f"Incorrect archive type detected: {line}"
@@ -96,8 +96,8 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
             map_json = json.load(mf)
         for mapping in map_json:
             for key, val in map_json[mapping].items():
-                assert key, "Empty key found in %s" % mapping
-                assert val, "%s mapping for '%s' empty" % (mapping, key)
+                assert key, f"Empty key found in {mapping}"
+                assert val, f"{mapping} mapping for '{key}' empty"
 
     def test_ip_not_in_any_file(self):
         content = self.grep_for_content('10.0.0.15')

@@ -782,20 +782,20 @@ third party.
                 return 0
             self.log_debug(f"Obfuscating {short_name or filename}",
                            caller=arc_name)
-            tfile = tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir)
-            with open(filename, 'r', errors='replace') as fname:
-                for line in fname:
-                    try:
-                        line, count = self.obfuscate_line(line, _parsers)
-                        subs += count
-                        tfile.write(line)
-                    except Exception as err:
-                        self.log_debug(f"Unable to obfuscate {short_name}: "
-                                       f"{err}", caller=arc_name)
-            tfile.seek(0)
-            if subs:
-                shutil.copyfile(tfile.name, filename)
-            tfile.close()
+            with tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir) \
+                    as tfile:
+                with open(filename, 'r', errors='replace') as fname:
+                    for line in fname:
+                        try:
+                            line, count = self.obfuscate_line(line, _parsers)
+                            subs += count
+                            tfile.write(line)
+                        except Exception as err:
+                            self.log_debug(f"Unable to obfuscate {short_name}:"
+                                           f"{err}", caller=arc_name)
+                tfile.seek(0)
+                if subs:
+                    shutil.copyfile(tfile.name, filename)
 
         _ob_short_name = self.obfuscate_string(short_name.split('/')[-1])
         _ob_filename = short_name.replace(short_name.split('/')[-1],

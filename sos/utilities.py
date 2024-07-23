@@ -280,62 +280,60 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         else:
             expanded_args.append(arg)
     if to_file:
-        _output = open(to_file, 'w')
+        _output = open(to_file, 'w')  # pylint: disable=consider-using-with
     else:
         _output = PIPE
     try:
-        p = Popen(expanded_args, shell=False, stdout=_output,
-                  stderr=STDOUT if stderr else PIPE,
-                  bufsize=-1, env=cmd_env, close_fds=True,
-                  preexec_fn=_child_prep_fn)
+        with Popen(expanded_args, shell=False, stdout=_output,
+                   stderr=STDOUT if stderr else PIPE,
+                   bufsize=-1, env=cmd_env, close_fds=True,
+                   preexec_fn=_child_prep_fn) as p:
 
-        if not to_file:
-            reader = AsyncReader(p.stdout, sizelimit, binary)
-        else:
-            reader = FakeReader(p, binary)
+            if not to_file:
+                reader = AsyncReader(p.stdout, sizelimit, binary)
+            else:
+                reader = FakeReader(p, binary)
 
-        if poller:
-            while reader.running:
-                _check_poller(p)
-        else:
-            try:
-                # override timeout=0 to timeout=None, as Popen will treat the
-                # former as a literal 0-second timeout
-                p.wait(timeout if timeout else None)
-            except Exception:
-                p.terminate()
-                if to_file:
-                    _output.close()
-                # until we separate timeouts from the `timeout` command
-                # handle per-cmd timeouts via Plugin status checks
-                reader.running = False
-                return {'status': 124, 'output': reader.get_contents(),
-                        'truncated': reader.is_full}
-        if to_file:
-            _output.close()
+            if poller:
+                while reader.running:
+                    _check_poller(p)
+            else:
+                try:
+                    # override timeout=0 to timeout=None, as Popen will treat
+                    # the former as a literal 0-second timeout
+                    p.wait(timeout if timeout else None)
+                except Exception:
+                    p.terminate()
+                    if to_file:
+                        _output.close()
+                    # until we separate timeouts from the `timeout` command
+                    # handle per-cmd timeouts via Plugin status checks
+                    reader.running = False
+                    return {'status': 124, 'output': reader.get_contents(),
+                            'truncated': reader.is_full}
+            if to_file:
+                _output.close()
 
-        # wait for Popen to set the returncode
-        while p.poll() is None:
-            pass
+            # wait for Popen to set the returncode
+            while p.poll() is None:
+                pass
 
-        stdout = reader.get_contents()
-        truncated = reader.is_full
+            if p.returncode in (126, 127):
+                stdout = b""
+            else:
+                stdout = reader.get_contents()
 
+            return {
+                'status': p.returncode,
+                'output': stdout,
+                'truncated': reader.is_full
+            }
     except OSError as e:
         if to_file:
             _output.close()
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': "", 'truncated': ''}
         raise e
-
-    if p.returncode in (126, 127):
-        stdout = b""
-
-    return {
-        'status': p.returncode,
-        'output': stdout,
-        'truncated': truncated
-    }
 
 
 def import_module(module_fqname, superclasses=None):

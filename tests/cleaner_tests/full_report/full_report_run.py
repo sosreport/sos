@@ -38,10 +38,10 @@ class FullCleanTest(StageTwoReportTest):
         short = host.split('.')[0]
         sosfd = journal.stream('sos-testing')
         sosfd.write(
-            "This is a test line from sos clean testing. The hostname %s "
-            "should not appear, nor should %s in an obfuscated archive. The "
-            "shortnames of %s and %s should also not appear."
-            % (host.lower(), host.upper(), short.lower(), short.upper())
+            f"This is a test line from sos clean testing. The hostname "
+            f"{host.lower()} should not appear, nor should {host.upper()} "
+            f"in an obfuscated archive. The shortnames of {short.lower()} "
+            f"and {short.upper()} should also not appear."
         )
 
     def test_private_map_was_generated(self):
@@ -81,8 +81,8 @@ class FullCleanTest(StageTwoReportTest):
             map_json = json.load(mf)
         for mapping in map_json:
             for key, val in map_json[mapping].items():
-                assert key, "Empty key found in %s" % mapping
-                assert val, "%s mapping for '%s' empty" % (mapping, key)
+                assert key, f"Empty key found in {mapping}"
+                assert val, f"{mapping} mapping for '{key}' empty"
 
     def test_ip_not_in_any_file(self):
         ip = self.sysinfo['pre']['networking']['ip_addr']

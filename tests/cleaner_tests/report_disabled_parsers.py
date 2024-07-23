@@ -59,7 +59,7 @@ class NativeCleanDisabledParsersTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    sos_cmd = "--disable-parsers=hostname tests/test_data/%s" % ARCHIVE
+    sos_cmd = f"--disable-parsers=hostname tests/test_data/{ARCHIVE}"
     sos_component = 'clean'
 
     def test_localhost_not_obfuscated(self):

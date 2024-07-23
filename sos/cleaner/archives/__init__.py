@@ -23,17 +23,27 @@ from sos.utilities import file_is_binary
 # process for extraction if this method is a part of the SoSObfuscationArchive
 # class. So, the simplest solution is to remove it from the class.
 def extract_archive(archive_path, tmpdir):
-    archive = tarfile.open(archive_path)
-    path = os.path.join(tmpdir, 'cleaner')
-    # set extract filter since python 3.12 (see PEP-706 for more)
-    # Because python 3.10 and 3.11 raises false alarms as exceptions
-    # (see #3330 for examples), we can't use data filter but must
-    # fully trust the archive (legacy behaviour)
-    archive.extraction_filter = getattr(tarfile, 'fully_trusted_filter',
-                                        (lambda member, path: member))
-    archive.extractall(path)
-    archive.close()
-    return os.path.join(path, archive.name.split('/')[-1].split('.tar')[0])
+    with tarfile.open(archive_path) as archive:
+        path = os.path.join(tmpdir, 'cleaner')
+        # set extract filter since python 3.12 (see PEP-706 for more)
+        # Because python 3.10 and 3.11 raises false alarms as exceptions
+        # (see #3330 for examples), we can't use data filter but must
+        # fully trust the archive (legacy behaviour)
+        archive.extraction_filter = getattr(tarfile, 'fully_trusted_filter',
+                                            (lambda member, path: member))
+
+        # Guard against "Arbitrary file write during tarfile extraction"
+        # Checks the extracted files don't stray out of the target directory.
+        for member in archive.getmembers():
+            member_path = os.path.join(path, member.name)
+            abs_directory = os.path.abspath(path)
+            abs_target = os.path.abspath(member_path)
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            if prefix != abs_directory:
+                raise Exception(f"Attempted path traversal in tarfle"
+                                f"{prefix} != {abs_directory}")
+            archive.extract(member, path)
+        return os.path.join(path, archive.name.split('/')[-1].split('.tar')[0])
 
 
 class SoSObfuscationArchive():
@@ -83,6 +93,7 @@ class SoSObfuscationArchive():
 
     def _load_self(self):
         if self.is_tarfile:
+            # pylint: disable=consider-using-with
             self.tarobj = tarfile.open(self.archive_path)
 
     def get_nested_archives(self):
@@ -255,10 +266,9 @@ class SoSObfuscationArchive():
             else:
                 compr_args = {'compresslevel': 6}
         self.log_debug(f"Building tar file {tarpath}")
-        tar = tarfile.open(tarpath, mode=mode, **compr_args)
-        tar.add(self.extracted_path,
-                arcname=os.path.split(self.archive_name)[1])
-        tar.close()
+        with tarfile.open(tarpath, mode=mode, **compr_args) as tar:
+            tar.add(self.extracted_path,
+                    arcname=os.path.split(self.archive_name)[1])
         return tarpath
 
     def compress(self, method):
