@@ -36,6 +36,7 @@ UBUNTU_DIST = ['Ubuntu', 'debian']
 
 
 def skipIf(cond, message=None):
+    # pylint: disable=unused-argument
     def decorator(function):
         def wrapper(self, *args, **kwargs):
             if callable(cond):
@@ -47,6 +48,7 @@ def skipIf(cond, message=None):
     return decorator
 
 
+# pylint: disable=unused-argument
 def redhat_only(tst):
     def wrapper(func):
         if distro.detect().name not in RH_DIST:
@@ -54,6 +56,7 @@ def redhat_only(tst):
     return wrapper
 
 
+# pylint: disable=unused-argument
 def ubuntu_only(tst):
     def wrapper(func):
         if distro.detect().name not in UBUNTU_DIST:

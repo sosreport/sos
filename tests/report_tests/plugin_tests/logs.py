@@ -61,7 +61,7 @@ class JournalSizeLimitTest(StageTwoReportTest):
         # allowing for any compression or de-dupe systemd does
         sosfd = journal.stream('sos-testing')
         rsize = 10 * 1048576
-        for i in range(2):
+        for _ in range(2):
             # generate 10MB, write it, then write it in reverse.
             # Spend less time generating new strings
             rand = ''.join(

@@ -71,7 +71,7 @@ class SoSObfuscationArchive():
     @classmethod
     def check_is_type(cls, arc_path):
         """Check if the archive is a well-known type we directly support"""
-        return False
+        raise NotImplementedError
 
     @property
     def is_sos(self):
@@ -282,15 +282,15 @@ class SoSObfuscationArchive():
         so that we don't take up that duplicate space any longer during
         execution
         """
-        def force_delete_file(action, name, exc):
-            os.chmod(name, stat.S_IWUSR)
-            if os.path.isfile(name):
-                os.remove(name)
+        try:
+            self.log_debug(f"Removing {self.extracted_path}")
+            shutil.rmtree(self.extracted_path)
+        except OSError:
+            os.chmod(self.extracted_path, stat.S_IWUSR)
+            if os.path.isfile(self.extracted_path):
+                os.remove(self.extracted_path)
             else:
-                shutil.rmtree(name)
-        self.log_debug(f"Removing {self.extracted_path}")
-        # pylint: disable-next=deprecated-argument
-        shutil.rmtree(self.extracted_path, onerror=force_delete_file)
+                shutil.rmtree(self.extracted_path)
 
     def extract_self(self):
         """Extract an archive into our tmpdir so that we may inspect it or
@@ -321,7 +321,7 @@ class SoSObfuscationArchive():
 
         Will not include symlinks, as those are handled separately
         """
-        for dirname, dirs, files in os.walk(self.extracted_path):
+        for dirname, _, files in os.walk(self.extracted_path):
             for filename in files:
                 _fname = os.path.join(dirname, filename.lstrip('/'))
                 if os.path.islink(_fname):
@@ -332,7 +332,7 @@ class SoSObfuscationArchive():
     def get_directory_list(self):
         """Return a list of all directories within the archive"""
         dir_list = []
-        for dirname, dirs, files in os.walk(self.extracted_path):
+        for dirname, _, _ in os.walk(self.extracted_path):
             dir_list.append(dirname)
         return dir_list
 

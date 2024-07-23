@@ -534,7 +534,7 @@ class LinuxPolicy(Policy):
             return prots[self.commons['cmdlineopts'].upload_protocol]
         if '://' not in self.upload_url:
             raise Exception("Must provide protocol in upload URL")
-        prot, url = self.upload_url.split('://')
+        prot, _ = self.upload_url.split('://')
         if prot not in prots.keys():
             raise Exception(f"Unsupported or unrecognized protocol: {prot}")
         return prots[prot]
@@ -1006,6 +1006,7 @@ class LinuxPolicy(Policy):
         """
         return ''
 
+    # pylint: disable=unused-argument
     def create_sos_container(self, image=None, auth=None, force_pull=False):
         """Returns the command that will create the container that will be
         used for running commands inside a container on hosts that require it.

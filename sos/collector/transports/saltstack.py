@@ -64,6 +64,7 @@ class SaltStackMaster(RemoteTransport):
         up = self.run_command("echo Connected", timeout=10)
         return up['status'] == 0
 
+    # pylint: disable=unused-argument
     def _check_for_saltstack(self, password=None):
         """Checks to see if the local system supported SaltStack Master.
 

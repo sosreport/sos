@@ -148,7 +148,7 @@ class SoSComponent():
         raise NotImplementedError
 
     def get_exit_handler(self):
-        def exit_handler(signum, frame):
+        def exit_handler(signum, frame):  # pylint: disable=unused-argument
             self.exit_process = True
             self._exit()
         return exit_handler

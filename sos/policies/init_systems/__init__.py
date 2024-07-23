@@ -83,6 +83,7 @@ class InitSystem():
         """
         return name in self.services
 
+    # pylint: disable=unused-argument
     def is_running(self, name, default=True):
         """Checks if the given service name is in a running state.
 

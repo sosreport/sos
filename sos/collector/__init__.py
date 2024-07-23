@@ -237,7 +237,7 @@ class SoSCollector(SoSComponent):
                     continue
                 if '__' in pyfile:
                     continue
-                fname, ext = os.path.splitext(pyfile)
+                fname, _ = os.path.splitext(pyfile)
                 modname = f'sos.collector.{modulename}.{fname}'
                 modules.extend(cls._import_modules(modname))
         return modules

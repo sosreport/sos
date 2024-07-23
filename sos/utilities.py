@@ -577,7 +577,7 @@ class ImporterHelper(object):
     def _plugin_name(self, path):
         "Returns the plugin module name given the path"
         base = os.path.basename(path)
-        name, ext = os.path.splitext(base)
+        name, _ = os.path.splitext(base)
         return name
 
     def _get_plugins_from_list(self, list_):

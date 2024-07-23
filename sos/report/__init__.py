@@ -836,7 +836,7 @@ class SoSReport(SoSComponent):
 
         # validate and load plugins
         for plug in plugins:
-            plugbase, ext = os.path.splitext(plug)
+            plugbase, __ = os.path.splitext(plug)
             try:
                 plugin_classes = import_plugin(plugbase, valid_plugin_classes)
                 if not len(plugin_classes):
@@ -899,7 +899,7 @@ class SoSReport(SoSComponent):
 
     def _set_all_options(self):
         if self.opts.alloptions:
-            for plugname, plug in self.loaded_plugins:
+            for __, plug in self.loaded_plugins:
                 for opt in plug.options.values():
                     if bool in opt.val_type:
                         opt.value = True
@@ -979,7 +979,7 @@ class SoSReport(SoSComponent):
                 )
 
     def _set_plugin_options(self):
-        for plugin_name, plugin in self.loaded_plugins:
+        for __, plugin in self.loaded_plugins:
             for opt in plugin.options:
                 self.all_options.append(plugin.options[opt])
 
@@ -1450,7 +1450,7 @@ class SoSReport(SoSComponent):
                                         cmd['file']
                                     )))
 
-            for content, f, tags in plug.copy_strings:
+            for __, f, __ in plug.copy_strings:
                 section.add(CreatedFile(name=f,
                                         href=os.path.join("..", f)))
 

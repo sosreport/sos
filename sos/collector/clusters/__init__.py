@@ -388,7 +388,7 @@ class Cluster():
         node.manifest.add_field('label', label)
         return label
 
-    def set_node_label(self, node):
+    def set_node_label(self, node):  # pylint: disable=unused-argument
         """This may be overridden by clusters profiles subclassing this class
 
         If there is a distinction between primaries and nodes, or types of

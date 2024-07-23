@@ -21,6 +21,7 @@ class KeywordPrepper(SoSPrepper):
 
     name = 'keyword'
 
+    # pylint: disable=unused-argument
     def _get_items_for_keyword(self, archive):
         items = []
         for kw in self.opts.keywords:

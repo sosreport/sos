@@ -262,7 +262,7 @@ support representative.
         with open(OS_RELEASE, "r") as f:
             for line in f:
                 if line.startswith("NAME"):
-                    (name, value) = line.split("=")
+                    (_, value) = line.split("=")
                     value = value.strip("\"'")
                     if value.startswith(cls.distro):
                         return True
