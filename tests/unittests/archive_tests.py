@@ -27,9 +27,8 @@ class TarFileArchiveTest(unittest.TestCase):
         shutil.rmtree(self.tmpdir)
 
     def check_for_file(self, filename):
-        rtf = tarfile.open(os.path.join(self.tmpdir, 'test.tar.xz'))
-        rtf.getmember(filename)
-        rtf.close()
+        with tarfile.open(os.path.join(self.tmpdir, 'test.tar.xz')) as rtf:
+            rtf.getmember(filename)
 
     def test_create(self):
         self.tf.finalize('auto')
@@ -51,10 +50,10 @@ class TarFileArchiveTest(unittest.TestCase):
     # when the string comes from tail() output
     def test_add_string_from_file(self):
         self.copy_strings = []
-        testfile = tempfile.NamedTemporaryFile(dir=self.tmpdir, delete=False)
-        testfile.write(b"*" * 1000)
-        testfile.flush()
-        testfile.close()
+        with tempfile.NamedTemporaryFile(dir=self.tmpdir, delete=False) \
+             as testfile:
+            testfile.write(b"*" * 1000)
+            testfile.flush()
 
         self.copy_strings.append((tail(testfile.name, 100), 'string_test.txt'))
         self.tf.add_string(self.copy_strings[0][0], 'tests/string_test.txt')

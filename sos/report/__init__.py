@@ -1505,24 +1505,22 @@ class SoSReport(SoSComponent):
 
         try:
             hash_size = 1024**2  # Hash 1MiB of content at a time.
-            archive_fp = open(archive, 'rb')
             digest = hashlib.new(hash_name)
-            while True:
-                hashdata = archive_fp.read(hash_size)
-                if not hashdata:
-                    break
-                digest.update(hashdata)
-            archive_fp.close()
+            with open(archive, 'rb') as archive_fp:
+                while True:
+                    hashdata = archive_fp.read(hash_size)
+                    if not hashdata:
+                        break
+                    digest.update(hashdata)
         except Exception:
             self.handle_exception()
         return digest.hexdigest()
 
     def _write_checksum(self, archive, hash_name, checksum):
         # store checksum into file
-        fp = open(archive + "." + hash_name, "w")
-        if checksum:
-            fp.write(checksum + "\n")
-        fp.close()
+        with open(archive + "." + hash_name, "w") as fp:
+            if checksum:
+                fp.write(checksum + "\n")
 
     def final_work(self):
         archive = None    # archive path

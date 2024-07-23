@@ -27,7 +27,6 @@ import sys
 PLUGDIR = 'sos/report/plugins'
 
 plugs_data = {}     # the map of all plugins data to collect
-plugcontent = ''    # content of plugin file just being processed
 
 
 # method to parse an item of a_s_c/a_c_o/.. methods
@@ -42,11 +41,11 @@ def add_valid_item(dest, item):
             return
 
 
-# method to find in `plugcontent` all items of given method (a_c_s/a_c_o/..)
+# method to find all items of given method (a_c_s/a_c_o/..) in plugin content,
 # split by comma; add each valid item to the `dest` list
-def add_all_items(method, dest, wrapopen=r'\(', wrapclose=r'\)'):
+def add_all_items(method, dest, plugfd, wrapopen=r'\(', wrapclose=r'\)'):
     regexp = f"{method}{wrapopen}(.*?){wrapclose}"
-    for match in re.findall(regexp, plugcontent,
+    for match in re.findall(regexp, plugfd,
                             flags=re.MULTILINE | re.DOTALL):
         # tuple of distros ended by either (class|from|import)
         if isinstance(match, tuple):
@@ -90,23 +89,25 @@ for plugfile in sorted(os.listdir(PLUGDIR)):
             'journals': [],
             'env': [],
     }
-    plugcontent = open(
-        os.path.join(PLUGDIR, plugfile)).read().replace('\n', '')
-    add_all_items(
-        "from sos.report.plugins import ",
-        plugs_data[plugname]['distros'],
-        wrapopen='',
-        wrapclose='(class|from|import)'
-    )
-    add_all_items("profiles = ", plugs_data[plugname]['profiles'], wrapopen='')
-    add_all_items("packages = ", plugs_data[plugname]['packages'], wrapopen='')
-    add_all_items("add_copy_spec", plugs_data[plugname]['copyspecs'])
-    add_all_items("add_forbidden_path", plugs_data[plugname]['forbidden'])
-    add_all_items("add_cmd_output", plugs_data[plugname]['commands'])
-    add_all_items("collect_cmd_output", plugs_data[plugname]['commands'])
-    add_all_items("add_service_status", plugs_data[plugname]['service_status'])
-    add_all_items("add_journal", plugs_data[plugname]['journals'])
-    add_all_items("add_env_var", plugs_data[plugname]['env'])
+    with open(os.path.join(PLUGDIR, plugfile)).read().replace('\n', '') as pfd:
+        add_all_items(
+            "from sos.report.plugins import ", plugs_data[plugname]['distros'],
+            pfd, wrapopen='', wrapclose='(class|from|import)'
+        )
+        add_all_items("profiles = ", plugs_data[plugname]['profiles'],
+                      pfd, wrapopen='')
+        add_all_items("packages = ", plugs_data[plugname]['packages'],
+                      pfd, wrapopen='')
+        add_all_items("add_copy_spec", plugs_data[plugname]['copyspecs'], pfd)
+        add_all_items("add_forbidden_path",
+                      plugs_data[plugname]['forbidden'], pfd)
+        add_all_items("add_cmd_output", plugs_data[plugname]['commands'], pfd)
+        add_all_items("collect_cmd_output",
+                      plugs_data[plugname]['commands'], pfd)
+        add_all_items("add_service_status",
+                      plugs_data[plugname]['service_status'], pfd)
+        add_all_items("add_journal", plugs_data[plugname]['journals'], pfd)
+        add_all_items("add_env_var", plugs_data[plugname]['env'], pfd)
 
 # print output; if "csv" is cmdline argument, print in CSV format, else JSON
 if (len(sys.argv) > 1) and (sys.argv[1] == "csv"):

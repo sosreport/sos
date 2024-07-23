@@ -27,13 +27,13 @@ def j(filename):
 
 
 def create_file(size, dirname=None):
-    f = tempfile.NamedTemporaryFile(delete=False, dir=dirname, mode='w')
-    fsize = size * 1024 * 1024
-    content = ''.join(random.choice(ascii_lowercase) for x in range(fsize))
-    f.write(content)
-    f.flush()
-    f.close()
-    return f.name
+    with tempfile.NamedTemporaryFile(delete=False, dir=dirname, mode='w') as f:
+        fsize = size * 1024 * 1024
+        content = ''.join(random.choice(ascii_lowercase) for x in range(fsize))
+        f.write(content)
+        f.flush()
+        return f.name
+    return None
 
 
 class MockArchive(TarFileArchive):

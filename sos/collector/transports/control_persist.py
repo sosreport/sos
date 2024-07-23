@@ -61,12 +61,12 @@ class SSHControlPersist(RemoteTransport):
             True if ControlPersist is supported, else raise Exception.
         """
         ssh_cmd = ['ssh', '-o', 'ControlPersist']
-        cmd = subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        _, err = cmd.communicate()
-        err = err.decode('utf-8')
-        if 'Bad configuration option' in err or 'Usage:' in err:
-            raise ControlPersistUnsupportedException
+        with subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE) as cmd:
+            _, err = cmd.communicate()
+            err = err.decode('utf-8')
+            if 'Bad configuration option' in err or 'Usage:' in err:
+                raise ControlPersistUnsupportedException
         return True
 
     def _connect(self, password=''):  # pylint: disable=too-many-branches

@@ -738,22 +738,21 @@ class TarFileArchive(FileCacheArchive):
             kwargs = {'compresslevel': 6}
         else:
             kwargs = {'preset': 3}
-        tar = tarfile.open(self._archive_name, mode=f"w:{_comp_mode}",
-                           **kwargs)
-        # add commonly reviewed files first, so that they can be more easily
-        # read from memory without needing to extract the whole archive
-        for _content in ['version.txt', 'sos_reports', 'sos_logs']:
-            if not os.path.exists(os.path.join(self._archive_root, _content)):
-                continue
-            tar.add(
-                os.path.join(self._archive_root, _content),
-                arcname=f"{self._name}/{_content}"
-            )
-        # we need to pass the absolute path to the archive root but we
-        # want the names used in the archive to be relative.
-        tar.add(self._archive_root, arcname=self._name,
-                filter=self.copy_permissions_filter)
-        tar.close()
+        with tarfile.open(self._archive_name, mode=f"w:{_comp_mode}",
+                          **kwargs) as tar:
+            # Add commonly reviewed files first, so that they can be more
+            # easily read from memory without needing to extract
+            # the whole archive
+            for _content in ['version.txt', 'sos_reports', 'sos_logs']:
+                if os.path.exists(os.path.join(self._archive_root, _content)):
+                    tar.add(
+                        os.path.join(self._archive_root, _content),
+                        arcname=f"{self._name}/{_content}"
+                    )
+            # we need to pass the absolute path to the archive root but we
+            # want the names used in the archive to be relative.
+            tar.add(self._archive_root, arcname=self._name,
+                    filter=self.copy_permissions_filter)
         self._suffix += f".{_comp_mode}"
         return self.name()
 
