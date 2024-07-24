@@ -576,7 +576,7 @@ class Plugin():
 
         # add the default plugin opts
         self.options.update(self.get_default_plugin_opts())
-        for popt in self.options:
+        for popt in self.options:  # pylint: disable=consider-using-dict-items
             self.options[popt].plugin = self.name()
         for opt in self.option_list:
             opt.plugin = self.name()
@@ -1630,11 +1630,11 @@ class Plugin():
         """After file collections have completed, retroactively generate
         manifest entries to apply tags to files copied by generic copyspecs
         """
-        for file_regex in self.filetags:
+        for file_regex, tag in self.filetags.items():
             manifest_data = {
                 'specification': file_regex,
                 'files_copied': [],
-                'tags': self.filetags[file_regex]
+                'tags': tag
             }
             matched_files = []
             for cfile in self.copied_files:

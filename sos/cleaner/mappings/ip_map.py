@@ -76,9 +76,9 @@ class SoSIPMap(SoSMap):
         # an address with a CIDR notation and we're now looking for it without
         # that notation
         if '/' not in ipaddr:
-            for key in self.dataset.keys():
+            for key, value in self.dataset.items():
                 if key.startswith(ipaddr):
-                    return self.dataset[key].split('/')[0]
+                    return value.split('/')[0]
 
         # fallback to the default map behavior of adding it fresh
         return self.add(ipaddr)

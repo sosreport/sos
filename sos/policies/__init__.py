@@ -399,11 +399,8 @@ any third party.
         seealso.add_text(
             "For more information on distribution policies, see below\n"
         )
-        for pol in pols:
-            seealso.add_text(
-                f"{' ':>8}{pol:<20}{pols[pol]:<30}",
-                newline=False
-            )
+        for pol, value in pols.items():
+            seealso.add_text(f"{' ':>8}{pol:<20}{value:<30}", newline=False)
 
     def display_results(self, archive, directory, checksum, archivestat=None,
                         map_file=None):
@@ -523,9 +520,9 @@ any third party.
             :returns: a matching PresetProfile.
         """
         # FIXME: allow fuzzy matching?
-        for match in self.presets.keys():
+        for match, value in self.presets.items():
             if match == preset:
-                return self.presets[match]
+                return value
 
         return None
 

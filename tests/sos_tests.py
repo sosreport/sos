@@ -823,9 +823,9 @@ class StageTwoReportTest(BaseSoSReportTest):
         self.end_of_test_case = False
         self.sm = software_manager.manager.SoftwareManager()
 
-        for dist in self.packages:
-            if isinstance(self.packages[dist], str):
-                self.packages[dist] = [self.packages[dist]]
+        for dist, value in self.packages.items():
+            if isinstance(value, str):
+                self.packages[dist] = [value]
 
         keys = self.packages.keys()
         # allow for single declaration of packages for the RH family

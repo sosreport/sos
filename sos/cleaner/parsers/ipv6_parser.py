@@ -47,8 +47,7 @@ class SoSIPv6Parser(SoSCleanerParser):
             'version': self.mapping.version,
             'networks': {}
         }
-        for net in self.mapping.networks:
-            _net = self.mapping.networks[net]
+        for _, _net in self.mapping.networks.items():
             _d['networks'][_net.original_address] = {
                 'obfuscated': _net.obfuscated_address,
                 'hosts': {}

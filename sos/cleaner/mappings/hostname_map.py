@@ -73,12 +73,10 @@ class SoSHostnameMap(SoSMap):
                 _domain_to_inject = '.'.join(domain.split('.')[1:-1])
                 if not _domain_to_inject:
                     continue
-                for existing_domain in self.dataset.keys():
+                for existing_domain, value in self.dataset.items():
                     _existing = '.'.join(existing_domain.split('.')[:-1])
                     if _existing == _domain_to_inject:
-                        _ob_domain = '.'.join(
-                            self.dataset[existing_domain].split('.')[:-1]
-                        )
+                        _ob_domain = '.'.join(value.split('.')[:-1])
                         self._domains[_domain_to_inject] = _ob_domain
         self.set_initial_counts()
 

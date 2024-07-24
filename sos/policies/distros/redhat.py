@@ -119,10 +119,10 @@ class RedHatPolicy(LinuxPolicy):
             'fedora': FedoraPolicy
         }
 
-        for subc in subs:
+        for subc, value in subs.items():
             subln = bold(f"policies.{subc}")
             section.add_text(
-                f"{' ':>8}{subln:<35}{subs[subc].distro:<30}",
+                f"{' ':>8}{subln:<35}{value.distro:<30}",
                 newline=False
             )
 

@@ -232,8 +232,8 @@ class ocp(Cluster):
             for node in nodelist:
                 _node = node.split()
                 nodes[_node[0]] = {}
-                for column in idx:
-                    nodes[_node[0]][column] = _node[idx[column]]
+                for column, value in idx.items():
+                    nodes[_node[0]][column] = _node[value]
         return nodes
 
     def set_transport_type(self):

@@ -211,11 +211,10 @@ class LinuxPolicy(Policy):
             ),
             newline=False
         )
-        for preset in _pol.presets:
-            _preset = _pol.presets[preset]
-            _opts = ' '.join(_preset.opts.to_args())
+        for preset, value in _pol.presets.items():
+            _opts = ' '.join(value.opts.to_args())
             presec.add_text(
-                f"{' ':>8}{preset:<20}{_preset.desc:<45}{_opts:<30}",
+                f"{' ':>8}{preset:<20}{value.desc:<45}{_opts:<30}",
                 newline=False
             )
 
@@ -291,8 +290,8 @@ class LinuxPolicy(Policy):
         except IOError as err:
             self.soslog.warning(f"Unable to read booted kernel config: {err}")
 
-        for builtin in config_strings:
-            if config_strings[builtin] in kconfigs:
+        for builtin, value in config_strings.items():
+            if value in kconfigs:
                 self.kernel_mods.append(builtin)
 
     def join_sysroot(self, path):
