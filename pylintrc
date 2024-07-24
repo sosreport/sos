@@ -45,12 +45,8 @@ disable=
     W0107, # unnecessary-pass
     W0718, # broad-exception-caught
     W0102, # dangerous-default-value
-    C0325, # superfluous-parens
-    R1714, # consider-using-in
     C0206, # consider-using-dict-items
     W0221, # arguments-differ
-    R1720, # no-else-raise
-    R0205, # useless-object-inheritance
     W3101, # missing-timeout
     C0201, # consider-iterating-dictionary
     R1719, # simplifiable-if-expression
@@ -58,7 +54,6 @@ disable=
     W0707, # raise-missing-from
     W0237, # arguments-renamed
     E0606, # possibly-used-before-assignment
-    R1724, # no-else-continue
     R1729, # use-a-generator
     C0117, # unnecessary-negation
     W0212, # protected-access
@@ -78,7 +73,6 @@ disable=
     R1703, # simplifiable-if-statement
     R1718, # consider-using-set-comprehension
     R1721, # unnecessary-comprehension
-    R1722, # consider-using-sys-exit
     W0108, # unnecessary-lambda
     W0222, # signature-differs
     W0223, # abstract-method

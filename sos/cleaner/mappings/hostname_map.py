@@ -168,12 +168,12 @@ class SoSHostnameMap(SoSMap):
                 if len(_test) == 1 or not _test[0]:
                     # does not match existing obfuscation
                     continue
-                elif not _host_substr and (_test[0].endswith('.') or
-                                           item.endswith(_existing)):
+                if not _host_substr and (_test[0].endswith('.') or
+                                         item.endswith(_existing)):
                     # new hostname in known domain
                     final = super().get(item)
                     break
-                elif item.split(_test[0]):
+                if item.split(_test[0]):
                     # string that includes existing FQDN obfuscation substring
                     # so, only obfuscate the FQDN part
                     try:

@@ -71,7 +71,7 @@ _certmatch = re.compile("----(?:-| )BEGIN.*?----(?:-| )END", re.DOTALL)
 _cert_replace = "-----SCRUBBED"
 
 
-class SoSPredicate(object):
+class SoSPredicate:
     """A class to implement collection predicates.
 
     A predicate gates the collection of data by an sos plugin. For any
@@ -374,7 +374,7 @@ class SoSPredicate(object):
         }
 
 
-class SoSCommand(object):
+class SoSCommand:
     """A class to represent a command to be collected.
 
     A SoSCommand() object is instantiated for each command handed to an
@@ -1389,7 +1389,7 @@ class Plugin():
         self._log_debug(f"normalized link target '{linkdest}' as '{absdest}'")
 
         # skip recursive copying of symlink pointing to itself.
-        if (absdest != srcpath):
+        if absdest != srcpath:
             # this allows for ensuring we collect the host's file when copying
             # a symlink from within a container that is within the set sysroot
             force = (absdest.startswith(self.sysroot) and

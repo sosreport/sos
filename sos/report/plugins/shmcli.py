@@ -91,7 +91,7 @@ class SHMcli(Plugin, IndependentPlugin):
                         _dcmd = (f"{self.shmcli_bin} getdebugcli "
                                  f"-a={adapt_index} -enc={enc_index}")
                         _dname = _dcmd.replace(self.shmcli_bin, 'shmcli')
-                        _odir = (f" -outputdir={logpath}")
+                        _odir = f" -outputdir={logpath}"
                         self.add_cmd_output(
                             _dcmd + _odir, suggest_filename=_dname,
                             timeout=300

@@ -324,9 +324,7 @@ class SoSObfuscationArchive():
         for dirname, _, files in os.walk(self.extracted_path):
             for filename in files:
                 _fname = os.path.join(dirname, filename.lstrip('/'))
-                if os.path.islink(_fname):
-                    continue
-                else:
+                if not os.path.islink(_fname):
                     yield _fname
 
     def get_directory_list(self):

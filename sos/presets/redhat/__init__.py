@@ -80,7 +80,7 @@ CB_OPTS = SoSOptions(
             verify=True, all_logs=True, profiles=_cb_profiles,
             plugopts=_cb_plugopts
           )
-CB_NOTE = ("Data collection will be limited to a boot-affecting scope")
+CB_NOTE = "Data collection will be limited to a boot-affecting scope"
 
 NOTE_SIZE = "This preset may increase report size"
 NOTE_TIME = "This preset may increase report run time"

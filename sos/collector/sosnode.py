@@ -195,7 +195,7 @@ class SosNode():
                             "and password or authfile"
                         )
                         raise Exception
-                    elif 'unknown: Not found' in res['output']:
+                    if 'unknown: Not found' in res['output']:
                         self.log_error('Specified image not found on registry')
                         raise Exception
                     # 'name exists' with code 125 means the container was
@@ -211,10 +211,10 @@ class SosNode():
                 self.log_error("Could not start container after create: "
                                f"{ret['output']}")
                 raise Exception
-            else:
-                self.log_error("Could not create container on host: "
-                               f"{res['output']}")
-                raise Exception
+
+            self.log_error("Could not create container on host: "
+                           f"{res['output']}")
+            raise Exception
         return False
 
     def get_container_auth(self):

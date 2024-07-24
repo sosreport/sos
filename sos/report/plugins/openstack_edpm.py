@@ -17,7 +17,7 @@ class OpenStackEDPM(Plugin, RedHatPlugin):
 
     plugin_name = 'openstack_edpm'
     profiles = ('openstack', 'openstack_edpm')
-    services = ('edpm-container-shutdown')
+    services = 'edpm-container-shutdown'
     edpm_log_paths = []
 
     def setup(self):

@@ -353,7 +353,7 @@ any third party.
         :returns: ``True`` if user is superuser, else ``False``
         :rtype: ``bool``
         """
-        return (os.getuid() == 0)
+        return os.getuid() == 0
 
     def get_preferred_hash_name(self):
         """Returns the string name of the hashlib-supported checksum algorithm

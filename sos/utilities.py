@@ -38,11 +38,11 @@ try:
     magic_mod = True
 except (ImportError, AttributeError):
     from textwrap import fill
-    msg = ("""\
+    msg = """\
 WARNING: Failed to load 'magic' module version >= 0.4.20 which sos aims to \
 use for detecting binary files. A less effective method will be used. It is \
 recommended to install proper python3-magic package with the module.
-""")
+"""
     log.warning('\n' + fill(msg, 72, replace_whitespace=False) + '\n')
 
 
@@ -234,7 +234,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             os.setgid(pwd.getpwnam(runas).pw_gid)
             os.setuid(pwd.getpwnam(runas).pw_uid)
             os.chdir(pwd.getpwnam(runas).pw_dir)
-        if (chdir):
+        if chdir:
             os.chdir(chdir)
 
     def _check_poller(proc):
@@ -328,7 +328,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             return {'status': 127, 'output': "", 'truncated': ''}
         raise e
 
-    if p.returncode == 126 or p.returncode == 127:
+    if p.returncode in (126, 127):
         stdout = b""
 
     return {
@@ -562,7 +562,7 @@ class AsyncReader(threading.Thread):
         return len(self.deque) == self.slots
 
 
-class ImporterHelper(object):
+class ImporterHelper:
     """Provides a list of modules that can be imported in a package.
     Importable modules are located along the module __path__ list and modules
     are files that end in .py.

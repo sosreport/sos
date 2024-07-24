@@ -115,7 +115,7 @@ class EnablerPlugin(Plugin):
         return self.is_installed
 
 
-class MockOptions(object):
+class MockOptions:
     all_logs = False
     dry_run = False
     since = None
@@ -430,8 +430,8 @@ class CheckEnabledTests(unittest.TestCase):
 
     def test_allows_bad_tuple(self):
         f = j("tail_test.txt")
-        self.mp.files = (f)
-        self.mp.packages = ('foo')
+        self.mp.files = f
+        self.mp.packages = 'foo'
         self.assertTrue(self.mp.check_enabled())
 
     def test_enabled_by_default(self):
