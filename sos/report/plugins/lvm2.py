@@ -23,7 +23,7 @@ class Lvm2(Plugin, IndependentPlugin):
                   desc=('attempt to collect lvmdump with advanced options and '
                         'raw metadata')),
         PluginOpt('metadata', default=False,
-                  desc=('attempt to collect headers and metadata via pvck'))
+                  desc='attempt to collect headers and metadata via pvck')
     ]
 
     def do_lvmdump(self, metadata=False):

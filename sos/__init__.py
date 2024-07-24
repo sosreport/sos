@@ -88,7 +88,7 @@ class SoS():
         usage_string = ("%(prog)s <component> [options]\n\n"
                         "Available components:\n")
         usage_string = usage_string + _com_string
-        epilog = ("See `sos <component> --help` for more information")
+        epilog = "See `sos <component> --help` for more information"
         self.parser = ArgumentParser(usage=usage_string, epilog=epilog)
         self.parser.register('action', 'extend', SosListOption)
         # set the component subparsers

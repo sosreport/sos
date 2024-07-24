@@ -95,7 +95,7 @@ class SSHControlPersist(RemoteTransport):
                            "Please update your OpenSSH installation.")
             raise
         self.log_info('Opening SSH session to create control socket')
-        self.control_path = (f"{self.tmpdir}/.sos-collector-{self.address}")
+        self.control_path = f"{self.tmpdir}/.sos-collector-{self.address}"
         self.ssh_cmd = ''
         connected = False
         ssh_key = ''

@@ -12,7 +12,7 @@ from sos.policies.distros import LinuxPolicy
 from sos.policies.init_systems import InitSystem
 
 
-class MockOptions(object):
+class MockOptions:
     all_logs = False
     dry_run = False
     log_size = 25

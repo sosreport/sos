@@ -1067,7 +1067,7 @@ class SoSCollector(SoSComponent):
         # an open session to it.
         if self.primary is not None and not self.cluster.strict_node_list:
             for n in self.node_list:
-                if n == self.primary.hostname or n == self.opts.primary:
+                if n in (self.primary.hostname, self.opts.primary):
                     self.node_list.remove(n)
         self.node_list = list(set(n for n in self.node_list if n))
         self.log_debug(f'Node list reduced to {self.node_list}')
@@ -1160,7 +1160,7 @@ class SoSCollector(SoSComponent):
         """Print the intro message and prompts for a case ID if one is not
         provided on the command line
         """
-        disclaimer = ("""\
+        disclaimer = """\
 This utility is used to collect sos reports from multiple \
 nodes simultaneously. Remote connections are made and/or maintained \
 to those nodes via well-known transport protocols such as SSH.
@@ -1174,7 +1174,7 @@ organization before being passed to any third party.
 
 No configuration changes will be made to the system running \
 this utility or remote systems that it connects to.
-""")
+"""
         self.ui_log.info(f"\nsos collect (version {__version__})\n")
         intro_msg = self._fmt_msg(disclaimer % self.tmpdir)
         self.ui_log.info(intro_msg)

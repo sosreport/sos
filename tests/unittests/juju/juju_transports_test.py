@@ -16,7 +16,7 @@ from sos.collector.exceptions import JujuNotInstalledException
 from sos.collector.transports.juju import JujuSSH
 
 
-class MockCmdLineOpts(object):
+class MockCmdLineOpts:
     ssh_user = "user_abc"
     sudo_pw = "pw_abc"
     root_password = "root_pw_abc"

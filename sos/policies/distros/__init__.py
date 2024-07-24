@@ -766,12 +766,11 @@ class LinuxPolicy(Policy):
             return True
         if put_success == 1:
             raise Exception("Timeout expired while uploading")
-        elif put_success == 2:
+        if put_success == 2:
             raise Exception(f"Unknown error during upload: {ret.before}")
-        elif put_success == 3:
+        if put_success == 3:
             raise Exception("Unable to write archive to destination")
-        else:
-            raise Exception(f"Unexpected response from server: {ret.before}")
+        raise Exception(f"Unexpected response from server: {ret.before}")
 
     def _get_sftp_upload_name(self):
         """If a specific file name pattern is required by the SFTP server,
@@ -839,7 +838,7 @@ class LinuxPolicy(Policy):
                 r = self._upload_https_put(arc, verify)
             else:
                 r = self._upload_https_post(arc, verify)
-            if r.status_code != 200 and r.status_code != 201:
+            if r.status_code not in (200, 201):
                 if r.status_code == 401:
                     raise Exception(
                         "Authentication failed: invalid user credentials"

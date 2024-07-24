@@ -789,7 +789,7 @@ class SoSReport(SoSComponent):
         return any([p in self.opts.profiles for p in plugin_class.profiles])
 
     def _is_skipped(self, plugin_name):
-        return (plugin_name in self.opts.skip_plugins)
+        return plugin_name in self.opts.skip_plugins
 
     def _is_inactive(self, plugin_name, pluginClass):
         return (not pluginClass(self.get_commons()).check_enabled() and
@@ -1622,8 +1622,7 @@ class SoSReport(SoSComponent):
             except Exception:
                 if self.opts.debug:
                     raise
-                else:
-                    return False
+                return False
             finally:
                 os.umask(old_umask)
         else:
@@ -1855,16 +1854,16 @@ class SoSReport(SoSComponent):
             self.version()
             return self.final_work()
 
-        except (OSError):
+        except OSError:
             if self.opts.debug:
                 raise
             if not os.getenv('SOS_TEST_LOGS', None) == 'keep':
                 self.cleanup()
-        except (KeyboardInterrupt):
+        except KeyboardInterrupt:
             self.ui_log.error("\nExiting on user cancel")
             self.cleanup()
             self._exit(130)
-        except (SystemExit) as e:
+        except SystemExit as e:
             if not os.getenv('SOS_TEST_LOGS', None) == 'keep':
                 self.cleanup()
             sys.exit(e.code)

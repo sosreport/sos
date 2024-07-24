@@ -37,7 +37,7 @@ P_NODE = "node"
 P_DIR = "dir"
 
 
-class Archive(object):
+class Archive:
     """Abstract base class for archives."""
 
     @classmethod
@@ -159,7 +159,7 @@ class FileCacheArchive(Archive):
     def dest_path(self, name):
         if os.path.isabs(name):
             name = name.lstrip(os.sep)
-        return (os.path.join(self._archive_root, name))
+        return os.path.join(self._archive_root, name)
 
     def join_sysroot(self, path):
         if not self.sysroot or path.startswith(self.sysroot):
@@ -210,7 +210,7 @@ class FileCacheArchive(Archive):
         # Build a list of path components in root-to-leaf order.
         path = src_dir
         path_comps = []
-        while path != '/' and path != '':
+        while path not in ('/', ''):
             head, tail = os.path.split(path)
             path_comps.append(tail)
             path = head
@@ -304,7 +304,7 @@ class FileCacheArchive(Archive):
         if os.path.exists(dest_dir) and not os.path.isdir(dest_dir):
             raise ValueError(f"path '{dest_dir}' exists and is not a "
                              "directory")
-        elif not os.path.exists(dest_dir):
+        if not os.path.exists(dest_dir):
             src_dir = src if path_type == P_DIR else os.path.split(src)[0]
             self._make_leading_paths(src_dir)
 
