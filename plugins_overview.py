@@ -112,8 +112,7 @@ for plugfile in sorted(os.listdir(PLUGDIR)):
 if (len(sys.argv) > 1) and (sys.argv[1] == "csv"):
     print("plugin;url;distros;profiles;packages;copyspecs;forbidden;commands;"
           "service_status;journals;env_vars")
-    for plugname in plugs_data.keys():
-        plugin = plugs_data[plugname]
+    for plugname, plugin in plugs_data.items():
         # determine max number of lines - usually
         # "max(len(copyspec),len(commands))"
         # ignore 'sourcecode' key as it

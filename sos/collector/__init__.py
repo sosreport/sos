@@ -522,9 +522,9 @@ class SoSCollector(SoSComponent):
         section.add_text(
             'The following help sections may be of further interest:\n'
         )
-        for hsec in hsections:
+        for hsec, value in hsections.items():
             section.add_text(
-                f"{' ':>8}{bold(hsec):<40}{hsections[hsec]:<30}",
+                f"{' ':>8}{bold(hsec):<40}{value:<30}",
                 newline=False
             )
 
@@ -596,8 +596,8 @@ class SoSCollector(SoSComponent):
         if self.opts.cluster_options:
             for opt in self.opts.cluster_options:
                 match = False
-                for clust in self.clusters:
-                    for option in self.clusters[clust].options:
+                for clust, value in self.clusters.items():
+                    for option in value.options:
                         if opt.name == option.name and opt.cluster == clust:
                             match = True
                             opt.value = self._validate_option(option, opt)
@@ -658,8 +658,8 @@ class SoSCollector(SoSComponent):
             )
 
         _opts = {}
-        for _cluster in self.clusters:
-            for opt in self.clusters[_cluster].options:
+        for _, value in self.clusters.items():
+            for opt in value.options:
                 if opt.name not in _opts.keys():
                     _opts[opt.name] = opt
                 else:

@@ -111,9 +111,9 @@ class SoSOptions():
         for arg in self.arg_defaults:
             setattr(self, arg, self.arg_defaults[arg])
         # next, load any kwargs
-        for arg in kwargs.keys():
+        for arg, kwarg in kwargs.items():
             self.arg_names.append(arg)
-            setattr(self, arg, kwargs[arg])
+            setattr(self, arg, kwarg)
 
     @classmethod
     def from_args(cls, args, arg_defaults={}):

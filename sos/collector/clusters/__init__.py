@@ -132,7 +132,7 @@ class Cluster():
 
         if cls.sos_plugin_options:
             _opts = cls.sos_plugin_options
-            opts = ', '.join(f"{opt}={_opts[opt]}" for opt in _opts)
+            opts = ', '.join(f"{k}={v}" for k, v in _opts.items())
             section.add_text(
                 f"Sets the following plugin options: {opts}",
                 newline=False

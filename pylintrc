@@ -45,7 +45,6 @@ disable=
     W0107, # unnecessary-pass
     W0718, # broad-exception-caught
     W0102, # dangerous-default-value
-    C0206, # consider-using-dict-items
     W0221, # arguments-differ
     W3101, # missing-timeout
     C0201, # consider-iterating-dictionary

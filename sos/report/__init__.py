@@ -440,8 +440,8 @@ class SoSReport(SoSComponent):
             'policies': 'How sos operates on different distributions'
         }
         helpln = ''
-        for ln in help_lines:
-            ssec.add_text(f"\t{ln:<36}{help_lines[ln]}", newline=False)
+        for ln, value in help_lines.items():
+            ssec.add_text(f"\t{ln:<36}{value}", newline=False)
         ssec.add_text(helpln)
 
     def print_header(self):

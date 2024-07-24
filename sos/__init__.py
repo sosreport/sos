@@ -79,11 +79,11 @@ class SoS():
                 raise
         # build the top-level parser
         _com_string = ''
-        for com in self._components:
-            aliases = self._components[com][1]
+        for com, value in self._components.items():
+            aliases = value[1]
             aliases.insert(0, com)
             _com = ', '.join(aliases)
-            desc = self._components[com][0].desc
+            desc = value[0].desc
             _com_string += (f"\t{_com:<30}{desc}\n")
         usage_string = ("%(prog)s <component> [options]\n\n"
                         "Available components:\n")
@@ -101,16 +101,16 @@ class SoS():
         # now build the parser for each component.
         # this needs to be done here, as otherwise --help will be unavailable
         # for the component subparsers
-        for comp in self._components:
+        for comp, value in self._components.items():
             _com_subparser = self.subparsers.add_parser(
                 comp,
-                aliases=self._components[comp][1],
+                aliases=value[1],
                 prog=f"sos {comp}"
             )
             _com_subparser.usage = f"sos {comp} [options]"
             _com_subparser.register('action', 'extend', SosListOption)
             self._add_common_options(_com_subparser)
-            self._components[comp][0].add_parser_options(parser=_com_subparser)
+            value[0].add_parser_options(parser=_com_subparser)
             _com_subparser.set_defaults(component=comp)
         self.args = self.parser.parse_args(self.cmdline)
         self._init_component()
