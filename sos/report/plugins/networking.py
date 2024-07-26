@@ -109,6 +109,8 @@ class Networking(Plugin):
             "ip neigh show nud noarp",
             "biosdevname -d",
             "tc -s qdisc show",
+            "nmstatectl show",
+            "nmstatectl show --running-config",
         ])
 
         if self.path_isdir('/sys/class/devlink'):
