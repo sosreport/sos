@@ -169,9 +169,9 @@ class SoSCollector(SoSComponent):
         # get the local hostname and addresses to filter from results later
         self.hostname = socket.gethostname()
         try:
-            self.ip_addrs = list(set([
+            self.ip_addrs = list({
                 i[4][0] for i in socket.getaddrinfo(socket.gethostname(), None)
-            ]))
+            })
         except Exception:
             # this is almost always a DNS issue with reverse resolution
             # set a safe fallback and log the issue

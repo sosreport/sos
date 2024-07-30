@@ -70,7 +70,6 @@ disable=
     E1101, # no-member
     E1135, # unsupported-membership-test
     R1703, # simplifiable-if-statement
-    R1718, # consider-using-set-comprehension
     R1721, # unnecessary-comprehension
     W0108, # unnecessary-lambda
     W0222, # signature-differs
