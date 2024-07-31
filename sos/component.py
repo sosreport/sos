@@ -191,7 +191,7 @@ class SoSComponent():
     def check_listing_options(self):
         opts = [o for o in self.opts.dict().keys() if o.startswith('list')]
         if opts:
-            return any([getattr(self.opts, opt) for opt in opts])
+            return any(getattr(self.opts, opt) for opt in opts)
         return False
 
     @classmethod

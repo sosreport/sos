@@ -786,7 +786,7 @@ class SoSReport(SoSComponent):
             return False
         if only_plugins and not self._is_not_specified(plugin_class.name()):
             return True
-        return any([p in self.opts.profiles for p in plugin_class.profiles])
+        return any(p in self.opts.profiles for p in plugin_class.profiles)
 
     def _is_skipped(self, plugin_name):
         return plugin_name in self.opts.skip_plugins
