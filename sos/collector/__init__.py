@@ -1283,7 +1283,7 @@ this utility or remote systems that it connects to.
         self.log_info(msg % (self.retrieved, self.report_num))
         self.close_all_connections()
         if self.retrieved > 0:
-            arc_name = self.create_cluster_archive()
+            self.arc_name = self.create_cluster_archive()
         else:
             msg = 'No sos reports were collected, nothing to archive...'
             self.exit(msg, 1)
@@ -1291,7 +1291,7 @@ this utility or remote systems that it connects to.
         if (self.opts.upload and self.policy.get_upload_url()) or \
                 self.opts.upload_s3_endpoint:
             try:
-                self.policy.upload_archive(arc_name)
+                self.policy.upload_archive(self.arc_name)
                 self.ui_log.info("Uploaded archive successfully")
             except Exception as err:
                 self.ui_log.error(f"Upload attempt failed: {err}")

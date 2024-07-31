@@ -256,19 +256,19 @@ class ObfuscatedIPv6Network():
         :returns:           An obfuscated address within this network
         :rtype:             ``str``
         """
-        def _generate_address():
+        def _generate_address(host):
             return ''.join([
                 self._obfuscated_network,
-                ':'.join(generate_hextets(_host.split(':')))
+                ':'.join(generate_hextets(host.split(':')))
             ])
 
         if addr.compressed not in self.hosts:
             # separate host from the address by removing its network prefix
             _n = self.network_addr.rstrip(':')
             _host = addr.compressed[len(_n):].lstrip(':')
-            _ob_host = _generate_address()
+            _ob_host = _generate_address(_host)
             while _ob_host in self.hosts.values():
-                _ob_host = _generate_address()
+                _ob_host = _generate_address(_host)
             self.add_obfuscated_host_address(addr.compressed, _ob_host)
         return self.hosts[addr.compressed]
 

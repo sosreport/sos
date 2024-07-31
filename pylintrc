@@ -52,8 +52,6 @@ disable=
     W1201, # logging-not-lazy
     W0707, # raise-missing-from
     W0237, # arguments-renamed
-    E0606, # possibly-used-before-assignment
-    R1729, # use-a-generator
     C0117, # unnecessary-negation
     W0212, # protected-access
     R1728, # consider-using-generator

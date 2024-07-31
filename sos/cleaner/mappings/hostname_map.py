@@ -120,7 +120,7 @@ class SoSHostnameMap(SoSMap):
         if len(host) == 1:
             # don't block on host's shortname
             return host[0] in self.hosts
-        if any([no_tld.endswith(_d) for _d in self._domains]):
+        if any(no_tld.endswith(_d) for _d in self._domains):
             return True
 
         return False
@@ -194,7 +194,7 @@ class SoSHostnameMap(SoSMap):
         if len(host) == 2:
             # we have just a domain name, e.g. example.com
             dname = self.sanitize_domain(host)
-            if all([h.isupper() for h in host]):
+            if all(h.isupper() for h in host):
                 dname = dname.upper()
             return dname
         if len(host) > 2:
@@ -213,7 +213,7 @@ class SoSHostnameMap(SoSMap):
             ob_domain = self.sanitize_domain(domain)
             self.dataset[item] = ob_domain
             _fqdn = '.'.join([ob_hostname, ob_domain])
-            if all([h.isupper() for h in host]):
+            if all(h.isupper() for h in host):
                 _fqdn = _fqdn.upper()
             return _fqdn
         return None

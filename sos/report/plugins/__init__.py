@@ -459,7 +459,7 @@ class PluginOpt():
         if type('') in self.val_type:
             self.value = str(val)
             return
-        if not any([type(val) is _t for _t in self.val_type]):
+        if not any(type(val) is _t for _t in self.val_type):
             valid = []
             for t in self.val_type:
                 if t is None:
@@ -1431,9 +1431,9 @@ class Plugin():
         )
 
     def _is_policy_forbidden_path(self, path):
-        return any([
+        return any(
             fnmatch.fnmatch(path, fp) for fp in self.policy.forbidden_paths
-        ])
+        )
 
     def _is_skipped_path(self, path):
         """Check if the given path matches a user-provided specification to
@@ -3521,6 +3521,7 @@ class Plugin():
         namespaces (options originally present in the networking plugin.)
         """
         out_ns = []
+        pattern = None
 
         # Regex initialization outside of for loop
         if ns_pattern:
