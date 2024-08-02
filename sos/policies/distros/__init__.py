@@ -327,16 +327,13 @@ class LinuxPolicy(Policy):
         # set or query for case id
         if not cmdline_opts.batch and not \
                 cmdline_opts.quiet:
-            try:
-                if caseid:
-                    self.commons['cmdlineopts'].case_id = caseid
-                else:
-                    self.commons['cmdlineopts'].case_id = input(
-                        _("Optionally, please enter the case id that you are "
-                          "generating this report for [%s]: ") % caseid
-                    )
-            except KeyboardInterrupt:
-                raise
+            if caseid:
+                self.commons['cmdlineopts'].case_id = caseid
+            else:
+                self.commons['cmdlineopts'].case_id = input(
+                    _("Optionally, please enter the case id that you are "
+                      "generating this report for [%s]: ") % caseid
+                )
         if cmdline_opts.case_id:
             self.case_id = cmdline_opts.case_id
 
@@ -344,20 +341,17 @@ class LinuxPolicy(Policy):
         # setting case id, as below methods might rely on detection of it
         if not cmdline_opts.batch and not \
                 cmdline_opts.quiet:
-            try:
-                # Policies will need to handle the prompts for user information
-                if cmdline_opts.upload and self.get_upload_url() and \
-                        not cmdline_opts.upload_protocol == 's3':
-                    self.prompt_for_upload_user()
-                    self.prompt_for_upload_password()
-                elif cmdline_opts.upload_protocol == 's3':
-                    self.prompt_for_upload_s3_bucket()
-                    self.prompt_for_upload_s3_endpoint()
-                    self.prompt_for_upload_s3_access_key()
-                    self.prompt_for_upload_s3_secret_key()
-                self.ui_log.info('')
-            except KeyboardInterrupt:
-                raise
+            # Policies will need to handle the prompts for user information
+            if cmdline_opts.upload and self.get_upload_url() and \
+                    not cmdline_opts.upload_protocol == 's3':
+                self.prompt_for_upload_user()
+                self.prompt_for_upload_password()
+            elif cmdline_opts.upload_protocol == 's3':
+                self.prompt_for_upload_s3_bucket()
+                self.prompt_for_upload_s3_endpoint()
+                self.prompt_for_upload_s3_access_key()
+                self.prompt_for_upload_s3_secret_key()
+            self.ui_log.info('')
 
     def _configure_low_priority(self):
         """Used to constrain sos to a 'low priority' execution, potentially

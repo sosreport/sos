@@ -276,7 +276,7 @@ class PackageManager():
             for package in package_list:
                 if any(f in package for f in self.verify_filter):
                     continue
-                if len(verify_packages):
+                if verify_packages:
                     verify_packages += " "
                 verify_packages += package
         return self.verify_command + " " + verify_packages

@@ -70,7 +70,7 @@ class JujuTest(unittest.TestCase):
             }
         )
         nodes = cluster.get_nodes()
-        assert nodes == []
+        assert not nodes
 
     @patch(
         "sos.collector.clusters.juju.juju._get_juju_version",

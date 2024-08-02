@@ -780,7 +780,7 @@ class SoSReport(SoSComponent):
 
     def _is_in_profile(self, plugin_class):
         only_plugins = self.opts.only_plugins
-        if not len(self.opts.profiles):
+        if not self.opts.profiles:
             return True
         if not hasattr(plugin_class, "profiles"):
             return False
@@ -839,7 +839,7 @@ class SoSReport(SoSComponent):
             plugbase, __ = os.path.splitext(plug)
             try:
                 plugin_classes = import_plugin(plugbase, valid_plugin_classes)
-                if not len(plugin_classes):
+                if not plugin_classes:
                     # no valid plugin classes for this policy
                     continue
 
@@ -1012,7 +1012,7 @@ class SoSReport(SoSComponent):
 
     def _report_profiles_and_plugins(self):
         self.ui_log.info("")
-        if len(self.loaded_plugins):
+        if self.loaded_plugins:
             self.ui_log.info(f" {len(self.profiles)} profiles, "
                              f"{len(self.loaded_plugins)} plugins")
         else:
@@ -1257,7 +1257,7 @@ class SoSReport(SoSComponent):
                 plug.manifest.add_field('setup_end', end)
                 plug.manifest.add_field('setup_time', end - start)
             except KeyboardInterrupt:
-                raise
+                raise KeyboardInterrupt
             except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
