@@ -195,8 +195,6 @@ class SoSCollector(SoSComponent):
 
             except KeyboardInterrupt:
                 self.exit('Exiting on user cancel', 130)
-            except Exception:
-                raise
 
     def load_clusters(self):
         """Loads all cluster types supported by the local installation for
@@ -253,7 +251,7 @@ class SoSCollector(SoSComponent):
                   f' {e.__class__.__name__}')
             raise e
         modules = inspect.getmembers(module, inspect.isclass)
-        for mod in modules:
+        for mod in modules.copy():
             if mod[0] in ('SosHost', 'Cluster'):
                 modules.remove(mod)
         return modules

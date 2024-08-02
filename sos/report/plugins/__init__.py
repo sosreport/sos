@@ -1732,6 +1732,29 @@ class Plugin():
                 return _fname.replace('.', '_')
             return None
 
+        def getmtime(path):
+            """ Files should be sorted in most-recently-modified order, so
+            that we collect the newest data first before reaching the limit."""
+            try:
+                return os.path.getmtime(path)
+            except OSError:
+                return 0
+
+        def time_filter(path):
+            """ When --since is passed, or maxage is coming from the
+            plugin, we need to filter out older files """
+
+            # skip config files or not-logarchive files from the filter
+            if ((logarchive_pattern.search(path) is None) or
+               (configfile_pattern.search(path) is not None)):
+                return True
+            filetime = getmtime(path)
+            filedatetime = datetime.fromtimestamp(filetime)
+            if ((since and filedatetime < since) or
+               (maxage and (time()-filetime < maxage*3600))):
+                return False
+            return True
+
         for copyspec in copyspecs:
             if not (copyspec and len(copyspec)):
                 return False
@@ -1796,29 +1819,6 @@ class Plugin():
                 # copies are done via command execution, not raw cp/mv
                 # operations
                 continue
-
-            # Files should be sorted in most-recently-modified order, so that
-            # we collect the newest data first before reaching the limit.
-            def getmtime(path):
-                try:
-                    return os.path.getmtime(path)
-                except OSError:
-                    return 0
-
-            def time_filter(path):
-                """ When --since is passed, or maxage is coming from the
-                plugin, we need to filter out older files """
-
-                # skip config files or not-logarchive files from the filter
-                if ((logarchive_pattern.search(path) is None) or
-                   (configfile_pattern.search(path) is not None)):
-                    return True
-                filetime = getmtime(path)
-                filedatetime = datetime.fromtimestamp(filetime)
-                if ((since and filedatetime < since) or
-                   (maxage and (time()-filetime < maxage*3600))):
-                    return False
-                return True
 
             if since or maxage:
                 files = list(filter(lambda f: time_filter(f), files))

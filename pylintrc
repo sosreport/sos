@@ -54,9 +54,6 @@ disable=
     C0117, # unnecessary-negation
     W0212, # protected-access
     R1728, # consider-using-generator
-    C1802, # use-implicit-booleaness-not-len
-    W0706, # try-except-raise
-    C1803, # use-implicit-booleaness-not-comparison
     W0231, # super-init-not-called
     C0123, # unidiomatic-typecheck
     C0207, # use-maxsplit-arg
@@ -71,6 +68,4 @@ disable=
     W0108, # unnecessary-lambda
     W0222, # signature-differs
     W0223, # abstract-method
-    W0640, # cell-var-from-loop
     W1509, # subprocess-popen-preexec-fn
-    W4701, # modified-iterating-list
