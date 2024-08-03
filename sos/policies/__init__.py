@@ -490,7 +490,7 @@ any third party.
         :returns:   Formatted string of URLS
         :rtype:     ``str``
         """
-        width = max([len(v[0]) for v in self.vendor_urls])
+        width = max(len(v[0]) for v in self.vendor_urls)
         return "\n".join(
             f"\t{url[0]:<{width}} : {url[1]}" for url in self.vendor_urls
         )

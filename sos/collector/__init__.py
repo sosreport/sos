@@ -562,7 +562,7 @@ class SoSCollector(SoSComponent):
         """
         self.commons = {
             'cmdlineopts': self.opts,
-            'need_sudo': True if self.opts.ssh_user != 'root' else False,
+            'need_sudo': self.opts.ssh_user != 'root',
             'tmpdir': self.tmpdir,
             'hostlen': max(len(self.opts.primary), len(self.hostname)),
             'policy': self.policy

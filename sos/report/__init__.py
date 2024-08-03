@@ -1581,7 +1581,7 @@ class SoSReport(SoSComponent):
             # that still will be moved to the sos report final directory path
             tmpdir_path = Path(self.tmpdir)
             self.estimated_plugsizes['sos_logs_reports'] = sum(
-                    [f.lstat().st_size for f in tmpdir_path.glob('**/*')])
+                    f.lstat().st_size for f in tmpdir_path.glob('**/*'))
 
             _sum = get_human_readable(sum(self.estimated_plugsizes.values()))
             self.ui_log.info("Estimated disk space requirement for whole "
