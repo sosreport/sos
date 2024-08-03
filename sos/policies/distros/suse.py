@@ -82,7 +82,7 @@ No changes will be made to system configuration.
                          remote_exec=remote_exec)
 
     @classmethod
-    def check(cls, remote):
+    def check(cls, remote=''):
         """This method checks to see if we are running on SuSE.
         """
 

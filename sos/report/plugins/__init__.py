@@ -3370,7 +3370,7 @@ class Plugin():
         self.add_copy_spec(list(self.files))
 
     def setup_verify(self):
-        if not hasattr(self, "verify_packages") or not self.verify_packages:
+        if not hasattr(self, "verify_packages"):
             if hasattr(self, "packages") and self.packages:
                 # Limit automatic verification to only the named packages
                 self.verify_packages = [p + "$" for p in self.packages]

@@ -112,11 +112,11 @@ class SSHControlPersist(RemoteTransport):
         res = pexpect.spawn(cmd, encoding='utf-8')
 
         connect_expects = [
-            u'Connected',
-            u'password:',
-            u'.*Permission denied.*',
-            u'.* port .*: No route to host',
-            u'.*Could not resolve hostname.*',
+            'Connected',
+            'password:',
+            '.*Permission denied.*',
+            '.* port .*: No route to host',
+            '.*Could not resolve hostname.*',
             pexpect.TIMEOUT
         ]
 
@@ -127,8 +127,8 @@ class SSHControlPersist(RemoteTransport):
         elif index == 1:
             if password:
                 pass_expects = [
-                    u'Connected',
-                    u'Permission denied, please try again.',
+                    'Connected',
+                    'Permission denied, please try again.',
                     pexpect.TIMEOUT
                 ]
                 res.sendline(password)

@@ -702,9 +702,9 @@ class LinuxPolicy(Policy):
         ret = pexpect.spawn(sftp_cmd, encoding='utf-8')
 
         sftp_expects = [
-            u'sftp>',
-            u'password:',
-            u'Connection refused',
+            'sftp>',
+            'password:',
+            'Connection refused',
             pexpect.TIMEOUT,
             pexpect.EOF
         ]
@@ -716,8 +716,8 @@ class LinuxPolicy(Policy):
         elif idx == 1:
             ret.sendline(password)
             pass_expects = [
-                u'sftp>',
-                u'Permission denied',
+                'sftp>',
+                'Permission denied',
                 pexpect.TIMEOUT,
                 pexpect.EOF
             ]
@@ -746,10 +746,10 @@ class LinuxPolicy(Policy):
         ret.sendline(put_cmd)
 
         put_expects = [
-            u'100%',
+            '100%',
             pexpect.TIMEOUT,
             pexpect.EOF,
-            u'No such file or directory'
+            'No such file or directory'
         ]
 
         put_success = ret.expect(put_expects, timeout=180)

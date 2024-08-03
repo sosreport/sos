@@ -39,7 +39,6 @@ disable=
     ###################### VV things we should fix VV
     W0719, # broad-exception-raised
     W1203, # logging-fstring-interpolation
-    W1406, # redundant-u-string-prefix
     W1514, # unspecified-encoding
     W0107, # unnecessary-pass
     W0718, # broad-exception-caught
@@ -47,25 +46,20 @@ disable=
     W0221, # arguments-differ
     W3101, # missing-timeout
     C0201, # consider-iterating-dictionary
-    R1719, # simplifiable-if-expression
     W1201, # logging-not-lazy
     W0707, # raise-missing-from
     W0237, # arguments-renamed
     C0117, # unnecessary-negation
     W0212, # protected-access
-    R1728, # consider-using-generator
     W0231, # super-init-not-called
     C0123, # unidiomatic-typecheck
     C0207, # use-maxsplit-arg
     C2801, # unnecessary-dunder-call
-    E0203, # access-member-before-definition
     E0611, # no-name-in-module
     E0702, # raising-bad-type
     E1101, # no-member
     E1135, # unsupported-membership-test
-    R1703, # simplifiable-if-statement
     R1721, # unnecessary-comprehension
     W0108, # unnecessary-lambda
-    W0222, # signature-differs
     W0223, # abstract-method
     W1509, # subprocess-popen-preexec-fn
