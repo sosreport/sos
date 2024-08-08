@@ -1,0 +1,151 @@
+.TH UPLOAD 1 "December 2024"
+
+.SH NAME
+sos_upload \- Upload files like previously generated sos reports or logs to a policy specific location
+.SH SYNOPSIS
+.B sos upload FILE [options]
+          [--case-id id]\fR
+          [--upload-url url]\fR
+          [--upload-user user]\fR
+          [--upload-pass pass]\fR
+          [--upload-directory dir]\fR
+          [--upload-method]\fR
+          [--upload-no-ssl-verify]\fR
+          [--upload-protocol protocol]\fR
+          [--upload-target target]\fR
+          [--upload-s3-endpoint  endpoint]\fR
+          [--upload-s3-region region]\fR
+          [--upload-s3-bucket bucket]\fR
+          [--upload-s3-access-key key]\fR
+          [--upload-s3-secret-key key]\fR
+          [--upload-s3-object-prefix prefix]\fR
+
+.PP
+.SH DESCRIPTION
+upload is an sos subcommand to upload sos reports,
+logs, vmcores, or other files to a policy defined
+remote location, or a user defined one.
+.SH REQUIRED ARGUMENTS
+.B FILE
+.TP
+The path to the archive that is to be uploaded.
+.SH OPTIONS
+.TP
+.B \--case-id NUMBER
+Specify a case identifier to associate with the archive.
+Identifiers may include alphanumeric characters, commas and periods ('.').
+This applies only to Red Hat uploads.
+.TP
+.B \--upload-url URL
+If a vendor does not provide a default upload location, or if you would like to upload
+the archive to a different location, specify the address here.
+
+An upload protocol MUST be specified in this URL. Currently uploading is supported
+for HTTPS, SFTP, and FTP protocols.
+
+If your destination server listens on a non-standard port, specify the listening
+port in the URL.
+.TP
+.B \-\-upload-user USER
+If a vendor does not provide a default user for uploading, specify the username here.
+
+If --batch is used and this option is omitted, no username will
+be collected and thus uploads will fail if no vendor default is set.
+
+You also have the option of providing this value via the SOSUPLOADUSER environment
+variable. If this variable is set, then no username prompt will occur and --batch
+may be used provided all other required values (case number, upload password)
+are provided.
+.TP
+.B \-\-upload-pass PASS
+Specify the password to use for authentication with the destination server.
+
+If this option is omitted and upload is requested, you will be prompted for one.
+
+If --batch is used, this prompt will not occur, so any uploads are likely to fail unless
+this option is used.
+
+Note that this will result in the plaintext string appearing in `ps` output that may
+be collected by sos and be in the archive. If a password must be provided by you
+for uploading, it is strongly recommended to not use --batch and enter the password
+when prompted rather than using this option.
+
+You also have the option of providing this value via the SOSUPLOADPASSWORD environment
+variable. If this variable is set, then no password prompt will occur and --batch may
+be used provided all other required values (case number, upload user) are provided.
+.TP
+.B \--upload-directory DIR
+Specify a directory to upload to, if one is not specified by a vendor default location
+or if your destination server does not allow writes to '/'.
+.TP
+.B \--upload-method METHOD
+Specify the HTTP method to use for uploading to the provided --upload-url. Valid
+values are 'auto' (default), 'put', or 'post'. The use of 'auto' will default to
+the method required by the policy-default upload location, if one exists.
+
+This option has no effect on upload protocols other than HTTPS.
+.TP
+.B \--upload-no-ssl-verify
+Disable SSL verification for HTTPS uploads. This may be used to allow uploading
+to locations that have self-signed certificates, or certificates that are otherwise
+untrusted by the local system.
+
+Default behavior is to perform SSL verification against all upload locations.
+.TP
+.B \--upload-protocol PROTO
+Manually specify the protocol to use for uploading to the target \fBupload-url\fR.
+
+Normally this is determined via the upload address, assuming that the protocol is part
+of the address provided, e.g. 'https://example.com'. By using this option, sos will skip
+the protocol check and use the method defined for the specified PROTO.
+
+For RHEL systems, setting this option to \fBsftp\fR will skip the initial attempt to
+upload to the Red Hat Customer Portal, and only attempt an upload to Red Hat's SFTP server,
+which is typically used as a fallback target.
+
+Valid values for PROTO are: 'auto' (default), 'https', 'ftp', 'sftp', 's3'.
+
+.TP
+.B \--upload-target TARGET
+Manually specify the upload target to use for uploading. Possible targets
+are: redhat, canonical, generic, local.
+If this option is not called, sos will try to determine the local target
+and use it for uploads.
+
+.TP
+.B \---upload-s3-endpoint ENDPOINT
+Endpoint to upload to for S3 bucket
+
+.TP
+.B \---upload-s3-region REGION
+Region to upload to for S3 bucket
+
+.TP
+.B \---upload-s3-bucket BUCKET
+Name of the S3 bucket to upload to
+
+.TP
+.B \---upload-s3-access-key KEY
+Access key for the S3 bucket
+
+.TP
+.B \-  --upload-s3-secret-key KEY
+Secret key for the S3 bucket
+
+.TP
+.B \-  --upload-s3-object-prefix PREFIX
+Prefix for the S3 object/key
+
+.SH SEE ALSO
+.BR sos (1)
+.BR sos-report (1)
+.BR sos-clean (1)
+.BR sos.conf (5)
+.BR sos-collect (1)
+
+.SH MAINTAINER
+.nf
+Maintained on GitHub at https://github.com/sosreport/sos
+.fi
+.SH AUTHORS & CONTRIBUTORS
+See \fBAUTHORS\fR file in the package documentation.

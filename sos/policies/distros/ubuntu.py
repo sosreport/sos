@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 
 from sos.report.plugins import UbuntuPlugin
 from sos.policies.distros.debian import DebianPolicy
@@ -66,22 +65,5 @@ class UbuntuPolicy(DebianPolicy):
         except (IOError, ValueError):
             return False
 
-    def get_upload_https_auth(self, user=None, password=None):
-        if self.upload_url.startswith(self._upload_url):
-            return (self._upload_user, self._upload_password)
-        return super().get_upload_https_auth()
-
-    def get_upload_url_string(self):
-        if self.upload_url.startswith(self._upload_url):
-            return "Canonical Support File Server"
-        return self._get_obfuscated_upload_url(self.get_upload_url())
-
-    def get_upload_url(self):
-        if not self.upload_url or self.upload_url.startswith(self._upload_url):
-            if not self.upload_archive_name:
-                return self._upload_url
-            fname = os.path.basename(self.upload_archive_name)
-            return self._upload_url + fname
-        return super().get_upload_url()
 
 # vim: set et ts=4 sw=4 :

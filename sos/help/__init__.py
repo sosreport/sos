@@ -100,7 +100,8 @@ class SoSHelper(SoSComponent):
             'collector': 'SoSCollector',
             'collector.transports': 'RemoteTransport',
             'collector.clusters': 'Cluster',
-            'policies': 'Policy'
+            'policies': 'Policy',
+            'upload': 'SoSUpload'
         }
 
         cls = None
@@ -206,7 +207,8 @@ class SoSHelper(SoSComponent):
             'report.plugins.$plugin': 'Information on a specific $plugin',
             'clean':    'Detailed help on the clean command',
             'collect':  'Detailed help on the collect command',
-            'policies': 'How sos operates on different distributions'
+            'upload': 'Detailed help on the upload command',
+            'policies': 'How sos operates on different distributions',
         }
 
         for sect, value in sections.items():

@@ -37,6 +37,7 @@ from sos.report.reporting import (Report, Section, Command, CopiedFile,
                                   CreatedFile, Alert, Note, PlainTextReport,
                                   JSONReport, HTMLReport)
 from sos.cleaner import SoSCleaner
+from sos.upload import SoSUpload
 
 # file system errors that should terminate a run
 fatal_fs_errors = (errno.ENOSPC, errno.EROFS)
@@ -140,6 +141,7 @@ class SoSReport(SoSComponent):
         'upload_s3_access_key': None,
         'upload_s3_secret_key': None,
         'upload_s3_object_prefix': None,
+        'upload_target': None,
         'add_preset': '',
         'del_preset': ''
     }
@@ -1717,7 +1719,20 @@ class SoSReport(SoSComponent):
                 or self.opts.upload_s3_endpoint):
             if not self.opts.build:
                 try:
-                    self.policy.upload_archive(archive)
+                    hook_commons = {
+                        'policy': self.policy,
+                        'tmpdir': self.tmpdir,
+                        'sys_tmp': self.sys_tmp,
+                        'options': self.opts,
+                        'manifest': self.manifest
+                    }
+                    uploader = SoSUpload(parser=self.parser,
+                                         args=self.args,
+                                         cmdline=self.cmdline,
+                                         in_place=True,
+                                         hook_commons=hook_commons,
+                                         archive=archive)
+                    uploader.execute()
                     self.ui_log.info(_("Uploaded archive successfully"))
                 except Exception as err:
                     self.ui_log.error(f"Upload attempt failed: {err}")
