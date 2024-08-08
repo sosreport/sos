@@ -1,6 +1,6 @@
-.TH SOS REPORT 1 "Mon Mar 25 2013"
+.TH SOS_REPORT 1 "Mon Mar 25 2013"
 .SH NAME
-sos report \- Collect and package diagnostic and support data
+sos_report \- Collect and package diagnostic and support data
 .SH SYNOPSIS
 .B sos report
           [-l|--list-plugins]\fR
@@ -313,7 +313,7 @@ a timeout for a specific plugin, use the 'timeout' plugin option available to
 all plugins - e.g. '-k logs.timeout=600'.
 
 The plugin-specific timeout option will override this option. For example, using
-\'--plugin-timeout=60 -k logs.timeout=600\' will set a timeout of 600 seconds for
+\(aq--plugin-timeout=60 -k logs.timeout=600' will set a timeout of 600 seconds for
 the logs plugin and 60 seconds for all other enabled plugins.
 .TP
 .B \--cmd-timeout TIMEOUT
