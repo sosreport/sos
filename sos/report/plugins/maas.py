@@ -44,8 +44,8 @@ class MAAS(Plugin, UbuntuPlugin):
         'snap.maas.pebble',
     )
 
-    def _get_machines_syslog(self, dir):
-        if not self.path_exists(dir):
+    def _get_machines_syslog(self, directory):
+        if not self.path_exists(directory):
             return []
 
         # Machine messages are collected with syslog and are stored under:
@@ -53,8 +53,8 @@ class MAAS(Plugin, UbuntuPlugin):
         # Collect only the most recent "%$YEAR%-%$MONTH%-%$DAY%"
         # for each "%HOSTNAME%".
         recent = []
-        for host_dir in self.listdir(dir):
-            host_path = self.path_join(dir, host_dir)
+        for host_dir in self.listdir(directory):
+            host_path = self.path_join(directory, host_dir)
             if not self.path_isdir(host_path):
                 continue
 
