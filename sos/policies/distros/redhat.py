@@ -22,7 +22,7 @@ from sos.policies.distros import LinuxPolicy, ENV_HOST_SYSROOT
 from sos.policies.package_managers.rpm import RpmPackageManager
 from sos.policies.package_managers.flatpak import FlatpakPackageManager
 from sos.policies.package_managers import MultiPackageManager
-from sos.utilities import bold, convert_bytes
+from sos.utilities import bold
 from sos import _sos as _
 
 try:
@@ -436,9 +436,7 @@ support representative.
         if size >= self._max_size_request:
             self.ui_log.warning(
                 _("Size of archive is bigger than Red Hat Customer Portal "
-                  "limit for uploads of "
-                  f"{convert_bytes(self._max_size_request)} "
-                  " via sos http upload. \n")
+                  "limit for uploads of 1Gb via sos http upload. \n")
                   )
             return RH_SFTP_HOST
         return RH_API_HOST
