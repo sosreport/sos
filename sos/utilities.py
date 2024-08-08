@@ -121,18 +121,13 @@ def fileobj(path_or_file, mode='r'):
         return closing(path_or_file)
 
 
-def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
+def convert_bytes(num_bytes):
     """Converts a number of bytes to a shorter, more human friendly format"""
-    fn = float(bytes_)
-    if bytes_ >= T:
-        return f'{(fn / T):.1fT}'
-    if bytes_ >= G:
-        return f'{(fn / G):.1fG}'
-    if bytes_ >= M:
-        return f'{(fn / M):.1fM}'
-    if bytes_ >= K:
-        return f'{(fn / K):.1fK}'
-    return f'{bytes_}'
+    sizes = {'T': 1 << 40, 'G': 1 << 30, 'M': 1 << 20, 'K': 1 << 10}
+    for symbol, size in sizes.items():
+        if num_bytes >= size:
+            return f"{float(num_bytes) / size:.1f}{symbol}"
+    return f"{num_bytes}"
 
 
 def file_is_binary(fname):
