@@ -290,10 +290,10 @@ class ocp(Cluster):
                 return label
         return ''
 
-    def check_node_is_primary(self, sosnode):
-        if sosnode.address not in self.node_dict:
+    def check_node_is_primary(self, node):
+        if node.address not in self.node_dict:
             return False
-        return 'master' in self.node_dict[sosnode.address]['roles']
+        return 'master' in self.node_dict[node.address]['roles']
 
     def _toggle_api_opt(self, node, use_api):
         """In earlier versions of sos, the openshift plugin option that is

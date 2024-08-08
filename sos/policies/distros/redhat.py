@@ -352,7 +352,8 @@ support representative.
             fname = os.path.join(self.upload_directory, fname)
         return fname
 
-    def upload_sftp(self):  # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches
+    def upload_sftp(self, user=None, password=None):
         """Override the base upload_sftp to allow for setting an on-demand
         generated anonymous login for the RH SFTP server if a username and
         password are not given

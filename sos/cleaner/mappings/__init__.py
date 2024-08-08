@@ -125,13 +125,13 @@ class SoSMap():
             return self.add(item)
         return self.dataset[item]
 
-    def conf_update(self, map_dict):
+    def conf_update(self, config):
         """Update the map using information from a previous run to ensure that
         we have consistent obfuscation between reports
 
         Positional arguments:
 
-            :param map_dict:    A dict of mappings with the form of
-                                {clean_entry: 'obfuscated_entry'}
+            :param config:    A dict of mappings with the form of
+                              {clean_entry: 'obfuscated_entry'}
         """
-        self.dataset.update(map_dict)
+        self.dataset.update(config)

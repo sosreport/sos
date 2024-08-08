@@ -141,7 +141,8 @@ any third party.
         self.sysroot = sysroot
         self.register_presets(GENERIC_PRESETS)
 
-    def check(self, remote=''):  # pylint: disable=unused-argument
+    @classmethod
+    def check(cls, remote=''):
         """
         This function is responsible for determining if the underlying system
         is supported by this policy.
@@ -153,7 +154,7 @@ any third party.
         :returns: ``True`` if the Policy should be loaded, else ``False``
         :rtype: ``bool``
         """
-        return False
+        raise NotImplementedError
 
     @property
     def forbidden_paths(self):

@@ -58,30 +58,30 @@ class SoSIPMap(SoSMap):
                 return True
         return False
 
-    def get(self, ipaddr):
+    def get(self, item):
         """Ensure that when requesting an obfuscated address, we return a str
         object instead of an IPv(4|6)Address object
         """
         filt_start = ('/', '=', ']', ')')
-        if ipaddr.startswith(filt_start):
-            ipaddr = ipaddr.lstrip(''.join(filt_start))
+        if item.startswith(filt_start):
+            item = item.lstrip(''.join(filt_start))
 
-        if ipaddr in self.dataset.keys():
-            return self.dataset[ipaddr]
+        if item in self.dataset.keys():
+            return self.dataset[item]
 
-        if self.ignore_item(ipaddr) or self.ip_in_dataset(ipaddr):
-            return ipaddr
+        if self.ignore_item(item) or self.ip_in_dataset(item):
+            return item
 
         # it's not in there, but let's make sure we haven't previously added
         # an address with a CIDR notation and we're now looking for it without
         # that notation
-        if '/' not in ipaddr:
+        if '/' not in item:
             for key, value in self.dataset.items():
-                if key.startswith(ipaddr):
+                if key.startswith(item):
                     return value.split('/')[0]
 
         # fallback to the default map behavior of adding it fresh
-        return self.add(ipaddr)
+        return self.add(item)
 
     def set_ip_cidr_from_existing_subnet(self, addr):
         """Determine if a given address is in a subnet of an already obfuscated

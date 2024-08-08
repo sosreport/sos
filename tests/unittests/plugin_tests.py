@@ -50,14 +50,14 @@ class MockArchive(TarFileArchive):
             dest = src
         self.m[src] = dest
 
-    def add_string(self, content, dest):
+    def add_string(self, content, dest, mode='w'):
         self.m[dest] = content
 
-    def add_link(self, dest, link_name):
+    def add_link(self, source, link_name):
         pass
 
-    def open_file(self, name):
-        return open(self.m.get(name), 'r')
+    def open_file(self, path):
+        return open(self.m.get(path), 'r')
 
     def close(self):
         pass
@@ -111,7 +111,7 @@ class ForbiddenMockPlugin(Plugin):
 class EnablerPlugin(Plugin):
 
     # pylint: disable=unused-argument
-    def is_installed(self, pkg):
+    def is_installed(self, package_name):
         return self.is_installed
 
 

@@ -84,9 +84,9 @@ class SoSIPv6Map(SoSMap):
                 _net.add_obfuscated_host_address(host, _ob_host)
                 self.dataset[host] = _ob_host
 
-    def sanitize_item(self, ipaddr):
-        _prefix = ipaddr.split('/')[-1] if '/' in ipaddr else ''
-        _ipaddr = ipaddr
+    def sanitize_item(self, item):
+        _prefix = item.split('/')[-1] if '/' in item else ''
+        _ipaddr = item
         if not _prefix:
             # assume a /64 default per protocol
             _ipaddr += "/64"

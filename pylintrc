@@ -44,13 +44,11 @@ disable=
     W0107, # unnecessary-pass
     W0718, # broad-exception-caught
     W0102, # dangerous-default-value
-    W0221, # arguments-differ
     W3101, # missing-timeout
     C0201, # consider-iterating-dictionary
     R1719, # simplifiable-if-expression
     W1201, # logging-not-lazy
     W0707, # raise-missing-from
-    W0237, # arguments-renamed
     C0117, # unnecessary-negation
     W0212, # protected-access
     R1728, # consider-using-generator

@@ -79,7 +79,7 @@ class UbuntuPolicy(DebianPolicy):
         except (IOError, ValueError):
             return False
 
-    def get_upload_https_auth(self):
+    def get_upload_https_auth(self, user=None, password=None):
         if self.upload_url.startswith(self._upload_url):
             return (self._upload_user, self._upload_password)
         return super().get_upload_https_auth()
