@@ -88,7 +88,7 @@ class MAAS(Plugin, UbuntuPlugin):
         self.add_cmd_output([
             'snap info maas',
             'maas status',
-        ])
+        ], snap_cmd=True)
 
         self.add_forbidden_path([
             "/var/snap/maas/**/*.key",

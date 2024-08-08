@@ -46,7 +46,7 @@ class Sunbeam(Plugin, UbuntuPlugin):
         self.add_cmd_output([
             'sunbeam cluster list',
             'sunbeam cluster list --format yaml',
-        ])
+        ], snap_cmd=True)
 
         sunbeam_user = self.get_option("sunbeam-user")
         try:
@@ -100,7 +100,7 @@ class Sunbeam(Plugin, UbuntuPlugin):
                     "login")
 
     def _get_juju_cmd_details(self, user):
-        self.add_cmd_output("juju controllers", runas=user)
+        self.add_cmd_output("juju controllers", runas=user, snap_cmd=True)
         juju_controllers = self.collect_cmd_output(
             "juju controllers --format json", runas=user)
 
@@ -113,7 +113,7 @@ class Sunbeam(Plugin, UbuntuPlugin):
                     f'juju model-defaults -c {controller}',
                     f'juju controller-config -c {controller}',
                     f'juju controller-config -c {controller} --format json',
-                ], runas=user)
+                ], runas=user, snap_cmd=True)
 
                 juju_models = self.collect_cmd_output(
                     f'juju models -c {controller} --format json',
@@ -131,7 +131,7 @@ class Sunbeam(Plugin, UbuntuPlugin):
                             f'juju status -m {model_name} --format json',
                             f'juju model-config -m {model_name}',
                             f'juju model-config -m {model_name} --format json',
-                        ], runas=user)
+                        ], runas=user, snap_cmd=True)
 
     def postproc(self):
 
