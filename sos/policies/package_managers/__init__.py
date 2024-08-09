@@ -69,7 +69,7 @@ class PackageManager():
 
     @property
     def manager_name(self):
-        return self.__class__.__name__.lower().split('package')[0]
+        return self.__class__.__name__.lower().split('package', maxsplit=1)[0]
 
     def exec_cmd(self, command, timeout=30, need_root=False, env=None,
                  use_shell=False, chroot=None):

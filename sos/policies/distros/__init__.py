@@ -25,7 +25,7 @@ from sos.policies.runtimes.docker import DockerContainerRuntime
 from sos.policies.runtimes.lxd import LxdContainerRuntime
 
 from sos.utilities import (shell_out, is_executable, bold,
-                           sos_get_command_output)
+                           sos_get_command_output, TIMEOUT_DEFAULT)
 
 
 try:
@@ -787,7 +787,7 @@ class LinuxPolicy(Policy):
         """
         return requests.put(self.get_upload_url(), data=archive,
                             auth=self.get_upload_https_auth(),
-                            verify=verify)
+                            verify=verify, timeout=TIMEOUT_DEFAULT)
 
     def _get_upload_headers(self):
         """Define any needed headers to be passed with the POST request here
@@ -807,7 +807,7 @@ class LinuxPolicy(Policy):
         }
         return requests.post(self.get_upload_url(), files=files,
                              auth=self.get_upload_https_auth(),
-                             verify=verify)
+                             verify=verify, timeout=TIMEOUT_DEFAULT)
 
     def upload_https(self):
         """Attempts to upload the archive to an HTTPS location.

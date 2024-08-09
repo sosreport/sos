@@ -22,7 +22,7 @@ from sos.policies.distros import LinuxPolicy, ENV_HOST_SYSROOT
 from sos.policies.package_managers.rpm import RpmPackageManager
 from sos.policies.package_managers.flatpak import FlatpakPackageManager
 from sos.policies.package_managers import MultiPackageManager
-from sos.utilities import bold, convert_bytes
+from sos.utilities import bold, convert_bytes, TIMEOUT_DEFAULT
 from sos import _sos as _
 
 try:
@@ -327,7 +327,7 @@ support representative.
                          f"{self.get_upload_url_string()}")
         return requests.post(self.get_upload_url(), files=files,
                              headers=self._get_upload_https_auth(),
-                             verify=verify)
+                             verify=verify, timeout=TIMEOUT_DEFAULT)
 
     def _get_upload_headers(self):
         if self.get_upload_url().startswith(RH_API_HOST):
