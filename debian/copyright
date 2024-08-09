@@ -3,6 +3,16 @@ Upstream-Name: sosreport
 Upstream-Contact: Jake Hunsaker <jacob.r.hunsaker@gmail.com>
 Source: https://github.com/sosreport/sos
 
+Files: *
+Copyright: 2007-2024 Upstream
+License: GPL-2+
+
+Files: debian/*
+Copyright:
+    2013 Adam Stokes <adam.stokes@ubuntu.com>
+    2023-2024 Canonical Ltd.
+License: GPL-2+
+
 License: GPL-2+
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
