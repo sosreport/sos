@@ -67,7 +67,8 @@ class DeviceAuthorizationClass:
             res = requests.post(
                 self.client_identifier_url,
                 data=data,
-                headers=headers)
+                headers=headers,
+                timeout=300)
             res.raise_for_status()
             response = res.json()
             self._user_code = response.get("user_code")
@@ -99,7 +100,8 @@ class DeviceAuthorizationClass:
             time.sleep(self._interval)
             try:
                 check_auth_completion = requests.post(self.token_endpoint,
-                                                      data=token_data)
+                                                      data=token_data,
+                                                      timeout=300)
 
                 status_code = check_auth_completion.status_code
 
@@ -187,7 +189,8 @@ class DeviceAuthorizationClass:
                               refresh_token else refresh_token}
 
         refresh_token_res = requests.post(self.token_endpoint,
-                                          data=refresh_token_data)
+                                          data=refresh_token_data,
+                                          timeout=300)
 
         if refresh_token_res.status_code == 200:
             self._set_token_data(refresh_token_res.json())

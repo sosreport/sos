@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos_tests import StageOneReportTest, StageTwoReportTest
-
-import re
 from os import stat
+import re
+
+from sos_tests import StageOneReportTest, StageTwoReportTest
 
 
 class ReportWithMask(StageOneReportTest):

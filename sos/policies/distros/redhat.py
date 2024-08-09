@@ -327,7 +327,7 @@ support representative.
                          f"{self.get_upload_url_string()}")
         return requests.post(self.get_upload_url(), files=files,
                              headers=self._get_upload_https_auth(),
-                             verify=verify)
+                             verify=verify, timeout=300)
 
     def _get_upload_headers(self):
         if self.get_upload_url().startswith(RH_API_HOST):
