@@ -68,10 +68,10 @@ class SoS():
                                            ['collector'])
         except ModuleNotFoundError as err:
             import sos.missing
-            if 'sos.collector' in err.msg:
+            if 'sos.collector' in str(err.msg):
                 # is not locally installed - packaged separately
                 self._components['collect'] = (sos.missing.MissingCollect, [])
-            elif 'pexpect' in err.msg:
+            elif 'pexpect' in str(err.msg):
                 # cannot be imported due to missing the pexpect dep
                 self._components['collect'] = (sos.missing.MissingPexpect, [])
             else:

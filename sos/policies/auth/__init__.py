@@ -17,6 +17,8 @@ except ImportError:
 import time
 from datetime import datetime, timedelta
 
+from sos.utilities import TIMEOUT_DEFAULT
+
 DEVICE_AUTH_CLIENT_ID = "sos-tools"
 GRANT_TYPE_DEVICE_CODE = "urn:ietf:params:oauth:grant-type:device_code"
 
@@ -67,7 +69,8 @@ class DeviceAuthorizationClass:
             res = requests.post(
                 self.client_identifier_url,
                 data=data,
-                headers=headers)
+                headers=headers,
+                timeout=TIMEOUT_DEFAULT)
             res.raise_for_status()
             response = res.json()
             self._user_code = response.get("user_code")
@@ -99,7 +102,8 @@ class DeviceAuthorizationClass:
             time.sleep(self._interval)
             try:
                 check_auth_completion = requests.post(self.token_endpoint,
-                                                      data=token_data)
+                                                      data=token_data,
+                                                      timeout=TIMEOUT_DEFAULT)
 
                 status_code = check_auth_completion.status_code
 
@@ -187,7 +191,8 @@ class DeviceAuthorizationClass:
                               refresh_token else refresh_token}
 
         refresh_token_res = requests.post(self.token_endpoint,
-                                          data=refresh_token_data)
+                                          data=refresh_token_data,
+                                          timeout=TIMEOUT_DEFAULT)
 
         if refresh_token_res.status_code == 200:
             self._set_token_data(refresh_token_res.json())

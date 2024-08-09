@@ -54,7 +54,7 @@ class SoSIPMap(SoSMap):
         already created
         """
         for _ip in self.dataset.values():
-            if str(ipaddr).split('/')[0] == _ip.split('/')[0]:
+            if str(ipaddr).split('/', maxsplit=1)[0] == _ip.split('/')[0]:
                 return True
         return False
 

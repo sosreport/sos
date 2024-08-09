@@ -38,6 +38,7 @@ def create_file(size, dirname=None):
 
 class MockArchive(TarFileArchive):
 
+    # pylint: disable=super-init-not-called
     def __init__(self):
         self.m = {}
         self.strings = {}

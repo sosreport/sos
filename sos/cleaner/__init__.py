@@ -141,7 +141,8 @@ class SoSCleaner(SoSComponent):
 
         for _parser in self.opts.disable_parsers:
             for _loaded in self.parsers:
-                _loaded_name = _loaded.name.lower().split('parser')[0].strip()
+                _temp = _loaded.name.lower().split('parser', maxsplit=1)[0]
+                _loaded_name = _temp.strip()
                 if _parser.lower().strip() == _loaded_name:
                     self.log_info(f"Disabling parser: {_loaded_name}")
                     self.ui_log.warning(
