@@ -53,7 +53,7 @@ class Krb5(Plugin):
         hostname = socket.getfqdn()
         sssd_conf = "/etc/sssd/sssd.conf"
         if self.path_isfile(sssd_conf):
-            with open(sssd_conf, 'r') as f:
+            with open(sssd_conf, 'r', encoding='utf-8') as f:
                 for line in f:
                     if re.match(r'\s*id_provider\s*=\s*ad',
                                 line, re.IGNORECASE):

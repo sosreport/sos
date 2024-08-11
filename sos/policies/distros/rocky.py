@@ -41,7 +41,7 @@ class RockyPolicy(RedHatPolicy):
 
         # If we've gotten this far, check for Rocky in
         # /etc/os-release
-        with open(OS_RELEASE, 'r') as f:
+        with open(OS_RELEASE, 'r', encoding='utf-8') as f:
             for line in f:
                 if line.startswith('NAME'):
                     if 'Rocky Linux' in line:

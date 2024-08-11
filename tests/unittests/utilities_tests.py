@@ -31,7 +31,7 @@ class GrepTest(unittest.TestCase):
         self.assertEqual(matches, ['import unittest\n'])
 
     def test_open_file(self):
-        with open(__file__.replace(".pyc", ".py")) as f:
+        with open(__file__.replace(".pyc", ".py"), encoding='utf-8') as f:
             matches = grep(".*unittest$", f)
             self.assertEqual(matches, ['import unittest\n'])
 
@@ -49,7 +49,8 @@ class TailTest(unittest.TestCase):
 
     def test_tail_too_many(self):
         t = tail("tests/unittests/tail_test.txt", 200)
-        with open("tests/unittests/tail_test.txt", "r") as expected:
+        with open("tests/unittests/tail_test.txt", "r",
+                  encoding='utf-8') as expected:
             self.assertEqual(t, str.encode(expected.read()))
 
 

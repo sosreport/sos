@@ -89,7 +89,8 @@ for plugfile in sorted(os.listdir(PLUGDIR)):
             'journals': [],
             'env': [],
     }
-    with open(os.path.join(PLUGDIR, plugfile)).read().replace('\n', '') as pfd:
+    with open(os.path.join(PLUGDIR, plugfile),
+              encoding='utf-8').read().replace('\n', '') as pfd:
         add_all_items(
             "from sos.report.plugins import ", plugs_data[plugname]['distros'],
             pfd, wrapopen='', wrapclose='(class|from|import)'

@@ -62,7 +62,7 @@ class DebianPolicy(LinuxPolicy):
 
     def dist_version(self):
         try:
-            with open('/etc/os-release', 'r') as fp:
+            with open('/etc/os-release', 'r', encoding='utf-8') as fp:
                 rel_string = ""
                 lines = fp.readlines()
                 for line in lines:

@@ -27,7 +27,7 @@ class KeywordPrepper(SoSPrepper):
         for kw in self.opts.keywords:
             items.append(kw)
         if self.opts.keyword_file and os.path.exists(self.opts.keyword_file):
-            with open(self.opts.keyword_file, 'r') as kwf:
+            with open(self.opts.keyword_file, 'r', encoding='utf-8') as kwf:
                 items.extend(kwf.read().splitlines())
 
         for item in items:

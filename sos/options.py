@@ -221,7 +221,7 @@ class SoSOptions():
         config = ConfigParser()
         try:
             try:
-                with open(config_file) as f:
+                with open(config_file, encoding='utf-8') as f:
                     config.read_file(f, config_file)
             except DuplicateOptionError as err:
                 raise Exception(f"Duplicate option '{err.option}' in section "

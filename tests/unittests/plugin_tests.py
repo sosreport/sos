@@ -57,7 +57,7 @@ class MockArchive(TarFileArchive):
         pass
 
     def open_file(self, path):
-        return open(self.m.get(path), 'r')
+        return open(self.m.get(path), 'r', encoding='utf-8')
 
     def close(self):
         pass

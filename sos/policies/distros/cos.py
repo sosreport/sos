@@ -49,7 +49,7 @@ class CosPolicy(LinuxPolicy):
             return cls.distro in remote
 
         try:
-            with open('/etc/os-release', 'r') as fp:
+            with open('/etc/os-release', 'r', encoding='utf-8') as fp:
                 os_release = dict(line.strip().split('=') for line in fp
                                   if not _blank_or_comment(line))
                 return os_release['ID'] == 'cos'

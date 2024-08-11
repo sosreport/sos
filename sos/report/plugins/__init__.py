@@ -3235,7 +3235,7 @@ class Plugin():
             _pfname = self._make_command_filename(fname, subdir=subdir)
             self.archive.check_path(_pfname, P_FILE)
             _name = self.archive.dest_path(_pfname)
-            with open(_name, 'w') as _file:
+            with open(_name, 'w', encoding='utf-8') as _file:
                 self._log_debug(f"manual collection file opened: {_name}")
                 yield _file
             end = time()
@@ -3480,7 +3480,8 @@ class Plugin():
         try:
             cmd_line_paths = glob.glob(cmd_line_glob)
             for path in cmd_line_paths:
-                with open(self.path_join(path), 'r') as pfile:
+                with open(self.path_join(path), 'r',
+                          encoding='utf-8') as pfile:
                     cmd_line = pfile.read().strip()
                     if process in cmd_line:
                         status = True
@@ -3502,7 +3503,7 @@ class Plugin():
         cmd_line_paths = glob.glob(cmd_line_glob)
         for path in cmd_line_paths:
             try:
-                with open(path, 'r') as f:
+                with open(path, 'r', encoding='utf-8') as f:
                     cmd_line = f.read().strip()
                     if process in cmd_line:
                         pids.append(path.split("/")[2])

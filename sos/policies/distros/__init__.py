@@ -253,7 +253,7 @@ class LinuxPolicy(Policy):
             f"/usr/lib/modules/{release}/modules.builtin"
         )
         try:
-            with open(builtins, "r") as mfile:
+            with open(builtins, "r", encoding='utf-8') as mfile:
                 for line in mfile:
                     kmod = line.split('/')[-1].split('.ko')[0]
                     self.kernel_mods.append(kmod)
@@ -283,7 +283,7 @@ class LinuxPolicy(Policy):
 
         kconfigs = []
         try:
-            with open(booted_config, "r") as kfile:
+            with open(booted_config, "r", encoding='utf-8') as kfile:
                 for line in kfile:
                     if '=y' in line:
                         kconfigs.append(line.split('=y')[0])

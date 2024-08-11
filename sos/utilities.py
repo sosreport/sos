@@ -113,7 +113,7 @@ def fileobj(path_or_file, mode='r'):
     """Returns a file-like object that can be used as a context manager"""
     if isinstance(path_or_file, str):
         try:
-            return open(path_or_file, mode)
+            return open(path_or_file, mode, encoding='utf-8')
         except IOError:
             log.debug(f"fileobj: {path_or_file} could not be opened")
             return closing(io.StringIO())
@@ -154,7 +154,7 @@ def file_is_binary(fname):
             pass
     # if for some reason the above check fails or magic>=0.4.20 is not present,
     # fail over to checking the very first byte of the file content
-    with open(fname, 'tr') as tfile:
+    with open(fname, 'tr', encoding='utf-8') as tfile:
         try:
             # when opened as above (tr), reading binary content will raise
             # an exception
@@ -275,7 +275,8 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         else:
             expanded_args.append(arg)
     if to_file:
-        _output = open(to_file, 'w')  # pylint: disable=consider-using-with
+        # pylint: disable=consider-using-with
+        _output = open(to_file, 'w', encoding='utf-8')
     else:
         _output = PIPE
     try:

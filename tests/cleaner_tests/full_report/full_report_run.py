@@ -77,7 +77,7 @@ class FullCleanTest(StageTwoReportTest):
             '/.*sosreport-.*-private_map',
             self.cmd_output.stdout
         )[-1]
-        with open(map_file, 'r') as mf:
+        with open(map_file, 'r', encoding='utf-8') as mf:
             map_json = json.load(mf)
         for mapping in map_json:
             for key, val in map_json[mapping].items():

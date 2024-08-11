@@ -36,7 +36,7 @@ class AnolisPolicy(RedHatPolicy):
         if not os.path.isfile('/etc/anolis-release'):
             return False
 
-        with open(OS_RELEASE, 'r') as f:
+        with open(OS_RELEASE, 'r', encoding='utf-8') as f:
             for line in f:
                 if line.startswith('NAME'):
                     if 'Anolis OS' in line:

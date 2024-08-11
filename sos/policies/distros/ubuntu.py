@@ -61,7 +61,7 @@ class UbuntuPolicy(DebianPolicy):
             return cls.distro in remote
 
         try:
-            with open('/etc/lsb-release', 'r') as fp:
+            with open('/etc/lsb-release', 'r', encoding='utf-8') as fp:
                 return "Ubuntu" in fp.read()
         except IOError:
             return False
@@ -70,7 +70,7 @@ class UbuntuPolicy(DebianPolicy):
         """ Returns the version stated in DISTRIB_RELEASE
         """
         try:
-            with open('/etc/lsb-release', 'r') as fp:
+            with open('/etc/lsb-release', 'r', encoding='utf-8') as fp:
                 lines = fp.readlines()
                 for line in lines:
                     if "DISTRIB_RELEASE" in line:

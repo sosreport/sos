@@ -34,7 +34,7 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
     def test_archive_type_correct(self):
         with open(os.path.join(
                 self.tmpdir,
-                f'{ARCHIVE}-obfuscation.log'), 'r') as log:
+                f'{ARCHIVE}-obfuscation.log'), 'r', encoding='utf-8') as log:
             for line in log:
                 if f"Loaded {ARCHIVE}" in line:
                     assert \
@@ -45,7 +45,7 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
     def test_from_cmdline_logged(self):
         with open(os.path.join(
                 self.tmpdir,
-                f'{ARCHIVE}-obfuscation.log'), 'r') as log:
+                f'{ARCHIVE}-obfuscation.log'), 'r', encoding='utf-8') as log:
             for line in log:
                 if 'From cmdline' in line:
                     assert \
@@ -56,7 +56,7 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
     def test_extraction_completed_successfully(self):
         with open(os.path.join(
                 self.tmpdir,
-                f'{ARCHIVE}-obfuscation.log'), 'r') as log:
+                f'{ARCHIVE}-obfuscation.log'), 'r', encoding='utf-8') as log:
             for line in log:
                 if 'Extracted path is' in line:
                     path = line.split('Extracted path is')[-1].strip()
@@ -92,7 +92,7 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
         map_file = re.findall(
             '/.*sosreport-.*-private_map', self.cmd_output.stdout
         )[-1]
-        with open(map_file, 'r') as mf:
+        with open(map_file, 'r', encoding='utf-8') as mf:
             map_json = json.load(mf)
         for mapping in map_json:
             for key, val in map_json[mapping].items():

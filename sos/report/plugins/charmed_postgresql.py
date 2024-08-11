@@ -84,7 +84,7 @@ class CharmedPostgreSQL(Plugin, UbuntuPlugin):
 
         # Read and parse patroni config, finish setup if there are errors
         try:
-            with open(PATRONI_CONFIG_FILE) as f:
+            with open(PATRONI_CONFIG_FILE, encoding='utf-8') as f:
                 patroni_config = yaml.safe_load(f)
             self.patroni_cluster_name = patroni_config["scope"]
             postgresql = patroni_config["postgresql"]

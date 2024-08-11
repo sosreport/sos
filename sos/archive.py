@@ -377,7 +377,7 @@ class FileCacheArchive(Archive):
                 # Open file case: first rewind the file to obtain
                 # everything written to it.
                 src.seek(0)
-                with open(dest, "w") as f:
+                with open(dest, "w", encoding='utf-8') as f:
                     for line in src:
                         f.write(line)
                 file_name = "open file"
