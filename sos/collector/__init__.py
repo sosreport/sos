@@ -746,7 +746,7 @@ class SoSCollector(SoSComponent):
 
         self.log_debug(f"Loading host group {fname}")
 
-        with open(fname, 'r') as hf:
+        with open(fname, 'r', encoding='utf-8') as hf:
             _group = json.load(hf)
             for key in ['primary', 'cluster_type']:
                 if _group[key]:
@@ -778,7 +778,7 @@ class SoSCollector(SoSComponent):
         else:
             group_path = COLLECTOR_CONFIG_DIR
         fname = os.path.join(group_path, cfg['name'])
-        with open(fname, 'w') as hf:
+        with open(fname, 'w', encoding='utf-8') as hf:
             json.dump(cfg, hf)
         os.chmod(fname, 0o600)
         return fname

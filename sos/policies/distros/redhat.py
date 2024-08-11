@@ -259,7 +259,7 @@ support representative.
         if not os.path.exists(OS_RELEASE):
             return False
 
-        with open(OS_RELEASE, "r") as f:
+        with open(OS_RELEASE, "r", encoding='utf-8') as f:
             for line in f:
                 if line.startswith("NAME"):
                     (_, value) = line.split("=")
@@ -563,7 +563,7 @@ support representative.
             return coreos
         host_release = os.environ[ENV_HOST_SYSROOT] + OS_RELEASE
         try:
-            with open(host_release, 'r') as hfile:
+            with open(host_release, 'r', encoding='utf-8') as hfile:
                 for line in hfile.read().splitlines():
                     coreos |= 'Red Hat Enterprise Linux CoreOS' in line
         except IOError:

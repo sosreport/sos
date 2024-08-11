@@ -31,7 +31,7 @@ class OpenCloudOSPolicy(RedHatPolicy):
         if not os.path.exists(OS_RELEASE):
             return False
 
-        with open(OS_RELEASE, 'r') as f:
+        with open(OS_RELEASE, 'r', encoding='utf-8') as f:
             for line in f:
                 if line.startswith('NAME'):
                     if 'OpenCloudOS Stream' in line:

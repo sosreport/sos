@@ -167,7 +167,7 @@ class OCTransport(RemoteTransport):
         podconf = self.get_node_pod_config()
         self.pod_name = podconf['metadata']['name']
         fd, self.pod_tmp_conf = tempfile.mkstemp(dir=self.tmpdir)
-        with open(fd, 'w') as cfile:
+        with open(fd, 'w', encoding='utf-8') as cfile:
             json.dump(podconf, cfile)
         self.log_debug(f"Starting sos collector container '{self.pod_name}'")
         # this specifically does not need to run with a project definition

@@ -206,7 +206,7 @@ class SoSCleaner(SoSComponent):
                     f"ERROR: map file {self.opts.map_file} does not exist, "
                     "will not load any obfuscation matches")
         else:
-            with open(self.opts.map_file, 'r') as mf:
+            with open(self.opts.map_file, 'r', encoding='utf-8') as mf:
                 try:
                     _conf = json.load(mf)
                 except json.JSONDecodeError:
@@ -413,7 +413,8 @@ third party.
                 chksum_name = self.obfuscate_string(
                     f"{arc_path.split('/')[-1]}.{self.hash_name}"
                 )
-                with open(os.path.join(self.sys_tmp, chksum_name), 'w') as cf:
+                with open(os.path.join(self.sys_tmp, chksum_name), 'w',
+                          encoding='utf-8') as cf:
                     cf.write(checksum)
             self.write_cleaner_log()
 
@@ -483,7 +484,7 @@ third party.
         """Write the mapping to a file on disk that is in the same location as
         the final archive(s).
         """
-        with open(path, 'w') as mf:
+        with open(path, 'w', encoding='utf-8') as mf:
             mf.write(json.dumps(_map, indent=4))
         return path
 
@@ -521,7 +522,7 @@ third party.
         log_name = os.path.join(
             self.sys_tmp, f"{self.arc_name}-obfuscation.log"
         )
-        with open(log_name, 'w') as logfile:
+        with open(log_name, 'w', encoding='utf-8') as logfile:
             self.sos_log_file.seek(0)
             for line in self.sos_log_file.readlines():
                 logfile.write(line)
@@ -784,7 +785,8 @@ third party.
                            caller=arc_name)
             with tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir) \
                     as tfile:
-                with open(filename, 'r', errors='replace') as fname:
+                with open(filename, 'r', encoding='utf-8',
+                          errors='replace') as fname:
                     for line in fname:
                         try:
                             line, count = self.obfuscate_line(line, _parsers)

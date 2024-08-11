@@ -188,7 +188,8 @@ class SoSObfuscationArchive():
                 return ''
         else:
             try:
-                with open(self.format_file_name(fname), 'r') as to_read:
+                with open(self.format_file_name(fname), 'r',
+                          encoding='utf-8') as to_read:
                     return to_read.read()
             except Exception as err:
                 self.log_debug(f"Failed to get contents of {fname}: {err}")

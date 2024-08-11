@@ -550,7 +550,7 @@ any third party.
         for preset_path in os.listdir(presets_path):
             preset_path = os.path.join(presets_path, preset_path)
 
-            with open(preset_path) as pf:
+            with open(preset_path, encoding='utf-8') as pf:
                 try:
                     preset_data = json.load(pf)
                 except ValueError:

@@ -90,7 +90,8 @@ class PresetDefaults():
         if not os.path.exists(presets_path):
             os.makedirs(presets_path, mode=0o755)
 
-        with open(os.path.join(presets_path, self.name), "w") as pfile:
+        with open(os.path.join(presets_path, self.name), "w",
+                  encoding='utf-8') as pfile:
             json.dump(pdict, pfile)
 
     def delete(self, presets_path):

@@ -179,13 +179,13 @@ class BaseSoSTest(Test):
         fname = os.path.join(self.tmpdir, fname)
         if isinstance(content, bytes):
             content = content.decode()
-        with open(fname, 'w') as wfile:
+        with open(fname, 'w', encoding='utf-8') as wfile:
             wfile.write(content)
 
     def read_file_from_tmpdir(self, fname):
         fname = os.path.join(self.tmpdir, fname)
         try:
-            with open(fname, 'r') as tfile:
+            with open(fname, 'r', encoding='utf-8') as tfile:
                 return tfile.read()
         except Exception:
             pass
@@ -511,7 +511,8 @@ class BaseSoSReportTest(BaseSoSTest):
         :rtype: ``str``
         """
         content = ''
-        with open(self.get_name_in_archive(fname), 'r') as gfile:
+        with open(self.get_name_in_archive(fname), 'r',
+                  encoding='utf-8') as gfile:
             content = gfile.read()
         return content
 
@@ -581,7 +582,7 @@ class BaseSoSReportTest(BaseSoSTest):
         matched = False
         fname = self.get_name_in_archive(fname)
         self.assertFileExists(fname)
-        with open(fname, 'r') as lfile:
+        with open(fname, 'r', encoding='utf-8') as lfile:
             _contents = lfile.read()
             for line in _contents.splitlines():
                 if re.match(f".*{content}.*", line, re.I):
@@ -602,7 +603,7 @@ class BaseSoSReportTest(BaseSoSTest):
         """
         matched = False
         fname = self.get_name_in_archive(fname)
-        with open(fname, 'r') as mfile:
+        with open(fname, 'r', encoding='utf-8') as mfile:
             for line in mfile.read().splitlines():
                 if re.match(f".*{content}.*", line, re.I):
                     matched = True

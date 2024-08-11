@@ -1518,7 +1518,7 @@ class SoSReport(SoSComponent):
 
     def _write_checksum(self, archive, hash_name, checksum):
         # store checksum into file
-        with open(archive + "." + hash_name, "w") as fp:
+        with open(archive + "." + hash_name, "w", encoding='utf-8') as fp:
             if checksum:
                 fp.write(checksum + "\n")
 
