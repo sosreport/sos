@@ -33,7 +33,7 @@ class Lustre(Plugin, RedHatPlugin):
             "lctl device_list",
             "lctl list_nids",
             "lctl route_list",
-            "lnetctl net show -v"
+            "lnetctl net show -v 4"
         ])
 
         # Grab almost everything
