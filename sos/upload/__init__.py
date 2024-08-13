@@ -10,7 +10,6 @@
 
 import os
 import sys
-from textwrap import fill
 from sos.component import SoSComponent
 from sos import _sos as _
 from sos import __version__
@@ -88,13 +87,6 @@ class SoSUpload(SoSComponent):
             'sos reports, as well as other files like logs and vmcores '
             'to a distribution specific location.'
         )
-
-    def _fmt_msg(self, msg):
-        width = 80
-        _fmt = ''
-        for line in msg.splitlines():
-            _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
-        return _fmt
 
     def intro(self):
         """Print the intro message and prompts for a case ID if one is not
