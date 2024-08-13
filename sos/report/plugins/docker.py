@@ -25,7 +25,9 @@ class Docker(Plugin, CosPlugin):
         PluginOpt('logs', default=False,
                   desc='collect stdout/stderr logs for containers'),
         PluginOpt('size', default=False,
-                  desc='collect image sizes for docker ps')
+                  desc='collect image sizes for docker ps'),
+        PluginOpt('container-name', default=False,
+                  desc='get containers with their name instead of the id')
     ]
 
     def setup(self):
@@ -74,8 +76,9 @@ class Docker(Plugin, CosPlugin):
             for net in networks:
                 self.add_cmd_output(f"docker network inspect {net}")
 
+        i = -1 if self.get_option('container-name') else 0
         containers = [
-            c[0] for c in self.get_containers(runtime='docker',
+            c[i] for c in self.get_containers(runtime='docker',
                                               get_all=self.get_option('all'))
         ]
         images = self.get_container_images(runtime='docker')
