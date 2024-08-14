@@ -199,7 +199,7 @@ class SoSComponent():
         """This should be overridden by each subcommand to add its own unique
         options to the parser
         """
-        pass
+        raise NotImplementedError
 
     def apply_options_from_cmdline(self, opts):
         """(Re-)apply options specified via the cmdline to an options instance

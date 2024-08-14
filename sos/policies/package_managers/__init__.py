@@ -335,6 +335,23 @@ class MultiPackageManager(PackageManager):
         self._managers = [self.primary]
         self._managers.extend(self.fallbacks)
 
+    def _parse_pkg_list(self, pkg_list):
+        """
+        Using the output of `query_command`, build the _packages dict.
+
+        This should be overridden by distinct package managers and be a
+        generator for _generate_pkg_list which will insert the packages into
+        the _packages dict.
+
+        This method should yield a tuple of name, version, release for each
+        package parsed. If the package manager or distribution does not use a
+        release field, set it to None.
+
+        :param pkg_list: The output of the result of `query_command`
+        :type pkg_list:  ``str``
+        """
+        raise NotImplementedError
+
     def all_files(self):
         if not self.files:
             for pm in self._managers:

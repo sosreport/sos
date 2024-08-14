@@ -116,18 +116,18 @@ class Archive:
         directory based cache prior to packaging should return the
         path to the temporary directory where the report content is
         located"""
-        pass
+        raise NotImplementedError
 
     def cleanup(self):
         """Clean up any temporary resources used by an Archive class."""
-        pass
+        raise NotImplementedError
 
     def finalize(self, method):
         """Finalize an archive object via method. This may involve creating
         An archive that is subsequently compressed or simply closing an
         archive that supports in-line handling. If method is automatic then
         the following methods are tried in order: xz, gzip"""
-        pass
+        raise NotImplementedError
 
 
 class FileCacheArchive(Archive):

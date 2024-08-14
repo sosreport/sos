@@ -112,7 +112,7 @@ class InitSystem():
         This must be overridden by anything that subclasses `InitSystem` in
         order for service methods to function properly
         """
-        pass
+        raise NotImplementedError
 
     def _query_service(self, name):
         """Query an individual service"""

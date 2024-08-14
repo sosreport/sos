@@ -139,6 +139,14 @@ class LinuxPolicy(Policy):
             '/etc/shadow'
         ]
 
+    @classmethod
+    def check(cls, remote=''):
+        """
+        This function is responsible for determining if the underlying system
+        is supported by this policy.
+        """
+        raise NotImplementedError
+
     def kernel_version(self):
         return self.release
 
@@ -1063,5 +1071,12 @@ class GenericLinuxPolicy(LinuxPolicy):
                    'users are encouraged to request a new distribution-specifc'
                    ' policy at the GitHub project above.\n')
 
+    @classmethod
+    def check(cls, remote=''):
+        """
+        This function is responsible for determining if the underlying system
+        is supported by this policy.
+        """
+        raise NotImplementedError
 
 # vim: set et ts=4 sw=4 :

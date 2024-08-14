@@ -39,12 +39,10 @@ disable=
     ###################### VV things we should fix VV
     W0719, # broad-exception-raised
     W1203, # logging-fstring-interpolation
-    W0107, # unnecessary-pass
     W0718, # broad-exception-caught
     W0102, # dangerous-default-value
     C0201, # consider-iterating-dictionary
     W1201, # logging-not-lazy
     W0707, # raise-missing-from
     W0212, # protected-access
-    W0223, # abstract-method
     W1509, # subprocess-popen-preexec-fn
