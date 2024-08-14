@@ -260,7 +260,6 @@ class Cluster():
         :param node:        The non-primary node
         :type node:         ``SoSNode``
         """
-        pass
 
     def set_transport_type(self):
         """The default connection type used by sos collect is to leverage the
@@ -280,7 +279,6 @@ class Cluster():
         :param node:       The primary node
         :type node:        ``SoSNode``
         """
-        pass
 
     def check_node_is_primary(self, node):
         """In the event there are multiple primaries, or if the collect command
@@ -324,7 +322,6 @@ class Cluster():
         extra commands to be run even if a node list is given by the user, and
         thus get_nodes() would not be called
         """
-        pass
 
     def check_enabled(self):
         """
@@ -352,7 +349,6 @@ class Cluster():
         This helps ensure that sos does make lasting changes to the environment
         in which we are running
         """
-        pass
 
     def get_nodes(self):
         """

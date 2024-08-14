@@ -3216,7 +3216,6 @@ class Plugin():
         are more likely to be interrupted by timeouts than file or command
         output collections.
         """
-        pass
 
     @contextlib.contextmanager
     def collection_file(self, fname, subdir=None, tags=[]):
@@ -3470,7 +3469,6 @@ class Plugin():
     def postproc(self):
         """Perform any postprocessing. To be replaced by a plugin if required.
         """
-        pass
 
     def check_process_by_name(self, process):
         """Checks if a named process is found in /proc/[0-9]*/cmdline.

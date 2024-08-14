@@ -197,7 +197,6 @@ any third party.
         """
         Return the OS version
         """
-        pass
 
     def get_preferred_archive(self):
         """
@@ -308,13 +307,11 @@ any third party.
         """
         This function is called prior to collection.
         """
-        pass
 
     def post_work(self):
         """
         This function is called after the sos report has been generated.
         """
-        pass
 
     def pkg_by_name(self, pkg):
         """Wrapper to retrieve a package from the Policy's package manager

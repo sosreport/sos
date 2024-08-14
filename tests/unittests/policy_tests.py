@@ -21,9 +21,17 @@ from sos.report.plugins import (Plugin, IndependentPlugin,
 class FauxPolicy(Policy):
     distro = "Faux"
 
+    @classmethod
+    def check(cls, remote=''):
+        return False
+
 
 class FauxLinuxPolicy(LinuxPolicy):
     distro = "FauxLinux"
+
+    @classmethod
+    def check(cls, remote=''):
+        return False
 
     @classmethod
     def set_forbidden_paths(cls):
