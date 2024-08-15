@@ -58,7 +58,8 @@ class Scsi(Plugin, IndependentPlugin):
             "lsscsi -H",
             "lsscsi -d",
             "lsscsi -s",
-            "lsscsi -L"
+            "lsscsi -L",
+            "lsscsi -iw",
         ])
 
         scsi_hosts = glob("/sys/class/scsi_host/*")
