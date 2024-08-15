@@ -35,7 +35,7 @@ class CloudLinuxPolicy(RedHatPolicy):
             return False
 
         if os.path.exists(OS_RELEASE):
-            with open(OS_RELEASE, 'r') as f:
+            with open(OS_RELEASE, 'r', encoding='utf-8') as f:
                 for line in f:
                     if line.startswith('NAME'):
                         if 'CloudLinux' in line:
