@@ -1,3 +1,9 @@
+sosreport (4.8.0) noble; urgency=medium
+
+  * New 4.8.0 upstream release
+
+ -- Jake Hunsaker <jacob.r.hunsaker@gmail.com> Sat, 17 Aug 2024 09:36:32 -0400
+
 sosreport (4.7.2) noble; urgency=medium
 
   * New upstream release
