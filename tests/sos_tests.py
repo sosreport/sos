@@ -161,9 +161,10 @@ class BaseSoSTest(Test):
                 # don't flood w/ super verbose logs
                 LOG_UI.error(f'ERROR:\n{msg[:8196]}')
                 if err.result.interrupted:
-                    raise Exception("Timeout exceeded, see output above")
+                    raise Exception("Timeout exceeded, see output "
+                                    "above") from err
                 raise Exception("Command failed, see output above: "
-                                f"'{err.command.split('bin/')[1]}'")
+                                f"'{err.command.split('bin/')[1]}'") from err
         with open(os.path.join(self.tmpdir, 'output'), 'wb') as pfile:
             pickle.dump(self.cmd_output, pfile)
         self.cmd_output.stdout = self.cmd_output.stdout.decode()

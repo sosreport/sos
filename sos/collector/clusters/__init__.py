@@ -403,7 +403,8 @@ class Cluster():
         try:
             nodes = self.get_nodes()
         except Exception as err:
-            raise Exception(f"Cluster failed to enumerate nodes: {err}")
+            raise Exception(f"Cluster failed to enumerate nodes: {err}") \
+                from err
         if isinstance(nodes, list):
             node_list = [n.strip() for n in nodes if n]
         elif isinstance(nodes, str):

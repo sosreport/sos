@@ -56,7 +56,7 @@ class rhosp(Cluster):
             _inv = yaml.safe_load(self.primary.read_file(INVENTORY))
         except Exception as err:
             self.log_info(f"Error parsing yaml: {err}")
-            raise Exception("Could not parse yaml for node addresses")
+            raise Exception("Could not parse yaml for node addresses") from err
         try:
             for _t in ['Controller', 'Compute']:
                 # fields are titled in the yaml, but our opts are lowercase

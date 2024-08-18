@@ -1257,7 +1257,7 @@ class SoSReport(SoSComponent):
                 plug.manifest.add_field('setup_end', end)
                 plug.manifest.add_field('setup_time', end - start)
             except KeyboardInterrupt:
-                raise KeyboardInterrupt
+                raise KeyboardInterrupt  # pylint: disable=raise-missing-from
             except (OSError, IOError) as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
