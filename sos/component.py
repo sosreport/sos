@@ -479,10 +479,7 @@ class SoSMetadata():
         return self._values[item]
 
     def __getattr__(self, attr):
-        try:
-            return self._values[attr]
-        except Exception:
-            raise AttributeError(attr)
+        return self._values[attr]
 
     def add_field(self, field_name, content):
         """Add a key, value entry to the current metadata instance

@@ -40,9 +40,9 @@ class JujuSSH(RemoteTransport):
         cmd = "juju version"
         try:
             subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as err:
             self.log_error("Failed to check `juju` version")
-            raise JujuNotInstalledException
+            raise JujuNotInstalledException from err
         return True
 
     def _chmod(self, fname):

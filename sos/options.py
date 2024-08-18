@@ -7,8 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from argparse import Action
-from configparser import (ConfigParser, ParsingError, Error,
-                          DuplicateOptionError)
+from configparser import ConfigParser
 
 
 def _is_seq(val):
@@ -169,10 +168,7 @@ class SoSOptions():
                     "analagous")
             return val
         if isinstance(self.arg_defaults[key], int):
-            try:
-                return int(val)
-            except ValueError:
-                raise Exception(f"Value of '{key}' in {conf} must be integer")
+            return int(val)
         return val
 
     def update_from_conf(self, config_file, component):
@@ -220,15 +216,8 @@ class SoSOptions():
 
         config = ConfigParser()
         try:
-            try:
-                with open(config_file, encoding='utf-8') as f:
-                    config.read_file(f, config_file)
-            except DuplicateOptionError as err:
-                raise Exception(f"Duplicate option '{err.option}' in section "
-                                f"'{err.section}' in file {config_file}")
-            except (ParsingError, Error):
-                raise Exception(f'Failed to parse configuration file '
-                                f'{config_file}')
+            with open(config_file, encoding='utf-8') as f:
+                config.read_file(f, config_file)
         except (OSError, IOError) as e:
             print(
                 f'WARNING: Unable to read configuration file {config_file} : '
