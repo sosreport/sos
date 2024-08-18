@@ -658,7 +658,7 @@ class SoSCollector(SoSComponent):
         _opts = {}
         for _, value in self.clusters.items():
             for opt in value.options:
-                if opt.name not in _opts.keys():
+                if opt.name not in _opts:
                     _opts[opt.name] = opt
                 else:
                     for clust in opt.cluster:

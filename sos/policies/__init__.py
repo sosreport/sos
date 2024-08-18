@@ -576,7 +576,7 @@ any third party.
         if not name:
             raise ValueError("Preset name cannot be empty")
 
-        if name in self.presets.keys():
+        if name in self.presets:
             raise ValueError(f"A preset with name '{name}' already exists")
 
         preset = PresetDefaults(name=name, desc=desc, note=note, opts=opts)
@@ -585,7 +585,7 @@ any third party.
         preset.write(presets_path)
 
     def del_preset(self, name=""):
-        if not name or name not in self.presets.keys():
+        if not name or name not in self.presets:
             raise ValueError(f"Unknown profile: '{name}'")
 
         preset = self.presets[name]

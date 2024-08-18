@@ -126,7 +126,7 @@ class LinuxPolicy(Policy):
                         self.runtimes['default'] = self.runtimes[runtime.name]
                     self.runtimes[runtime.name].load_container_info()
 
-            if self.runtimes and 'default' not in self.runtimes.keys():
+            if self.runtimes and 'default' not in self.runtimes:
                 # still allow plugins to query a runtime present on the system
                 # even if that is not the policy default one
                 idx = list(self.runtimes.keys())
@@ -531,12 +531,12 @@ class LinuxPolicy(Policy):
             'https': self.upload_https,
             's3': self.upload_s3
         }
-        if self.commons['cmdlineopts'].upload_protocol in prots.keys():
+        if self.commons['cmdlineopts'].upload_protocol in prots:
             return prots[self.commons['cmdlineopts'].upload_protocol]
         if '://' not in self.upload_url:
             raise Exception("Must provide protocol in upload URL")
         prot, _ = self.upload_url.split('://')
-        if prot not in prots.keys():
+        if prot not in prots:
             raise Exception(f"Unsupported or unrecognized protocol: {prot}")
         return prots[prot]
 

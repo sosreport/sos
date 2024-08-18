@@ -127,7 +127,7 @@ class SosNode():
         if self.address in ['localhost', '127.0.0.1']:
             self.local = True
             return LocalTransport(self.address, commons)
-        if self.opts.transport in TRANSPORTS.keys():
+        if self.opts.transport in TRANSPORTS:
             return TRANSPORTS[self.opts.transport](self.address, commons)
         if self.opts.transport != 'auto':
             self.log_error(
