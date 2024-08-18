@@ -66,7 +66,7 @@ class SoSIPMap(SoSMap):
         if item.startswith(filt_start):
             item = item.lstrip(''.join(filt_start))
 
-        if item in self.dataset.keys():
+        if item in self.dataset:
             return self.dataset[item]
 
         if self.ignore_item(item) or self.ip_in_dataset(item):

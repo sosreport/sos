@@ -149,7 +149,7 @@ class InitSystem():
         :type regex: ``str``
         """
         reg = re.compile(regex, re.I)
-        return [s for s in self.services.keys() if reg.match(s)]
+        return [s for s in self.services if reg.match(s)]
 
     def get_service_status(self, name):
         """Get the status for the given service name along with the output

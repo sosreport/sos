@@ -137,7 +137,7 @@ class PackageManager():
         :rtype: ``list``
         """
         reg = re.compile(regex_name, flags)
-        return [pkg for pkg in self.packages.keys() if reg.match(pkg)]
+        return [pkg for pkg in self.packages if reg.match(pkg)]
 
     def pkg_by_name(self, name):
         """

@@ -955,7 +955,7 @@ class SoSReport(SoSComponent):
                             self.soslog.error(err)
                             self._exit(1)
                     del opts[plugname]
-            for plugname in opts.keys():
+            for plugname in opts:
                 self.soslog.error('WARNING: unable to set option for disabled '
                                   f'or non-existing plugin ({plugname}).')
             # in case we printed warnings above, visually intend them from

@@ -167,7 +167,7 @@ class SoS():
         initialize that component.
         """
         _com = self.args.component
-        if _com not in self._components.keys():
+        if _com not in self._components:
             print(f"Unknown subcommand '{_com}' specified")
         try:
             _to_load = self._components[_com][0]

@@ -151,7 +151,7 @@ class SoSHostnameMap(SoSMap):
             ext = '.' + item.split('.')[-1]
             item = item.replace(ext, '')
             suffix += ext
-        if item not in self.dataset.keys():
+        if item not in self.dataset:
             # try to account for use of '-' in names that include hostnames
             # and don't create new mappings for each of these
             for _existing in sorted(self.dataset.keys(), reverse=True,
@@ -161,7 +161,7 @@ class SoSHostnameMap(SoSMap):
                 _h = _existing.split('.')
                 # avoid considering a full FQDN match as a new match off of
                 # the hostname of an existing match
-                if _h[0] and _h[0] in self.hosts.keys():
+                if _h[0] and _h[0] in self.hosts:
                     _host_substr = True
                 if len(_test) == 1 or not _test[0]:
                     # does not match existing obfuscation
