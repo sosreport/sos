@@ -441,8 +441,7 @@ support representative.
                   f"{convert_bytes(self._max_size_request)} "
                   " via sos http upload. \n")
                   )
-            return RH_SFTP_HOST
-        return RH_API_HOST
+            self.upload_url = RH_SFTP_HOST
 
     def upload_archive(self, archive):
         """Override the base upload_archive to provide for automatic failover
@@ -450,7 +449,7 @@ support representative.
         """
         try:
             if self.get_upload_url().startswith(RH_API_HOST):
-                self.upload_url = self.check_file_too_big(archive)
+                self.check_file_too_big(archive)
             uploaded = super().upload_archive(archive)
         except Exception as e:
             uploaded = False
