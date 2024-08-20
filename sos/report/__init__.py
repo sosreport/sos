@@ -848,7 +848,7 @@ class SoSReport(SoSComponent):
                 if not validate_plugin(plugin_class,
                                        experimental=self.opts.experimental):
                     self.soslog.warning(
-                        _("plugin %s does not validate, skipping") % plug)
+                        _(f"plugin {plug} does not validate, skipping"))
                     if self.opts.verbosity > 0:
                         self._skip(plugin_class, _("does not validate"))
                         continue
@@ -888,12 +888,12 @@ class SoSReport(SoSComponent):
                         remaining_profiles.remove(i)
                 self._load(plugin_class)
             except Exception as e:
-                self.soslog.warning(_("plugin %s does not install, "
-                                      "skipping: %s") % (plug, e))
+                self.soslog.warning(_(f"plugin {plug} does not install, "
+                                      f"skipping: {e}"))
                 self.handle_exception()
         if len(remaining_profiles) > 0:
-            self.soslog.error(_("Unknown or inactive profile(s) provided:"
-                                " %s") % ", ".join(remaining_profiles))
+            self.soslog.error(_('Unknown or inactive profile(s) provided:'
+                                f' {", ".join(remaining_profiles)}'))
             self.list_profiles()
             self._exit(1)
 
@@ -1182,7 +1182,7 @@ class SoSReport(SoSComponent):
         try:
             policy.del_preset(name=name)
         except Exception as e:
-            self.ui_log.error(str(e) + "\n")
+            self.ui_log.error(f"{str(e)}\n")
             return False
 
         self.ui_log.info(f"Deleted preset '{name}'\n")
@@ -1794,8 +1794,8 @@ class SoSReport(SoSComponent):
 
     def _merge_preset_options(self):
         # Log command line options
-        msg = "[%s:%s] executing 'sos %s'"
-        self.soslog.info(msg % (__name__, "setup", " ".join(self.cmdline)))
+        self.soslog.info(f"[{__name__}:setup] executing "
+                         f"'sos {' '.join(self.cmdline)}'")
 
         # Log active preset defaults
         preset_args = self.preset.opts.to_args()

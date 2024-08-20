@@ -159,7 +159,7 @@ class BaseSoSTest(Test):
                 # entire test suite, which will become very difficult to read
 
                 # don't flood w/ super verbose logs
-                LOG_UI.error('ERROR:\n' + msg[:8196])
+                LOG_UI.error(f'ERROR:\n{msg[:8196]}')
                 if err.result.interrupted:
                     raise Exception("Timeout exceeded, see output above")
                 raise Exception("Command failed, see output above: "
