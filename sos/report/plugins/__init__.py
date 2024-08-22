@@ -2058,9 +2058,9 @@ class Plugin():
         paths = [p for p in paths if self.path_exists(p)]
 
         if not tree:
-            options = f"alhZ{'R' if recursive else ''}"
+            options = f"alZ{'R' if recursive else ''}"
         else:
-            options = 'lhp'
+            options = 'lp'
 
         for path in paths:
             self.add_cmd_output(
