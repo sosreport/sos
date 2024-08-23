@@ -643,11 +643,16 @@ class LinuxPolicy(Policy):
             self._upload_url = f"s3://{bucket}/{prefix}"
         return self.upload_url or self._upload_url
 
+    def _get_obfuscated_upload_url(self, url):
+        pattern = r"([^:]+://[^:]+:)([^@]+)(@.+)"
+        obfuscated_url = re.sub(pattern, r'\1********\3', url)
+        return obfuscated_url
+
     def get_upload_url_string(self):
         """Used by distro policies to potentially change the string used to
         report upload location from the URL to a more human-friendly string
         """
-        return self.get_upload_url()
+        return self._get_obfuscated_upload_url(self.get_upload_url())
 
     def get_upload_user(self):
         """Helper function to determine if we should use the policy default
