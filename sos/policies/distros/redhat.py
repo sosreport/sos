@@ -339,7 +339,7 @@ support representative.
             return "Red Hat Customer Portal"
         if self.get_upload_url().startswith(RH_SFTP_HOST):
             return "Red Hat Secure FTP"
-        return self.upload_url
+        return self._get_obfuscated_upload_url(self.upload_url)
 
     def _get_sftp_upload_name(self):
         """The RH SFTP server will only automatically connect file uploads to
