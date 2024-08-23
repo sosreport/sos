@@ -75,6 +75,7 @@ class Process(Plugin, IndependentPlugin):
 
         self.add_cmd_output([
             "ps alxwww",
+            "ps auxfwww",
             "ps -elfL"
         ], cmd_as_tag=True)
 
