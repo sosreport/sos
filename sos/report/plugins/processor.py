@@ -66,8 +66,10 @@ class Processor(Plugin, IndependentPlugin):
             "cpupower frequency-info",
             "cpupower info",
             "cpupower idle-info",
-            "turbostat --debug sleep 10",
         ], cmd_as_tag=True, pred=cpupower_pred)
+
+        self.add_cmd_output("turbostat --debug sleep 10", cmd_as_tag=True,
+                            pred=cpupower_pred, timeout=15)
 
         if '86' in self.policy.get_arch():
             self.add_cmd_output("x86info -a")
