@@ -1029,7 +1029,7 @@ class SoSReport(SoSComponent):
             self.ui_log.info(_("The following plugins are currently enabled:"))
             self.ui_log.info("")
             for (plugname, plug) in self.loaded_plugins:
-                self.ui_log.info(f"{plugname:<20} {plug.get_description()}")
+                self.ui_log.info(f" {plugname:<20} {plug.get_description()}")
         else:
             self.ui_log.info(_("No plugin enabled."))
         self.ui_log.info("")
@@ -1039,7 +1039,7 @@ class SoSReport(SoSComponent):
                                "disabled:"))
             self.ui_log.info("")
             for (plugname, plugclass, reason) in self.skipped_plugins:
-                self.ui_log.info(f"{plugname:<20} {reason:<14} "
+                self.ui_log.info(f" {plugname:<20} {reason:<14} "
                                  f"{plugclass.get_description()}")
 
         self.ui_log.info("")
@@ -1060,7 +1060,7 @@ class SoSReport(SoSComponent):
                         val = TIMEOUT_DEFAULT
                 if opt.name == 'postproc':
                     val = not self.opts.no_postproc
-                self.ui_log.info(f"{opt.name:<25} {val:<15} {opt.desc}")
+                self.ui_log.info(f" {opt.name:<25} {val:<15} {opt.desc}")
             self.ui_log.info("")
 
             self.ui_log.info(_("The following plugin options are available:"))
@@ -1126,14 +1126,14 @@ class SoSReport(SoSComponent):
             if not preset:
                 continue
             preset = self.policy.find_preset(preset)
-            self.ui_log.info(f"name: {preset.name:>14}")
-            self.ui_log.info(f"description: {preset.desc:>14}")
+            self.ui_log.info(f"{'name:':>14} {preset.name}")
+            self.ui_log.info(f"{'description:':>14} {preset.desc}")
             if preset.note:
-                self.ui_log.info(f"note: {preset.note:>14}")
+                self.ui_log.info(f"{'note:':>14} {preset.note}")
 
             if self.opts.verbosity > 0:
                 args = preset.opts.to_args()
-                options_str = f"{'options:':>14}"
+                options_str = f"{'options:':>14} "
                 lines = _format_list(options_str, args, indent=True, sep=' ')
                 for line in lines:
                     self.ui_log.info(line)
