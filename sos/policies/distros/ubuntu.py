@@ -17,12 +17,13 @@ from sos.policies.package_managers import MultiPackageManager
 
 
 class UbuntuPolicy(DebianPolicy):
-    distro = "Ubuntu"
     vendor = "Canonical"
     vendor_urls = [
         ('Community Website', 'https://www.ubuntu.com/'),
         ('Commercial Support', 'https://www.canonical.com')
     ]
+    os_release_name = 'Ubuntu'
+    os_release_file = ''
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
            + ":/usr/local/sbin:/usr/local/bin:/snap/bin"
     _upload_url = "https://files.support.canonical.com/uploads/"
@@ -51,20 +52,6 @@ class UbuntuPolicy(DebianPolicy):
             pass
 
         self.valid_subclasses += [UbuntuPlugin]
-
-    @classmethod
-    def check(cls, remote=''):
-        """This method checks to see if we are running on Ubuntu.
-           It returns True or False."""
-
-        if remote:
-            return cls.distro in remote
-
-        try:
-            with open('/etc/lsb-release', 'r', encoding='utf-8') as fp:
-                return "Ubuntu" in fp.read()
-        except IOError:
-            return False
 
     def dist_version(self):
         """ Returns the version stated in DISTRIB_RELEASE

@@ -131,7 +131,7 @@ class SoSComponent():
             self.manifest.add_field('compression', '')
             self.manifest.add_field('tmpdir', self.tmpdir)
             self.manifest.add_field('tmpdir_fs_type', self.tmpfstype)
-            self.manifest.add_field('policy', self.policy.distro)
+            self.manifest.add_field('policy', self.policy.os_release_name)
             self.manifest.add_section('components')
 
     def load_local_policy(self):

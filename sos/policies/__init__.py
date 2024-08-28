@@ -42,6 +42,7 @@ def load(cache={}, sysroot=None, init=None, probe_runtime=True,
                 cache['policy'] = policy(sysroot=sysroot, init=init,
                                          probe_runtime=probe_runtime,
                                          remote_exec=remote_exec)
+                break
 
     if sys.platform != 'linux':
         raise Exception("SoS is not supported on this platform")
@@ -75,8 +76,16 @@ class Policy():
                             SoSTransport in use
     :type remote_exec:      ``SoSTranport.run_command()``
 
-    :cvar distro: The name of the distribution the Policy represents
-    :vartype distro: ``str``
+    :cvar os_release_name: The name of the distribution as it appears in the
+                           os-release (-esque) file for the NAME variable.
+    :vartype os_release_name: ``str``
+
+    :cvar os_release_id: The ID variable to match in a distribution's release
+                         file.
+    :vartype os_release_id: ``str``
+
+    :cvar os_release_file: The filepath of the distribution's os-release file
+    :vartype os_release_file: ``str``
 
     :cvar vendor: The name of the vendor producing the distribution
     :vartype vendor: ``str``
@@ -97,7 +106,7 @@ class Policy():
 
     msg = _("""\
 This command will collect system configuration and diagnostic information \
-from this %(distro)s system.
+from this %(os_release_name)s system.
 
 For more information on %(vendor)s visit:
 
@@ -111,8 +120,9 @@ any third party.
 
 %(vendor_text)s
 """)
-
-    distro = "Unknown"
+    os_release_name = 'Unknown'
+    os_release_file = ''
+    os_release_id = ''
     vendor = "Unknown"
     vendor_urls = [('Example URL', "http://www.example.com/")]
     vendor_text = ""
@@ -459,8 +469,8 @@ any third party.
 
     def get_msg(self):
         """This method is used to prepare the preamble text to display to
-        the user in non-batch mode. If your policy sets self.distro that
-        text will be substituted accordingly. You can also override this
+        the user in non-batch mode. If your policy sets self.os_release_name,
+        that text will be substituted accordingly. You can also override this
         method to do something more complicated.
 
         :returns: Formatted banner message string
@@ -471,7 +481,8 @@ any third party.
         else:
             changes_text = "No changes will be made to system configuration."
         width = 72
-        _msg = self.msg % {'distro': self.distro, 'vendor': self.vendor,
+        _msg = self.msg % {'os_release_name': self.os_release_name,
+                           'vendor': self.vendor,
                            'vendor_urls': self._fmt_vendor_urls(),
                            'vendor_text': self.vendor_text,
                            'tmpdir': self.commons['tmpdir'],

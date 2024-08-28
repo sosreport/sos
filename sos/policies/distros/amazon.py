@@ -8,36 +8,19 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
-from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
+from sos.policies.distros.redhat import RedHatPolicy
 
 
 class AmazonPolicy(RedHatPolicy):
-
-    distro = "Amazon Linux"
     vendor = "Amazon"
     vendor_urls = [('Distribution Website', 'https://aws.amazon.com')]
+    os_release_file = ''
+    os_release_name = 'Amazon Linux'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
         super().__init__(sysroot=sysroot, init=init,
                          probe_runtime=probe_runtime,
                          remote_exec=remote_exec)
-
-    @classmethod
-    def check(cls, remote=''):
-
-        if remote:
-            return cls.distro in remote
-
-        if not os.path.exists(OS_RELEASE):
-            return False
-
-        with open(OS_RELEASE, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.startswith('NAME'):
-                    if 'Amazon Linux' in line:
-                        return True
-        return False
 
 # vim: set et ts=4 sw=4 :
