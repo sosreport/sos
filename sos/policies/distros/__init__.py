@@ -40,6 +40,7 @@ try:
 except ImportError:
     BOTO3_LOADED = False
 
+OS_RELEASE = "/etc/os-release"
 # Container environment variables for detecting if we're in a container
 ENV_CONTAINER = 'container'
 ENV_HOST_SYSROOT = 'HOST'
@@ -48,11 +49,14 @@ ENV_HOST_SYSROOT = 'HOST'
 class LinuxPolicy(Policy):
     """This policy is meant to be an abc class that provides common
     implementations used in Linux distros"""
-
-    distro = "Linux"
     vendor = "None"
     PATH = "/bin:/sbin:/usr/bin:/usr/sbin"
     init = None
+    # the following will be used, in order, as part of check() to validate that
+    # we are running on a particular distro
+    os_release_file = ''
+    os_release_name = ''
+    os_release_id = ''
     # _ prefixed class attrs are used for storing any vendor-defined defaults
     # the non-prefixed attrs are used by the upload methods, and will be set
     # to the cmdline/config file values, if provided. If not provided, then
@@ -145,7 +149,25 @@ class LinuxPolicy(Policy):
         This function is responsible for determining if the underlying system
         is supported by this policy.
         """
-        raise NotImplementedError
+        def _check_release(content):
+            _matches = [cls.os_release_name]
+            if cls.os_release_id:
+                _matches.append(cls.os_release_id)
+            for line in content.splitlines():
+                if line.startswith(('NAME=', 'ID=')):
+                    _distro = line.split('=')[1:][0].strip("\"'")
+                    if _distro in _matches:
+                        return True
+            return False
+
+        if remote:
+            return _check_release(remote)
+        # use the os-specific file primarily
+        if os.path.isfile(cls.os_release_file):
+            return True
+        # next check os-release for a NAME or ID value we expect
+        with open(OS_RELEASE, "r", encoding='utf-8') as f:
+            return _check_release(f.read())
 
     def kernel_version(self):
         return self.release
@@ -171,7 +193,7 @@ class LinuxPolicy(Policy):
         if cls == LinuxPolicy:
             cls.display_self_help(section)
         else:
-            section.set_title(f"{cls.distro} Distribution Policy")
+            section.set_title(f"{cls.os_release_name} Distribution Policy")
             cls.display_distro_help(section)
 
     @classmethod

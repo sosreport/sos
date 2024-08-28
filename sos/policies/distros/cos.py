@@ -27,12 +27,13 @@ def _blank_or_comment(line):
 
 
 class CosPolicy(LinuxPolicy):
-    distro = "Container-Optimized OS"
     vendor = "Google Cloud Platform"
     vendor_urls = [
         ('Distribution Website',
          'https://cloud.google.com/container-optimized-os/')
     ]
+    os_release_name = 'Container-Optimized OS'
+    os_release_id = 'cos'
     valid_subclasses = [CosPlugin, IndependentPlugin]
     PATH = "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
 
@@ -42,18 +43,5 @@ class CosPolicy(LinuxPolicy):
                          probe_runtime=probe_runtime,
                          remote_exec=remote_exec)
         self.valid_subclasses += [CosPolicy]
-
-    @classmethod
-    def check(cls, remote=''):
-        if remote:
-            return cls.distro in remote
-
-        try:
-            with open('/etc/os-release', 'r', encoding='utf-8') as fp:
-                os_release = dict(line.strip().split('=') for line in fp
-                                  if not _blank_or_comment(line))
-                return os_release['ID'] == 'cos'
-        except (IOError, KeyError):
-            return False
 
 # vim: set et ts=4 sw=4 :

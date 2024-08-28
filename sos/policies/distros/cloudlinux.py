@@ -8,39 +8,22 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
-from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
+from sos.policies.distros.redhat import RedHatPolicy
 
 
 class CloudLinuxPolicy(RedHatPolicy):
-    distro = "CloudLinux"
     vendor = "CloudLinux"
     vendor_urls = [
         ('Distribution Website', 'https://www.cloudlinux.com/'),
         ('Commercial Support', 'https://www.cloudlinux.com/')
     ]
+    os_release_file = '/etc/cloudlinux-release'
+    os_release_name = 'CloudLinux'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
         super().__init__(sysroot=sysroot, init=init,
                          probe_runtime=probe_runtime,
                          remote_exec=remote_exec)
-
-    @classmethod
-    def check(cls, remote=''):
-        if remote:
-            return cls.distro in remote
-
-        if not os.path.isfile('/etc/cloudlinux-release'):
-            return False
-
-        if os.path.exists(OS_RELEASE):
-            with open(OS_RELEASE, 'r', encoding='utf-8') as f:
-                for line in f:
-                    if line.startswith('NAME'):
-                        if 'CloudLinux' in line:
-                            return True
-
-        return False
 
 # vim: set et ts=4 sw=4 :

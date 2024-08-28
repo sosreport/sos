@@ -160,7 +160,7 @@ class SosNode():
         """
         self.manifest = manifest
         self.manifest.add_field('hostname', self._hostname)
-        self.manifest.add_field('policy', self.host.distro)
+        self.manifest.add_field('policy', self.host.os_release_name)
         self.manifest.add_field('sos_version', self.sos_info['version'])
         self.manifest.add_field('final_sos_command', '')
         self.manifest.add_field('transport', self._transport.name)
@@ -390,14 +390,14 @@ class SosNode():
         """
         if self.local:
             self.log_info(
-                f"using local policy {self.commons['policy'].distro}")
+                f"using local policy {self.commons['policy'].os_release_name}")
             return self.commons['policy']
         host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
                     probe_runtime=True,
                     remote_exec=self._transport.run_command,
                     remote_check=self.read_file('/etc/os-release'))
         if host:
-            self.log_info(f"loaded policy {host.distro} for host")
+            self.log_info(f"loaded policy {host.os_release_name} for host")
             return host
         self.log_error('Unable to determine host installation. Ignoring node')
         raise UnsupportedHostException

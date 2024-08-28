@@ -6,35 +6,19 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
-from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
+from sos.policies.distros.redhat import RedHatPolicy
 
 
 class UnionTechPolicy(RedHatPolicy):
-    distro = "UnionTech OS Server"
     vendor = "The UnionTech Project"
     vendor_urls = [('Distribution Website', 'https://www.chinauos.com/')]
+    os_release_name = 'UnionTech OS Server'
+    os_release_file = ''
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
         super().__init__(sysroot=sysroot, init=init,
                          probe_runtime=probe_runtime,
                          remote_exec=remote_exec)
-
-    @classmethod
-    def check(cls, remote=''):
-
-        if remote:
-            return cls.distro in remote
-
-        if not os.path.exists(OS_RELEASE):
-            return False
-
-        with open(OS_RELEASE, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.startswith('NAME'):
-                    if 'UnionTech OS Server' in line:
-                        return True
-        return False
 
 # vim: set et ts=4 sw=4 :

@@ -6,15 +6,15 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from sos.report.plugins import OpenEulerPlugin
-from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
+from sos.policies.distros.redhat import RedHatPolicy
 
 
 class OpenEulerPolicy(RedHatPolicy):
-    distro = "openEuler"
     vendor = "The openEuler Project"
     vendor_urls = [('Distribution Website', 'https://openeuler.org/')]
+    os_release_name = 'openEuler'
+    os_release_file = ''
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -23,21 +23,5 @@ class OpenEulerPolicy(RedHatPolicy):
                          remote_exec=remote_exec)
 
         self.valid_subclasses += [OpenEulerPlugin]
-
-    @classmethod
-    def check(cls, remote=''):
-
-        if remote:
-            return cls.distro in remote
-
-        if not os.path.exists(OS_RELEASE):
-            return False
-
-        with open(OS_RELEASE, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.startswith('NAME'):
-                    if 'openEuler' in line:
-                        return True
-        return False
 
 # vim: set et ts=4 sw=4 :
