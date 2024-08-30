@@ -1344,6 +1344,11 @@ class Plugin():
         # Absolute path to the link target. If SYSROOT != '/' this path
         # is relative to the host root file system.
         absdest = os.path.normpath(dest)
+        if self._is_skipped_path(absdest):
+            self._log_debug(f"skipping excluded path '{absdest}' as symlink "
+                            f"destination from {srcpath}")
+            return
+
         # adjust the target used inside the report to always be relative
         if os.path.isabs(linkdest):
             # Canonicalize the link target path to avoid additional levels
