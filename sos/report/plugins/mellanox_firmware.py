@@ -19,7 +19,7 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
 
     plugin_name = "mellanox_firmware"
     profiles = ('hardware', 'system')
-    packages = ('mst', 'mstflint')
+    packages = ('mst', 'mstflint', 'mft')
 
     MLNX_STRING = "Mellanox Technologies"
 
@@ -103,18 +103,20 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
             # mft package commands
             # the commands do not support position independent arguments
             commands = [
-                ["mlxdump -d ", " pcie_uc --all"],
-                ["mstconfig -d ", " -e q"],
+                ["mlxdump -d ", " mstdump --all"],
+                ["mlxconfig -d ", " -e q"],
                 ["flint -d ", " dc"],
                 ["flint -d ", " q"],
                 ["mlxreg -d ", " --reg_name ROCE_ACCL --get"],
                 ["mlxlink -d ", ""],
-                ["fwtrace -d ", " -i all --tracer_mode FIFO"],
+                # segment is hard coded at the moment, no way to get it
+                # out of the firmware
+                ["resourcedump dump --device ", " --segment 0x400"],
             ]
         for device in devices:
             for command in commands:
                 self.add_cmd_output(f"{command[0]} {device} "
-                                    f"{command[1]}", timeout=30)
+                                    f"{command[1]}", timeout=300)
 
             # Dump the output of the mstdump command three times
             # waiting for one second. This output is useful to check
