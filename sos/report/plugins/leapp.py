@@ -16,10 +16,13 @@ class Leapp(Plugin, RedHatPlugin):
     short_desc = 'Leapp upgrade handling tool'
 
     plugin_name = 'leapp'
-    packages = ('leapp', 'leapp-repository')
+    packages = ('leapp',)
+    files = ('/var/lib/leapp',)
 
     def setup(self):
         self.add_copy_spec([
+            '/etc/migration-results',
+            '/var/log/leapp/answerfile',
             '/var/log/leapp/dnf-debugdata/',
             '/var/log/leapp/leapp-preupgrade.log',
             '/var/log/leapp/leapp-upgrade.log',
