@@ -126,6 +126,7 @@ class Networking(Plugin):
                 "devlink sb port pool show",
                 "devlink sb tc bind show",
                 "devlink -s -v trap show",
+                "devlink health show",
             ])
 
             devlinks = self.collect_cmd_output("devlink dev")
