@@ -1372,13 +1372,14 @@ class SoSReport(SoSComponent):
                 self.pluglist.remove(plugin)
             except ValueError:
                 self.soslog.debug(
-                    f"Could not remove {plugin} from plugin list, ignoring..."
+                    f"Could not remove {plugname} from plugin list, "
+                    f"ignoring..."
                 )
             try:
                 self.running_plugs.remove(plugname)
             except ValueError:
                 self.soslog.debug(
-                    f"Could not remove {plugin} from running plugin list, "
+                    f"Could not remove {plugname} from running plugin list, "
                     f"ignoring..."
                 )
             status = ''
