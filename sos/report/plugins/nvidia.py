@@ -16,9 +16,13 @@ class Nvidia(Plugin, IndependentPlugin):
 
     short_desc = 'Nvidia GPU information'
     plugin_name = 'nvidia'
-    commands = ('nvidia-smi',)
+    commands = ('nvidia-smi', 'nvidia-ctk',)
+    services = ('nvidia-persistenced', 'nvidia-fabricmanager',
+                'nvidia-toolkit-firstboot')
 
     def setup(self):
+        self.add_copy_spec("/etc/cdi/nvidia.yaml")
+
         subcmds = [
             '--list-gpus',
             '-q -d PERFORMANCE',
@@ -29,9 +33,12 @@ class Nvidia(Plugin, IndependentPlugin):
             'nvlink -s',
             'nvlink -e'
         ]
-
-        self.add_service_status("nvidia-persistenced")
+        ctk_subcmds = [
+            'cdi list',
+            '--version',
+        ]
         self.add_cmd_output([f"nvidia-smi {cmd}" for cmd in subcmds])
+        self.add_cmd_output([f"nvidia-ctk {cmd}" for cmd in ctk_subcmds])
 
         query = ('gpu_name,gpu_bus_id,vbios_version,temperature.gpu,'
                  'utilization.gpu,memory.total,memory.free,memory.used,'
@@ -42,6 +49,5 @@ class Nvidia(Plugin, IndependentPlugin):
         self.add_cmd_output(
             f"nvidia-smi --query-retired-pages={querypages} --format=csv"
         )
-        self.add_journal(boot=0, identifier='nvidia-persistenced')
 
 # vim: set et ts=4 sw=4 :
