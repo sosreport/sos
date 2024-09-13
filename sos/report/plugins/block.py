@@ -67,5 +67,6 @@ class Block(Plugin, IndependentPlugin):
                 if 'crypto_LUKS' in line:
                     dev = line.split()[0]
                     self.add_cmd_output(f'cryptsetup luksDump /dev/{dev}')
+                    self.add_cmd_output(f'clevis luks list -d /dev/{dev}')
 
 # vim: set et ts=4 sw=4 :
