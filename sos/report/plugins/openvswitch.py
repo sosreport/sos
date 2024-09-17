@@ -247,6 +247,15 @@ class OpenVSwitch(Plugin):
                     f"{self.actl} dpctl/dump-conntrack -m {dps}",
                     f"{self.actl} dpctl/ct-stats-show -m {dps}",
                     f"{self.actl} dpctl/ipf-get-status {dps}",
+                    f"{self.actl} dpctl/cache-get-size {dps}",
+                    f"{self.actl} dpctl/ct-bkts {dps}",
+                    f"{self.actl} dpctl/ct-get-limits {dps}",
+                    f"{self.actl} dpctl/ct-get-maxconns {dps}",
+                    f"{self.actl} dpctl/ct-get-nconns {dps}",
+                    f"{self.actl} dpctl/ct-get-sweep-interval {dps}",
+                    f"{self.actl} dpctl/ct-get-tcp-seq-chk {dps}",
+                    f"{self.actl} dpctl/dump-conntrack-exp {dps}",
+                    f"{self.actl} dpctl/offload-stats-show {dps}",
                 ])
 
     def collect_ovs_bridge_info(self):
