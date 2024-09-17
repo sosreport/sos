@@ -24,6 +24,7 @@ class OpenVSwitch(Plugin):
     dpctl = "ovs-dpctl"
     check_dpdk = False
     check_6wind = False
+    check_ovs_doca = False
 
     def setup(self):
 
@@ -40,6 +41,9 @@ class OpenVSwitch(Plugin):
                            dpdk_enabled["output"].startswith('"true"'))
         self.check_6wind = any(self.is_installed(p) for p in
                                ['6windgate-fp', 'nuage-openvswitch'])
+        self.check_ovs_doca = any(self.is_installed(p) for p in
+                                  ['doca-openvswitch-switch',
+                                   'doca-openvswitch'])
 
         if environ.get('OVS_LOGDIR'):
             log_dirs.append(environ.get('OVS_LOGDIR'))
@@ -147,6 +151,15 @@ class OpenVSwitch(Plugin):
             # Capture dpdk mempool info
             f"{self.actl} netdev-dpdk/get-mempool-info"
         ])
+
+        if self.check_ovs_doca:
+            self.add_cmd_output([
+                f"{self.actl} dpdk/get-mempool-stats",
+                f"{self.actl} dpdk/get-memzone-stats",
+                f"{self.actl} doca-pipe-group/dump",
+                f"{self.actl} doca/log-get",
+            ])
+
         # Capture DPDK and other parameters
         self.add_cmd_output(
             f"{self.vctl} -t 5 get Open_vSwitch . other_config",
