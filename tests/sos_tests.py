@@ -34,6 +34,8 @@ SOS_TEST_BIN = os.path.realpath(os.path.join(SOS_TEST_DIR, '../bin/sos'))
 RH_DIST = ['rhel', 'centos', 'fedora', 'centos-stream']
 UBUNTU_DIST = ['Ubuntu', 'debian']
 
+_distro = distro.detect()
+
 
 def skipIf(cond, message=None):
     # pylint: disable=unused-argument
@@ -51,7 +53,7 @@ def skipIf(cond, message=None):
 # pylint: disable=unused-argument
 def redhat_only(tst):
     def wrapper(func):
-        if distro.detect().name not in RH_DIST:
+        if _distro.name not in RH_DIST:
             raise TestSkipError('Not running on a Red Hat distro')
     return wrapper
 
@@ -59,7 +61,7 @@ def redhat_only(tst):
 # pylint: disable=unused-argument
 def ubuntu_only(tst):
     def wrapper(func):
-        if distro.detect().name not in UBUNTU_DIST:
+        if _distro.name not in UBUNTU_DIST:
             raise TestSkipError('Not running on a Ubuntu or Debian distro')
     return wrapper
 
@@ -82,6 +84,7 @@ class BaseSoSTest(Test):
     ubuntu_only = False
     end_of_test_case = False
     arch = []
+    only_os_versions = []
 
     @property
     def klass_name(self):
@@ -261,14 +264,29 @@ class BaseSoSTest(Test):
         raise TestSkipError(f"Unsupported architecture {sys_arch} for test "
                             f"(supports: {self.arch})")
 
+    def check_os_version_for_enablement(self):
+        """
+        Check if the test case is meant only for a specific version or versions
+
+        Takes the `versions` class attribute, a list that specifies
+        the versions where the test applies. If the list is empty, assume all
+        versions of the OS are acceptable. Otherwise, raise a TestSkipError.
+        """
+        os_version = _distro.version
+        if not self.only_os_versions or os_version in self.only_os_versions:
+            return True
+        raise TestSkipError(f"Unsupported OS version {os_version} "
+                            f"(supports: {self.only_os_versions})")
+
     def setUp(self):
         """Setup the tmpdir and any needed mocking for the test, then execute
         the defined sos command. Ensure that we only run the sos command once
         for every test case, instead of once for every test_* method defined.
         """
-        self.local_distro = distro.detect().name
+        self.local_distro = _distro.name
         self.check_distro_for_enablement()
         self.check_arch_for_enablement()
+        self.check_os_version_for_enablement()
         # check to prevent multiple setUp() runs
         if not os.path.isdir(self.tmpdir):
             # setup our class-shared tmpdir
