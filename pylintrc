@@ -33,6 +33,7 @@ disable=
     R0913, # too-many-arguments
     R0914, # too-many-locals
     R0915, # too-many-statements
+    R0917, # too-many-positional-arguments
     R1702, # too-many-nested-blocks
     W0201, # attribute-defined-outside-init
     W0511, # fixme
