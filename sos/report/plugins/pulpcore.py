@@ -105,8 +105,15 @@ class PulpCore(Plugin, IndependentPlugin):
         task_days = self.get_option('task-days')
         for table in ['core_task', 'core_taskgroup',
                       'core_groupprogressreport', 'core_progressreport']:
-            _query = (f"select * from {table} where pulp_last_updated > NOW()"
-                      f" - interval '{task_days} days' order by"
+            _query = ("COPY (SELECT STRING_AGG(column_name, ', ') FROM "
+                      f"information_schema.columns WHERE table_name='{table}'"
+                      "AND table_schema = 'public' AND column_name NOT IN"
+                      " ('args', 'kwargs', 'enc_args', 'enc_kwargs'))"
+                      " TO STDOUT;")
+            col_out = self.exec_cmd(self.build_query_cmd(_query), env=self.env)
+            columns = col_out['output'] if col_out['status'] == 0 else '*'
+            _query = (f"select {columns} from {table} where pulp_last_updated"
+                      f"> NOW() - interval '{task_days} days' order by"
                       " pulp_last_updated")
             _cmd = self.build_query_cmd(_query)
             self.add_cmd_output(_cmd, env=self.env, suggest_filename=table)
