@@ -23,6 +23,7 @@ class Containerd(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
         ])
 
         self.add_cmd_output('containerd config dump')
+        self.add_cmd_output('ctr deprecations list')
 
         # collect the containerd logs.
         self.add_journal(units='containerd')
