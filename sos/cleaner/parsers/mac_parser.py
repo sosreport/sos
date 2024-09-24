@@ -20,9 +20,12 @@ IPV6_REG_8HEX = (
     r'[0-9a-fA-F]{2}(\'|\")?(\/|\,|\-|\.|\s|$))'
 )
 # aabb:ccee:ddee:ffaa
+# - but disallow "substrings"
+#   - but allow fe80: or fe80:: prefix for link-local
 IPV6_REG_4HEX = (
-    r'((?<!([0-9a-fA-F\'\"]:)|::)(([^:\-]?[0-9a-fA-F]{4}(:|-)){3}'
-    r'[0-9a-fA-F]{4}(\'|\")?(\/|\,|\-|\.|\s|$)))'
+        r'((?<!(?:([.|^|\b]{5}\w|[.|^|\b]fe80:|fe80::)))'
+        r'(([0-9a-fA-F]{4}:){3}[0-9a-fA-F]{4})(?!\w))|'
+        r'((?<!\w)(([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{4})(?!\w))'
 )
 # aa:bb:cc:dd:ee:ff avoiding ipv6 substring matches
 IPV4_REG = (
