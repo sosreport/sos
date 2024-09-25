@@ -67,6 +67,7 @@ class Networking(Plugin):
             "/sys/class/net/*/device/numa_node",
             "/sys/class/net/*/flags",
             "/sys/class/net/*/statistics/",
+            "/etc/nmstate/",
         ])
 
         self.add_forbidden_path([
@@ -307,6 +308,14 @@ class RedHatNetworking(Networking, RedHatPlugin):
             pass
 
         super().setup()
+
+    def postproc(self):
+
+        self.do_path_regex_sub(
+            "/etc/nmstate",
+            r"(\s+(mka-cak|private-key-password|psk|password):).*",
+            r"\1 ******"
+        )
 
 
 class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
