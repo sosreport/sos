@@ -40,5 +40,11 @@ class System(Plugin, IndependentPlugin):
             "ld.so --list-tunables"
         ])
 
+    def postproc(self):
+        self.do_paths_http_sub([
+            "/etc/sysconfig",
+            "/etc/default",
+            "/etc/environment",
+        ])
 
 # vim: set et ts=4 sw=4 :
