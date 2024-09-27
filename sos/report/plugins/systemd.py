@@ -95,4 +95,11 @@ class Systemd(Plugin, IndependentPlugin):
         ])
         self.add_forbidden_path('/dev/null')
 
+    def postproc(self):
+        self.do_paths_http_sub([
+            "/etc/systemd/system",
+            "/lib/systemd/system",
+            "/run/systemd/system",
+        ])
+
 # vim: set et ts=4 sw=4 :
