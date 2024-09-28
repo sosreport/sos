@@ -42,7 +42,12 @@ class ForemanProxy(Plugin):
         ])
 
         # collect http[|s]_proxy env.variables
-        self.add_env_var(["http_proxy", "https_proxy"])
+        self.add_env_var([
+            'HTTP_PROXY',
+            'HTTPS_PROXY',
+            'NO_PROXY',
+            'ALL_PROXY',
+        ])
 
     def postproc(self):
         self.do_path_regex_sub(
