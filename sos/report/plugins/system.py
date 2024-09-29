@@ -6,6 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
@@ -39,6 +40,12 @@ class System(Plugin, IndependentPlugin):
             "ld.so --list-diagnostics",
             "ld.so --list-tunables"
         ])
+
+        var_names = list(os.environ.keys())
+        var_names.sort()
+        self.add_string_as_file('\n'.join(var_names),
+                                "environment_varnames",
+                                plug_dir=True)
 
     def postproc(self):
         self.do_paths_http_sub([
