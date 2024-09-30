@@ -29,7 +29,7 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
         We will only enable the plugin if there is a
         Mellanox Technologies network adapter
         """
-        lspci = self.exec_cmd("lspci -D -d 15b3::0200")
+        lspci = self.exec_cmd("lspci -D -d 15b3::")
         return lspci['status'] == 0 and self.MLNX_STRING in lspci['output']
 
     def collect(self):
@@ -67,7 +67,7 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
     def setup(self):
         # Get all devices which have the vendor Mellanox Technologies
         devices = []
-        device_list = self.collect_cmd_output('lspci -D -d 15b3::0200')
+        device_list = self.collect_cmd_output('lspci -D -d 15b3::')
         # Will return a string of the following format:
         # 0000:08:00.0 Ethernet controller: Mellanox Technologies MT2892 Family
         if device_list['status'] != 0:
@@ -79,9 +79,13 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
             # from the following string
             # 0000:08:00.0 Ethernet controller: Mellanox Technologies MT2892
             # Family
-            devices.append(line[0:8]+'00.0')
+            devices.append(line.split()[0])
 
         devices = set(devices)
+
+        # check if devices supported by mlx commands
+        devices = [device for device in devices
+                   if self.exec_cmd(f'mcra {device} 0xf0014')['status'] == 0]
 
         # Mft package is present if OFED is installed
         # mstflint package is part of the distro and can be installed.
