@@ -25,6 +25,9 @@ class TeamdPluginTest(StageTwoReportTest):
     sos_cmd = '-o teamd'
     redhat_only = True
 
+    # teaming has been deprecated from RHEL 9
+    only_os_versions = ['8']
+
     def pre_sos_setup(self):
         # restart NetworkManager to account for the new package
         nmout = process.run('systemctl restart NetworkManager', timeout=30)
