@@ -97,6 +97,11 @@ class Docker(Plugin, CosPlugin):
             insp = name if 'none' not in name else img_id
             self.add_cmd_output(f"docker inspect {insp}", subdir='images',
                                 tags="docker_image_inspect")
+            self.add_cmd_output(
+                f"docker image history {insp}",
+                subdir='images/history',
+                tags='docker_image_tree'
+            )
 
         for vol in volumes:
             self.add_cmd_output(f"docker volume inspect {vol}",
