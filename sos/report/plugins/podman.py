@@ -62,6 +62,7 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
 
         subcmds = [
             'info',
+            'image trust show',
             'images',
             'images --digests',
             'pod ps',
@@ -109,6 +110,11 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
             insp = name if 'none' not in name else img_id
             self.add_cmd_output(f"podman inspect {insp}", subdir='images',
                                 tags='podman_image_inspect')
+            self.add_cmd_output(
+                f"podman image tree {insp}",
+                subdir='images/tree',
+                tags='podman_image_tree'
+            )
 
         for vol in volumes:
             self.add_cmd_output(f"podman volume inspect {vol}",
