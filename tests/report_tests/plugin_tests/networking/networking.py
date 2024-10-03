@@ -46,7 +46,7 @@ class NetplanScrubTest(StageTwoReportTest):
     ensure that netplan configuration is collected and then the wifi password
     is scrubbed correctly
 
-    :avocado: tags=stagetwo
+    :avocado: tags=stagetwo,scrub
     """
 
     sos_cmd = '-o networking'

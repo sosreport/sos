@@ -60,8 +60,17 @@ against the `flake8` linter, the unit tests, and the stage one avocado test suit
 $ flake8 sos
 $ nosetests -v tests/unittests/
 
-# as root
-# PYTHONPATH=tests/ avocado run --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+# sudo PYTHONPATH=tests/ avocado run --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+```
+
+For further test run stagetwo tests
+```
+# sudo PYTHONPATH=tests/ avocado run --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+```
+
+If you want to check basic scrub tests
+```
+# sudo PYTHONPATH=tests/ avocado run --test-runner=runner -t scrub tests/{cleaner,collect,report,vendor}_tests
 ```
 
 Note that the avocado test suite will generate and remove several reports over its

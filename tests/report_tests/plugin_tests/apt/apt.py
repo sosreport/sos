@@ -15,7 +15,7 @@ class AptConfScrubTest(StageTwoReportTest):
     """Ensure that sources.list and apt conf are picked up and properly
     scrubbed
 
-    :avocado: tags=stagetwo
+    :avocado: tags=stagetwo,scrub
     """
 
     sos_cmd = '-o apt'
