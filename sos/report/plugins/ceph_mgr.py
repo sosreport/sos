@@ -47,12 +47,15 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
         microceph_pkg = self.policy.package_manager.pkg_by_name('microceph')
 
         ceph_mgr_cmds = ([
-            "balancer status",
+            "balancer eval",
+            "balancer status",  # For pre-Squid releases
+            "balancer status detail",
             "healthcheck history ls",
             "log last cephadm",
             "mgr dump",
             "mgr metadata",
             "mgr module ls",
+            "mgr services",
             "mgr stat",
             "mgr versions"
         ])
