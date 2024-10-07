@@ -26,7 +26,8 @@ class Cgroups(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
 
         self.add_copy_spec([
             "/proc/cgroups",
-            "/sys/fs/cgroup"
+            "/sys/fs/cgroup",
+            "/proc/[0-9]*/cgroup",
         ])
 
         self.add_cmd_output("systemd-cgls")
