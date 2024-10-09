@@ -12,7 +12,7 @@ from sos_tests import StageTwoReportTest
 class JujuAgentConfScrubbedTest(StageTwoReportTest):
     """Ensure that agent conf is picked up and properly scrubbed
 
-    :avocado: tags=stagetwo
+    :avocado: tags=stagetwo,scrub
     """
 
     sos_cmd = '-o juju'

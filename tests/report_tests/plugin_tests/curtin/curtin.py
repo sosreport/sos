@@ -12,7 +12,7 @@ from sos_tests import StageTwoReportTest
 class CurtinScrubbedTest(StageTwoReportTest):
     """Ensure that curtin conf is picked up and properly scrubbed
 
-    :avocado: tags=stagetwo
+    :avocado: tags=stagetwo,scrub
     """
 
     sos_cmd = '-o curtin'

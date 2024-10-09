@@ -10,7 +10,7 @@ from sos_tests import StageOneReportTest, StageTwoReportTest
 
 
 class SudoPluginTest(StageOneReportTest):
-    """Basic sanity check to make sure ocmmon config files are collected
+    """Basic sanity check to make sure common config files are collected
 
     :avocado: tags=stageone
     """
@@ -25,7 +25,7 @@ class SudoPluginTest(StageOneReportTest):
 class SudoLdapScrubbedTest(StageTwoReportTest):
     """Ensure that sudo conf is picked up and properly scrubbed
 
-    :avocado: tags=stagetwo
+    :avocado: tags=stagetwo,scrub
     """
 
     sos_cmd = '-o sudo'
