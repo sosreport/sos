@@ -292,6 +292,8 @@ class OpenVSwitch(Plugin):
                 f"{self.ofctl} queue-stats {bri}",
                 f"{self.ofctl} show {bri}",
                 f"{self.ofctl} dump-groups {bri}",
+                f"{self.ofctl} meter-stats {bri}",
+                f"{self.ofctl} dump-meters {bri}",
             ])
 
             self.get_flow_versions(bri)
