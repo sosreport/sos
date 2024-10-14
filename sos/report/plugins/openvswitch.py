@@ -118,6 +118,8 @@ class OpenVSwitch(Plugin):
             f"{self.vctl} -t 5 list bridge",
             # Capture OVS datapath list
             f"{self.vctl} -t 5 list datapath",
+            # Capture OVS mirror list
+            f"{self.vctl} -t 5 list mirror",
             # Capture DPDK queue to pmd mapping
             f"{self.actl} dpif-netdev/pmd-rxq-show -secs 5",
             f"{self.actl} dpif-netdev/pmd-rxq-show -secs 30",
