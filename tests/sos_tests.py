@@ -809,7 +809,7 @@ class StageTwoReportTest(BaseSoSReportTest):
                       tests/test_data/fake_plugins
 
     :avocado: disable
-    :avocado: tags=stagetwo,foreman2
+    :avocado: tags=stagetwo,scrub,foreman2
     """
 
     sos_cmd = ''
