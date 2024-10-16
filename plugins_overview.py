@@ -90,25 +90,29 @@ for plugfile in sorted(os.listdir(PLUGDIR)):
             'env': [],
     }
     with open(os.path.join(PLUGDIR, plugfile),
-              encoding='utf-8').read().replace('\n', '') as pfd:
+              encoding='utf-8') as pfd:
+        pfd_content = pfd.read().replace('\n', '')
         add_all_items(
             "from sos.report.plugins import ", plugs_data[plugname]['distros'],
-            pfd, wrapopen='', wrapclose='(class|from|import)'
+            pfd_content, wrapopen='', wrapclose='(class|from|import)'
         )
         add_all_items("profiles = ", plugs_data[plugname]['profiles'],
-                      pfd, wrapopen='')
+                      pfd_content, wrapopen='')
         add_all_items("packages = ", plugs_data[plugname]['packages'],
-                      pfd, wrapopen='')
-        add_all_items("add_copy_spec", plugs_data[plugname]['copyspecs'], pfd)
+                      pfd_content, wrapopen='')
+        add_all_items("add_copy_spec", plugs_data[plugname]['copyspecs'],
+                      pfd_content)
         add_all_items("add_forbidden_path",
-                      plugs_data[plugname]['forbidden'], pfd)
-        add_all_items("add_cmd_output", plugs_data[plugname]['commands'], pfd)
+                      plugs_data[plugname]['forbidden'], pfd_content)
+        add_all_items("add_cmd_output", plugs_data[plugname]['commands'],
+                      pfd_content)
         add_all_items("collect_cmd_output",
-                      plugs_data[plugname]['commands'], pfd)
+                      plugs_data[plugname]['commands'], pfd_content)
         add_all_items("add_service_status",
-                      plugs_data[plugname]['service_status'], pfd)
-        add_all_items("add_journal", plugs_data[plugname]['journals'], pfd)
-        add_all_items("add_env_var", plugs_data[plugname]['env'], pfd)
+                      plugs_data[plugname]['service_status'], pfd_content)
+        add_all_items("add_journal", plugs_data[plugname]['journals'],
+                      pfd_content)
+        add_all_items("add_env_var", plugs_data[plugname]['env'], pfd_content)
 
 # print output; if "csv" is cmdline argument, print in CSV format, else JSON
 if (len(sys.argv) > 1) and (sys.argv[1] == "csv"):
