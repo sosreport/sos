@@ -119,7 +119,7 @@ class OpenStackHeat(Plugin):
         protect_keys = [
             "admin_password", "memcache_secret_key", "password",
             "qpid_password", "rabbit_password", "stack_domain_admin_password",
-            "transport_url"
+            "transport_url", "auth_encryption_key",
         ]
         connection_keys = ["connection"]
 
