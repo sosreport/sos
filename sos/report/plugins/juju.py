@@ -29,6 +29,19 @@ class Juju(Plugin, UbuntuPlugin):
             self.add_journal(service)
             self.add_service_status(service)
 
+        self.add_cmd_output([
+            'juju_engine_report',
+            'juju_goroutines',
+            'juju_heap_profile',
+            'juju_leases',
+            'juju_metrics',
+            'juju_pubsub_report',
+            'juju_presence_report',
+            'juju_statepool_report',
+            'juju_statetracker_report',
+            'juju_unit_status',
+        ])
+
         # Get agent configs for each agent.
         self.add_copy_spec("/var/lib/juju/agents/*/agent.conf")
 
