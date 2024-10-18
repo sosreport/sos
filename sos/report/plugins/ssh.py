@@ -80,8 +80,25 @@ class Ssh(Plugin, IndependentPlugin):
         """
         users_data = pwd.getpwall()
 
+        fs_mount_info = {}
+        try:
+            with open('/proc/mounts', "r", encoding='UTF-8') as mounts_file:
+                for line in mounts_file:
+                    (fs_file, fs_vstype) = line.split()[1:3]
+                    fs_mount_info[fs_file] = fs_vstype
+        except Exception:
+            self._log_error("Couldn't read /proc/mounts")
+            return
+        non_local_fs = {'nfs', 'nfs4', 'autofs'}
         # Read the home paths of users in the system and check the ~/.ssh dirs
         for user in users_data:
+            if user.pw_dir in fs_mount_info and \
+                    fs_mount_info[user.pw_dir] in non_local_fs:
+                self._log_info(
+                        f"Skipping capture in {user.pw_dir}"
+                        " because it's a remote directory"
+                )
+                continue
             home_dir = self.path_join(user.pw_dir, '.ssh')
             self.add_dir_listing(home_dir)
 
