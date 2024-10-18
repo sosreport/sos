@@ -6,10 +6,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin)
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Containerd(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
+class Containerd(Plugin, IndependentPlugin):
 
     short_desc = 'Containerd containers'
     plugin_name = 'containerd'
@@ -24,6 +24,13 @@ class Containerd(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
 
         self.add_cmd_output('containerd config dump')
         self.add_cmd_output('ctr deprecations list')
+
+        pre_cmd = 'ctr -n k8s.io'
+
+        self.add_cmd_output([
+            f'{pre_cmd} image ls',
+            f'{pre_cmd} container ls',
+        ])
 
         # collect the containerd logs.
         self.add_journal(units='containerd')
