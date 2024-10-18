@@ -32,7 +32,7 @@ class Coredump(Plugin, IndependentPlugin):
             "/usr/lib/systemd/coredump.conf.d/"
         ])
 
-        self.add_cmd_output("coredumpctl dump")
+        self.add_cmd_output("coredumpctl dump", sizelimit=100)
 
         coredump_list = self.collect_cmd_output("coredumpctl list")
         if self.get_option("detailed") and coredump_list['status'] == 0:
