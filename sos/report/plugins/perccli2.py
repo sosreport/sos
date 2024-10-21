@@ -22,7 +22,7 @@ class PercCLI2(Plugin, IndependentPlugin):
     ]
 
     def setup(self):
-        cmd = '/opt/MegaRAID/perccli/perccli2'
+        cmd = '/opt/MegaRAID/perccli2/perccli2'
         subcmds = [
             'show ctrlcount',
             '/call show AliLog',
