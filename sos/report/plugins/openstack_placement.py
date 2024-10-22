@@ -105,8 +105,17 @@ class OpenStackPlacement(Plugin):
         )
 
     def postproc(self):
-        protect_keys = ["password", "memcache_secret_key"]
-        connection_keys = ["database_connection", "slave_connection"]
+        protect_keys = [
+            "password",
+            "memcache_secret_key",
+            "NOVA_API_PASS",
+            "PLACEMENT_PASS",
+        ]
+        connection_keys = [
+            "database_connection",
+            "slave_connection",
+            "connection",
+        ]
 
         join_con_keys = "|".join(connection_keys)
 
