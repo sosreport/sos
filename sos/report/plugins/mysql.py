@@ -18,6 +18,7 @@ class Mysql(Plugin):
     plugin_name = "mysql"
     profiles = ('services',)
     mysql_cnf = "/etc/my.cnf"
+    my_cnf_dir = "/etc/my.cnf.d"
 
     pw_warn_text = " (password visible in process listings)"
 
@@ -84,6 +85,20 @@ class Mysql(Plugin):
 
         self.add_cmd_output("du -s /var/lib/mysql/*")
 
+    def postproc(self):
+        protect_keys = ['password']
+        regex = fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)"
+        sub = r"\1*********"
+
+        self.do_path_regex_sub(
+            f"{self.my_cnf_dir}/*",
+            regex, sub
+        )
+        self.do_file_sub(
+            f"{self.mysql_cnf}",
+            regex, sub
+        )
+
 
 class RedHatMysql(Mysql, RedHatPlugin):
 
@@ -100,7 +115,7 @@ class RedHatMysql(Mysql, RedHatPlugin):
         self.add_copy_spec([
             "/etc/ld.so.conf.d/mysql-*.conf",
             "/etc/ld.so.conf.d/mariadb-*.conf",
-            "/etc/my.cnf.d/*",
+            f"{self.my_cnf_dir}/*",
             "/var/lib/config-data/puppet-generated/mysql/etc/my.cnf.d/*"
         ])
 
@@ -115,10 +130,13 @@ class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
         'percona-xtradb-cluster-server-.*',
     )
 
+    my_cnf_dir = "/etc/mysql/"
+    mysql_cnf = f"{my_cnf_dir}/my.cnf"
+
     def setup(self):
         super().setup()
         self.add_copy_spec([
-            "/etc/mysql/",
+            self.my_cnf_dir,
             "/var/log/mysql/error.log",
             "/var/lib/mysql/*.err",
             "/var/lib/percona-xtradb-cluster/*.err",
