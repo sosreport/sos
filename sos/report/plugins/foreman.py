@@ -91,11 +91,10 @@ class Foreman(Plugin):
         _host_f = self.exec_cmd('hostname -f')['output']
         _host_f = _host_f.strip()
 
-        # Collect these completely everytime
         self.add_copy_spec([
             "/var/log/foreman/production.log",
             f"/var/log/{self.apachepkg}*/foreman-ssl_*_ssl.log"
-        ], sizelimit=0)
+        ], sizelimit=500)
 
         # Allow limiting these
         self.add_copy_spec([
