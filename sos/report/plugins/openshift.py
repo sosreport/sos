@@ -58,7 +58,7 @@ class Openshift(Plugin, RedHatPlugin):
     plugin_name = "openshift"
     plugin_timeout = 900
     profiles = ('openshift',)
-    packages = ('openshift-hyperkube',)
+    packages = ('openshift-hyperkube', 'openshift-kubelet')
 
     master_localhost_kubeconfig = (
         '/etc/kubernetes/static-pod-resources/'
