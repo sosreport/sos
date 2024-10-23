@@ -52,10 +52,13 @@ class SaltMaster(Plugin, IndependentPlugin):
         all_pillar_roots = []
         for cfg in cfgs:
             with open(cfg, "r", encoding='UTF-8') as file:
-                cfg_pillar_roots = (
-                    yaml.safe_load(file).get("pillar_roots", {}).
-                    get("base", [])
-                )
+                try:
+                    cfg_pillar_roots = (
+                        yaml.safe_load(file).get("pillar_roots", {}).
+                        get("base", [])
+                    )
+                except AttributeError:
+                    cfg_pillar_roots = []
                 all_pillar_roots.extend(cfg_pillar_roots)
 
         self.add_copy_spec(all_pillar_roots)
