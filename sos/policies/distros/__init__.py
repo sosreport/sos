@@ -36,6 +36,7 @@ except ImportError:
 
 try:
     import boto3
+    from botocore.config import Config as BotocoreConfig
     BOTO3_LOADED = True
 except ImportError:
     BOTO3_LOADED = False
@@ -997,10 +998,13 @@ class LinuxPolicy(Policy):
         if not secret_key:
             secret_key = self.get_upload_s3_secret_key()
 
+        boto3_config = BotocoreConfig(user_agent_extra='app/sos')
+
         s3_client = boto3.client('s3', endpoint_url=endpoint,
                                  region_name=region,
                                  aws_access_key_id=access_key,
-                                 aws_secret_access_key=secret_key)
+                                 aws_secret_access_key=secret_key,
+                                 config=boto3_config)
 
         try:
             key = prefix + self.upload_archive_name.split('/')[-1]
