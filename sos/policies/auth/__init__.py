@@ -15,7 +15,7 @@ try:
 except ImportError:
     REQUESTS_LOADED = False
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sos.utilities import TIMEOUT_DEFAULT
 
@@ -128,14 +128,14 @@ class DeviceAuthorizationClass:
         and their expiry etc.
         """
         self._access_token = token_data.get("access_token")
-        self._access_expires_at = datetime.utcnow() + \
+        self._access_expires_at = datetime.now(timezone.utc) + \
             timedelta(seconds=token_data.get("expires_in"))
         self._refresh_token = token_data.get("refresh_token")
         self._refresh_expires_in = token_data.get("refresh_expires_in")
         if self._refresh_expires_in == 0:
             self._refresh_expires_at = datetime.max
         else:
-            self._refresh_expires_at = datetime.utcnow() + \
+            self._refresh_expires_at = datetime.now(timezone.utc) + \
                 timedelta(seconds=self._refresh_expires_in)
 
     def get_access_token(self):
@@ -161,7 +161,7 @@ class DeviceAuthorizationClass:
         """
         return self._access_token and self._access_expires_at and \
             self._access_expires_at - timedelta(seconds=180) > \
-            datetime.utcnow()
+            datetime.now(timezone.utc)
 
     def is_refresh_token_valid(self):
         """
@@ -173,7 +173,7 @@ class DeviceAuthorizationClass:
         """
         return self._refresh_token and self._refresh_expires_at and \
             self._refresh_expires_at - timedelta(seconds=180) > \
-            datetime.utcnow()
+            datetime.now(timezone.utc)
 
     def _use_refresh_token_grant(self, refresh_token=None):
         """
