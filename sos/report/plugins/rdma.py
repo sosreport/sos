@@ -17,7 +17,7 @@ class Rdma(Plugin, IndependentPlugin):
 
     plugin_name = "rdma"
     profiles = ('hardware',)
-    packages = ('rdma',)
+    packages = ('iproute2',)
 
     def setup(self):
 
