@@ -45,12 +45,12 @@ class Microk8s(Plugin, UbuntuPlugin):
         )
 
         self.add_cmd_output([
-            f"microk8s {subcmd}" for subcmd in microk8s_subcmds
+            f"{self.microk8s_cmd} {subcmd}" for subcmd in microk8s_subcmds
         ])
 
     def postproc(self):
         rsub = r'(certificate-authority-data:|token:)\s.*'
-        self.do_cmd_output_sub("microk8s", rsub, r'\1 "**********"')
+        self.do_cmd_output_sub(self.microk8s_cmd, rsub, r'\1 "**********"')
 
         protect_keys = [
             "certificate-authority-data",
