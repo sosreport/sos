@@ -161,7 +161,7 @@ rather than key-pair encryption.
 Specify an existing host group definition to use.
 
 Host groups are pre-defined settings for the cluster-type, primary node, and nodes options
-saved in JSON-formatted files under /var/lib/sos collect/<GROUP>.
+saved in JSON-formatted files under /etc/sos/groups.d/<GROUP>.
 
 If cluster_type and/or primary are set in the group, sos collect behaves as if
 these values were specified on the command-line.
@@ -169,7 +169,7 @@ these values were specified on the command-line.
 If nodes is defined, sos collect \fBextends\fR the \fB\-\-nodes\fR option, if set,
 with the nodes or regexes listed in the group.
 
-Note that sos collect will only write group definitions to /var/lib/sos collect/
+Note that sos collect will only write group definitions to /etc/sos/groups.d/
 however the GROUP value may be a filename for any group definitions that exist outside
 of the default location. If you are manually writing these files, use the value \fBnull\fR
 when a python NoneType is expected. Caveat: use \fBstring\fR 'none' if setting cluster_type
@@ -178,7 +178,7 @@ to none.
 \fB\-\-save\-group\fR GROUP
 Save the results of this run of sos collect to a host group definition.
 
-sos-collector will write a JSON-formatted file with name GROUP to /var/lib/sos collect/
+sos-collector will write a JSON-formatted file with name GROUP to /etc/sos/groups.d/
 with the settings for cluster-type, primary, and the node list as discovered by cluster enumeration.
 Note that this means regexes are not directly saved to host groups, but the results of matching against
 those regexes are.

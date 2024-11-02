@@ -548,7 +548,7 @@ any third party.
         """Load presets from disk.
 
             Read JSON formatted preset data from the specified path,
-            or the default location at ``/var/lib/sos/presets``.
+            or the default location at ``/etc/sos/presets.d``.
 
             :param presets_path: a directory containing JSON presets.
         """
