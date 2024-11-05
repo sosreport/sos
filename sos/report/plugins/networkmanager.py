@@ -26,7 +26,8 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
             "/etc/NetworkManager/conf.d",
             "/usr/lib/NetworkManager/conf.d",
             "/run/NetworkManager/conf.d",
-            "/var/lib/NetworkManager/NetworkManager-intern.conf"
+            "/var/lib/NetworkManager/NetworkManager-intern.conf",
+            "/var/run/NetworkManager",
         ])
 
         self.add_journal(units="NetworkManager")
