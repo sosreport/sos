@@ -22,6 +22,8 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
             "/etc/NetworkManager/system-connections/",
             "/usr/lib/NetworkManager/system-connections/",
             "/run/NetworkManager/system-connections/",
+            "/var/run/NetworkManager/system-connections/",
+            "/var/run/NetworkManager/backups/",
         ]
 
         self.add_copy_spec(self.system_connection_files)
@@ -33,7 +35,12 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
             "/usr/lib/NetworkManager/conf.d",
             "/run/NetworkManager/conf.d",
             "/var/lib/NetworkManager/NetworkManager-intern.conf",
+            "/var/run/NetworkManager",
         ])
+
+        self.add_forbidden_path(
+            "/var/run/NetworkManager/secret_key"
+        )
 
         self.add_journal(units="NetworkManager")
 
