@@ -1485,7 +1485,12 @@ class SoSReport(SoSComponent):
         for plugname, plug in self.loaded_plugins:
             try:
                 if plug.get_option('postproc'):
+                    start = datetime.now()
+                    plug.manifest.add_field('postproc_start', start)
                     plug.postproc()
+                    end = datetime.now()
+                    plug.manifest.add_field('postproc_end', end)
+                    plug.manifest.add_field('postproc_time', end - start)
                 else:
                     self.soslog.info(
                         f"Skipping postproc for plugin {plugname}")
