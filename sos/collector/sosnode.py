@@ -277,6 +277,9 @@ class SosNode():
         """If we need to provide a sudo or root password to a command, then
         here we prefix the command with the correct bits
         """
+        is_root = self._env_vars.get("USER", os.environ.get("USER")) == 'root'
+        if self.local and is_root:
+            return cmd
         if self.opts.become_root:
             return f"su -c {quote(cmd)}"
         if self.need_sudo:
