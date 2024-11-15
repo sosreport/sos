@@ -1194,6 +1194,14 @@ this utility or remote systems that it connects to.
 
         self.intro()
 
+        if self.opts.batch and self.opts.password:
+            self.exit(
+                "\nsos-collector was called with incompatible options --batch "
+                "and --password.\nIf you need to use --password,"
+                " please omit batch mode.\n",
+                1
+            )
+
         self.configure_sos_cmd()
         self.prep()
         self.display_nodes()
