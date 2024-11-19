@@ -33,6 +33,7 @@ class Ansible(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_forbidden_path([
             "/etc/ansible/facts.d/",
             "/etc/ansible/roles/",
+            "/etc/ansible/files/",
             "/etc/ansible/hosts",
         ])
 
