@@ -2078,7 +2078,11 @@ class Plugin():
         if isinstance(paths, str):
             paths = [paths]
 
-        paths = [p for p in paths if self.path_exists(p)]
+        if container:
+            paths = [p for p in paths if
+                     self.container_path_exists(p, container=container)]
+        else:
+            paths = [p for p in paths if self.path_exists(p)]
 
         if not tree:
             options = f"alZ{'R' if recursive else ''}"
@@ -3409,6 +3413,22 @@ class Plugin():
         verify_cmd = pm.build_verify_command(self.verify_packages)
         if verify_cmd:
             self.add_cmd_output(verify_cmd)
+
+    def container_path_exists(self, path, container):
+        """Check if a path exists inside a container before
+        collecting a dir listing
+
+        :param path:    The canonical path for a specific file/directory
+                        in a container
+        :type path:     ``str``
+
+        :param container: The container where to check for the path
+        :type container: ``str``
+
+        :returns:       True if the path exists in the container, else False
+        :rtype:         ``bool``
+        """
+        return self.exec_cmd(f"test -e {path}", container=container)
 
     def path_exists(self, path):
         """Helper to call the sos.utilities wrapper that allows the
