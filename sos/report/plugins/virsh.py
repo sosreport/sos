@@ -48,6 +48,19 @@ class LibvirtClient(Plugin, IndependentPlugin):
         self.add_cmd_output(f"{cmd} list --all",
                             tags="virsh_list_all", foreground=True)
 
+        vms = self.exec_cmd(f"{cmd} list --all --name --state-running "
+                            "--state-paused", foreground=True)
+        if vms['status'] == 0:
+            for vm in vms['output'].splitlines():
+                pid = self.exec_cmd(f"pgrep -f {vm}")
+                if pid['status'] == 0:
+                    # We're grabbing the first item, as the second one is the
+                    # item from the process list that is just pgrep
+                    p = pid['output'].splitlines()[0]
+                    self.add_cmd_output(
+                        f"taskset -ac -p {p}",
+                        suggest_filename=f"taskset_{vm}")
+
         # get network, pool and nwfilter elements
         for k in ['net', 'nwfilter', 'pool']:
             k_list = self.collect_cmd_output(f'{cmd} {k}-list %s' % ('--all'
