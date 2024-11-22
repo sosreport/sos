@@ -87,7 +87,7 @@ class SoSHostnameMap(SoSMap):
         """
         if '.' in item:
             item = item.replace('.', '(\\.|_)')
-        return re.compile(item, re.I)
+        return super().get_regex_result(item)
 
     def set_initial_counts(self):
         """Set the initial counter for host and domain obfuscation numbers
