@@ -27,13 +27,15 @@ class Pam(Plugin):
 
         self.add_copy_spec([
             "/etc/pam.d",
-            "/etc/security"
+            "/etc/security",
+            '/etc/authselect/authselect.conf',
         ])
         self.add_cmd_output([
-            "ls -lanF %s" % self.security_libs,
             "pam_tally2",
             "faillock"
         ])
+
+        self.add_dir_listing(self.security_libs)
 
 
 class RedHatPam(Pam, RedHatPlugin):

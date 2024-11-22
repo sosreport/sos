@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from pipes import quote
+from shlex import quote
 from sos.collector.clusters import Cluster
 
 
@@ -34,7 +34,7 @@ class kubernetes(Cluster):
     def get_nodes(self):
         self.cmd += ' get nodes'
         if self.get_option('label'):
-            self.cmd += ' -l %s ' % quote(self.get_option('label'))
+            self.cmd += f' -l {quote(self.get_option("label"))} '
         res = self.exec_primary_cmd(self.cmd)
         if res['status'] == 0:
             nodes = []
@@ -47,7 +47,6 @@ class kubernetes(Cluster):
                     if node[2] in roles:
                         nodes.append(node[0])
             return nodes
-        else:
-            raise Exception('Node enumeration did not return usable output')
+        raise Exception('Node enumeration did not return usable output')
 
 # vim: set et ts=4 sw=4 :

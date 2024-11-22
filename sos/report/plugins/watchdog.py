@@ -20,7 +20,7 @@ class Watchdog(Plugin, RedHatPlugin):
     packages = ('watchdog',)
 
     option_list = [
-        PluginOpt('conf_file', default='/etc/watchdog.conf',
+        PluginOpt('conf-file', default='/etc/watchdog.conf',
                   desc='watchdog config file')
     ]
 
@@ -44,6 +44,7 @@ class Watchdog(Plugin, RedHatPlugin):
                     if key.strip() == 'log-dir':
                         log_dir = value.strip()
                 except ValueError:
+                    # not a valid key, value line and we can safely ignore
                     pass
 
         return log_dir
@@ -54,7 +55,7 @@ class Watchdog(Plugin, RedHatPlugin):
             Collect configuration files, custom executables for test-binary
             and repair-binary, and stdout/stderr logs.
         """
-        conf_file = self.path_join(self.get_option('conf_file'))
+        conf_file = self.path_join(self.get_option('conf-file'))
         log_dir = self.path_join('/var/log/watchdog')
 
         # Get service configuration and sysconfig files
@@ -75,7 +76,7 @@ class Watchdog(Plugin, RedHatPlugin):
             if res:
                 log_dir = res
         except IOError as ex:
-            self._log_warn("Could not read %s: %s" % (conf_file, ex))
+            self._log_warn(f"Could not read {conf_file}: {ex}")
 
         if self.get_option('all_logs'):
             log_files = glob(self.path_join(log_dir, '*'))
@@ -87,6 +88,6 @@ class Watchdog(Plugin, RedHatPlugin):
 
         # Get output of "wdctl <device>" for each /dev/watchdog*
         for dev in glob(self.path_join('/dev/watchdog*')):
-            self.add_cmd_output("wdctl %s" % dev)
+            self.add_cmd_output(f"wdctl {dev}")
 
 # vim: set et ts=4 sw=4 :

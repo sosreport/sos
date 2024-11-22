@@ -1,0 +1,25 @@
+network:
+  version: 2
+  wifis:
+    NM-d377ae8e-fff5-11ee-bd96-07ef2a5f9e02:
+      renderer: NetworkManager
+      match:
+        name: "wlp166s0"
+      dhcp4: true
+      access-points:
+        "arif-home":
+          auth:
+            key-management: "psk"
+            password: "awifipasswordforauth"
+          networkmanager:
+            uuid: "d377ae8e-fff5-11ee-bd96-07ef2a5f9e02"
+            name: "wifi-guest"
+            passthrough:
+              connection.timestamp: "1694069964"
+              ipv6.addr-gen-mode: "default"
+              ipv6.method: "disabled"
+              ipv6.ip6-privacy: "-1"
+              proxy._: ""
+      networkmanager:
+        uuid: "d377ae8e-fff5-11ee-bd96-07ef2a5f9e02"
+        name: "wifi-guest"

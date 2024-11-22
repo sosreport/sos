@@ -27,13 +27,13 @@ class Rpm(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_spec("/var/log/rpmpkgs")
-        self.add_cmd_output("ls -lanR /var/lib/rpm")
+        self.add_dir_listing('/var/lib/rpm', recursive=True)
 
         if self.get_option("rpmq"):
             rpmq = "rpm --nodigest -qa --qf=%s"
             # basic installed-rpms
             nvra = '"%-59{NVRA} %{INSTALLTIME:date}\n"'
-            irpms = "sh -c '%s | sort -V'" % rpmq % nvra
+            irpms = f"sh -c '{rpmq} | sort -V'" % nvra
 
             self.add_cmd_output(irpms, root_symlink='installed-rpms',
                                 tags='installed_rpms')

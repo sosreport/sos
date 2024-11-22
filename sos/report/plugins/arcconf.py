@@ -7,15 +7,16 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-# This sosreport plugin is meant for sas adapters.
-# This plugin logs inforamtion on each adapter it finds.
-
 import re
 
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class ArcConf(Plugin, IndependentPlugin):
+    """
+    The ArcConf plugin is meant for sas adapters, and will collect logs and
+    information for each RAID adapter discovered on the system.
+    """
 
     short_desc = 'arcconf Integrated RAID adapter information'
 

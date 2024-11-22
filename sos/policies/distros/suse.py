@@ -17,16 +17,16 @@ from sos import _sos as _
 
 
 class SuSEPolicy(LinuxPolicy):
-    distro = "SuSE"
+    os_release_name = "SuSE"
     vendor = "SuSE"
     vendor_urls = [('Distribution Website', 'https://www.suse.com/')]
     _tmp_dir = "/var/tmp"
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(SuSEPolicy, self).__init__(sysroot=sysroot, init=init,
-                                         probe_runtime=probe_runtime,
-                                         remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
         self.valid_subclasses += [SuSEPlugin, RedHatPlugin]
 
         self.usrmove = False
@@ -59,12 +59,13 @@ class SuSEPolicy(LinuxPolicy):
 
 
 class OpenSuSEPolicy(SuSEPolicy):
-    distro = "OpenSuSE"
     vendor = "SuSE"
     vendor_urls = [('Community Website', 'https://www.opensuse.org/')]
+    os_release_name = "OpenSuSE"
+    os_release_file = '/etc/SUSE-brand'
     msg = _("""\
 This command will collect diagnostic and configuration \
-information from this %(distro)s system and installed \
+information from this %(os_release_name)s system and installed \
 applications.
 
 An archive containing the collected information will be \
@@ -77,16 +78,8 @@ No changes will be made to system configuration.
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(OpenSuSEPolicy, self).__init__(sysroot=sysroot, init=init,
-                                             probe_runtime=probe_runtime,
-                                             remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
 
-    @classmethod
-    def check(cls, remote):
-        """This method checks to see if we are running on SuSE.
-        """
-
-        if remote:
-            return cls.distro in remote
-
-        return os.path.isfile('/etc/SUSE-brand')
+# vim: set et ts=4 sw=4 :

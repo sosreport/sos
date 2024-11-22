@@ -56,7 +56,7 @@ class Microshift(Plugin, RedHatPlugin):
 
         if self.get_option('add-namespaces'):
             for nsp in self.get_option('add-namespaces').split(':'):
-                collect_regexes.append(r'^%s$' % nsp)
+                collect_regexes.append(fr'^{nsp}$')
 
         return collect_regexes
 
@@ -89,7 +89,7 @@ class Microshift(Plugin, RedHatPlugin):
             'oc get namespaces'
             ' -o custom-columns=NAME:.metadata.name'
             ' --no-headers'
-            ' --kubeconfig=%s' % self.get_option('kubeconfig'))
+            f' --kubeconfig={self.get_option("kubeconfig")}')
         if res['status'] == 0:
             return self._reduce_namespace_list(res['output'].split('\n'))
         return []
@@ -130,8 +130,8 @@ class Microshift(Plugin, RedHatPlugin):
 
         for resource in global_resources:
             res = self.exec_cmd(
-                "oc get --kubeconfig %s %s" % (
-                    self.get_option('kubeconfig'), resource),
+                f"oc get --kubeconfig {self.get_option('kubeconfig')} "
+                f"{resource}",
                 timeout=Microshift.plugin_timeout)
             if res['status'] == 0:
                 _filtered_resources.append(resource)
@@ -163,18 +163,18 @@ class Microshift(Plugin, RedHatPlugin):
         _cluster_resources_to_collect = ",".join(
             self._get_cluster_resources())
         _namespaces_to_collect = " ".join(
-            ['ns/%s' % n for n in self._get_namespaces()])
+            [f'ns/{n}' for n in self._get_namespaces()])
 
         if self.is_service_running(Microshift.plugin_name):
             _subdir = self.get_cmd_output_path(make=False)
             _kubeconfig = self.get_option('kubeconfig')
             self.add_cmd_output(
-                'oc adm inspect --kubeconfig %s --dest-dir %s %s' % (
-                    _kubeconfig, _subdir, _cluster_resources_to_collect),
+                f'oc adm inspect --kubeconfig {_kubeconfig} --dest-dir '
+                f'{_subdir} {_cluster_resources_to_collect}',
                 suggest_filename='inspect_cluster_resources.log',
                 timeout=Microshift.plugin_timeout)
             self.add_cmd_output(
-                'oc adm inspect --kubeconfig %s --dest-dir %s %s' % (
-                    _kubeconfig, _subdir, _namespaces_to_collect),
+                f'oc adm inspect --kubeconfig {_kubeconfig} --dest-dir '
+                f'{_subdir} {_namespaces_to_collect}',
                 suggest_filename='inspect_namespaces.log',
                 timeout=Microshift.plugin_timeout)

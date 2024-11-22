@@ -84,9 +84,9 @@ class SoSIPv6Map(SoSMap):
                 _net.add_obfuscated_host_address(host, _ob_host)
                 self.dataset[host] = _ob_host
 
-    def sanitize_item(self, ipaddr):
-        _prefix = ipaddr.split('/')[-1] if '/' in ipaddr else ''
-        _ipaddr = ipaddr
+    def sanitize_item(self, item):
+        _prefix = item.split('/')[-1] if '/' in item else ''
+        _ipaddr = item
         if not _prefix:
             # assume a /64 default per protocol
             _ipaddr += "/64"
@@ -186,13 +186,13 @@ class ObfuscatedIPv6Network():
         """
         if self.addr.is_global:
             return self._obfuscate_global_address()
-        elif self.addr.is_link_local:
+        if self.addr.is_link_local:
             # link-local addresses are always fe80::/64. This is not sensitive
             # in itself, and retaining the information that an address is a
             # link-local address is important for problem analysis, so don't
             # obfuscate this network information.
             return self.network_addr
-        elif self.addr.is_private:
+        if self.addr.is_private:
             return self._obfuscate_private_address()
         return self.network_addr
 
@@ -256,19 +256,19 @@ class ObfuscatedIPv6Network():
         :returns:           An obfuscated address within this network
         :rtype:             ``str``
         """
-        def _generate_address():
+        def _generate_address(host):
             return ''.join([
                 self._obfuscated_network,
-                ':'.join(generate_hextets(_host.split(':')))
+                ':'.join(generate_hextets(host.split(':')))
             ])
 
         if addr.compressed not in self.hosts:
             # separate host from the address by removing its network prefix
             _n = self.network_addr.rstrip(':')
             _host = addr.compressed[len(_n):].lstrip(':')
-            _ob_host = _generate_address()
+            _ob_host = _generate_address(_host)
             while _ob_host in self.hosts.values():
-                _ob_host = _generate_address()
+                _ob_host = _generate_address(_host)
             self.add_obfuscated_host_address(addr.compressed, _ob_host)
         return self.hosts[addr.compressed]
 

@@ -69,14 +69,14 @@ class ForemanInstaller(Plugin, DebianPlugin, UbuntuPlugin):
         # all scrubbing applied to configs must be applied to installer logs
         # as well, since logs contain diff of configs
         self.do_path_regex_sub(
-            r"(/etc/foreman-(installer|maintain)/(.*)((conf)(.*)?))|(%s)"
-            % install_logs,
+            r"(/etc/foreman-(installer|maintain)/(.*)((conf)(.*)?))|"
+            fr"({install_logs})",
             r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
             r"\1********")
         # yaml values should be alphanumeric
         self.do_path_regex_sub(
-            r"(/etc/foreman-(installer|maintain)/(.*)((yaml|yml)(.*)?))|(%s)"
-            % install_logs,
+            r"(/etc/foreman-(installer|maintain)/(.*)((yaml|yml)(.*)?))|"
+            fr"({install_logs})",
             r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
             r'\1"********"')
 

@@ -7,13 +7,14 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-# This sosreport plugin is meant for sas adapters.
-# This plugin logs inforamtion on each adapter it finds.
-
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class MvCLI(Plugin, IndependentPlugin):
+    """
+    The mvCLI plugin is meant for sas adapters, and collects information for
+    each adapter discovered on the system.
+    """
 
     short_desc = 'mvCLI Integrated RAID adapter information'
 
@@ -30,6 +31,6 @@ class MvCLI(Plugin, IndependentPlugin):
             'smart -p 0',
         ]
 
-        self.add_cmd_output(["/opt/marvell/bin/mvcli %s" % s for s in subcmds])
+        self.add_cmd_output([f"/opt/marvell/bin/mvcli {s}" for s in subcmds])
 
 # vim: et ts=4 sw=4

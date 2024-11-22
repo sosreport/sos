@@ -31,7 +31,8 @@ class DefaultCollectionsTest(StageTwoReportTest):
         assert ent, "No manifest entry for systemctl status cups"
 
     def test_journal_collected(self):
-        self.assertFileCollected('sos_commands/cups/journalctl_--no-pager_--unit_cups')
+        self.assertFileCollected('sos_commands/cups/journalctl_--no-pager_'
+                                 '--unit_cups')
         _m = self.get_plugin_manifest('cups')
         ent = None
         for cmd in _m['commands']:
@@ -39,4 +40,6 @@ class DefaultCollectionsTest(StageTwoReportTest):
                 ent = cmd
         assert ent, "No manifest entry for journalctl cups"
 
-        assert 'journal_cups' in ent['tags'], "Journal tags not correct: %s" % ent['tags']
+        assert \
+            'journal_cups' in ent['tags'], \
+            f"Journal tags not correct: {ent['tags']}"

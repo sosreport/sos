@@ -52,8 +52,8 @@ class Gluster(Plugin, RedHatPlugin):
                                     '/glusterd_state_[0-9]*_[0-9]*'))
                 for name in remove_files:
                     os.remove(name)
-            except OSError:
-                pass
+            except OSError as err:
+                self._log_error(f"Could not remove statedump files: {err}")
 
     def setup(self):
         self.add_forbidden_path("/var/lib/glusterd/geo-replication/secret.pem")
@@ -118,16 +118,16 @@ class Gluster(Plugin, RedHatPlugin):
                     continue
                 volname = line[12:]
                 self.add_cmd_output([
-                    "gluster volume get %s all" % volname,
-                    "gluster volume geo-replication %s status" % volname,
-                    "gluster volume heal %s info" % volname,
-                    "gluster volume heal %s info split-brain" % volname,
-                    "gluster volume status %s clients" % volname,
-                    "gluster snapshot list %s" % volname,
-                    "gluster volume quota %s list" % volname,
-                    "gluster volume rebalance %s status" % volname,
-                    "gluster snapshot info %s" % volname,
-                    "gluster snapshot status %s" % volname
+                    f"gluster volume get {volname} all",
+                    f"gluster volume geo-replication {volname} status",
+                    f"gluster volume heal {volname} info",
+                    f"gluster volume heal {volname} info split-brain",
+                    f"gluster volume status {volname} clients",
+                    f"gluster snapshot list {volname}",
+                    f"gluster volume quota {volname} list",
+                    f"gluster volume rebalance {volname} status",
+                    f"gluster snapshot info {volname}",
+                    f"gluster snapshot status {volname}",
                 ])
 
 # vim: set et ts=4 sw=4 :

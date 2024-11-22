@@ -13,7 +13,7 @@ from sos.cleaner.mappings.username_map import SoSUsernameMap
 
 
 class SoSUsernameParser(SoSCleanerParser):
-    """Parser for obfuscating usernames within an sosreport archive.
+    """Parser for obfuscating usernames within an sos report archive.
 
     Note that this parser does not rely on regex matching directly, like most
     other parsers do. Instead, usernames are discovered via scraping the
@@ -26,9 +26,9 @@ class SoSUsernameParser(SoSCleanerParser):
     map_file_key = 'username_map'
     regex_patterns = []
 
-    def __init__(self, config, skip_clean_files=[]):
+    def __init__(self, config, skip_cleaning_files=[]):
         self.mapping = SoSUsernameMap()
-        super(SoSUsernameParser, self).__init__(config, skip_clean_files)
+        super().__init__(config, skip_cleaning_files)
 
     def _parse_line(self, line):
         return line, 0

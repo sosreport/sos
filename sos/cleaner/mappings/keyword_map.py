@@ -25,7 +25,9 @@ class SoSKeywordMap(SoSMap):
     word_count = 0
 
     def sanitize_item(self, item):
-        _ob_item = "obfuscatedword%s" % self.word_count
+        if item in self.dataset:
+            return self.dataset[item]
+        _ob_item = f"obfuscatedword{self.word_count}"
         self.word_count += 1
         if _ob_item in self.dataset.values():
             return self.sanitize_item(item)

@@ -27,7 +27,7 @@ class AllPluginSmokeTest(StageOneReportTest):
     """
 
     def pre_sos_setup(self):
-        _cmd = '%s report --list-plugins' % self.sos_bin
+        _cmd = f'{self.sos_bin} report --list-plugins'
         out = process.run(_cmd, timeout=300).stdout.decode()
         reg = DISABLED + '(.*?)' + OPTIONS
         self.plugs = []
@@ -38,7 +38,7 @@ class AllPluginSmokeTest(StageOneReportTest):
                 except Exception:
                     pass
 
-        self.sos_cmd = '-e %s' % ','.join(p for p in self.plugs)
+        self.sos_cmd = f'-e {",".join(p for p in self.plugs)}'
 
     def test_all_plugins_ran(self):
         for plugin in self.plugs:
@@ -52,9 +52,14 @@ class AllPluginSmokeTest(StageOneReportTest):
 
         Make sure our warnings are displayed
         """
-        self.assertOutputContains('Not logged in to OCP API, and no login token provided. Will not collect `oc` commands')
-        self.assertOutputContains('Source the environment file for the user intended to connect to the OpenStack environment.')
-        self.assertOutputContains('Some or all of the skydive params are not set properly.')
+        self.assertOutputContains('Not logged in to OCP API, and no login '
+                                  'token provided. Will not collect `oc` '
+                                  'commands')
+        self.assertOutputContains('Source the environment file for the user '
+                                  'intended to connect to the OpenStack '
+                                  'environment.')
+        self.assertOutputContains('Some or all of the skydive params are not '
+                                  'set properly.')
 
 
 class ExpectedDefaultPluginsTest(StageOneReportTest):
@@ -109,4 +114,3 @@ class ExpectedDefaultPluginsTest(StageOneReportTest):
             'apt',
             'ubuntu'
         ])
-

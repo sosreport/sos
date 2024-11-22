@@ -94,19 +94,22 @@ class Vdsm(Plugin, RedHatPlugin):
         if qemu_pids:
             files = ["cmdline", "status", "mountstats"]
             self.add_copy_spec([
-                "/proc/%s/%s" % (pid, name)
+                f"/proc/{pid}/{name}"
                 for pid in qemu_pids
                 for name in files
             ])
+
+        self.add_dir_listing(
+            ['/etc/vdsm', '/rhev/data-center'],
+            runas='vdsm', recursive=True
+        )
+
+        self.add_dir_listing('/rhev/data-center', tree=True)
+
         self.add_cmd_output([
-            "ls -ldZ /etc/vdsm",
-            "su vdsm -s /bin/sh -c 'tree -l /rhev/data-center'",
-            "su vdsm -s /bin/sh -c 'ls -lR /rhev/data-center'"
-        ])
-        self.add_cmd_output([
-            "lvm vgs -v -o +tags --config \'%s\'" % LVM_CONFIG,
-            "lvm lvs -v -o +tags --config \'%s\'" % LVM_CONFIG,
-            "lvm pvs -v -o +all --config \'%s\'" % LVM_CONFIG
+            f"lvm vgs -v -o +tags --config \'{LVM_CONFIG}\'",
+            f"lvm lvs -v -o +tags --config \'{LVM_CONFIG}\'",
+            f"lvm pvs -v -o +all --config \'{LVM_CONFIG}\'"
         ])
 
         self.add_cmd_output([
@@ -133,7 +136,7 @@ class Vdsm(Plugin, RedHatPlugin):
                     )
         except ValueError as err:
             self._log_error(
-                'vdsm-client Host getConnectedStoragePools: %s' % (err)
+                f'vdsm-client Host getConnectedStoragePools: {err}'
             )
 
         try:
@@ -146,7 +149,7 @@ class Vdsm(Plugin, RedHatPlugin):
                 ])
         except ValueError as err:
             self._log_error(
-                'vdsm-client Host getStorageDomains: %s' % (err)
+                f'vdsm-client Host getStorageDomains: {err}'
             )
 
     def _add_vdsm_forbidden_paths(self):

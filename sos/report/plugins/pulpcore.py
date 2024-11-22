@@ -100,14 +100,21 @@ class PulpCore(Plugin, IndependentPlugin):
                         "DJANGO_SETTINGS_MODULE": "pulpcore.app.settings"}
         self.add_cmd_output("dynaconf list", env=dynaconf_env)
         for _dir in [self.staticroot, self.uploaddir]:
-            self.add_cmd_output("ls -l %s" % _dir)
+            self.add_dir_listing(_dir)
 
         task_days = self.get_option('task-days')
         for table in ['core_task', 'core_taskgroup',
                       'core_groupprogressreport', 'core_progressreport']:
-            _query = "select * from %s where pulp_last_updated > NOW() - " \
-                     "interval '%s days' order by pulp_last_updated" % \
-                     (table, task_days)
+            _query = ("COPY (SELECT STRING_AGG(column_name, ', ') FROM "
+                      f"information_schema.columns WHERE table_name='{table}'"
+                      "AND table_schema = 'public' AND column_name NOT IN"
+                      " ('args', 'kwargs', 'enc_args', 'enc_kwargs'))"
+                      " TO STDOUT;")
+            col_out = self.exec_cmd(self.build_query_cmd(_query), env=self.env)
+            columns = col_out['output'] if col_out['status'] == 0 else '*'
+            _query = (f"select {columns} from {table} where pulp_last_updated"
+                      f"> NOW() - interval '{task_days} days' order by"
+                      " pulp_last_updated")
             _cmd = self.build_query_cmd(_query)
             self.add_cmd_output(_cmd, env=self.env, suggest_filename=table)
 
@@ -139,8 +146,8 @@ class PulpCore(Plugin, IndependentPlugin):
         a large amount of quoting in sos logs referencing the command being run
         """
         if csv:
-            query = "COPY (%s) TO STDOUT " \
-                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)" % query
+            query = f"COPY ({query}) TO STDOUT " \
+                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)"
         _dbcmd = "psql --no-password -h %s -p %s -U pulp -d %s -c %s"
         return _dbcmd % (self.dbhost, self.dbport, self.dbname, quote(query))
 

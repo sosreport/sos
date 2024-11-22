@@ -46,6 +46,7 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
             "dump_reservations",
             # will work quincy onward
             "bluefs stats",
+            "bluestore allocator dump block",
             "bluestore bluefs device info",
             "config diff",
             "config show",

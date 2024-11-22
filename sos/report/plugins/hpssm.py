@@ -42,7 +42,7 @@ class Hpssm(Plugin, IndependentPlugin):
             'show detail'
         ]
         self.add_cmd_output(
-            ["%s %s" % (cmd, subcmd) for subcmd in subcmds]
+            [f"{cmd} {subcmd}" for subcmd in subcmds]
         )
 
         pattern = re.compile("^HP[E] (.*) in Slot ([0123456789]+)")
@@ -55,11 +55,7 @@ class Hpssm(Plugin, IndependentPlugin):
                           for m in [pattern.search(line)] if m]
         ssacli_ctrl_slot_cmd = cmd + ' ctrl slot='
         self.add_cmd_output(
-            ["%s%s %s" % (
-                ssacli_ctrl_slot_cmd,
-                slot,
-                slot_subcmd
-            )
+            [f"{ssacli_ctrl_slot_cmd}{slot} {slot_subcmd}"
              for slot in ctrl_slots
              for slot_subcmd in slot_subcmds]
         )
@@ -67,7 +63,7 @@ class Hpssm(Plugin, IndependentPlugin):
         logpath = self.get_cmd_output_path()
 
         self.add_cmd_output(
-            'ssaducli -v -adu -f %s/adu-log.zip' % logpath,
+            f'ssaducli -v -adu -f {logpath}/adu-log.zip',
             suggest_filename='ssaducli_-v_-adu.log'
         )
 
@@ -77,7 +73,7 @@ class Hpssm(Plugin, IndependentPlugin):
     def do_debug(self, logpath):
         """ Collect debug logs """
         self.add_cmd_output(
-            'ilorest serverlogs --selectlog=AHS --directorypath=%s' % logpath,
+            f'ilorest serverlogs --selectlog=AHS --directorypath={logpath}',
             runat=logpath, suggest_filename='ilorest.log'
         )
 

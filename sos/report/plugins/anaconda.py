@@ -24,21 +24,21 @@ class Anaconda(Plugin, RedHatPlugin):
 
     def setup(self):
 
-        paths = [
+        self.copypaths = [
             "/root/anaconda-ks.cfg"
         ]
 
         if self.path_isdir('/var/log/anaconda'):
             # new anaconda
-            paths.append('/var/log/anaconda')
+            self.copypaths.append('/var/log/anaconda')
         else:
-            paths = paths + [
+            self.copypaths = self.copypaths + [
                 "/var/log/anaconda.*",
                 "/root/install.log",
                 "/root/install.log.syslog"
             ]
 
-        self.add_copy_spec(paths)
+        self.add_copy_spec(self.copypaths)
 
     def postproc(self):
         self.do_file_sub(
@@ -51,5 +51,6 @@ class Anaconda(Plugin, RedHatPlugin):
             r"(user.*--password=*\s*)\s*(\S*)",
             r"\1********"
         )
+        self.do_paths_http_sub(self.copypaths)
 
 # vim: set et ts=4 sw=4 :

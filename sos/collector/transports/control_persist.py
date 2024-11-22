@@ -10,8 +10,8 @@
 
 
 import os
-import pexpect
 import subprocess
+import pexpect
 
 from sos.collector.transports import RemoteTransport
 from sos.collector.exceptions import (InvalidPasswordException,
@@ -48,33 +48,33 @@ class SSHControlPersist(RemoteTransport):
         ControlPersist allows OpenSSH to keep a single open connection to a
         remote host rather than building a new session each time. This is the
         same feature that Ansible uses in place of paramiko, which we have a
-        need to drop in sos-collector.
+        need to drop in sos collect.
 
         This check relies on feedback from the ssh binary. The command being
         run should always generate stderr output, but depending on what that
         output reads we can determine if ControlPersist is supported or not.
 
         For our purposes, a host that does not support ControlPersist is not
-        able to run sos-collector.
+        able to run sos collect.
 
         Returns
             True if ControlPersist is supported, else raise Exception.
         """
         ssh_cmd = ['ssh', '-o', 'ControlPersist']
-        cmd = subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-        out, err = cmd.communicate()
-        err = err.decode('utf-8')
-        if 'Bad configuration option' in err or 'Usage:' in err:
-            raise ControlPersistUnsupportedException
+        with subprocess.Popen(ssh_cmd, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE) as cmd:
+            _, err = cmd.communicate()
+            err = err.decode('utf-8')
+            if 'Bad configuration option' in err or 'Usage:' in err:
+                raise ControlPersistUnsupportedException
         return True
 
-    def _connect(self, password=''):
+    def _connect(self, password=''):  # pylint: disable=too-many-branches
         """
         Using ControlPersist, create the initial connection to the node.
 
         This will generate an OpenSSH ControlPersist socket within the tmp
-        directory created or specified for sos-collector to use.
+        directory created or specified for sos collect to use.
 
         At most, we will wait 30 seconds for a connection. This involves a 15
         second wait for the initial connection attempt, and a subsequent 15
@@ -95,32 +95,28 @@ class SSHControlPersist(RemoteTransport):
                            "Please update your OpenSSH installation.")
             raise
         self.log_info('Opening SSH session to create control socket')
-        self.control_path = ("%s/.sos-collector-%s" % (self.tmpdir,
-                                                       self.address))
+        self.control_path = f"{self.tmpdir}/.sos-collector-{self.address}"
         self.ssh_cmd = ''
         connected = False
         ssh_key = ''
         ssh_port = ''
         if self.opts.ssh_port != 22:
-            ssh_port = "-p%s " % self.opts.ssh_port
+            ssh_port = f"-p{self.opts.ssh_port} "
         if self.opts.ssh_key:
-            ssh_key = "-i%s" % self.opts.ssh_key
+            ssh_key = f"-i{self.opts.ssh_key}"
 
-        cmd = ("ssh %s %s -oControlPersist=600 -oControlMaster=auto "
-               "-oStrictHostKeyChecking=no -oControlPath=%s %s@%s "
-               "\"echo Connected\"" % (ssh_key,
-                                       ssh_port,
-                                       self.control_path,
-                                       self.opts.ssh_user,
-                                       self.address))
+        cmd = (f"ssh {ssh_key} {ssh_port} -oControlPersist=600 "
+               "-oControlMaster=auto -oStrictHostKeyChecking=no "
+               f"-oControlPath={self.control_path} {self.opts.ssh_user}@"
+               f"{self.address} \"echo Connected\"")
         res = pexpect.spawn(cmd, encoding='utf-8')
 
         connect_expects = [
-            u'Connected',
-            u'password:',
-            u'.*Permission denied.*',
-            u'.* port .*: No route to host',
-            u'.*Could not resolve hostname.*',
+            'Connected',
+            'password:',
+            '.*Permission denied.*',
+            '.* port .*: No route to host',
+            '.*Could not resolve hostname.*',
             pexpect.TIMEOUT
         ]
 
@@ -131,8 +127,8 @@ class SSHControlPersist(RemoteTransport):
         elif index == 1:
             if password:
                 pass_expects = [
-                    u'Connected',
-                    u'Permission denied, please try again.',
+                    'Connected',
+                    'Permission denied, please try again.',
                     pexpect.TIMEOUT
                 ]
                 res.sendline(password)
@@ -157,12 +153,12 @@ class SSHControlPersist(RemoteTransport):
         elif index == 5:
             raise ConnectionTimeoutException
         else:
-            raise Exception("Unknown error, client returned %s" % res.before)
+            raise Exception(f"Unknown error, client returned {res.before}")
         if connected:
             if not os.path.exists(self.control_path):
                 raise ControlSocketMissingException
-            self.log_debug("Successfully created control socket at %s"
-                           % self.control_path)
+            self.log_debug("Successfully created control socket at "
+                           f"{self.control_path}")
             return True
         return False
 
@@ -172,7 +168,7 @@ class SSHControlPersist(RemoteTransport):
                 os.remove(self.control_path)
                 return True
             except Exception as err:
-                self.log_debug("Could not disconnect properly: %s" % err)
+                self.log_debug(f"Could not disconnect properly: {err}")
                 return False
         self.log_debug("Control socket not present when attempting to "
                        "terminate session")
@@ -193,15 +189,13 @@ class SSHControlPersist(RemoteTransport):
     @property
     def remote_exec(self):
         if not self.ssh_cmd:
-            self.ssh_cmd = "ssh -oControlPath=%s %s@%s" % (
-                self.control_path, self.opts.ssh_user, self.address
-            )
+            self.ssh_cmd = (f"ssh -oControlPath={self.control_path} "
+                            f"{self.opts.ssh_user}@{self.address}")
         return self.ssh_cmd
 
     def _retrieve_file(self, fname, dest):
-        cmd = "/usr/bin/scp -oControlPath=%s %s@%s:%s %s" % (
-            self.control_path, self.opts.ssh_user, self.address, fname, dest
-        )
+        cmd = (f"/usr/bin/scp -oControlPath={self.control_path} "
+               f"{self.opts.ssh_user}@{self.address}:{fname} {dest}")
         res = sos_get_command_output(cmd)
         return res['status'] == 0
 

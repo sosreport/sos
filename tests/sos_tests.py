@@ -6,12 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-
-from avocado.core.exceptions import TestSkipError
-from avocado.core.output import LOG_UI
-from avocado import Test
-from avocado.utils import archive, process, distro, software_manager
-from avocado.utils.cpu import get_arch
 from fnmatch import fnmatch
 
 import glob
@@ -23,16 +17,28 @@ import shutil
 import socket
 import re
 
+from avocado.core.exceptions import TestSkipError
+from avocado.core.output import LOG_UI
+from avocado import Test
+from avocado.utils import archive, process, distro, software_manager
+from avocado.utils.cpu import get_arch
+from avocado.utils.software_manager import distro_packages
+
 SOS_TEST_DIR = os.path.dirname(os.path.realpath(__file__))
 SOS_REPO_ROOT = os.path.realpath(os.path.join(SOS_TEST_DIR, '../'))
-SOS_PLUGIN_DIR = os.path.realpath(os.path.join(SOS_REPO_ROOT, 'sos/report/plugins'))
+SOS_PLUGIN_DIR = os.path.realpath(
+    os.path.join(SOS_REPO_ROOT, 'sos/report/plugins'))
 SOS_TEST_DATA_DIR = os.path.realpath(os.path.join(SOS_TEST_DIR, 'test_data'))
 SOS_TEST_BIN = os.path.realpath(os.path.join(SOS_TEST_DIR, '../bin/sos'))
 
-RH_DIST = ['rhel', 'centos', 'fedora']
+RH_DIST = ['rhel', 'centos', 'fedora', 'centos-stream']
 UBUNTU_DIST = ['Ubuntu', 'debian']
 
+_distro = distro.detect()
+
+
 def skipIf(cond, message=None):
+    # pylint: disable=unused-argument
     def decorator(function):
         def wrapper(self, *args, **kwargs):
             if callable(cond):
@@ -43,17 +49,22 @@ def skipIf(cond, message=None):
         return wrapper
     return decorator
 
+
+# pylint: disable=unused-argument
 def redhat_only(tst):
     def wrapper(func):
-        if distro.detect().name not in RH_DIST:
+        if _distro.name not in RH_DIST:
             raise TestSkipError('Not running on a Red Hat distro')
     return wrapper
 
+
+# pylint: disable=unused-argument
 def ubuntu_only(tst):
     def wrapper(func):
-        if distro.detect().name not in UBUNTU_DIST:
+        if _distro.name not in UBUNTU_DIST:
             raise TestSkipError('Not running on a Ubuntu or Debian distro')
     return wrapper
+
 
 class BaseSoSTest(Test):
     """Base class for all our test classes to build off of.
@@ -73,22 +84,27 @@ class BaseSoSTest(Test):
     ubuntu_only = False
     end_of_test_case = False
     arch = []
+    only_os_versions = []
 
     @property
     def klass_name(self):
         if not self._klass_name:
-            self._klass_name = os.path.basename(__file__) + '.' + self.__class__.__name__
+            self._klass_name = (f"{os.path.basename(__file__)}."
+                                f"{self.__class__.__name__}")
         return self._klass_name
 
     @property
     def tmpdir(self):
         if not self._tmpdir:
-            self._tmpdir = os.getenv('AVOCADO_TESTS_COMMON_TMPDIR') + self.klass_name
+            self._tmpdir = (f"{os.getenv('AVOCADO_TESTS_COMMON_TMPDIR')}"
+                            f"{self.klass_name}")
         return self._tmpdir
 
     @property
     def sos_bin(self):
-        return self._local_sos_bin if self.params.get('TESTLOCAL') == 'true' else SOS_TEST_BIN
+        if self.params.get('TESTLOCAL') == 'true':
+            return self._local_sos_bin
+        return SOS_TEST_BIN
 
     def generate_sysinfo(self):
         """Collects some basic information about the system for later reference
@@ -138,16 +154,20 @@ class BaseSoSTest(Test):
             if self._exception_expected:
                 self.cmd_output = err.result
             else:
+                # pylint: disable=no-member
+                # We've already checked above for the result attribute for err
                 msg = err.result.stderr.decode() or err.result.stdout.decode()
                 # a little hacky, but using self.log methods here will not
                 # print to console unless we ratchet up the verbosity for the
                 # entire test suite, which will become very difficult to read
-                LOG_UI.error('ERROR:\n' + msg[:8196])  # don't flood w/ super verbose logs
+
+                # don't flood w/ super verbose logs
+                LOG_UI.error(f'ERROR:\n{msg[:8196]}')
                 if err.result.interrupted:
-                    raise Exception("Timeout exceeded, see output above")
-                else:
-                    raise Exception("Command failed, see output above: '%s'"
-                                    % err.command.split('bin/')[1])
+                    raise Exception("Timeout exceeded, see output "
+                                    "above") from err
+                raise Exception("Command failed, see output above: "
+                                f"'{err.command.split('bin/')[1]}'") from err
         with open(os.path.join(self.tmpdir, 'output'), 'wb') as pfile:
             pickle.dump(self.cmd_output, pfile)
         self.cmd_output.stdout = self.cmd_output.stdout.decode()
@@ -163,13 +183,13 @@ class BaseSoSTest(Test):
         fname = os.path.join(self.tmpdir, fname)
         if isinstance(content, bytes):
             content = content.decode()
-        with open(fname, 'w') as wfile:
+        with open(fname, 'w', encoding='utf-8') as wfile:
             wfile.write(content)
 
     def read_file_from_tmpdir(self, fname):
         fname = os.path.join(self.tmpdir, fname)
         try:
-            with open(fname, 'r') as tfile:
+            with open(fname, 'r', encoding='utf-8') as tfile:
                 return tfile.read()
         except Exception:
             pass
@@ -218,9 +238,9 @@ class BaseSoSTest(Test):
 
         This allows us to define distro-specific test classes much the same way
         we can define distro-specific tests _within_ a test class using the
-        appropriate decorators. We can't use the decorators for the class however
-        due to how avocado catches instantiation exceptions, so instead we need
-        to raise the skip exception after instantiation is done.
+        appropriate decorators. We can't use the decorators for the class
+        however due to how avocado catches instantiation exceptions, so instead
+        we need to raise the skip exception after instantiation is done.
         """
         if self.redhat_only:
             if self.local_distro not in RH_DIST:
@@ -244,15 +264,29 @@ class BaseSoSTest(Test):
         raise TestSkipError(f"Unsupported architecture {sys_arch} for test "
                             f"(supports: {self.arch})")
 
+    def check_os_version_for_enablement(self):
+        """
+        Check if the test case is meant only for a specific version or versions
+
+        Takes the `versions` class attribute, a list that specifies
+        the versions where the test applies. If the list is empty, assume all
+        versions of the OS are acceptable. Otherwise, raise a TestSkipError.
+        """
+        os_version = _distro.version
+        if not self.only_os_versions or os_version in self.only_os_versions:
+            return True
+        raise TestSkipError(f"Unsupported OS version {os_version} "
+                            f"(supports: {self.only_os_versions})")
 
     def setUp(self):
         """Setup the tmpdir and any needed mocking for the test, then execute
         the defined sos command. Ensure that we only run the sos command once
         for every test case, instead of once for every test_* method defined.
         """
-        self.local_distro = distro.detect().name
+        self.local_distro = _distro.name
         self.check_distro_for_enablement()
         self.check_arch_for_enablement()
+        self.check_os_version_for_enablement()
         # check to prevent multiple setUp() runs
         if not os.path.isdir(self.tmpdir):
             # setup our class-shared tmpdir
@@ -304,28 +338,25 @@ class BaseSoSTest(Test):
         """Called at the end of a test run to ensure that any needed per-test
         cleanup can be done.
         """
-        pass
 
     def setup_mocking(self):
         """Since we need to use setUp() in our overrides of avocado.Test,
         provide an alternate method for test cases that subclass BaseSoSTest
         to use.
         """
-        pass
 
     def pre_sos_setup(self):
         """Do any needed non-mocking setup prior to the sos execution that is
         called in setUp()
         """
-        pass
 
     def assertFileExists(self, fname):
         """Asserts that fname exists on the filesystem"""
-        assert os.path.exists(fname), "%s does not exist" % fname
+        assert os.path.exists(fname), f"{fname} does not exist"
 
     def assertFileNotExists(self, fname):
         """Asserts that fname does not exist on the filesystem"""
-        assert not os.path.exists(fname), "%s exists" % fname
+        assert not os.path.exists(fname), f"{fname} exists"
 
     def assertOutputContains(self, content):
         """Ensure that stdout did contain the given content string
@@ -333,8 +364,10 @@ class BaseSoSTest(Test):
         :param content:  The string that should not be in stdout
         :type content:  ``str``
         """
-        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout + self.cmd_output.stderr)
-        assert found, "Content string '%s' not in output" % content
+        found = re.search(
+            fr"(.*)?{content}(.*)?",
+            self.cmd_output.stdout + self.cmd_output.stderr)
+        assert found, f"Content string '{content}' not in output"
 
     def assertOutputNotContains(self, content):
         """Ensure that stdout did NOT contain the given content string
@@ -342,8 +375,10 @@ class BaseSoSTest(Test):
         :param content:  The string that should not be in stdout
         :type content:  ``str``
         """
-        found = re.search(r"(.*)?%s(.*)?" % content, self.cmd_output.stdout + self.cmd_output.stderr)
-        assert not found, "String '%s' present in stdout" % content
+        found = re.search(
+            fr"(.*)?{content}(.*)?",
+            self.cmd_output.stdout + self.cmd_output.stderr)
+        assert not found, f"String '{content}' present in stdout"
 
 
 class BaseSoSReportTest(BaseSoSTest):
@@ -365,24 +400,26 @@ class BaseSoSReportTest(BaseSoSTest):
     def manifest(self):
         if self._manifest is None:
             try:
-                content = self.read_file_from_tmpdir(self.get_name_in_archive('sos_reports/manifest.json'))
+                content = self.read_file_from_tmpdir(
+                    self.get_name_in_archive('sos_reports/manifest.json'))
                 self._manifest = json.loads(content)
             except Exception:
                 self._manifest = ''
-                self.warning('Could not load manifest for test')
+                self.log.warn('Could not load manifest for test')
         return self._manifest
 
     @property
     def encrypted_path(self):
         return self.get_encrypted_path()
 
-    def _decrypt_archive(self, archive):
-        _archive = archive.strip('.gpg')
-        cmd = ("gpg --batch --passphrase %s -o %s --decrypt %s"
-               % (self.encrypt_pass, _archive, archive))
+    def _decrypt_archive(self, archive_arg):
+        _archive = archive_arg.strip('.gpg')
+        cmd = (f"gpg --batch --passphrase {self.encrypt_pass} -o {_archive} "
+               f"--decrypt {archive_arg}")
         try:
-            res = process.run(cmd, timeout=10)
+            process.run(cmd, timeout=10)
         except Exception as err:
+            # pylint: disable=no-member
             if err.result.interrupted:
                 self.error("Timeout while decrypting")
             if 'Bad session key' in err.result.stderr.decode():
@@ -399,7 +436,7 @@ class BaseSoSReportTest(BaseSoSTest):
                        means "grep -F")
         """
         fixed_opt = "" if regexp else "F"
-        cmd = "grep -ril%s '%s' %s" % (fixed_opt, search, self.archive_path)
+        cmd = f"grep -ril{fixed_opt} '{search}' {self.archive_path}"
         try:
             out = process.run(cmd)
             rc = out.exit_status
@@ -411,11 +448,10 @@ class BaseSoSReportTest(BaseSoSTest):
             # grep will return an exit code of 1 if no matches are found,
             # which is what we want
             return False
-        else:
-            flist = []
-            for ln in out.stdout.decode('utf-8').splitlines():
-                flist.append(ln.split(self.tmpdir)[-1])
-            return flist
+        flist = []
+        for ln in out.stdout.decode('utf-8').splitlines():
+            flist.append(ln.split(self.tmpdir)[-1])
+        return flist
 
     def get_encrypted_path(self):
         """Since avocado re-instantiates a new object for every test_ method,
@@ -424,8 +460,11 @@ class BaseSoSReportTest(BaseSoSTest):
         override
         """
         try:
-            return re.findall('/.*sosreport-.*tar.*\.gpg', self.cmd_output.stdout)[-1]
-        except:
+            return re.findall(
+                r'/.*sosreport-.*tar.*\.gpg',
+                self.cmd_output.stdout
+            )[-1]
+        except Exception:
             return None
 
     def _extract_archive(self, arc_path):
@@ -438,20 +477,27 @@ class BaseSoSReportTest(BaseSoSTest):
             archive.extract(arc_path, _extract_path)
             self.archive_path = self._get_archive_path()
         except Exception as err:
-            self.cancel("Could not extract archive: %s" % err)
+            self.cancel(f"Could not extract archive: {err}")
 
     def _get_extracted_tarball_path(self):
         """Based on the klass id setup earlier, provide a name to extract the
         archive to within the tmpdir
         """
-        return os.path.join(self.tmpdir, "sosreport-%s" % self.__class__.__name__)
-        
+        return os.path.join(
+            self.tmpdir,
+            f"sosreport-{self.__class__.__name__}"
+        )
+
     def _generate_sos_command(self):
-        return "%s %s -v --batch --tmp-dir %s %s" % (self.sos_bin, self.sos_component, self.tmpdir, self.sos_cmd)
+        return (f"{self.sos_bin} {self.sos_component} -v --batch "
+                f"--tmp-dir {self.tmpdir} {self.sos_cmd}")
 
     def _execute_sos_cmd(self):
-        super(BaseSoSReportTest, self)._execute_sos_cmd()
-        self.archive = re.findall('/.*sosreport-.*tar.*', self.cmd_output.stdout)
+        super()._execute_sos_cmd()
+        self.archive = re.findall(
+            '/.*sosreport-.*tar.*',
+            self.cmd_output.stdout
+        )
         if self.archive:
             self.archive = self.archive[-1]
             self._extract_archive(self.archive)
@@ -463,7 +509,7 @@ class BaseSoSReportTest(BaseSoSTest):
         return None
 
     def setUp(self):
-        super(BaseSoSReportTest, self).setUp()
+        super().setUp()
         self.archive_path = self._get_archive_path()
 
     def get_name_in_archive(self, fname):
@@ -481,7 +527,8 @@ class BaseSoSReportTest(BaseSoSTest):
         :rtype: ``str``
         """
         content = ''
-        with open(self.get_name_in_archive(fname), 'r') as gfile:
+        with open(self.get_name_in_archive(fname), 'r',
+                  encoding='utf-8') as gfile:
             content = gfile.read()
         return content
 
@@ -513,14 +560,18 @@ class BaseSoSReportTest(BaseSoSTest):
         :type fname:  ``str``
         """
         if fname.startswith(('sos_', '/sos_')):
-            files = glob.glob(os.path.join(self.archive_path, fname.lstrip('/')))
+            files = glob.glob(
+                os.path.join(self.archive_path, fname.lstrip('/'))
+            )
         elif not glob.glob(fname):
             # force the test to pass since the file glob could not have been
             # collected
             files = True
         else:
-            files = glob.glob(os.path.join(self.archive_path, fname.lstrip('/')))
-        assert files, "No files matching %s found" % fname
+            files = glob.glob(
+                os.path.join(self.archive_path, fname.lstrip('/'))
+            )
+        assert files, f"No files matching {fname} found"
 
     def assertFileGlobNotInArchive(self, fname):
         """Ensure that there are NO files in the archive matching a given fname
@@ -531,7 +582,9 @@ class BaseSoSReportTest(BaseSoSTest):
         """
         files = glob.glob(os.path.join(self.tmpdir, fname.lstrip('/')))
         self.log.debug(files)
-        assert not files, "Found files in archive matching %s: %s" % (fname, files)
+        assert \
+            not files, \
+            f"Found files in archive matching {fname}: {files}"
 
     def assertFileHasContent(self, fname, content):
         """Ensure that the given file fname contains the given content
@@ -545,13 +598,15 @@ class BaseSoSReportTest(BaseSoSTest):
         matched = False
         fname = self.get_name_in_archive(fname)
         self.assertFileExists(fname)
-        with open(fname, 'r') as lfile:
+        with open(fname, 'r', encoding='utf-8') as lfile:
             _contents = lfile.read()
             for line in _contents.splitlines():
-                if re.match(".*%s.*" % content, line, re.I):
+                if re.match(f".*{content}.*", line, re.I):
                     matched = True
                     break
-        assert matched, "Content '%s' does not appear in %s\n%s" % (content, fname, _contents)
+        assert \
+            matched, \
+            f"Content '{content}' does not appear in {fname}\n{_contents}"
 
     def assertFileNotHasContent(self, fname, content):
         """Ensure that the file file fname does NOT contain the given content
@@ -564,12 +619,14 @@ class BaseSoSReportTest(BaseSoSTest):
         """
         matched = False
         fname = self.get_name_in_archive(fname)
-        with open(fname, 'r') as mfile:
+        with open(fname, 'r', encoding='utf-8') as mfile:
             for line in mfile.read().splitlines():
-                if re.match(".*%s.*" % content, line, re.I):
+                if re.match(f".*{content}.*", line, re.I):
                     matched = True
                     break
-        assert not matched, "Content '%s' appears in file %s" % (content, fname)
+        assert \
+            not matched, \
+            f"Content '{content}' appears in file {fname}"
 
     def assertSosLogContains(self, content):
         """Ensure that the given content string exists in sos.log
@@ -600,11 +657,15 @@ class BaseSoSReportTest(BaseSoSTest):
         :type plugin:  `` str``
         """
         if not self.manifest:
-            self.error("No manifest found, cannot check for %s execution" % plugin)
+            self.error(
+                f"No manifest found, cannot check for {plugin} execution"
+            )
         if isinstance(plugin, str):
             plugin = [plugin]
         for plug in plugin:
-            assert plug in self.manifest['components']['report']['plugins'].keys(), "Plugin '%s' not recorded in manifest" % plug
+            assert \
+                plug in self.manifest['components']['report']['plugins'], \
+                f"Plugin '{plug}' not recorded in manifest"
 
     def assertPluginNotIncluded(self, plugin):
         """Ensure that the specified plugin did NOT run for the sos execution
@@ -614,11 +675,15 @@ class BaseSoSReportTest(BaseSoSTest):
         :type plugin:  `` str``
         """
         if not self.manifest:
-            self.error("No manifest found, cannot check for %s execution" % plugin)
+            self.error(
+                f"No manifest found, cannot check for {plugin} execution"
+            )
         if isinstance(plugin, str):
             plugin = [plugin]
         for plug in plugin:
-            assert plug not in self.manifest['components']['report']['plugins'].keys(), "Plugin '%s' is recorded in manifest" % plug
+            assert \
+                plug not in self.manifest['components']['report']['plugins'], \
+                f"Plugin '{plug}' is recorded in manifest"
 
     def assertOnlyPluginsIncluded(self, plugins):
         """Ensure that only the specified plugins are in the manifest
@@ -627,18 +692,20 @@ class BaseSoSReportTest(BaseSoSTest):
         :type plugins:  ``str`` or ``list`` of strings
         """
         if not self.manifest:
-            self.error("No manifest found, cannot check for %s execution" % plugins)
+            self.error(
+                f"No manifest found, cannot check for {plugins} execution"
+            )
         if isinstance(plugins, str):
             plugins = [plugins]
         _executed = self.manifest['components']['report']['plugins'].keys()
 
         # test that all requested plugins did run
         for i in plugins:
-            assert i in _executed, "Requested plugin '%s' did not run" % i
+            assert i in _executed, f"Requested plugin '{i}' did not run"
 
         # test that no unrequested plugins ran
         for j in _executed:
-            assert j in plugins, "Unrequested plugin '%s' ran as well" % j
+            assert j in plugins, f"Unrequested plugin '{j}' ran as well"
 
     def get_plugin_manifest(self, plugin):
         """Get the manifest data for the specified plugin
@@ -650,7 +717,7 @@ class BaseSoSReportTest(BaseSoSTest):
         :rtype:   ``dict``
         """
         if not self.manifest['components']['report']['plugins'][plugin]:
-            raise Exception("Manifest for %s not present" % plugin)
+            raise Exception(f"Manifest for {plugin} not present")
         return self.manifest['components']['report']['plugins'][plugin]
 
 
@@ -686,7 +753,8 @@ class StageOneReportTest(BaseSoSReportTest):
         _chk = re.findall('sha256\t.*\n', self.cmd_output.stdout)
         _chk = _chk[0].split('sha256\t')[1].strip()
         assert _chk, "No checksum reported"
-        _found = process.run("sha256sum %s" % (self.encrypted_path or self.archive)).stdout.decode().split()[0]
+        cmd = f"sha256sum {(self.encrypted_path or self.archive)}"
+        _found = process.run(cmd).stdout.decode().split()[0]
         self.assertEqual(_chk, _found)
 
     def test_no_new_kmods_loaded(self):
@@ -706,7 +774,8 @@ class StageOneReportTest(BaseSoSReportTest):
     def test_manifest_created(self):
         self.assertFileCollected('sos_reports/manifest.json')
 
-    @skipIf(lambda x: '--no-report' in x.sos_cmd, '--no-report used in command')
+    @skipIf(lambda x: '--no-report' in x.sos_cmd,
+            '--no-report used in command')
     def test_html_reports_created(self):
         self.assertFileCollected('sos_reports/sos.html')
 
@@ -769,14 +838,11 @@ class StageTwoReportTest(BaseSoSReportTest):
 
     def setUp(self):
         self.end_of_test_case = False
-        # seems awkward, but check_installed() and remove() are not exposed
-        # together with install_distro_packages()
-        self.installer = software_manager
-        self.sm = self.installer.SoftwareManager()
+        self.sm = software_manager.manager.SoftwareManager()
 
-        for dist in self.packages:
-            if isinstance(self.packages[dist], str):
-                self.packages[dist] = [self.packages[dist]]
+        for dist, value in self.packages.items():
+            if isinstance(value, str):
+                self.packages[dist] = [value]
 
         keys = self.packages.keys()
         # allow for single declaration of packages for the RH family
@@ -787,13 +853,14 @@ class StageTwoReportTest(BaseSoSReportTest):
             self.packages['fedora'] = self.packages['rhel']
         if 'rhel' in keys:
             self.packages['centos'] = self.packages['rhel']
+            self.packages['centos-stream'] = self.packages['rhel']
 
-        super(StageTwoReportTest, self).setUp()
+        super().setUp()
 
     def tearDown(self):
         if self.end_of_test_case:
             self.teardown_mocking()
-            super(StageTwoReportTest, self).tearDown()
+            super().tearDown()
 
     def teardown_mocking(self):
         """Undo any and all mocked setup that we did for tests
@@ -816,10 +883,15 @@ class StageTwoReportTest(BaseSoSReportTest):
         for plug in self.install_plugins:
             if not plug.endswith('.py'):
                 plug += '.py'
-            fake_plug = os.path.join(os.path.dirname(inspect.getfile(self.__class__)), plug)
+            fake_plug = os.path.join(
+                os.path.dirname(inspect.getfile(self.__class__)),
+                plug
+            )
             if os.path.exists(fake_plug):
                 shutil.copy(fake_plug, SOS_PLUGIN_DIR)
-                _installed.append(os.path.realpath(os.path.join(SOS_PLUGIN_DIR, plug)))
+                _installed.append(
+                    os.path.realpath(os.path.join(SOS_PLUGIN_DIR, plug))
+                )
         self._write_file_to_tmpdir('mocked_plugins', json.dumps(_installed))
 
     def teardown_mocked_plugins(self):
@@ -842,14 +914,17 @@ class StageTwoReportTest(BaseSoSReportTest):
             self._strip_installed_packages()
             if not self.packages[self.local_distro]:
                 return
-            installed = self.installer.install_distro_packages(self.packages)
+            installed = distro_packages.install_distro_packages(self.packages)
             if not installed:
                 raise Exception(
-                    "Unable to install requested packages %s"
-                    % ', '.join(self.packages[self.local_distro])
+                    f"Unable to install requested packages "
+                    f"{', '.join(self.packages[self.local_distro])}"
                 )
             # save installed package list to our tmpdir to be removed later
-            self._write_file_to_tmpdir('mocked_packages', json.dumps(self.packages[self.local_distro]))
+            self._write_file_to_tmpdir(
+                'mocked_packages',
+                json.dumps(self.packages[self.local_distro])
+            )
 
     def _strip_installed_packages(self):
         """For the list of packages given for a test, if any of the packages
@@ -885,7 +960,10 @@ class StageTwoReportTest(BaseSoSReportTest):
             os.makedirs(_dir)
             self._created_files.append(_dir)
             dir_added = True
-        _test_file = os.path.join(os.path.dirname(inspect.getfile(self.__class__)), src.lstrip('/'))
+        _test_file = os.path.join(
+            os.path.dirname(inspect.getfile(self.__class__)),
+            src.lstrip('/')
+        )
         shutil.copy(_test_file, dest)
         if not dir_added:
             self._created_files.append(dest)
@@ -900,10 +978,14 @@ class StageTwoReportTest(BaseSoSReportTest):
         """
         for mfile in self.files:
             if not isinstance(mfile, tuple):
-                raise Exception(f"Mocked files must be provided via tuples, not {mfile.__class__}")
+                raise Exception("Mocked files must be provided via tuples,"
+                                f"not {mfile.__class__}")
             self._copy_test_file(mfile)
         if self._created_files:
-            self._write_file_to_tmpdir('mocked_files', json.dumps(self._created_files))
+            self._write_file_to_tmpdir(
+                'mocked_files',
+                json.dumps(self._created_files)
+            )
 
     def teardown_mocked_files(self):
         """Remove any mocked files from the test system's filesystem, and
@@ -976,16 +1058,19 @@ class StageOneOutputTest(BaseSoSTest):
     sos_cmd = ''
 
     def _generate_sos_command(self):
-        return "%s %s" % (self.sos_bin, self.sos_cmd)
+        return f"{self.sos_bin} {self.sos_cmd}"
 
     @skipIf(lambda x: x._exception_expected, "Non-zero exit code expected")
     def test_help_output_successful(self):
         self.assertTrue(self.cmd_output.exit_status == 0)
         assert self.cmd_output.stdout, "No stdout output generated"
-        assert not self.cmd_output.stderr, "stderr received, but not expected: %s" % self.cmd_output.stderr
+        assert not self.cmd_output.stderr, (
+            f"stderr received, but not expected: {self.cmd_output.stderr}")
 
-    @skipIf(lambda x: not x._exception_expected, "Not anticipating stderr output")
+    @skipIf(lambda x: not x._exception_expected,
+            "Not anticipating stderr output")
     def test_help_error_reported(self):
         self.assertTrue(self.cmd_output.exit_status != 0)
-        assert not self.cmd_output.stdout, "stdout received, but not expected: %s" % self.cmd_output.stdout
+        assert not self.cmd_output.stdout, (
+            f"stdout received, but not expected: {self.cmd_output.stdout}")
         assert self.cmd_output.stderr, "No stderr output generated"

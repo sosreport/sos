@@ -42,7 +42,39 @@ class OpenStackNeutron(Plugin):
         # rather take a list of files in the dir only
         self.add_copy_spec("/var/lib/neutron/")
         self.add_forbidden_path("/var/lib/neutron/lock")
-        self.add_cmd_output("ls -laZR /var/lib/neutron/lock")
+        self.add_dir_listing('/var/lib/neutron/lock', recursive=True)
+
+        if self.path_exists(self.var_puppet_gen):
+            ml2_pre = self.var_puppet_gen
+        else:
+            ml2_pre = ""
+
+        ml2_conf_file = f"{ml2_pre}/etc/neutron/plugins/ml2/ml2_conf.ini"
+
+        ml2_certs = []
+
+        ml2_cert_keys = [
+            'ovn_nb_private_key',
+            'ovn_nb_certificate',
+            'ovn_nb_ca_cert',
+            'ovn_sb_private_key',
+            'ovn_sb_certificate',
+            'ovn_sb_ca_cert',
+        ]
+
+        try:
+            with open(ml2_conf_file, 'r', encoding='UTF-8') as cfile:
+                for line in cfile.read().splitlines():
+                    if not line:
+                        continue
+                    words = line.split('=')
+                    if words[0].strip() in ml2_cert_keys:
+                        ml2_certs.append(words[1].strip())
+        except IOError as error:
+            self._log_error(f'Could not open conf file {ml2_conf_file}:'
+                            f' {error}')
+
+        self.add_forbidden_path(ml2_certs)
 
         vars_all = [p in os.environ for p in [
                     'OS_USERNAME', 'OS_PASSWORD']]
@@ -102,13 +134,14 @@ class OpenStackNeutron(Plugin):
         ]
         connection_keys = ["connection"]
 
+        join_con_keys = "|".join(connection_keys)
+
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1*********"
         )
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            fr"(^\s*({join_con_keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

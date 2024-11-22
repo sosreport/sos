@@ -54,34 +54,34 @@ class SoSIPMap(SoSMap):
         already created
         """
         for _ip in self.dataset.values():
-            if str(ipaddr).split('/')[0] == _ip.split('/')[0]:
+            if str(ipaddr).split('/', maxsplit=1)[0] == _ip.split('/')[0]:
                 return True
         return False
 
-    def get(self, ipaddr):
+    def get(self, item):
         """Ensure that when requesting an obfuscated address, we return a str
         object instead of an IPv(4|6)Address object
         """
         filt_start = ('/', '=', ']', ')')
-        if ipaddr.startswith(filt_start):
-            ipaddr = ipaddr.lstrip(''.join(filt_start))
+        if item.startswith(filt_start):
+            item = item.lstrip(''.join(filt_start))
 
-        if ipaddr in self.dataset.keys():
-            return self.dataset[ipaddr]
+        if item in self.dataset:
+            return self.dataset[item]
 
-        if self.ignore_item(ipaddr) or self.ip_in_dataset(ipaddr):
-            return ipaddr
+        if self.ignore_item(item) or self.ip_in_dataset(item):
+            return item
 
         # it's not in there, but let's make sure we haven't previously added
         # an address with a CIDR notation and we're now looking for it without
         # that notation
-        if '/' not in ipaddr:
-            for key in self.dataset.keys():
-                if key.startswith(ipaddr):
-                    return self.dataset[key].split('/')[0]
+        if '/' not in item:
+            for key, value in self.dataset.items():
+                if key.startswith(item):
+                    return value.split('/')[0]
 
         # fallback to the default map behavior of adding it fresh
-        return self.add(ipaddr)
+        return self.add(item)
 
     def set_ip_cidr_from_existing_subnet(self, addr):
         """Determine if a given address is in a subnet of an already obfuscated
@@ -156,7 +156,7 @@ class SoSIPMap(SoSMap):
                 if not self.ip_in_dataset(_ip):
                     # the ipaddress module does not assign the network's
                     # netmask to hosts in the hosts() generator for some reason
-                    return "%s/%s" % (str(_ip), _obf_network.prefixlen)
+                    return f"{str(_ip)}/{_obf_network.prefixlen}"
 
         # ip is a single ip address without the netmask
         return self._new_obfuscated_single_address()
@@ -164,9 +164,9 @@ class SoSIPMap(SoSMap):
     def _new_obfuscated_single_address(self):
         def _gen_address():
             _octets = []
-            for i in range(0, 4):
+            for _ in range(0, 4):
                 _octets.append(random.randint(11, 99))
-            return "%s.%s.%s.%s" % tuple(_octets)
+            return f"{_octets[0]}.{_octets[1]}.{_octets[2]}.{_octets[3]}"
 
         _addr = _gen_address()
         if _addr in self.dataset.values():
@@ -187,11 +187,9 @@ class SoSIPMap(SoSMap):
         if isinstance(network, ipaddress.IPv4Network):
             if self.network_first_octet in self.skip_network_octets:
                 self.network_first_octet += 1
-            _obf_address = "%s.0.0.0" % self.network_first_octet
+            _obf_address = f"{self.network_first_octet}.0.0.0"
             _obf_mask = network.with_netmask.split('/')[1]
-            _obf_network = ipaddress.IPv4Network(
-                "%s/%s" % (_obf_address, _obf_mask)
-            )
+            _obf_network = ipaddress.IPv4Network(f"{_obf_address}/{_obf_mask}")
             self.network_first_octet += 1
 
         if isinstance(network, ipaddress.IPv6Network):

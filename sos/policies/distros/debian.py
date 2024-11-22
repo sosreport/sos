@@ -10,13 +10,12 @@ from sos.report.plugins import DebianPlugin
 from sos.policies.distros import LinuxPolicy
 from sos.policies.package_managers.dpkg import DpkgPackageManager
 
-import os
-
 
 class DebianPolicy(LinuxPolicy):
-    distro = "Debian"
     vendor = "the Debian project"
     vendor_urls = [('Community Website', 'https://www.debian.org/')]
+    os_release_name = 'Debian'
+    os_release_file = '/etc/debian_version'
     name_pattern = 'friendly'
     valid_subclasses = [DebianPlugin]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
@@ -37,9 +36,9 @@ class DebianPolicy(LinuxPolicy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(DebianPolicy, self).__init__(sysroot=sysroot, init=init,
-                                           probe_runtime=probe_runtime,
-                                           remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
         self.package_manager = DpkgPackageManager(chroot=self.sysroot,
                                                   remote_exec=remote_exec)
         self.valid_subclasses += [DebianPlugin]
@@ -50,19 +49,9 @@ class DebianPolicy(LinuxPolicy):
             "xz": "xz-utils"
         }.get(binary, binary)
 
-    @classmethod
-    def check(cls, remote=''):
-        """This method checks to see if we are running on Debian.
-           It returns True or False."""
-
-        if remote:
-            return cls.distro in remote
-
-        return os.path.isfile('/etc/debian_version')
-
     def dist_version(self):
         try:
-            with open('/etc/os-release', 'r') as fp:
+            with open('/etc/os-release', 'r', encoding='utf-8') as fp:
                 rel_string = ""
                 lines = fp.readlines()
                 for line in lines:

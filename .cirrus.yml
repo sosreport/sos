@@ -8,32 +8,33 @@ env:
 
     DEBIAN_NAME: "debian-11"
 
-    UBUNTU_LATEST_NAME: "ubuntu-23.10"
-    UBUNTU_NAME: "ubuntu-22.04"
-    UBUNTU_PRIOR_NAME: "ubuntu-20.04"
-    UBUNTU_PRIOR2_NAME: "ubuntu-18.04"
+    UBUNTU_LATEST_NAME: "ubuntu-24.10"
+    UBUNTU_NAME: "ubuntu-24.04"
+    UBUNTU_PRIOR_NAME: "ubuntu-22.04"
+    UBUNTU_PRIOR2_NAME: "ubuntu-20.04"
 
     CENTOS_9_NAME: "centos-stream-9"
-    CENTOS_8_NAME: "centos-stream-8"
 
     CENTOS_PROJECT: "centos-cloud"
     DEBIAN_PROJECT: "debian-cloud"
     FEDORA_PROJECT: "fedora-cloud"
     SOS_PROJECT: "sos-devel-jobs"
     UBUNTU_PROJECT: "ubuntu-os-cloud"
+    UBUNTU_DEVEL_PROJECT: "ubuntu-os-cloud-devel"
 
     # Images exist on GCP already
-    CENTOS_9_IMAGE_NAME: "centos-stream-9-v20230809"
-    CENTOS_8_IMAGE_NAME: "centos-stream-8-v20230809"
+    CENTOS_9_IMAGE_NAME: "centos-stream-9-v20240415"
     DEBIAN_IMAGE_NAME: "debian-11-bullseye-v20230809"
     FEDORA_IMAGE_NAME: "fedora-cloud-base-gcp-38-1-6-x86-64"
     FEDORA_PRIOR_IMAGE_NAME: "fedora-cloud-base-gcp-37-1-7-x86-64"
-    UBUNTU_DEB_IMAGE_NAME: "ubuntu-minimal-2310-mantic-amd64-v20231030"
-    UBUNTU_LATEST_IMAGE_NAME: "ubuntu-2310-mantic-amd64-v20231031"
-    UBUNTU_IMAGE_NAME: "ubuntu-2204-jammy-v20231030"
-    UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-2004-focal-v20231101"
-    UBUNTU_PRIOR2_IMAGE_NAME: "ubuntu-1804-bionic-v20230605"
-    UBUNTU_SNAP_IMAGE_NAME: "ubuntu-2204-jammy-v20231030"
+
+    UBUNTU_DEB_IMAGE_NAME: "ubuntu-minimal-2410-oracular-amd64-v20241021"
+    UBUNTU_LATEST_IMAGE_NAME: "ubuntu-2410-oracular-amd64-v20241021"
+    UBUNTU_IMAGE_NAME: "ubuntu-2404-noble-amd64-v20241004"
+    UBUNTU_PRIOR_IMAGE_NAME: "ubuntu-2204-jammy-v20240927"
+    UBUNTU_PRIOR2_IMAGE_NAME: "ubuntu-2004-focal-v20241016"
+    UBUNTU_SNAP_IMAGE_NAME: "ubuntu-2404-noble-amd64-v20241004"
+    UBUNTU_DEVEL_FAMILY_NAME: "ubuntu-2504-amd64"
 
     # Curl-command prefix for downloading task artifacts, simply add the
     # the url-encoded task name, artifact name, and path as a suffix.
@@ -53,16 +54,30 @@ gcp_credentials: ENCRYPTED[!77d4c8251094346c41db63cb05eba2ff98eaff04e58c5d0e2a8e
 
 # Run a simple lint on the community cluster
 flake8_task:
+    skip: &man-changes-include "changesIncludeOnly('man/*')"
     alias: "flake8_test"
     name: "Flake8 linting test"
     container:
-        image: alpine/flake8:latest
-    flake_script: flake8 sos
+        image: "python:latest"
+    setup_script: &tox-lint-setup |
+        apt update
+        apt -y install tox
+    flake_script: tox -e flake8
+
+pylint_task:
+    skip: *man-changes-include
+    alias: "pylint_test"
+    name: "pylint linting test"
+    container:
+        image: "python:latest"
+    setup_script: *tox-lint-setup
+    pylint_script: tox -e pylint
 
 # Run a check on newer upstream python versions to check for possible
 # breaks/changes in common modules. This is not meant to check any of the actual
 # collections or archive integrity.
 py_break_task:
+    skip: *man-changes-include
     alias: "py_break"
     name: "Breakage test python-$PY_VERSION"
     container:
@@ -78,6 +93,7 @@ py_break_task:
 
 # Make sure a user can manually build an rpm from the checkout
 rpm_build_task:
+    skip: *man-changes-include
     alias: "rpm_build"
     name: "rpm Build From Checkout - ${BUILD_NAME}"
     gce_instance: &standardvm
@@ -89,10 +105,6 @@ rpm_build_task:
             PROJECT: ${CENTOS_PROJECT}
             BUILD_NAME: ${CENTOS_9_NAME}
             VM_IMAGE_NAME: ${CENTOS_9_IMAGE_NAME}
-        - env: &centos8
-            PROJECT: ${CENTOS_PROJECT}
-            BUILD_NAME: ${CENTOS_8_NAME}
-            VM_IMAGE_NAME: ${CENTOS_8_IMAGE_NAME}
         - env: &fedora
             PROJECT: ${FEDORA_PROJECT}
             BUILD_NAME: ${FEDORA_NAME}
@@ -120,6 +132,7 @@ rpm_build_task:
 
 # Make sure a user can manually build a deb from the checkout
 deb_build_task:
+    skip: *man-changes-include
     alias: "deb_build"
     name: "deb Build From Checkout"
     gce_instance:
@@ -131,7 +144,7 @@ deb_build_task:
         apt -y install devscripts equivs python3-pip
         mk-build-deps
         apt -y install ./sosreport-build-deps*.deb
-        pip3 install avocado-framework==94.0 --break-system-packages
+        pip3 install -r test-requirements.txt --break-system-packages
     main_script: |
         dpkg-buildpackage -b -us -uc -rfakeroot -m --build-by="noreply@canonical.com"
     prep_artifacts_script: mv ../*.deb ./sos_cirrus.deb
@@ -141,6 +154,7 @@ deb_build_task:
 
 # Make sure a user can manually build a snap from the checkout
 snap_build_task:
+    skip: *man-changes-include
     alias: "snap_build"
     name: "snap Build From Checkout"
     gce_instance:
@@ -165,6 +179,7 @@ snap_build_task:
 
 # Run the stage one (no mocking) tests across all distros on GCP
 report_stageone_task:
+    skip: *man-changes-include
     alias: "stageone_report"
     name: "Report Stage One - $BUILD_NAME"
     depends_on:
@@ -174,29 +189,33 @@ report_stageone_task:
     gce_instance: *standardvm
     matrix:
         - env: *centos9
-        - env: *centos8
         - env: *fedora
         - env: *fedoraprior
         - env: &ubuntu
+            PKG: "snap"
             PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: ${UBUNTU_NAME}
+            BUILD_NAME: "${UBUNTU_NAME} - ${PKG}"
             VM_IMAGE_NAME: ${UBUNTU_IMAGE_NAME}
-            PKG: "snap"
         - env: &ubuntuprior
+            PKG: "snap"
             PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: ${UBUNTU_PRIOR_NAME}
+            BUILD_NAME: "${UBUNTU_PRIOR_NAME} - ${PKG}"
             VM_IMAGE_NAME: ${UBUNTU_PRIOR_IMAGE_NAME}
-            PKG: "snap"
         - env: &ubuntuprior2
-            PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: ${UBUNTU_PRIOR2_NAME}
-            VM_IMAGE_NAME: ${UBUNTU_PRIOR2_IMAGE_NAME}
             PKG: "snap"
-        - env: &ubuntu-latest
             PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: ${UBUNTU_LATEST_NAME}
+            BUILD_NAME: "${UBUNTU_PRIOR2_NAME} - ${PKG}"
+            VM_IMAGE_NAME: ${UBUNTU_PRIOR2_IMAGE_NAME}
+        - env: &ubuntu-latest-snap
+            PKG: "snap"
+            PROJECT: ${UBUNTU_PROJECT}
+            BUILD_NAME: "${UBUNTU_LATEST_NAME} - ${PKG}"
             VM_IMAGE_NAME: ${UBUNTU_LATEST_IMAGE_NAME}
+        - env: &ubuntu-latest-deb
             PKG: "deb"
+            PROJECT: ${UBUNTU_PROJECT}
+            BUILD_NAME: "${UBUNTU_LATEST_NAME} - ${PKG}"
+            VM_IMAGE_NAME: ${UBUNTU_LATEST_IMAGE_NAME}
     setup_script: &setup |
         if [ $(command -v apt) ]; then
             apt -y purge sosreport
@@ -223,19 +242,42 @@ report_stageone_task:
         fi
         PIP_EXTRA=""
         [[ $(pip3 install --help | grep break-system) ]] && PIP_EXTRA="--break-system-packages"
-        pip3 install avocado-framework==94.0 ${PIP_EXTRA}
+        pip3 install -r test-requirements.txt ${PIP_EXTRA}
     # run the unittests separately as they require a different PYTHONPATH in
     # order for the imports to work properly under avocado
-    unittest_script: PYTHONPATH=. avocado run tests/unittests/
-    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+    unittest_script: &unit_test |
+        PYTHONPATH=. avocado run tests/unittests/
+    main_script: &stageone_test
+        PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t stageone tests/{cleaner,collect,report,vendor}_tests
     on_failure:
         fail_script: &faillogs |
             ls -d /var/tmp/avocado* /root/avocado* 2> /dev/null | xargs tar cf sos-fail-logs.tar
         log_artifacts: &logs
             path: "sos-fail-logs.tar"
 
+report_stageone_daily_task:
+    skip: *man-changes-include
+    alias: "stageone_daily_report"
+    name: "Report Stage One - ${UBUNTU_DEVEL_FAMILY_NAME}"
+    allow_failures: true
+    depends_on:
+        - snap_build
+    gce_instance:
+        image_project: ${UBUNTU_DEVEL_PROJECT}
+        image_family: ${UBUNTU_DEVEL_FAMILY_NAME}
+        type: e2-medium
+    environment:
+      PKG: "snap"
+    setup_script: *setup
+    unittest_script: *unit_test
+    main_script: *stageone_test
+    on_failure:
+        fail_script: *faillogs
+        log_artifacts: *logs
+
 # IFF the stage one tests all pass, then run stage two for latest distros
 report_stagetwo_task:
+    skip: *man-changes-include
     alias: "stagetwo_report"
     name: "Report Stage Two - $BUILD_NAME"
     depends_on: stageone_report
@@ -243,10 +285,10 @@ report_stagetwo_task:
     gce_instance: *standardvm
     matrix:
         - env: *centos9
-        - env: *centos8
         - env: *fedora
         - env: *ubuntu
-        - env: *ubuntu-latest
+        - env: *ubuntu-latest-snap
+        - env: *ubuntu-latest-deb
     setup_script: *setup
     install_pexpect_script: |
         if [ $(command -v apt) ]; then
@@ -255,7 +297,27 @@ report_stagetwo_task:
         if [ $(command -v dnf) ]; then
             dnf -y install python3-pexpect
         fi
-    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+    main_script: &stagetwo_test |
+        PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t stagetwo tests/{cleaner,collect,report,vendor}_tests
+    on_failure:
+        fail_script: *faillogs
+        log_artifacts: *logs
+
+report_stagetwo_daily_task:
+    skip: *man-changes-include
+    alias: "stagetwo_daily_report"
+    name: "Report Stage Two - ${UBUNTU_DEVEL_FAMILY_NAME}"
+    allow_failures: true
+    depends_on: stageone_daily_report
+    timeout_in: 45m
+    gce_instance:
+        image_project: ${UBUNTU_DEVEL_PROJECT}
+        image_family: ${UBUNTU_DEVEL_FAMILY_NAME}
+        type: e2-medium
+    environment:
+      PKG: "snap"
+    setup_script: *setup
+    main_script: *stagetwo_test
     on_failure:
         fail_script: *faillogs
         log_artifacts: *logs
@@ -271,22 +333,13 @@ report_foreman_task:
         type: e2-standard-2
     matrix:
         - env:
-            <<: *centos8
-            FOREMAN_VER: "3.3"
-        - env:
-            <<: *centos8
-            FOREMAN_VER: "3.5"
-        - env:
-            <<: *centos8
-            FOREMAN_VER: "3.7"
-        - env:
             PROJECT: ${DEBIAN_PROJECT}
             VM_IMAGE_NAME: ${DEBIAN_IMAGE_NAME}
             BUILD_NAME: ${DEBIAN_NAME}
             FOREMAN_VER: "3.7"
     setup_script: *setup
     foreman_setup_script: ./tests/test_data/foreman_setup.sh
-    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --test-runner=runner -t foreman tests/product_tests/foreman/
+    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t foreman tests/product_tests/foreman/
     on_failure:
         fail_script: *faillogs
         log_artifacts: *logs

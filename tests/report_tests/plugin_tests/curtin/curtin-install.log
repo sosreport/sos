@@ -1,0 +1,1491 @@
+curtin: Installation started. (23.1.1-1099-g585dd3a9-0ubuntu1~ubuntu22.04.1)
+third party drivers not installed or necessary.
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta: curtin command block-meta
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.052
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+get_path_to_storage_volume for volume vda-part1({'device': 'vda', 'flag': 'bios_grub', 'id': 'vda-part1', 'number': 1, 'offset': '4194304B', 'size': '1048576B', 'type': 'partition', 'wipe': 'zero'})
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.027
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+get_path_to_storage_volume for volume nvme0n1({'id': 'nvme0n1', 'model': 'QEMU NVMe Ctrl', 'name': 'nvme0n1', 'serial': 'fit-panda_nvme1', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_nvme1 via udev to fit-panda_nvme1
+lookup_disks found: ['nvme-QEMU_NVMe_Ctrl_fit-panda_nvme1', 'nvme-QEMU_NVMe_Ctrl_fit-panda_nvme1_1']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+/dev/nvme0n1 is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+/dev/nvme0n1 is multipath device member? False
+block.lookup_disk() returning path /dev/nvme0n1
+Running command ['partprobe', '/dev/nvme0n1'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.031
+devsync happy - path /dev/nvme0n1 now exists
+return volume path /dev/nvme0n1
+get_path_to_storage_volume for volume sda({'id': 'sda', 'model': 'QEMU HARDDISK', 'name': 'sda', 'serial': 'fit-panda_a', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_a via udev to fit-panda_a
+lookup_disks found: ['ata-QEMU_HARDDISK_fit-panda_a', 'scsi-1ATA_QEMU_HARDDISK_fit-panda_a', 'scsi-SATA_QEMU_HARDDISK_fit-panda_a', 'scsi-0ATA_QEMU_HARDDISK_fit-panda_a']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sda'] with allowed return codes [0] (capture=True)
+/dev/sda is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sda'] with allowed return codes [0] (capture=True)
+/dev/sda is multipath device member? False
+block.lookup_disk() returning path /dev/sda
+Running command ['partprobe', '/dev/sda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.035
+devsync happy - path /dev/sda now exists
+return volume path /dev/sda
+get_path_to_storage_volume for volume sdb({'id': 'sdb', 'model': 'QEMU HARDDISK', 'name': 'sdb', 'serial': 'fit-panda_b', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_b via udev to fit-panda_b
+lookup_disks found: ['ata-QEMU_HARDDISK_fit-panda_b', 'scsi-SATA_QEMU_HARDDISK_fit-panda_b', 'scsi-1ATA_QEMU_HARDDISK_fit-panda_b', 'scsi-0ATA_QEMU_HARDDISK_fit-panda_b']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdb'] with allowed return codes [0] (capture=True)
+/dev/sdb is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdb'] with allowed return codes [0] (capture=True)
+/dev/sdb is multipath device member? False
+block.lookup_disk() returning path /dev/sdb
+Running command ['partprobe', '/dev/sdb'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.047
+devsync happy - path /dev/sdb now exists
+return volume path /dev/sdb
+get_path_to_storage_volume for volume sdc({'id': 'sdc', 'model': 'QEMU HARDDISK', 'name': 'sdc', 'serial': 'fit-panda_c', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_c via udev to fit-panda_c
+lookup_disks found: ['ata-QEMU_HARDDISK_fit-panda_c', 'scsi-0ATA_QEMU_HARDDISK_fit-panda_c', 'scsi-1ATA_QEMU_HARDDISK_fit-panda_c', 'scsi-SATA_QEMU_HARDDISK_fit-panda_c']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdc'] with allowed return codes [0] (capture=True)
+/dev/sdc is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdc'] with allowed return codes [0] (capture=True)
+/dev/sdc is multipath device member? False
+block.lookup_disk() returning path /dev/sdc
+Running command ['partprobe', '/dev/sdc'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.039
+devsync happy - path /dev/sdc now exists
+return volume path /dev/sdc
+get_path_to_storage_volume for volume vda-part2({'device': 'vda', 'id': 'vda-part2', 'name': 'vda-part2', 'number': 2, 'size': '63992496128B', 'type': 'partition', 'uuid': 'b6aeba92-9bba-4043-8f72-e8e0bcb01464', 'wipe': 'superblock'})
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.035
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+block-meta: extracted devices to clear: ['/dev/vda', '/dev/nvme0n1', '/dev/sda', '/dev/sdb', '/dev/sdc']
+Declared block devices: ['/dev/vda', '/dev/nvme0n1', '/dev/sda', '/dev/sdb', '/dev/sdc']
+clearing devices=['/dev/vda', '/dev/nvme0n1', '/dev/sda', '/dev/sdb', '/dev/sdc']
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta/clear-holders: removing previous storage devices
+Running command ['mdadm', '--assemble', '--scan', '-v'] with allowed return codes [0, 1, 2] (capture=True)
+mdadm assemble scan results:
+
+mdadm: looking for devices for further assembly
+mdadm: no recogniseable superblock on /dev/sdc
+mdadm: no recogniseable superblock on /dev/sdb
+mdadm: no recogniseable superblock on /dev/sda
+mdadm: no recogniseable superblock on /dev/nvme0n1
+mdadm: no recogniseable superblock on /dev/vda
+mdadm: no recogniseable superblock on /dev/loop3
+mdadm: no recogniseable superblock on /dev/loop2
+mdadm: no recogniseable superblock on /dev/loop1
+mdadm: no recogniseable superblock on /dev/loop0
+mdadm: No arrays found in config file or automatically
+
+Running command ['mdadm', '--detail', '--scan', '-v'] with allowed return codes [0, 1] (capture=True)
+mdadm detail scan after assemble:
+
+
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.034
+Detected multipath support, reload maps
+Running command ['multipath', '-r'] with allowed return codes [0] (capture=False)
+Verifying /dev/mapper/mpath* files are symlinks
+Running command ['dmsetup', 'ls', '-o', 'blkdevname'] with allowed return codes [0] (capture=True)
+Running command ['pvscan', '--config', 'devices{ filter = [ "a|/dev/mapper/mpath.*|", "a|/dev/mapper/dm_crypt-.*|", "r|.*|" ] }'] with allowed return codes [0] (capture=True)
+Running command ['vgscan', '--config', 'devices{ filter = [ "a|/dev/mapper/mpath.*|", "a|/dev/mapper/dm_crypt-.*|", "r|.*|" ] }'] with allowed return codes [0] (capture=True)
+Running command ['vgchange', '--activate=y', '--config', 'devices{ filter = [ "a|/dev/mapper/mpath.*|", "a|/dev/mapper/dm_crypt-.*|", "r|.*|" ] }'] with allowed return codes [0] (capture=True)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.022
+Loading kernel module bcache via modprobe
+Running command ['modprobe', '--use-blacklist', 'bcache'] with allowed return codes [0] (capture=False)
+Generating device storage trees for path(s): ['/dev/vda', '/dev/nvme0n1', '/dev/sda', '/dev/sdb', '/dev/sdc']
+devname '/sys/class/block/vda' had holders: []
+/dev/vda is multipath device partition? False
+/dev/vda is multipath device partition? False
+/dev/vda is multipath device partition? False
+devname '/sys/class/block/nvme0n1' had holders: []
+/dev/nvme0n1 is multipath device partition? False
+/dev/nvme0n1 is multipath device partition? False
+/dev/nvme0n1 is multipath device partition? False
+devname '/sys/class/block/sda' had holders: []
+/dev/sda is multipath device partition? False
+/dev/sda is multipath device partition? False
+/dev/sda is multipath device partition? False
+devname '/sys/class/block/sdb' had holders: []
+/dev/sdb is multipath device partition? False
+/dev/sdb is multipath device partition? False
+/dev/sdb is multipath device partition? False
+devname '/sys/class/block/sdc' had holders: []
+/dev/sdc is multipath device partition? False
+/dev/sdc is multipath device partition? False
+/dev/sdc is multipath device partition? False
+Current device storage tree:
+vda
+nvme0n1
+sda
+sdb
+sdc
+Shutdown Plan:
+{'level': 0, 'device': '/sys/class/block/nvme0n1', 'dev_type': 'disk'}
+{'level': 0, 'device': '/sys/class/block/sda', 'dev_type': 'disk'}
+{'level': 0, 'device': '/sys/class/block/sdb', 'dev_type': 'disk'}
+{'level': 0, 'device': '/sys/class/block/sdc', 'dev_type': 'disk'}
+{'level': 0, 'device': '/sys/class/block/vda', 'dev_type': 'disk'}
+shutdown running on holder type: 'disk' syspath: '/sys/class/block/nvme0n1'
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+get_blockdev_sector_size: info:
+{
+ "nvme0n1": {
+  "ALIGNMENT": "0",
+  "DISC-ALN": "0",
+  "DISC-GRAN": "512",
+  "DISC-MAX": "2147483136",
+  "DISC-ZERO": "0",
+  "FSTYPE": "",
+  "GROUP": "disk",
+  "KNAME": "nvme0n1",
+  "LABEL": "",
+  "LOG-SEC": "512",
+  "MAJ:MIN": "259:0",
+  "MIN-IO": "512",
+  "MODE": "brw-rw----",
+  "MODEL": "QEMU NVMe Ctrl",
+  "MOUNTPOINT": "",
+  "NAME": "nvme0n1",
+  "OPT-IO": "512",
+  "OWNER": "root",
+  "PHY-SEC": "512",
+  "RM": "0",
+  "RO": "0",
+  "ROTA": "0",
+  "RQ-SIZE": "1023",
+  "SIZE": "17179869184",
+  "STATE": "live",
+  "TYPE": "disk",
+  "UUID": "",
+  "device_path": "/dev/nvme0n1"
+ }
+}
+get_blockdev_sector_size: (log=512, phys=512)
+Running command ['fdasd', '--table', '/dev/nvme0n1'] with allowed return codes [0] (capture=False)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID'] with allowed return codes [0] (capture=True)
+Checking if /dev/nvme0n1 is a swap device
+Found swap magic: b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+/dev/nvme0n1 is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+/dev/nvme0n1 is multipath device member? False
+wiping superblock on /dev/nvme0n1
+wiping /dev/nvme0n1 attempt 1/4
+Running command ['wipefs', '--all', '--force', '/dev/nvme0n1'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/nvme0n1 at offsets [0, -1048576]
+successfully wiped device /dev/nvme0n1 on attempt 1/4
+shutdown running on holder type: 'disk' syspath: '/sys/class/block/sda'
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/sda'] with allowed return codes [0] (capture=True)
+get_blockdev_sector_size: info:
+{
+ "sda": {
+  "ALIGNMENT": "0",
+  "DISC-ALN": "0",
+  "DISC-GRAN": "512",
+  "DISC-MAX": "2147450880",
+  "DISC-ZERO": "0",
+  "FSTYPE": "",
+  "GROUP": "disk",
+  "KNAME": "sda",
+  "LABEL": "",
+  "LOG-SEC": "512",
+  "MAJ:MIN": "8:0",
+  "MIN-IO": "512",
+  "MODE": "brw-rw----",
+  "MODEL": "QEMU HARDDISK",
+  "MOUNTPOINT": "",
+  "NAME": "sda",
+  "OPT-IO": "0",
+  "OWNER": "root",
+  "PHY-SEC": "512",
+  "RM": "0",
+  "RO": "0",
+  "ROTA": "0",
+  "RQ-SIZE": "64",
+  "SIZE": "17179869184",
+  "STATE": "running",
+  "TYPE": "disk",
+  "UUID": "",
+  "device_path": "/dev/sda"
+ }
+}
+get_blockdev_sector_size: (log=512, phys=512)
+Running command ['fdasd', '--table', '/dev/sda'] with allowed return codes [0] (capture=False)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID'] with allowed return codes [0] (capture=True)
+Checking if /dev/sda is a swap device
+Found swap magic: b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sda'] with allowed return codes [0] (capture=True)
+/dev/sda is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sda'] with allowed return codes [0] (capture=True)
+/dev/sda is multipath device member? False
+wiping superblock on /dev/sda
+wiping /dev/sda attempt 1/4
+Running command ['wipefs', '--all', '--force', '/dev/sda'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/sda at offsets [0, -1048576]
+successfully wiped device /dev/sda on attempt 1/4
+shutdown running on holder type: 'disk' syspath: '/sys/class/block/sdb'
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/sdb'] with allowed return codes [0] (capture=True)
+get_blockdev_sector_size: info:
+{
+ "sdb": {
+  "ALIGNMENT": "0",
+  "DISC-ALN": "0",
+  "DISC-GRAN": "512",
+  "DISC-MAX": "2147450880",
+  "DISC-ZERO": "0",
+  "FSTYPE": "",
+  "GROUP": "disk",
+  "KNAME": "sdb",
+  "LABEL": "",
+  "LOG-SEC": "512",
+  "MAJ:MIN": "8:16",
+  "MIN-IO": "512",
+  "MODE": "brw-rw----",
+  "MODEL": "QEMU HARDDISK",
+  "MOUNTPOINT": "",
+  "NAME": "sdb",
+  "OPT-IO": "0",
+  "OWNER": "root",
+  "PHY-SEC": "512",
+  "RM": "0",
+  "RO": "0",
+  "ROTA": "0",
+  "RQ-SIZE": "64",
+  "SIZE": "17179869184",
+  "STATE": "running",
+  "TYPE": "disk",
+  "UUID": "",
+  "device_path": "/dev/sdb"
+ }
+}
+get_blockdev_sector_size: (log=512, phys=512)
+Running command ['fdasd', '--table', '/dev/sdb'] with allowed return codes [0] (capture=False)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID'] with allowed return codes [0] (capture=True)
+Checking if /dev/sdb is a swap device
+Found swap magic: b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdb'] with allowed return codes [0] (capture=True)
+/dev/sdb is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdb'] with allowed return codes [0] (capture=True)
+/dev/sdb is multipath device member? False
+wiping superblock on /dev/sdb
+wiping /dev/sdb attempt 1/4
+Running command ['wipefs', '--all', '--force', '/dev/sdb'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/sdb at offsets [0, -1048576]
+successfully wiped device /dev/sdb on attempt 1/4
+shutdown running on holder type: 'disk' syspath: '/sys/class/block/sdc'
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/sdc'] with allowed return codes [0] (capture=True)
+get_blockdev_sector_size: info:
+{
+ "sdc": {
+  "ALIGNMENT": "0",
+  "DISC-ALN": "0",
+  "DISC-GRAN": "512",
+  "DISC-MAX": "2147450880",
+  "DISC-ZERO": "0",
+  "FSTYPE": "",
+  "GROUP": "disk",
+  "KNAME": "sdc",
+  "LABEL": "",
+  "LOG-SEC": "512",
+  "MAJ:MIN": "8:32",
+  "MIN-IO": "512",
+  "MODE": "brw-rw----",
+  "MODEL": "QEMU HARDDISK",
+  "MOUNTPOINT": "",
+  "NAME": "sdc",
+  "OPT-IO": "0",
+  "OWNER": "root",
+  "PHY-SEC": "512",
+  "RM": "0",
+  "RO": "0",
+  "ROTA": "0",
+  "RQ-SIZE": "64",
+  "SIZE": "17179869184",
+  "STATE": "running",
+  "TYPE": "disk",
+  "UUID": "",
+  "device_path": "/dev/sdc"
+ }
+}
+get_blockdev_sector_size: (log=512, phys=512)
+Running command ['fdasd', '--table', '/dev/sdc'] with allowed return codes [0] (capture=False)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID'] with allowed return codes [0] (capture=True)
+Checking if /dev/sdc is a swap device
+Found swap magic: b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdc'] with allowed return codes [0] (capture=True)
+/dev/sdc is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdc'] with allowed return codes [0] (capture=True)
+/dev/sdc is multipath device member? False
+wiping superblock on /dev/sdc
+wiping /dev/sdc attempt 1/4
+Running command ['wipefs', '--all', '--force', '/dev/sdc'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/sdc at offsets [0, -1048576]
+successfully wiped device /dev/sdc on attempt 1/4
+shutdown running on holder type: 'disk' syspath: '/sys/class/block/vda'
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/vda'] with allowed return codes [0] (capture=True)
+get_blockdev_sector_size: info:
+{
+ "vda": {
+  "ALIGNMENT": "0",
+  "DISC-ALN": "0",
+  "DISC-GRAN": "512",
+  "DISC-MAX": "2147483136",
+  "DISC-ZERO": "0",
+  "FSTYPE": "",
+  "GROUP": "disk",
+  "KNAME": "vda",
+  "LABEL": "",
+  "LOG-SEC": "512",
+  "MAJ:MIN": "252:0",
+  "MIN-IO": "512",
+  "MODE": "brw-rw----",
+  "MODEL": "",
+  "MOUNTPOINT": "",
+  "NAME": "vda",
+  "OPT-IO": "0",
+  "OWNER": "root",
+  "PHY-SEC": "512",
+  "RM": "0",
+  "RO": "0",
+  "ROTA": "1",
+  "RQ-SIZE": "256",
+  "SIZE": "64000000000",
+  "STATE": "",
+  "TYPE": "disk",
+  "UUID": "",
+  "device_path": "/dev/vda"
+ }
+}
+get_blockdev_sector_size: (log=512, phys=512)
+Running command ['fdasd', '--table', '/dev/vda'] with allowed return codes [0] (capture=False)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID'] with allowed return codes [0] (capture=True)
+Checking if /dev/vda is a swap device
+Found swap magic: b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+wiping superblock on /dev/vda
+wiping /dev/vda attempt 1/4
+Running command ['wipefs', '--all', '--force', '/dev/vda'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/vda at offsets [0, -1048576]
+successfully wiped device /dev/vda on attempt 1/4
+devname '/sys/class/block/vda' had holders: []
+/dev/vda is multipath device partition? False
+/dev/vda is multipath device partition? False
+/dev/vda is multipath device partition? False
+devname '/sys/class/block/nvme0n1' had holders: []
+/dev/nvme0n1 is multipath device partition? False
+/dev/nvme0n1 is multipath device partition? False
+/dev/nvme0n1 is multipath device partition? False
+devname '/sys/class/block/sda' had holders: []
+/dev/sda is multipath device partition? False
+/dev/sda is multipath device partition? False
+/dev/sda is multipath device partition? False
+devname '/sys/class/block/sdb' had holders: []
+/dev/sdb is multipath device partition? False
+/dev/sdb is multipath device partition? False
+/dev/sdb is multipath device partition? False
+devname '/sys/class/block/sdc' had holders: []
+/dev/sdc is multipath device partition? False
+/dev/sdc is multipath device partition? False
+/dev/sdc is multipath device partition? False
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta/clear-holders: SUCCESS: removing previous storage devices
+blockmeta: detected storage config, using mode=custom
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta: configuring disk: vda
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.024
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+Running command ['wipefs', '--all', '--force', '/dev/vda'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/vda at offsets [0, -1048576]
+labeling device: '/dev/vda' with 'gpt' partition table
+Running command ['wipefs', '--all', '--force', '/dev/vda'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/vda at offsets [0, -1048576]
+devname '/dev/vda' had holders: []
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.027
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+Running command ['blkid', '-o', 'export', '/dev/vda'] with allowed return codes [0, 2] (capture=True)
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="disk"', 'ENV{ID_SERIAL}=="2c630089-602a-4349-8"', 'SYMLINK+="disk/by-dname/vda"\n']'
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="partition"', 'ENV{ID_SERIAL}=="2c630089-602a-4349-8"', 'SYMLINK+="disk/by-dname/vda-part%n"\n']'
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta: SUCCESS: configuring disk: vda
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta: configuring partition: vda-part1
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.040
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/vda'] with allowed return codes [0] (capture=True)
+get_blockdev_sector_size: info:
+{
+ "vda": {
+  "ALIGNMENT": "0",
+  "DISC-ALN": "0",
+  "DISC-GRAN": "512",
+  "DISC-MAX": "2147483136",
+  "DISC-ZERO": "0",
+  "FSTYPE": "",
+  "GROUP": "disk",
+  "KNAME": "vda",
+  "LABEL": "",
+  "LOG-SEC": "512",
+  "MAJ:MIN": "252:0",
+  "MIN-IO": "512",
+  "MODE": "brw-rw----",
+  "MODEL": "",
+  "MOUNTPOINT": "",
+  "NAME": "vda",
+  "OPT-IO": "0",
+  "OWNER": "root",
+  "PHY-SEC": "512",
+  "RM": "0",
+  "RO": "0",
+  "ROTA": "1",
+  "RQ-SIZE": "256",
+  "SIZE": "64000000000",
+  "STATE": "",
+  "TYPE": "disk",
+  "UUID": "",
+  "device_path": "/dev/vda"
+ }
+}
+get_blockdev_sector_size: (log=512, phys=512)
+vda logical_block_size_bytes: 512
+adding partition 'vda-part1' to disk 'vda' (ptable: 'gpt')
+partnum: 1 offset_sectors: 2048 length_sectors: 2047
+Preparing partition location on disk /dev/vda
+Wiping 1M on /dev/vda at offset 1048576
+Running command ['sgdisk', '--new', '1:2048:4095', '--typecode=1:ef02', '/dev/vda'] with allowed return codes [0] (capture=True)
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device? False
+Running command ['blockdev', '--rereadpt', '/dev/vda'] with allowed return codes [0] (capture=True)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.143
+TIMED udevadm_settle(exists='/dev/vda1'): 0.000
+Wiping partition /dev/vda1 mode=zero
+/dev/vda1 is 1048576 bytes. wiping with buflen=4194304
+get_path_to_storage_volume for volume vda-part1({'device': 'vda', 'flag': 'bios_grub', 'id': 'vda-part1', 'number': 1, 'offset': '4194304B', 'size': '1048576B', 'type': 'partition', 'wipe': 'zero'})
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.092
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.087
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda1
+Running command ['blkid', '-o', 'export', '/dev/vda1'] with allowed return codes [0, 2] (capture=True)
+No partition-specific dname
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta: SUCCESS: configuring partition: vda-part1
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta: configuring disk: nvme0n1
+get_path_to_storage_volume for volume nvme0n1({'id': 'nvme0n1', 'model': 'QEMU NVMe Ctrl', 'name': 'nvme0n1', 'serial': 'fit-panda_nvme1', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_nvme1 via udev to fit-panda_nvme1
+lookup_disks found: ['nvme-QEMU_NVMe_Ctrl_fit-panda_nvme1', 'nvme-QEMU_NVMe_Ctrl_fit-panda_nvme1_1']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+/dev/nvme0n1 is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+/dev/nvme0n1 is multipath device member? False
+block.lookup_disk() returning path /dev/nvme0n1
+Running command ['partprobe', '/dev/nvme0n1'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.035
+devsync happy - path /dev/nvme0n1 now exists
+return volume path /dev/nvme0n1
+Running command ['wipefs', '--all', '--force', '/dev/nvme0n1'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/nvme0n1 at offsets [0, -1048576]
+devname '/dev/nvme0n1' had holders: []
+get_path_to_storage_volume for volume nvme0n1({'id': 'nvme0n1', 'model': 'QEMU NVMe Ctrl', 'name': 'nvme0n1', 'serial': 'fit-panda_nvme1', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_nvme1 via udev to fit-panda_nvme1
+lookup_disks found: ['nvme-QEMU_NVMe_Ctrl_fit-panda_nvme1', 'nvme-QEMU_NVMe_Ctrl_fit-panda_nvme1_1']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+/dev/nvme0n1 is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+/dev/nvme0n1 is multipath device member? False
+block.lookup_disk() returning path /dev/nvme0n1
+Running command ['partprobe', '/dev/nvme0n1'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.031
+devsync happy - path /dev/nvme0n1 now exists
+return volume path /dev/nvme0n1
+Running command ['blkid', '-o', 'export', '/dev/nvme0n1'] with allowed return codes [0, 2] (capture=True)
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="disk"', 'ENV{ID_WWN}=="nvme.1b36-6669742d70616e64615f6e766d6531-51454d55204e564d65204374726c-00000001"', 'ENV{ID_SERIAL}=="QEMU_NVMe_Ctrl_fit-panda_nvme1_1"', 'ENV{ID_SERIAL_SHORT}=="fit-panda_nvme1"', 'SYMLINK+="disk/by-dname/nvme0n1"\n']'
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="partition"', 'ENV{ID_WWN}=="nvme.1b36-6669742d70616e64615f6e766d6531-51454d55204e564d65204374726c-00000001"', 'ENV{ID_SERIAL}=="QEMU_NVMe_Ctrl_fit-panda_nvme1_1"', 'ENV{ID_SERIAL_SHORT}=="fit-panda_nvme1"', 'SYMLINK+="disk/by-dname/nvme0n1-part%n"\n']'
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta: SUCCESS: configuring disk: nvme0n1
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta: configuring disk: sda
+get_path_to_storage_volume for volume sda({'id': 'sda', 'model': 'QEMU HARDDISK', 'name': 'sda', 'serial': 'fit-panda_a', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_a via udev to fit-panda_a
+lookup_disks found: ['ata-QEMU_HARDDISK_fit-panda_a', 'scsi-SATA_QEMU_HARDDISK_fit-panda_a', 'scsi-1ATA_QEMU_HARDDISK_fit-panda_a', 'scsi-0ATA_QEMU_HARDDISK_fit-panda_a']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sda'] with allowed return codes [0] (capture=True)
+/dev/sda is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sda'] with allowed return codes [0] (capture=True)
+/dev/sda is multipath device member? False
+block.lookup_disk() returning path /dev/sda
+Running command ['partprobe', '/dev/sda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.039
+devsync happy - path /dev/sda now exists
+return volume path /dev/sda
+Running command ['wipefs', '--all', '--force', '/dev/sda'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/sda at offsets [0, -1048576]
+devname '/dev/sda' had holders: []
+get_path_to_storage_volume for volume sda({'id': 'sda', 'model': 'QEMU HARDDISK', 'name': 'sda', 'serial': 'fit-panda_a', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_a via udev to fit-panda_a
+lookup_disks found: ['ata-QEMU_HARDDISK_fit-panda_a', 'scsi-SATA_QEMU_HARDDISK_fit-panda_a', 'scsi-1ATA_QEMU_HARDDISK_fit-panda_a', 'scsi-0ATA_QEMU_HARDDISK_fit-panda_a']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sda'] with allowed return codes [0] (capture=True)
+/dev/sda is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sda'] with allowed return codes [0] (capture=True)
+/dev/sda is multipath device member? False
+block.lookup_disk() returning path /dev/sda
+Running command ['partprobe', '/dev/sda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.035
+devsync happy - path /dev/sda now exists
+return volume path /dev/sda
+Running command ['blkid', '-o', 'export', '/dev/sda'] with allowed return codes [0, 2] (capture=True)
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sda'] with allowed return codes [0] (capture=True)
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="disk"', 'ENV{ID_SERIAL}=="QEMU_HARDDISK_fit-panda_a"', 'ENV{ID_SERIAL_SHORT}=="fit-panda_a"', 'SYMLINK+="disk/by-dname/sda"\n']'
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="partition"', 'ENV{ID_SERIAL}=="QEMU_HARDDISK_fit-panda_a"', 'ENV{ID_SERIAL_SHORT}=="fit-panda_a"', 'SYMLINK+="disk/by-dname/sda-part%n"\n']'
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta: SUCCESS: configuring disk: sda
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta: configuring disk: sdb
+get_path_to_storage_volume for volume sdb({'id': 'sdb', 'model': 'QEMU HARDDISK', 'name': 'sdb', 'serial': 'fit-panda_b', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_b via udev to fit-panda_b
+lookup_disks found: ['ata-QEMU_HARDDISK_fit-panda_b', 'scsi-SATA_QEMU_HARDDISK_fit-panda_b', 'scsi-1ATA_QEMU_HARDDISK_fit-panda_b', 'scsi-0ATA_QEMU_HARDDISK_fit-panda_b']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdb'] with allowed return codes [0] (capture=True)
+/dev/sdb is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdb'] with allowed return codes [0] (capture=True)
+/dev/sdb is multipath device member? False
+block.lookup_disk() returning path /dev/sdb
+Running command ['partprobe', '/dev/sdb'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.039
+devsync happy - path /dev/sdb now exists
+return volume path /dev/sdb
+Running command ['wipefs', '--all', '--force', '/dev/sdb'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/sdb at offsets [0, -1048576]
+devname '/dev/sdb' had holders: []
+get_path_to_storage_volume for volume sdb({'id': 'sdb', 'model': 'QEMU HARDDISK', 'name': 'sdb', 'serial': 'fit-panda_b', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_b via udev to fit-panda_b
+lookup_disks found: ['ata-QEMU_HARDDISK_fit-panda_b', 'scsi-1ATA_QEMU_HARDDISK_fit-panda_b', 'scsi-SATA_QEMU_HARDDISK_fit-panda_b', 'scsi-0ATA_QEMU_HARDDISK_fit-panda_b']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdb'] with allowed return codes [0] (capture=True)
+/dev/sdb is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdb'] with allowed return codes [0] (capture=True)
+/dev/sdb is multipath device member? False
+block.lookup_disk() returning path /dev/sdb
+Running command ['partprobe', '/dev/sdb'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.043
+devsync happy - path /dev/sdb now exists
+return volume path /dev/sdb
+Running command ['blkid', '-o', 'export', '/dev/sdb'] with allowed return codes [0, 2] (capture=True)
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdb'] with allowed return codes [0] (capture=True)
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="disk"', 'ENV{ID_SERIAL}=="QEMU_HARDDISK_fit-panda_b"', 'ENV{ID_SERIAL_SHORT}=="fit-panda_b"', 'SYMLINK+="disk/by-dname/sdb"\n']'
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="partition"', 'ENV{ID_SERIAL}=="QEMU_HARDDISK_fit-panda_b"', 'ENV{ID_SERIAL_SHORT}=="fit-panda_b"', 'SYMLINK+="disk/by-dname/sdb-part%n"\n']'
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta: SUCCESS: configuring disk: sdb
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta: configuring disk: sdc
+get_path_to_storage_volume for volume sdc({'id': 'sdc', 'model': 'QEMU HARDDISK', 'name': 'sdc', 'serial': 'fit-panda_c', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_c via udev to fit-panda_c
+lookup_disks found: ['ata-QEMU_HARDDISK_fit-panda_c', 'scsi-SATA_QEMU_HARDDISK_fit-panda_c', 'scsi-1ATA_QEMU_HARDDISK_fit-panda_c', 'scsi-0ATA_QEMU_HARDDISK_fit-panda_c']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdc'] with allowed return codes [0] (capture=True)
+/dev/sdc is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdc'] with allowed return codes [0] (capture=True)
+/dev/sdc is multipath device member? False
+block.lookup_disk() returning path /dev/sdc
+Running command ['partprobe', '/dev/sdc'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.035
+devsync happy - path /dev/sdc now exists
+return volume path /dev/sdc
+Running command ['wipefs', '--all', '--force', '/dev/sdc'] with allowed return codes [0] (capture=False)
+wiping 1M on /dev/sdc at offsets [0, -1048576]
+devname '/dev/sdc' had holders: []
+get_path_to_storage_volume for volume sdc({'id': 'sdc', 'model': 'QEMU HARDDISK', 'name': 'sdc', 'serial': 'fit-panda_c', 'type': 'disk', 'wipe': 'superblock'})
+Processing serial fit-panda_c via udev to fit-panda_c
+lookup_disks found: ['ata-QEMU_HARDDISK_fit-panda_c', 'scsi-1ATA_QEMU_HARDDISK_fit-panda_c', 'scsi-SATA_QEMU_HARDDISK_fit-panda_c', 'scsi-0ATA_QEMU_HARDDISK_fit-panda_c']
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdc'] with allowed return codes [0] (capture=True)
+/dev/sdc is multipath device? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdc'] with allowed return codes [0] (capture=True)
+/dev/sdc is multipath device member? False
+block.lookup_disk() returning path /dev/sdc
+Running command ['partprobe', '/dev/sdc'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.035
+devsync happy - path /dev/sdc now exists
+return volume path /dev/sdc
+Running command ['blkid', '-o', 'export', '/dev/sdc'] with allowed return codes [0, 2] (capture=True)
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/sdc'] with allowed return codes [0] (capture=True)
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="disk"', 'ENV{ID_SERIAL}=="QEMU_HARDDISK_fit-panda_c"', 'ENV{ID_SERIAL_SHORT}=="fit-panda_c"', 'SYMLINK+="disk/by-dname/sdc"\n']'
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="partition"', 'ENV{ID_SERIAL}=="QEMU_HARDDISK_fit-panda_c"', 'ENV{ID_SERIAL_SHORT}=="fit-panda_c"', 'SYMLINK+="disk/by-dname/sdc-part%n"\n']'
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta: SUCCESS: configuring disk: sdc
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta: configuring partition: vda-part2
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.092
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/vda'] with allowed return codes [0] (capture=True)
+get_blockdev_sector_size: info:
+{
+ "vda": {
+  "ALIGNMENT": "0",
+  "DISC-ALN": "0",
+  "DISC-GRAN": "512",
+  "DISC-MAX": "2147483136",
+  "DISC-ZERO": "0",
+  "FSTYPE": "",
+  "GROUP": "disk",
+  "KNAME": "vda",
+  "LABEL": "",
+  "LOG-SEC": "512",
+  "MAJ:MIN": "252:0",
+  "MIN-IO": "512",
+  "MODE": "brw-rw----",
+  "MODEL": "",
+  "MOUNTPOINT": "",
+  "NAME": "vda",
+  "OPT-IO": "0",
+  "OWNER": "root",
+  "PHY-SEC": "512",
+  "RM": "0",
+  "RO": "0",
+  "ROTA": "1",
+  "RQ-SIZE": "256",
+  "SIZE": "64000000000",
+  "STATE": "",
+  "TYPE": "disk",
+  "UUID": "",
+  "device_path": "/dev/vda"
+ },
+ "vda1": {
+  "ALIGNMENT": "0",
+  "DISC-ALN": "0",
+  "DISC-GRAN": "512",
+  "DISC-MAX": "2147483136",
+  "DISC-ZERO": "0",
+  "FSTYPE": "",
+  "GROUP": "disk",
+  "KNAME": "vda1",
+  "LABEL": "",
+  "LOG-SEC": "512",
+  "MAJ:MIN": "252:1",
+  "MIN-IO": "512",
+  "MODE": "brw-rw----",
+  "MODEL": "",
+  "MOUNTPOINT": "",
+  "NAME": "vda1",
+  "OPT-IO": "0",
+  "OWNER": "root",
+  "PHY-SEC": "512",
+  "RM": "0",
+  "RO": "0",
+  "ROTA": "1",
+  "RQ-SIZE": "256",
+  "SIZE": "1048576",
+  "STATE": "",
+  "TYPE": "part",
+  "UUID": "",
+  "device_path": "/dev/vda1"
+ }
+}
+get_blockdev_sector_size: (log=512, phys=512)
+vda logical_block_size_bytes: 512
+previous partition number for 'vda-part2' found to be '1'
+partition_kname=vda1
+calc_partition_info: vda1 size_sectors=2048 start_sectors=2048
+adding partition 'vda-part2' to disk 'vda' (ptable: 'gpt')
+partnum: 2 offset_sectors: 4096 length_sectors: 124985343
+Preparing partition location on disk /dev/vda
+Wiping 1M on /dev/vda at offset 2097152
+Running command ['sgdisk', '--new', '2:4096:124989439', '--typecode=2:8300', '/dev/vda'] with allowed return codes [0] (capture=True)
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device? False
+Running command ['blockdev', '--rereadpt', '/dev/vda'] with allowed return codes [0] (capture=True)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.159
+TIMED udevadm_settle(exists='/dev/vda2'): 0.000
+get_path_to_storage_volume for volume vda-part2({'device': 'vda', 'id': 'vda-part2', 'name': 'vda-part2', 'number': 2, 'size': '63992496128B', 'type': 'partition', 'uuid': 'b6aeba92-9bba-4043-8f72-e8e0bcb01464', 'wipe': 'superblock'})
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.091
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.088
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda2
+Running command ['blkid', '-o', 'export', '/dev/vda2'] with allowed return codes [0, 2] (capture=True)
+Creating dname udev rule '['SUBSYSTEM=="block"', 'ACTION=="add|change"', 'ENV{DEVTYPE}=="partition"', 'ENV{ID_PART_ENTRY_UUID}=="59b83737-0aac-494a-a6d3-2a718bad80a4"', 'SYMLINK+="disk/by-dname/vda-part2"\n']'
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta: SUCCESS: configuring partition: vda-part2
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta: configuring format: vda-part2_format
+get_path_to_storage_volume for volume vda-part2({'device': 'vda', 'id': 'vda-part2', 'name': 'vda-part2', 'number': 2, 'size': '63992496128B', 'type': 'partition', 'uuid': 'b6aeba92-9bba-4043-8f72-e8e0bcb01464', 'wipe': 'superblock'})
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.099
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.091
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda2
+mkfs /dev/vda2 info: {'fstype': 'ext4', 'id': 'vda-part2_format', 'label': 'root', 'type': 'format', 'uuid': '00710b9e-ad77-459d-bb4e-0565c7501fcf', 'volume': 'vda-part2'}
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/vda2'] with allowed return codes [0] (capture=True)
+get_blockdev_sector_size: info:
+{
+ "vda2": {
+  "ALIGNMENT": "0",
+  "DISC-ALN": "0",
+  "DISC-GRAN": "512",
+  "DISC-MAX": "2147483136",
+  "DISC-ZERO": "0",
+  "FSTYPE": "",
+  "GROUP": "disk",
+  "KNAME": "vda2",
+  "LABEL": "",
+  "LOG-SEC": "512",
+  "MAJ:MIN": "252:2",
+  "MIN-IO": "512",
+  "MODE": "brw-rw----",
+  "MODEL": "",
+  "MOUNTPOINT": "",
+  "NAME": "vda2",
+  "OPT-IO": "0",
+  "OWNER": "root",
+  "PHY-SEC": "512",
+  "RM": "0",
+  "RO": "0",
+  "ROTA": "1",
+  "RQ-SIZE": "256",
+  "SIZE": "63992496128",
+  "STATE": "",
+  "TYPE": "part",
+  "UUID": "",
+  "device_path": "/dev/vda2"
+ }
+}
+get_blockdev_sector_size: (log=512, phys=512)
+Running command ['mkfs.ext4', '-F', '-L', 'root', '-U', '00710b9e-ad77-459d-bb4e-0565c7501fcf', '/dev/vda2'] with allowed return codes [0] (capture=True)
+Formated device type: partition
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta: SUCCESS: configuring format: vda-part2_format
+start: cmd-install/stage-partitioning/builtin/cmd-block-meta: configuring mount: vda-part2_mount
+get_path_to_storage_volume for volume vda-part2({'device': 'vda', 'id': 'vda-part2', 'name': 'vda-part2', 'number': 2, 'size': '63992496128B', 'type': 'partition', 'uuid': 'b6aeba92-9bba-4043-8f72-e8e0bcb01464', 'wipe': 'superblock'})
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.103
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.111
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda2
+volume_path=/dev/vda2 found slaves: ['vda2']
+kname_is_iscsi: no iscsi disk found for kname vda2
+kname_is_iscsi: no iscsi disk found for kname vda2
+Running command ['mount', '-t', 'ext4', '-o', 'defaults', '/dev/vda2', '/tmp/tmpg0uqljsd/target/'] with allowed return codes [0] (capture=True)
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda2'] with allowed return codes [0] (capture=True)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/vda2'] with allowed return codes [0] (capture=True)
+volspec: path=/dev/vda2 type=part
+info[DEVLINKS] = ['/dev/disk/by-uuid/00710b9e-ad77-459d-bb4e-0565c7501fcf', '/dev/disk/by-path/virtio-pci-0000:00:06.0-part2', '/dev/disk/by-id/virtio-2c630089-602a-4349-8-part2', '/dev/disk/by-partuuid/59b83737-0aac-494a-a6d3-2a718bad80a4', '/dev/disk/by-path/pci-0000:00:06.0-part2', '/dev/disk/by-label/root']
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta: SUCCESS: configuring mount: vda-part2_mount
+TIMED BLOCK_META: 6.782
+finish: cmd-install/stage-partitioning/builtin/cmd-block-meta: SUCCESS: curtin command block-meta
+start: cmd-install/stage-network/builtin/cmd-net-meta: curtin command net-meta
+net-meta mode is 'custom'.  devices=[]
+writing to file /tmp/tmpg0uqljsd/state/network_config with network config: network:
+  ethernets:
+    ens4:
+      addresses:
+      - 192.168.151.102/24
+      gateway4: 192.168.151.1
+      match:
+        macaddress: 52:54:00:90:33:27
+      mtu: 1500
+      nameservers:
+        addresses:
+        - 192.168.151.1
+        search:
+        - maas
+      set-name: ens4
+    ens8:
+      match:
+        macaddress: 52:54:00:f0:89:52
+      mtu: 1500
+      set-name: ens8
+  version: 2
+
+finish: cmd-install/stage-network/builtin/cmd-net-meta: SUCCESS: curtin command net-meta
+start: cmd-install/stage-extract/builtin/cmd-extract: curtin command extract
+Installing sources: [{'type': 'tgz', 'uri': 'cp:///media/root-ro'}] to target at /tmp/tmpg0uqljsd/target
+start: cmd-install/stage-extract/builtin/cmd-extract: acquiring and extracting image from cp:///media/root-ro
+Running command ['sh', '-c', 'mkdir -p "$2" && cd "$2" && rsync -aXHAS --one-file-system "$1/" .', '--', '/media/root-ro', '/tmp/tmpg0uqljsd/target'] with allowed return codes [0] (capture=False)
+finish: cmd-install/stage-extract/builtin/cmd-extract: SUCCESS: acquiring and extracting image from cp:///media/root-ro
+Applying write_files from config.
+finish: cmd-install/stage-extract/builtin/cmd-extract: SUCCESS: curtin command extract
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks: curtin command curthooks
+Running curtin builtin curthooks
+Configuring target system for distro: ubuntu osfamily: debian
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/writing-apt-config: configuring apt configuring apt
+Transferred {'grub2': 'grub2   grub2/update_nvram  boolean false', 'maas': 'cloud-init   cloud-init/datasources  multiselect MAAS\ncloud-init   cloud-init/maas-metadata-url  string http://192.168.151.1:5248/MAAS/metadata/\ncloud-init   cloud-init/maas-metadata-credentials  string oauth_consumer_key=yaYmBSUuArGt3JYwHU&oauth_token_key=WCCtp2JewdWkHEDAW6&oauth_token_secret=Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR\ncloud-init   cloud-init/local-cloud-config  string manage_etc_hosts: true\\nmanual_cache_clean: true\\nreporting:\\n  maas:\\n    consumer_key: yaYmBSUuArGt3JYwHU\\n    endpoint: http://192.168.151.1:5248/MAAS/metadata/status/qe8krg\\n    token_key: WCCtp2JewdWkHEDAW6\\n    token_secret: Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR\\n    type: webhook\\n\n'} into new format: {'preserve_sources_list': False, 'proxy': 'http://192.168.151.1:8000/', 'sources_list': 'deb http://archive.ubuntu.com/ubuntu $RELEASE multiverse universe main restricted\n# deb-src http://archive.ubuntu.com/ubuntu $RELEASE multiverse universe main restricted\ndeb http://archive.ubuntu.com/ubuntu $RELEASE-updates multiverse universe main restricted\n# deb-src http://archive.ubuntu.com/ubuntu $RELEASE-updates multiverse universe main restricted\ndeb http://archive.ubuntu.com/ubuntu $RELEASE-security multiverse universe main restricted\n# deb-src http://archive.ubuntu.com/ubuntu $RELEASE-security multiverse universe main restricted\ndeb http://archive.ubuntu.com/ubuntu $RELEASE-backports multiverse universe main restricted\n# deb-src http://archive.ubuntu.com/ubuntu $RELEASE-backports multiverse universe main restricted\n', 'debconf_selections': {'grub2': 'grub2   grub2/update_nvram  boolean false', 'maas': 'cloud-init   cloud-init/datasources  multiselect MAAS\ncloud-init   cloud-init/maas-metadata-url  string http://192.168.151.1:5248/MAAS/metadata/\ncloud-init   cloud-init/maas-metadata-credentials  string oauth_consumer_key=yaYmBSUuArGt3JYwHU&oauth_token_key=WCCtp2JewdWkHEDAW6&oauth_token_secret=Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR\ncloud-init   cloud-init/local-cloud-config  string manage_etc_hosts: true\\nmanual_cache_clean: true\\nreporting:\\n  maas:\\n    consumer_key: yaYmBSUuArGt3JYwHU\\n    endpoint: http://192.168.151.1:5248/MAAS/metadata/status/qe8krg\\n    token_key: WCCtp2JewdWkHEDAW6\\n    token_secret: Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR\\n    type: webhook\\n\n'}}
+curthooks handling apt to target /tmp/tmpg0uqljsd/target with config {'preserve_sources_list': False, 'proxy': 'http://192.168.151.1:8000/', 'sources_list': 'deb http://archive.ubuntu.com/ubuntu $RELEASE multiverse universe main restricted\n# deb-src http://archive.ubuntu.com/ubuntu $RELEASE multiverse universe main restricted\ndeb http://archive.ubuntu.com/ubuntu $RELEASE-updates multiverse universe main restricted\n# deb-src http://archive.ubuntu.com/ubuntu $RELEASE-updates multiverse universe main restricted\ndeb http://archive.ubuntu.com/ubuntu $RELEASE-security multiverse universe main restricted\n# deb-src http://archive.ubuntu.com/ubuntu $RELEASE-security multiverse universe main restricted\ndeb http://archive.ubuntu.com/ubuntu $RELEASE-backports multiverse universe main restricted\n# deb-src http://archive.ubuntu.com/ubuntu $RELEASE-backports multiverse universe main restricted\n', 'debconf_selections': {'grub2': 'grub2   grub2/update_nvram  boolean false', 'maas': 'cloud-init   cloud-init/datasources  multiselect MAAS\ncloud-init   cloud-init/maas-metadata-url  string http://192.168.151.1:5248/MAAS/metadata/\ncloud-init   cloud-init/maas-metadata-credentials  string oauth_consumer_key=yaYmBSUuArGt3JYwHU&oauth_token_key=WCCtp2JewdWkHEDAW6&oauth_token_secret=Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR\ncloud-init   cloud-init/local-cloud-config  string manage_etc_hosts: true\\nmanual_cache_clean: true\\nreporting:\\n  maas:\\n    consumer_key: yaYmBSUuArGt3JYwHU\\n    endpoint: http://192.168.151.1:5248/MAAS/metadata/status/qe8krg\\n    token_key: WCCtp2JewdWkHEDAW6\\n    token_secret: Bm2k3ZdGxFPUK7aZUpTbkRmKQuACKURR\\n    type: webhook\\n\n'}}
+Running command ['unshare', '--help'] with allowed return codes [0] (capture=True)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'lsb_release', '--all'] with allowed return codes [0] (capture=True)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg', '--print-architecture'] with allowed return codes [0] (capture=True)
+got primary mirror: None
+got security mirror: None
+Apt Mirror info: {'PRIMARY': 'http://archive.ubuntu.com/ubuntu/', 'SECURITY': 'http://security.ubuntu.com/ubuntu/', 'MIRROR': 'http://archive.ubuntu.com/ubuntu/'}
+Applying debconf selections
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'debconf-set-selections'] with allowed return codes [0] (capture=True)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg-query', '--list'] with allowed return codes [0] (capture=True)
+unconfiguring cloud-init
+cleaning cloud-init config from: ['/tmp/tmpg0uqljsd/target/etc/cloud/cloud.cfg.d/90_dpkg.cfg']
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg-reconfigure', '--frontend=noninteractive', 'cloud-init'] with allowed return codes [0] (capture=True)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg-query', '--show', '--showformat', '${Version}', 'cloud-init'] with allowed return codes [0] (capture=True)
+Set preserve_sources_list to True in /etc/cloud/cloud.cfg.d/curtin-preserve-sources.cfg with: {'apt': {'preserve_sources_list': True}}
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg', '--print-architecture'] with allowed return codes [0] (capture=True)
+write apt proxy info to /tmp/tmpg0uqljsd/target/etc/apt/apt.conf.d/90curtin-aptproxy
+renaming /tmp/tmpg0uqljsd/target/etc/overlayroot.local.conf to /tmp/tmpg0uqljsd/target/etc/overlayroot.local.conf.old
+Running command ['mount', '--bind', '/dev', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/proc', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/run', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/sys', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Diverting original update-initramfs in target.
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg-divert', '--add', '--rename', '--divert', '/usr/sbin/update-initramfs.curtin-disabled', '/usr/sbin/update-initramfs'] with allowed return codes [0] (capture=False)
+Adding 'local diversion of /usr/sbin/update-initramfs to /usr/sbin/update-initramfs.curtin-disabled'
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED subp(['udevadm', 'settle']): 0.018
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/writing-apt-config: SUCCESS: configuring apt configuring apt
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'lsb_release', '--all'] with allowed return codes [0] (capture=True)
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/installing-missing-packages: installing missing packages
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg-query', '--list'] with allowed return codes [0] (capture=True)
+Curtin config dependencies requires additional packages: ['e2fsprogs']
+Skipping install of {'vlan', 'bridge-utils', 'ifenslave'}.  Not needed on netplan system.
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/installing-missing-packages: SUCCESS: installing missing packages
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/configuring-iscsi-service: configuring iscsi service
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/configuring-iscsi-service: SUCCESS: configuring iscsi service
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/configuring-mdadm-service: configuring raid (mdadm) service
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/configuring-mdadm-service: SUCCESS: configuring raid (mdadm) service
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/installing-kernel: installing kernel
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'lsb_release', '--all'] with allowed return codes [0] (capture=True)
+Running command ['dpkg', '--print-architecture'] with allowed return codes [0] (capture=True)
+Running command ['mount', '--bind', '/dev', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/proc', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/run', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/sys', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'apt-get', '--quiet', '--option=Acquire::Languages=none', '--option=Dir::Etc::sourcelist=/tmp/tmpx06rroaq/sources.list', '--option=Dir::Etc::sourceparts=/tmp/tmpx06rroaq/sources.list.d', 'update'] with allowed return codes [0] (capture=False)
+Running in chroot, ignoring command 'start'
+Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+Get:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [119 kB]
+Get:3 http://archive.ubuntu.com/ubuntu jammy-security InRelease [110 kB]
+Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [109 kB]
+Get:5 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [217 kB]
+Get:6 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 c-n-f Metadata [8372 B]
+Get:7 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [14.1 MB]
+Get:8 http://archive.ubuntu.com/ubuntu jammy/universe amd64 c-n-f Metadata [286 kB]
+Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [49.6 kB]
+Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 c-n-f Metadata [472 B]
+Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1060 kB]
+Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 c-n-f Metadata [22.1 kB]
+Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [1519 kB]
+Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [1644 kB]
+Get:15 http://archive.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [37.1 kB]
+Get:16 http://archive.ubuntu.com/ubuntu jammy-security/multiverse amd64 c-n-f Metadata [260 B]
+Get:17 http://archive.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [852 kB]
+Get:18 http://archive.ubuntu.com/ubuntu jammy-security/universe amd64 c-n-f Metadata [16.8 kB]
+Get:19 http://archive.ubuntu.com/ubuntu jammy-security/main amd64 Packages [1298 kB]
+Get:20 http://archive.ubuntu.com/ubuntu jammy-security/main amd64 c-n-f Metadata [11.4 kB]
+Get:21 http://archive.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [1605 kB]
+Get:22 http://archive.ubuntu.com/ubuntu jammy-security/restricted amd64 c-n-f Metadata [520 B]
+Get:23 http://archive.ubuntu.com/ubuntu jammy-backports/multiverse amd64 c-n-f Metadata [116 B]
+Get:24 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [28.4 kB]
+Get:25 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 c-n-f Metadata [644 B]
+Get:26 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [67.1 kB]
+Get:27 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 c-n-f Metadata [388 B]
+Get:28 http://archive.ubuntu.com/ubuntu jammy-backports/restricted amd64 c-n-f Metadata [116 B]
+Fetched 23.2 MB in 10s (2397 kB/s)
+Reading package lists...
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED subp(['udevadm', 'settle']): 0.017
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/dev', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/proc', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/run', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/sys', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'apt-get', '--quiet', '--assume-yes', '--option=Dpkg::options::=--force-unsafe-io', '--option=Dpkg::Options::=--force-confold', 'install', '--download-only', 'linux-generic'] with allowed return codes [0] (capture=False)
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  amd64-microcode firmware-sof-signed grub-common grub-gfxpayload-lists
+  grub-pc grub-pc-bin grub2-common intel-microcode iucode-tool
+  libdbus-glib-1-2 libevdev2 libfreetype6 libimobiledevice6 libplist3
+  libupower-glib3 libusbmuxd6 linux-firmware linux-headers-5.15.0-101
+  linux-headers-5.15.0-101-generic linux-headers-generic
+  linux-image-5.15.0-101-generic linux-image-generic
+  linux-modules-5.15.0-101-generic linux-modules-extra-5.15.0-101-generic
+  os-prober thermald upower usbmuxd wireless-regdb
+Suggested packages:
+  multiboot-doc grub-emu mtools xorriso desktop-base libusbmuxd-tools fdutils
+  linux-doc | linux-source-5.15.0 linux-tools
+The following NEW packages will be installed:
+  amd64-microcode firmware-sof-signed grub-common grub-gfxpayload-lists
+  grub-pc grub-pc-bin grub2-common intel-microcode iucode-tool
+  libdbus-glib-1-2 libevdev2 libfreetype6 libimobiledevice6 libplist3
+  libupower-glib3 libusbmuxd6 linux-firmware linux-generic
+  linux-headers-5.15.0-101 linux-headers-5.15.0-101-generic
+  linux-headers-generic linux-image-5.15.0-101-generic linux-image-generic
+  linux-modules-5.15.0-101-generic linux-modules-extra-5.15.0-101-generic
+  os-prober thermald upower usbmuxd wireless-regdb
+0 upgraded, 30 newly installed, 0 to remove and 34 not upgraded.
+Need to get 392 MB of archives.
+After this operation, 1697 MB of additional disk space will be used.
+Get:1 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 firmware-sof-signed all 2.0-1ubuntu4.5 [1289 kB]
+Get:2 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libfreetype6 amd64 2.11.1+dfsg-1ubuntu0.2 [389 kB]
+Get:3 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 grub-common amd64 2.06-2ubuntu7.2 [2214 kB]
+Get:4 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 grub2-common amd64 2.06-2ubuntu7.2 [652 kB]
+Get:5 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 grub-pc-bin amd64 2.06-2ubuntu7.2 [1083 kB]
+Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 grub-pc amd64 2.06-2ubuntu7.2 [132 kB]
+Get:7 http://archive.ubuntu.com/ubuntu jammy/main amd64 grub-gfxpayload-lists amd64 0.7 [3658 B]
+Get:8 http://archive.ubuntu.com/ubuntu jammy/main amd64 iucode-tool amd64 2.3.1-1build1 [46.9 kB]
+Get:9 http://archive.ubuntu.com/ubuntu jammy/main amd64 libdbus-glib-1-2 amd64 0.112-2build1 [65.4 kB]
+Get:10 http://archive.ubuntu.com/ubuntu jammy/main amd64 libplist3 amd64 2.2.0-6build2 [32.1 kB]
+Get:11 http://archive.ubuntu.com/ubuntu jammy/main amd64 libusbmuxd6 amd64 2.0.2-3build2 [20.4 kB]
+Get:12 http://archive.ubuntu.com/ubuntu jammy/main amd64 libimobiledevice6 amd64 1.3.0-6build3 [71.1 kB]
+Get:13 http://archive.ubuntu.com/ubuntu jammy/main amd64 libupower-glib3 amd64 0.99.17-1 [46.7 kB]
+Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 linux-firmware all 20220329.git681281e4-0ubuntu3.29 [267 MB]
+Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 linux-modules-5.15.0-101-generic amd64 5.15.0-101.111 [22.6 MB]
+Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 linux-image-5.15.0-101-generic amd64 5.15.0-101.111 [11.5 MB]
+Get:17 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 wireless-regdb all 2022.06.06-0ubuntu1~22.04.1 [10.3 kB]
+Get:18 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 linux-modules-extra-5.15.0-101-generic amd64 5.15.0-101.111 [63.9 MB]
+Get:19 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 intel-microcode amd64 3.20231114.0ubuntu0.22.04.1 [6047 kB]
+Get:20 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 amd64-microcode amd64 3.20191218.1ubuntu2.2 [69.0 kB]
+Get:21 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 linux-image-generic amd64 5.15.0.101.98 [2486 B]
+Get:22 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 linux-headers-5.15.0-101 all 5.15.0-101.111 [12.3 MB]
+Get:23 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 linux-headers-5.15.0-101-generic amd64 5.15.0-101.111 [2876 kB]
+Get:24 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 linux-headers-generic amd64 5.15.0.101.98 [2332 B]
+Get:25 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 linux-generic amd64 5.15.0.101.98 [1698 B]
+Get:26 http://archive.ubuntu.com/ubuntu jammy/main amd64 os-prober amd64 1.79ubuntu2 [19.3 kB]
+Get:27 http://archive.ubuntu.com/ubuntu jammy/main amd64 libevdev2 amd64 1.12.1+dfsg-1 [39.5 kB]
+Get:28 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 thermald amd64 2.4.9-1ubuntu0.4 [222 kB]
+Get:29 http://archive.ubuntu.com/ubuntu jammy/main amd64 upower amd64 0.99.17-1 [86.7 kB]
+Get:30 http://archive.ubuntu.com/ubuntu jammy/main amd64 usbmuxd amd64 1.1.1-2build2 [42.8 kB]
+Fetched 392 MB in 4s (87.3 MB/s)
+Download complete and in download only mode
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'apt-get', '--quiet', '--assume-yes', '--option=Dpkg::options::=--force-unsafe-io', '--option=Dpkg::Options::=--force-confold', 'install', 'linux-generic'] with allowed return codes [0] (capture=False)
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  amd64-microcode firmware-sof-signed grub-common grub-gfxpayload-lists
+  grub-pc grub-pc-bin grub2-common intel-microcode iucode-tool
+  libdbus-glib-1-2 libevdev2 libfreetype6 libimobiledevice6 libplist3
+  libupower-glib3 libusbmuxd6 linux-firmware linux-headers-5.15.0-101
+  linux-headers-5.15.0-101-generic linux-headers-generic
+  linux-image-5.15.0-101-generic linux-image-generic
+  linux-modules-5.15.0-101-generic linux-modules-extra-5.15.0-101-generic
+  os-prober thermald upower usbmuxd wireless-regdb
+Suggested packages:
+  multiboot-doc grub-emu mtools xorriso desktop-base libusbmuxd-tools fdutils
+  linux-doc | linux-source-5.15.0 linux-tools
+The following NEW packages will be installed:
+  amd64-microcode firmware-sof-signed grub-common grub-gfxpayload-lists
+  grub-pc grub-pc-bin grub2-common intel-microcode iucode-tool
+  libdbus-glib-1-2 libevdev2 libfreetype6 libimobiledevice6 libplist3
+  libupower-glib3 libusbmuxd6 linux-firmware linux-generic
+  linux-headers-5.15.0-101 linux-headers-5.15.0-101-generic
+  linux-headers-generic linux-image-5.15.0-101-generic linux-image-generic
+  linux-modules-5.15.0-101-generic linux-modules-extra-5.15.0-101-generic
+  os-prober thermald upower usbmuxd wireless-regdb
+dpkg-preconfigure: unable to re-open stdin: No such file or directory
+0 upgraded, 30 newly installed, 0 to remove and 34 not upgraded.
+Need to get 0 B/392 MB of archives.
+After this operation, 1697 MB of additional disk space will be used.
+E: Can not write log (Is /dev/pts mounted?) - posix_openpt (19: No such device)
+Selecting previously unselected package firmware-sof-signed.
+(Reading database ... 33922 files and directories currently installed.)
+Preparing to unpack .../00-firmware-sof-signed_2.0-1ubuntu4.5_all.deb ...
+Unpacking firmware-sof-signed (2.0-1ubuntu4.5) ...
+Selecting previously unselected package libfreetype6:amd64.
+Preparing to unpack .../01-libfreetype6_2.11.1+dfsg-1ubuntu0.2_amd64.deb ...
+Unpacking libfreetype6:amd64 (2.11.1+dfsg-1ubuntu0.2) ...
+Selecting previously unselected package grub-common.
+Preparing to unpack .../02-grub-common_2.06-2ubuntu7.2_amd64.deb ...
+Unpacking grub-common (2.06-2ubuntu7.2) ...
+Selecting previously unselected package grub2-common.
+Preparing to unpack .../03-grub2-common_2.06-2ubuntu7.2_amd64.deb ...
+Unpacking grub2-common (2.06-2ubuntu7.2) ...
+Selecting previously unselected package grub-pc-bin.
+Preparing to unpack .../04-grub-pc-bin_2.06-2ubuntu7.2_amd64.deb ...
+Unpacking grub-pc-bin (2.06-2ubuntu7.2) ...
+Selecting previously unselected package grub-pc.
+Preparing to unpack .../05-grub-pc_2.06-2ubuntu7.2_amd64.deb ...
+Unpacking grub-pc (2.06-2ubuntu7.2) ...
+Selecting previously unselected package grub-gfxpayload-lists.
+Preparing to unpack .../06-grub-gfxpayload-lists_0.7_amd64.deb ...
+Unpacking grub-gfxpayload-lists (0.7) ...
+Selecting previously unselected package iucode-tool.
+Preparing to unpack .../07-iucode-tool_2.3.1-1build1_amd64.deb ...
+Unpacking iucode-tool (2.3.1-1build1) ...
+Selecting previously unselected package libdbus-glib-1-2:amd64.
+Preparing to unpack .../08-libdbus-glib-1-2_0.112-2build1_amd64.deb ...
+Unpacking libdbus-glib-1-2:amd64 (0.112-2build1) ...
+Selecting previously unselected package libplist3:amd64.
+Preparing to unpack .../09-libplist3_2.2.0-6build2_amd64.deb ...
+Unpacking libplist3:amd64 (2.2.0-6build2) ...
+Selecting previously unselected package libusbmuxd6:amd64.
+Preparing to unpack .../10-libusbmuxd6_2.0.2-3build2_amd64.deb ...
+Unpacking libusbmuxd6:amd64 (2.0.2-3build2) ...
+Selecting previously unselected package libimobiledevice6:amd64.
+Preparing to unpack .../11-libimobiledevice6_1.3.0-6build3_amd64.deb ...
+Unpacking libimobiledevice6:amd64 (1.3.0-6build3) ...
+Selecting previously unselected package libupower-glib3:amd64.
+Preparing to unpack .../12-libupower-glib3_0.99.17-1_amd64.deb ...
+Unpacking libupower-glib3:amd64 (0.99.17-1) ...
+Selecting previously unselected package linux-firmware.
+Preparing to unpack .../13-linux-firmware_20220329.git681281e4-0ubuntu3.29_all.deb ...
+Unpacking linux-firmware (20220329.git681281e4-0ubuntu3.29) ...
+Selecting previously unselected package linux-modules-5.15.0-101-generic.
+Preparing to unpack .../14-linux-modules-5.15.0-101-generic_5.15.0-101.111_amd64.deb ...
+Unpacking linux-modules-5.15.0-101-generic (5.15.0-101.111) ...
+Selecting previously unselected package linux-image-5.15.0-101-generic.
+Preparing to unpack .../15-linux-image-5.15.0-101-generic_5.15.0-101.111_amd64.deb ...
+Unpacking linux-image-5.15.0-101-generic (5.15.0-101.111) ...
+Selecting previously unselected package wireless-regdb.
+Preparing to unpack .../16-wireless-regdb_2022.06.06-0ubuntu1~22.04.1_all.deb ...
+Unpacking wireless-regdb (2022.06.06-0ubuntu1~22.04.1) ...
+Selecting previously unselected package linux-modules-extra-5.15.0-101-generic.
+Preparing to unpack .../17-linux-modules-extra-5.15.0-101-generic_5.15.0-101.111_amd64.deb ...
+Unpacking linux-modules-extra-5.15.0-101-generic (5.15.0-101.111) ...
+Selecting previously unselected package intel-microcode.
+Preparing to unpack .../18-intel-microcode_3.20231114.0ubuntu0.22.04.1_amd64.deb ...
+Unpacking intel-microcode (3.20231114.0ubuntu0.22.04.1) ...
+Selecting previously unselected package amd64-microcode.
+Preparing to unpack .../19-amd64-microcode_3.20191218.1ubuntu2.2_amd64.deb ...
+Unpacking amd64-microcode (3.20191218.1ubuntu2.2) ...
+Selecting previously unselected package linux-image-generic.
+Preparing to unpack .../20-linux-image-generic_5.15.0.101.98_amd64.deb ...
+Unpacking linux-image-generic (5.15.0.101.98) ...
+Selecting previously unselected package linux-headers-5.15.0-101.
+Preparing to unpack .../21-linux-headers-5.15.0-101_5.15.0-101.111_all.deb ...
+Unpacking linux-headers-5.15.0-101 (5.15.0-101.111) ...
+Selecting previously unselected package linux-headers-5.15.0-101-generic.
+Preparing to unpack .../22-linux-headers-5.15.0-101-generic_5.15.0-101.111_amd64.deb ...
+Unpacking linux-headers-5.15.0-101-generic (5.15.0-101.111) ...
+Selecting previously unselected package linux-headers-generic.
+Preparing to unpack .../23-linux-headers-generic_5.15.0.101.98_amd64.deb ...
+Unpacking linux-headers-generic (5.15.0.101.98) ...
+Selecting previously unselected package linux-generic.
+Preparing to unpack .../24-linux-generic_5.15.0.101.98_amd64.deb ...
+Unpacking linux-generic (5.15.0.101.98) ...
+Selecting previously unselected package os-prober.
+Preparing to unpack .../25-os-prober_1.79ubuntu2_amd64.deb ...
+Unpacking os-prober (1.79ubuntu2) ...
+Selecting previously unselected package libevdev2:amd64.
+Preparing to unpack .../26-libevdev2_1.12.1+dfsg-1_amd64.deb ...
+Unpacking libevdev2:amd64 (1.12.1+dfsg-1) ...
+Selecting previously unselected package thermald.
+Preparing to unpack .../27-thermald_2.4.9-1ubuntu0.4_amd64.deb ...
+Unpacking thermald (2.4.9-1ubuntu0.4) ...
+Selecting previously unselected package upower.
+Preparing to unpack .../28-upower_0.99.17-1_amd64.deb ...
+Unpacking upower (0.99.17-1) ...
+Selecting previously unselected package usbmuxd.
+Preparing to unpack .../29-usbmuxd_1.1.1-2build2_amd64.deb ...
+Unpacking usbmuxd (1.1.1-2build2) ...
+Setting up libplist3:amd64 (2.2.0-6build2) ...
+Setting up iucode-tool (2.3.1-1build1) ...
+Setting up linux-firmware (20220329.git681281e4-0ubuntu3.29) ...
+Setting up intel-microcode (3.20231114.0ubuntu0.22.04.1) ...
+intel-microcode: microcode will be updated at next boot
+Setting up firmware-sof-signed (2.0-1ubuntu4.5) ...
+Setting up wireless-regdb (2022.06.06-0ubuntu1~22.04.1) ...
+Setting up amd64-microcode (3.20191218.1ubuntu2.2) ...
+amd64-microcode: microcode will be updated at next boot
+Setting up linux-headers-5.15.0-101 (5.15.0-101.111) ...
+Setting up libfreetype6:amd64 (2.11.1+dfsg-1ubuntu0.2) ...
+Setting up libdbus-glib-1-2:amd64 (0.112-2build1) ...
+Setting up libusbmuxd6:amd64 (2.0.2-3build2) ...
+Setting up libupower-glib3:amd64 (0.99.17-1) ...
+Setting up libimobiledevice6:amd64 (1.3.0-6build3) ...
+Setting up linux-headers-5.15.0-101-generic (5.15.0-101.111) ...
+Setting up libevdev2:amd64 (1.12.1+dfsg-1) ...
+Setting up upower (0.99.17-1) ...
+Running in chroot, ignoring command 'daemon-reload'
+/usr/sbin/policy-rc.d returned 101, not running 'start upower.service'
+Setting up linux-headers-generic (5.15.0.101.98) ...
+Setting up grub-common (2.06-2ubuntu7.2) ...
+Created symlink /etc/systemd/system/multi-user.target.wants/grub-common.service → /lib/systemd/system/grub-common.service.
+Created symlink /etc/systemd/system/sleep.target.wants/grub-common.service → /lib/systemd/system/grub-common.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/grub-initrd-fallback.service → /lib/systemd/system/grub-initrd-fallback.service.
+Created symlink /etc/systemd/system/rescue.target.wants/grub-initrd-fallback.service → /lib/systemd/system/grub-initrd-fallback.service.
+Created symlink /etc/systemd/system/emergency.target.wants/grub-initrd-fallback.service → /lib/systemd/system/grub-initrd-fallback.service.
+Created symlink /etc/systemd/system/sleep.target.wants/grub-initrd-fallback.service → /lib/systemd/system/grub-initrd-fallback.service.
+Running in chroot, ignoring command 'daemon-reload'
+/usr/sbin/policy-rc.d returned 101, not running 'start grub-initrd-fallback.service'
+update-rc.d: warning: start and stop actions are no longer supported; falling back to defaults
+Running in chroot, ignoring command 'daemon-reload'
+Running in chroot, ignoring request.
+invoke-rc.d: policy-rc.d denied execution of start.
+Setting up os-prober (1.79ubuntu2) ...
+Setting up usbmuxd (1.1.1-2build2) ...
+Warning: The home dir /var/lib/usbmux you specified can't be accessed: No such file or directory
+Adding system user `usbmux' (UID 113) ...
+Adding new user `usbmux' (UID 113) with group `plugdev' ...
+Not creating home directory `/var/lib/usbmux'.
+Running in chroot, ignoring command 'daemon-reload'
+/usr/sbin/policy-rc.d returned 101, not running 'start usbmuxd.service'
+Setting up thermald (2.4.9-1ubuntu0.4) ...
+Created symlink /etc/systemd/system/dbus-org.freedesktop.thermald.service → /lib/systemd/system/thermald.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/thermald.service → /lib/systemd/system/thermald.service.
+Running in chroot, ignoring command 'daemon-reload'
+/usr/sbin/policy-rc.d returned 101, not running 'start thermald.service'
+Setting up grub2-common (2.06-2ubuntu7.2) ...
+Setting up grub-pc-bin (2.06-2ubuntu7.2) ...
+Setting up linux-image-5.15.0-101-generic (5.15.0-101.111) ...
+I: /boot/vmlinuz.old is now a symlink to vmlinuz-5.15.0-101-generic
+I: /boot/initrd.img.old is now a symlink to initrd.img-5.15.0-101-generic
+I: /boot/vmlinuz is now a symlink to vmlinuz-5.15.0-101-generic
+I: /boot/initrd.img is now a symlink to initrd.img-5.15.0-101-generic
+Setting up linux-modules-extra-5.15.0-101-generic (5.15.0-101.111) ...
+Setting up linux-modules-5.15.0-101-generic (5.15.0-101.111) ...
+Setting up grub-pc (2.06-2ubuntu7.2) ...
+
+Creating config file /etc/default/grub with new version
+Setting up grub-gfxpayload-lists (0.7) ...
+Setting up linux-image-generic (5.15.0.101.98) ...
+Setting up linux-generic (5.15.0.101.98) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.6) ...
+Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for dbus (1.12.20-2ubuntu4.1) ...
+Processing triggers for install-info (6.8-4build1) ...
+Processing triggers for linux-image-5.15.0-101-generic (5.15.0-101.111) ...
+
+Pending kernel upgrade!
+
+Running kernel version:
+  5.15.0-97-generic
+
+Diagnostics:
+  The currently running kernel version is not the expected kernel version 5.15.0-101-generic.
+
+Restarting the system to load the new kernel will not be handled automatically, so you should consider rebooting. [Return]
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED subp(['udevadm', 'settle']): 0.021
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/dev', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/proc', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/run', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/sys', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'apt-get', 'clean'] with allowed return codes [0] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED subp(['udevadm', 'settle']): 0.018
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/installing-kernel: SUCCESS: installing kernel
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/setting-up-swap: setting up swap
+Running command ['findmnt', '--noheading', '--target', '/tmp/tmpg0uqljsd/target/', '-o', 'FSTYPE'] with allowed return codes [0] (capture=True)
+Running command ['sh', '-c', 'rm -f "$1" && umask 0066 && truncate -s 0 "$1" && { chattr +C "$1" || true; } && fallocate -l "${2}M" "$1" && mkswap "$1" || { r=$?; rm -f "$1"; exit $r; }', 'setup_swap', '/tmp/tmpg0uqljsd/target//swap.img', '4096'] with allowed return codes [0] (capture=False)
+chattr: Operation not supported while setting flags on /tmp/tmpg0uqljsd/target//swap.img
+Setting up swapspace version 1, size = 4 GiB (4294963200 bytes)
+no label, UUID=d7971afc-60ad-413f-a385-2ee290d41b00
+creating swapfile '/swap.img' of 4096MB took 0.072 seconds
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/setting-up-swap: SUCCESS: setting up swap
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/apply-networking-config: apply networking config
+applying network_config
+Checking cloud-init in target [/tmp/tmpg0uqljsd/target] for network configuration passthrough support.
+Checking in-target cloud-init for feature: NETWORK_CONFIG_V2
+Running command ['mount', '--bind', '/dev', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/proc', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/run', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/sys', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', '/usr/bin/cloud-init', 'features'] with allowed return codes [0] (capture=True)
+cloud-init feature NETWORK_CONFIG_V2 available? True
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED subp(['udevadm', 'settle']): 0.018
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Passing network configuration through to target: /tmp/tmpg0uqljsd/target
+Writing network config to etc/cloud/cloud.cfg.d/50-curtin-networking.cfg: /tmp/tmpg0uqljsd/target/etc/cloud/cloud.cfg.d/50-curtin-networking.cfg
+Failed to find legacy network conf file /tmp/tmpg0uqljsd/target/etc/network/interfaces.d/eth0.cfg
+Attempting to remove ipv6 privacy extensions
+Removing ipv6 privacy extension config file: /tmp/tmpg0uqljsd/target/etc/sysctl.d/10-ipv6-privacy.conf
+del_file: removed /tmp/tmpg0uqljsd/target/etc/sysctl.d/10-ipv6-privacy.conf
+Injecting fix for ipv6 mtu settings: /tmp/tmpg0uqljsd/target/etc/network/if-pre-up.d/mtuipv6
+Injecting fix for ipv6 mtu settings: /tmp/tmpg0uqljsd/target/etc/network/if-up.d/mtuipv6
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/apply-networking-config: SUCCESS: apply networking config
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/writing-etc-fstab: writing etc/fstab
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/writing-etc-fstab: SUCCESS: writing etc/fstab
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/configuring-multipath: configuring multipath
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/loop0'] with allowed return codes [0] (capture=True)
+/dev/loop0 is multipath device? False
+/dev/loop0 is multipath device partition? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/loop0'] with allowed return codes [0] (capture=True)
+/dev/loop0 is multipath device member? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/loop1'] with allowed return codes [0] (capture=True)
+/dev/loop1 is multipath device? False
+/dev/loop1 is multipath device partition? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/loop1'] with allowed return codes [0] (capture=True)
+/dev/loop1 is multipath device member? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/loop2'] with allowed return codes [0] (capture=True)
+/dev/loop2 is multipath device? False
+/dev/loop2 is multipath device partition? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/loop2'] with allowed return codes [0] (capture=True)
+/dev/loop2 is multipath device member? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/loop3'] with allowed return codes [0] (capture=True)
+/dev/loop3 is multipath device? False
+/dev/loop3 is multipath device partition? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/loop3'] with allowed return codes [0] (capture=True)
+/dev/loop3 is multipath device member? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda2'] with allowed return codes [0] (capture=True)
+/dev/vda2 is multipath device? False
+/dev/vda2 is multipath device partition? False
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda2'] with allowed return codes [0] (capture=True)
+/dev/vda2 is multipath device member? False
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '--nodeps'] with allowed return codes [0] (capture=True)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/loop0'] with allowed return codes [0] (capture=True)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/loop1'] with allowed return codes [0] (capture=True)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/loop2'] with allowed return codes [0] (capture=True)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/loop3'] with allowed return codes [0] (capture=True)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/sda'] with allowed return codes [0] (capture=True)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/sdb'] with allowed return codes [0] (capture=True)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/sdc'] with allowed return codes [0] (capture=True)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/vda'] with allowed return codes [0] (capture=True)
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+Running command ['blockdev', '--rereadpt', '/dev/sda', '/dev/sdb', '/dev/sdc', '/dev/nvme0n1'] with allowed return codes [0] (capture=True)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.021
+Running command ['blkid', '-o', 'full'] with allowed return codes [0] (capture=True)
+legacy_detect_multipath found blkid info: {'/dev/loop1': {'TYPE': 'squashfs'}, '/dev/loop2': {'TYPE': 'squashfs'}, '/dev/loop0': {'TYPE': 'squashfs'}, '/dev/vda2': {'LABEL': 'root', 'UUID': '00710b9e-ad77-459d-bb4e-0565c7501fcf', 'BLOCK_SIZE': '4096', 'TYPE': 'ext4', 'PARTUUID': '59b83737-0aac-494a-a6d3-2a718bad80a4'}, '/dev/vda1': {'PARTUUID': 'c6c9ec79-6e19-4eed-9c94-e4a2ec1bea8e'}, '/dev/loop3': {'TYPE': 'squashfs'}}
+Running command ['lsblk', '--noheadings', '--bytes', '--pairs', '--output=ALIGNMENT,DISC-ALN,DISC-GRAN,DISC-MAX,DISC-ZERO,FSTYPE,GROUP,KNAME,LABEL,LOG-SEC,MAJ:MIN,MIN-IO,MODE,MODEL,MOUNTPOINT,NAME,OPT-IO,OWNER,PHY-SEC,RM,RO,ROTA,RQ-SIZE,SIZE,STATE,TYPE,UUID'] with allowed return codes [0] (capture=True)
+target_devs: ['/dev/vda2']
+/dev/vda2: 00710b9e-ad77-459d-bb4e-0565c7501fcf
+Multipath detection found: False
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/configuring-multipath: SUCCESS: configuring multipath
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/system-upgrade: updating packages on target system
+system_upgrade disabled by config.
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/system-upgrade: SUCCESS: updating packages on target system
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/pollinate-user-agent: configuring pollinate user-agent on target
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/pollinate-user-agent: SUCCESS: configuring pollinate user-agent on target
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/updating-initramfs-configuration: updating initramfs configuration
+Running command ['mount', '--bind', '/dev', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/proc', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/run', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/sys', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg-divert', '--list'] with allowed return codes [0] (capture=True)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED subp(['udevadm', 'settle']): 0.020
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/dev', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/proc', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/run', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/sys', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Restoring update-initramfs in target for initrd updates.
+del_file: removed /tmp/tmpg0uqljsd/target/usr/sbin/update-initramfs
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg-divert', '--rename', '--remove', '/usr/sbin/update-initramfs'] with allowed return codes [0] (capture=False)
+Removing 'local diversion of /usr/sbin/update-initramfs to /usr/sbin/update-initramfs.curtin-disabled'
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED subp(['udevadm', 'settle']): 0.018
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/dev', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/proc', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/run', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/sys', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg-divert', '--list'] with allowed return codes [0] (capture=True)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED subp(['udevadm', 'settle']): 0.002
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/dev', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/proc', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/run', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/sys', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'update-initramfs', '-c', '-k', '5.15.0-101-generic'] with allowed return codes [0] (capture=False)
+update-initramfs: Generating /boot/initrd.img-5.15.0-101-generic
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED subp(['udevadm', 'settle']): 0.018
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/updating-initramfs-configuration: SUCCESS: updating initramfs configuration
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/configuring-bootloader: configuring target system bootloader
+start: cmd-install/stage-curthooks/builtin/cmd-curthooks/install-grub: installing grub to target devices
+setup grub on target /tmp/tmpg0uqljsd/target
+checking: {'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'}
+get_path_to_storage_volume for volume vda({'grub_device': True, 'id': 'vda', 'name': 'vda', 'path': '/dev/vda', 'ptable': 'gpt', 'type': 'disk', 'wipe': 'superblock'})
+Running command ['udevadm', 'info', '--query=property', '--export', '/dev/vda'] with allowed return codes [0] (capture=True)
+/dev/vda is multipath device member? False
+Running command ['partprobe', '/dev/vda'] with allowed return codes [0, 1] (capture=False)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED udevadm_settle(): 0.039
+devsync happy - path /dev/vda now exists
+return volume path /dev/vda
+install_devices: ['/dev/vda']
+Generating grub debconf_selections for devices=['/dev/vda'] uefi=False
+Applying grub debconf_selections config:
+{'debconf_selections': {'grub': 'grub-pc grub-pc/install_devices multiselect /dev/disk/by-id/virtio-2c630089-602a-4349-8'}}
+Applying debconf selections
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'debconf-set-selections'] with allowed return codes [0] (capture=True)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg-query', '--list'] with allowed return codes [0] (capture=True)
+The following packages were installed and preseeded, but cannot be unconfigured: ['grub-pc']
+installing grub to target=/tmp/tmpg0uqljsd/target devices=['/dev/vda'] [replace_defaults=None]
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg', '--print-architecture'] with allowed return codes [0] (capture=True)
+grub: moved /tmp/tmpg0uqljsd/target/etc/default/grub.d/50-cloudimg-settings.cfg out of the way
+updated /tmp/tmpg0uqljsd/target/etc/default/grub to set: GRUB_CMDLINE_LINUX_DEFAULT="console=tty0 console=ttyS0,115200n8 console=tty1 console=ttyS0"
+Using grub install command: grub-install
+Grub install cmds:
+[['dpkg-reconfigure', 'grub-pc'], ['update-grub'], ['grub-install', '/dev/vda']]
+Running command ['mount', '--bind', '/dev', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/proc', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/run', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--bind', '/sys', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'dpkg-reconfigure', 'grub-pc'] with allowed return codes [0] (capture=True)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'update-grub'] with allowed return codes [0] (capture=True)
+Running command ['unshare', '--fork', '--pid', '--', 'chroot', '/tmp/tmpg0uqljsd/target', 'grub-install', '/dev/vda'] with allowed return codes [0] (capture=True)
+Running command ['udevadm', 'settle'] with allowed return codes [0] (capture=False)
+TIMED subp(['udevadm', 'settle']): 0.035
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/sys'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/run'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/proc'] with allowed return codes [0] (capture=False)
+Running command ['mount', '--make-private', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+Running command ['umount', '/tmp/tmpg0uqljsd/target/dev'] with allowed return codes [0] (capture=False)
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/install-grub: SUCCESS: installing grub to target devices
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks/configuring-bootloader: SUCCESS: configuring target system bootloader
+finish: cmd-install/stage-curthooks/builtin/cmd-curthooks: SUCCESS: curtin command curthooks
+start: cmd-install/stage-hook/builtin/cmd-hook: curtin command hook
+Finalizing /tmp/tmpg0uqljsd/target
+finish: cmd-install/stage-hook/builtin/cmd-hook: SUCCESS: curtin command hook
+--2024-03-28 05:36:21--  http://192.168.151.1:5248/MAAS/metadata/latest/by-id/qe8krg/
+Connecting to 192.168.151.1:5248... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 2 [text/plain]
+Saving to: ‘/dev/null’
+
+     0K                                                       100%  300K=0s
+
+2024-03-28 05:36:21 (300 KB/s) - ‘/dev/null’ saved [2/2]
+
+curtin: Installation finished.

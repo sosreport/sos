@@ -10,15 +10,15 @@
 
 import logging
 
+from threading import Lock
 from sos.options import ClusterOption
 from sos.utilities import bold
-from threading import Lock
 
 
 class Cluster():
     """This is the class that cluster profiles should subclass in order to
     add support for different clustering technologies and environments to
-    sos-collector.
+    sos collect.
 
     A profile should at minimum define a package that indicates the node is
     configured for the type of cluster the profile is intended to serve and
@@ -91,12 +91,11 @@ class Cluster():
         return cls.__name__.lower()
 
     @classmethod
-    def display_help(cls, section):
+    def display_help(cls, section):  # pylint: disable=too-many-branches
         if cls is Cluster:
             cls.display_self_help(section)
             return
-        section.set_title("%s Cluster Profile Detailed Help"
-                          % cls.cluster_name)
+        section.set_title(f"{cls.cluster_name} Cluster Profile Detailed Help")
         if cls.__doc__ and cls.__doc__ is not Cluster.__doc__:
             section.add_text(cls.__doc__)
         # [1] here is the actual cluster profile
@@ -109,14 +108,14 @@ class Cluster():
 
         if cls.packages:
             section.add_text(
-                "Enabled by the following packages: %s"
-                % ', '.join(p for p in cls.packages),
+                "Enabled by the following packages: "
+                f"{', '.join(p for p in cls.packages)}",
                 newline=False
             )
 
         if cls.sos_preset:
             section.add_text(
-                "Uses the following sos preset: %s" % cls.sos_preset,
+                f"Uses the following sos preset: {cls.sos_preset}",
                 newline=False
             )
 
@@ -126,24 +125,24 @@ class Cluster():
 
         if cls.sos_plugins:
             section.add_text(
-                "Enables the following plugins: %s"
-                % ', '.join(plug for plug in cls.sos_plugins),
+                "Enables the following plugins: "
+                f"{', '.join(plug for plug in cls.sos_plugins)}",
                 newline=False
             )
 
         if cls.sos_plugin_options:
             _opts = cls.sos_plugin_options
-            opts = ', '.join("%s=%s" % (opt, _opts[opt]) for opt in _opts)
+            opts = ', '.join(f"{k}={v}" for k, v in _opts.items())
             section.add_text(
-                "Sets the following plugin options: %s" % opts,
+                f"Sets the following plugin options: {opts}",
                 newline=False
             )
 
         if cls.option_list:
             optsec = section.add_section("Available cluster options")
             optsec.add_text(
-                "These options may be toggled or changed using '%s'"
-                % bold("-c %s.$option=$value" % cls.__name__)
+                "These options may be toggled or changed using "
+                f"'{bold(f'-c {cls.__name__}.$option=$value')}'"
             )
             optsec.add_text(
                 bold(
@@ -189,7 +188,7 @@ class Cluster():
             newline=False
         )
         for cluster in clusters:
-            _sec = bold("collect.clusters.%s" % cluster[0])
+            _sec = bold(f"collect.clusters.{cluster[0]}")
             section.add_text(
                 f"{' ':>8}{_sec:<40}{cluster[1].cluster_name:<30}",
                 newline=False
@@ -204,7 +203,7 @@ class Cluster():
             self.options.append(option)
 
     def _fmt_msg(self, msg):
-        return '[%s] %s' % (self.cluster_type[0], msg)
+        return f'[{self.cluster_type[0]}] {msg}'
 
     def log_info(self, msg):
         """Used to print info messages"""
@@ -261,7 +260,6 @@ class Cluster():
         :param node:        The non-primary node
         :type node:         ``SoSNode``
         """
-        pass
 
     def set_transport_type(self):
         """The default connection type used by sos collect is to leverage the
@@ -281,7 +279,6 @@ class Cluster():
         :param node:       The primary node
         :type node:        ``SoSNode``
         """
-        pass
 
     def check_node_is_primary(self, node):
         """In the event there are multiple primaries, or if the collect command
@@ -325,7 +322,6 @@ class Cluster():
         extra commands to be run even if a node list is given by the user, and
         thus get_nodes() would not be called
         """
-        pass
 
     def check_enabled(self):
         """
@@ -353,7 +349,6 @@ class Cluster():
         This helps ensure that sos does make lasting changes to the environment
         in which we are running
         """
-        pass
 
     def get_nodes(self):
         """
@@ -365,13 +360,13 @@ class Cluster():
         :returns: A list of node FQDNs or IP addresses
         :rtype: ``list`` or ``None``
         """
-        pass
+        raise NotImplementedError
 
     def _get_nodes(self):
         try:
             return self.format_node_list()
         except Exception as e:
-            self.log_debug('Failed to get node list: %s' % e)
+            self.log_debug(f'Failed to get node list: {e}')
             return []
 
     def get_node_label(self, node):
@@ -389,11 +384,11 @@ class Cluster():
         node.manifest.add_field('label', label)
         return label
 
-    def set_node_label(self, node):
+    def set_node_label(self, node):  # pylint: disable=unused-argument
         """This may be overridden by clusters profiles subclassing this class
 
         If there is a distinction between primaries and nodes, or types of
-        nodes, then this can be used to label the sosreport archive differently
+        nodes, then this can be used to label the sos report archives as needed
         """
         return ''
 
@@ -408,7 +403,8 @@ class Cluster():
         try:
             nodes = self.get_nodes()
         except Exception as err:
-            raise Exception(f"Cluster failed to enumerate nodes: {err}")
+            raise Exception(f"Cluster failed to enumerate nodes: {err}") \
+                from err
         if isinstance(nodes, list):
             node_list = [n.strip() for n in nodes if n]
         elif isinstance(nodes, str):
@@ -425,7 +421,7 @@ class Cluster():
         """
         Ensures that any files returned by a cluster's run_extra_cmd()
         method are properly typed as a list for iterative collection. If any
-        of the files are an additional sosreport (e.g. the ovirt db dump) then
+        of the files are an additional sos report (e.g. the ovirt db dump) then
         the md5 sum file is automatically added to the list
         """
         files = []

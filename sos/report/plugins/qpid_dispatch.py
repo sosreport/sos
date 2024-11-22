@@ -36,13 +36,13 @@ class QpidDispatch(Plugin, RedHatPlugin):
         options = ""
         if self.get_option("port"):
             options = (options + " -b " + gethostname() +
-                       ":%s" % (self.get_option("port")))
+                       f":{self.get_option('port')}")
         # gethostname() is due to DISPATCH-156
 
         # for either present option, add --option=value to 'options' variable
         for option in ["ssl-certificate", "ssl-key", "ssl-trustfile"]:
             if self.get_option(option):
-                options = (options + " --%s=" % (option) +
+                options = (options + f" --{option}=" +
                            self.get_option(option))
 
         self.add_cmd_output([

@@ -19,6 +19,22 @@ class Memcached(Plugin):
     profiles = ('webserver',)
     packages = ('memcached',)
 
+    mm_tool = "memcached-tool"
+
+    def setup(self):
+        host = "127.0.0.1:11211"
+
+        subcmds = [
+            "display",
+            "dump",
+            "keys",
+            "stats",
+            "settings",
+        ]
+
+        self.add_cmd_output([
+            f"{self.mm_tool} {host} {subcmd}" for subcmd in subcmds])
+
 
 class RedHatMemcached(Memcached, RedHatPlugin):
 
@@ -35,6 +51,7 @@ class DebianMemcached(Memcached, DebianPlugin, UbuntuPlugin):
     files = ('/etc/default/memcached',)
 
     def setup(self):
+        self.mm_tool = "/usr/share/memcached/scripts/memcached-tool"
         super().setup()
         self.add_copy_spec([
             "/etc/memcached.conf",

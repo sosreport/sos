@@ -56,6 +56,7 @@ class Microk8s(Plugin, UbuntuPlugin):
             "certificate-authority-data",
             "client-certificate-data",
             "client-key-data",
+            "token",
         ]
 
         key_regex = fr'(^\s*({"|".join(protect_keys)})\s*:\s*)(.*)'

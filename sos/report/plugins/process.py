@@ -39,7 +39,9 @@ class Process(Plugin, IndependentPlugin):
 
         self.add_copy_spec([
             "/proc/sched_debug",
-            "/proc/stat"
+            "/proc/stat",
+            "/sys/kernel/debug/sched/debug",
+            "/sys/kernel/debug/sched/features"
         ])
 
         procs = [p for p in self.listdir("/proc") if re.match("[0-9]", p)]
@@ -48,11 +50,11 @@ class Process(Plugin, IndependentPlugin):
 
         for proc in procs:
             self.add_copy_spec([
-                "/proc/%s/status" % proc,
-                "/proc/%s/cpuset" % proc,
-                "/proc/%s/oom_*" % proc,
-                "/proc/%s/stack" % proc,
-                "/proc/%s/limits" % proc
+                f"/proc/{proc}/status",
+                f"/proc/{proc}/cpuset",
+                f"/proc/{proc}/oom_*",
+                f"/proc/{proc}/stack",
+                f"/proc/{proc}/limits",
             ])
 
         if self.get_option("smaps"):
@@ -77,13 +79,14 @@ class Process(Plugin, IndependentPlugin):
         ], cmd_as_tag=True)
 
         self.add_cmd_output([
-            "%s %s" % (ps_axo, ps_group_opts),
-            "%s %s" % (ps_axo, ps_sched_opts)
+            f"{ps_axo} {ps_group_opts}",
+            f"{ps_axo} {ps_sched_opts}",
         ])
 
         if self.get_option("samples"):
-            self.add_cmd_output("iotop -b -o -d 0.5 -t -n %s"
-                                % self.get_option("samples"), priority=100)
+            self.add_cmd_output("iotop -b -o -d 0.5 -t -n "
+                                f"{self.get_option('samples')}",
+                                priority=100)
 
         self.add_cmd_output([
             "pidstat -p ALL -rudvwsRU --human -h",

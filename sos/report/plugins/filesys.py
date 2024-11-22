@@ -52,7 +52,7 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
         self.add_cmd_output("df -al -x autofs", root_symlink="df",
                             tags='df__al')
         self.add_cmd_output([
-            "df -ali -x autofs",
+            "df -aliT -x autofs",
             "findmnt",
             "lslocks"
         ])
@@ -83,11 +83,11 @@ class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
         mounts = '/proc/mounts'
         ext_fs_regex = r"^(/dev/\S+).+ext[234]\s+"
         for dev in self.do_regex_find_all(ext_fs_regex, mounts):
-            self.add_cmd_output("dumpe2fs %s %s" % (dumpe2fs_opts, dev),
+            self.add_cmd_output(f"dumpe2fs {dumpe2fs_opts} {dev}",
                                 tags="dumpe2fs_h")
 
             if self.get_option('frag'):
-                self.add_cmd_output("e2freefrag %s" % (dev), priority=100)
+                self.add_cmd_output(f"e2freefrag {dev}", priority=100)
 
     def postproc(self):
         self.do_file_sub(
@@ -108,6 +108,6 @@ class RedHatFilesys(Filesys, RedHatPlugin):
 
     def setup(self):
         super().setup()
-        self.add_cmd_output("ls -ltradZ /tmp")
+        self.add_cmd_output('ls -ldZ /tmp')
 
 # vim: set et ts=4 sw=4 :

@@ -43,16 +43,16 @@ class StorCLI(Plugin, IndependentPlugin):
 
         for subcmd in subcmds:
             self.add_cmd_output(
-                "%s %s%s" % (cmd, subcmd, json),
-                suggest_filename="storcli64_%s%s" % (subcmd, json),
+                f"{cmd} {subcmd}{json}",
+                suggest_filename=f"storcli64_{subcmd}{json}",
                 runat=logpath)
 
         # /call show events need 'file=' option to get adapter info like below
         # "Adapter: # - Number of Events: xxx".
         subcmd = '/call show events'
         self.add_cmd_output(
-             "%s %s file=/dev/stdout%s" % (cmd, subcmd, json),
-             suggest_filename="storcli64_%s%s" % (subcmd, json),
+             f"{cmd} {subcmd} file=/dev/stdout{json}",
+             suggest_filename=f"storcli64_{subcmd}{json}",
              runat=logpath)
 
 # vim: set et ts=4 sw=4 :

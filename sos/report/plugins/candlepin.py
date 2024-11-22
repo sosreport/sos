@@ -79,7 +79,7 @@ class Candlepin(Plugin, RedHatPlugin):
             "/var/log/candlepin/error.log[.-]*",
             # Specific to candlepin, ALL catalina logs are relevant. Adding it
             # here rather than the tomcat plugin to ease maintenance and not
-            # pollute non-candlepin sosreports that enable the tomcat plugin
+            # pollute non-candlepin sos reports that enable the tomcat plugin
             "/var/log/tomcat*/catalina*log*",
             "/var/log/tomcat*/host-manager*log*",
             "/var/log/tomcat*/localhost*log*",
@@ -134,7 +134,7 @@ class Candlepin(Plugin, RedHatPlugin):
         self.do_file_sub("/var/log/candlepin/cpdb.log", cpdbreg, repl)
         for key in ["trustStorePassword", "keyStorePassword"]:
             self.do_file_sub("/etc/candlepin/broker.xml",
-                             r"(%s)=(\w*)([;<])" % key,
+                             fr"({key})=(\w*)([;<])",
                              r"\1=********\3")
 
 # vim: set et ts=4 sw=4 :

@@ -38,54 +38,50 @@ class Sapnw(Plugin, RedHatPlugin):
                 inst = fields[5]
                 vhost = fields[7]
                 sidsunique.add(sid)
-                path = "/usr/sap/%s/SYS/profile/" % sid
+                path = f"/usr/sap/{sid}/SYS/profile/"
                 if not self.path_exists(path):
                     continue
                 for line in self.listdir(path):
                     if all(f in line for f in [sid, inst, vhost]):
-                        ldenv = 'LD_LIBRARY_PATH=/usr/sap/%s/SYS/exe/run' % sid
+                        ldenv = f'LD_LIBRARY_PATH=/usr/sap/{sid}/SYS/exe/run'
                         # Unicode is assumed here
                         # nuc should be accounted
-                        path = '/usr/sap/%s/SYS/exe/uc/linuxx86_64' % sid
+                        path = f'/usr/sap/{sid}/SYS/exe/uc/linuxx86_64'
                         profile = line.strip()
 
                         # collect profiles
                         self.add_cmd_output(
-                            "env -i %s %s/sappfpar all "
-                            "pf=/usr/sap/%s/SYS/profile/%s" %
-                            (ldenv, path, sid, profile),
-                            suggest_filename="%s_parameters" % profile
+                            f"env -i {ldenv} {path}/sappfpar all "
+                            f"pf=/usr/sap/{sid}/SYS/profile/{profile}",
+                            suggest_filename=f"{profile}_parameters"
                         )
 
                         # collect instance status
                         self.add_cmd_output(
-                            "env -i %s %s/sapcontrol -nr %s "
-                            "-function GetProcessList"
-                            % (ldenv, path, inst),
-                            suggest_filename="%s_%s_GetProcList" % (sid, inst)
+                            f"env -i {ldenv} {path}/sapcontrol -nr {inst} "
+                            "-function GetProcessList",
+                            suggest_filename=f"{sid}_{inst}_GetProcList"
                         )
 
                         # collect version info for the various components
                         self.add_cmd_output(
-                            "env -i %s %s/sapcontrol -nr %s "
-                            "-function GetVersionInfo"
-                            % (ldenv, path, inst),
-                            suggest_filename="%s_%s_GetVersInfo" % (sid, inst)
+                            f"env -i {ldenv} {path}/sapcontrol -nr {inst} "
+                            "-function GetVersionInfo",
+                            suggest_filename=f"{sid}_{inst}_GetVersInfo"
                         )
 
                         # collect <SID>adm user environment
                         lowsid = sid.lower()
-                        fname = "%s_%sadm_%s_userenv" % (sid, lowsid, inst)
+                        fname = f"{sid}_{lowsid}adm_{inst}_userenv"
                         self.add_cmd_output(
-                            'su - %sadm -c "sapcontrol -nr %s '
-                            '-function GetEnvironment"'
-                            % (lowsid, inst),
+                            f'su - {lowsid}adm -c "sapcontrol -nr {inst} '
+                            '-function GetEnvironment"',
                             suggest_filename=fname
                         )
 
         # traverse the sids list, collecting info about dbclient
         for sid in sidsunique:
-            self.add_copy_spec("/usr/sap/%s/*DVEB*/work/dev_w0" % sid)
+            self.add_copy_spec(f"/usr/sap/{sid}/*DVEB*/work/dev_w0")
 
     def collect_list_dbs(self):
         """ Collect data all the installed DBs """
@@ -108,26 +104,26 @@ class Sapnw(Plugin, RedHatPlugin):
                 if dbtype == 'db6':
                     # IBM DB2
                     self.add_cmd_output(
-                        "su - %s -c \"db2 get dbm cfg\"" % dbadm,
-                        suggest_filename="%s_%s_db2_info" % (sid, dbadm)
+                        f"su - {dbadm} -c \"db2 get dbm cfg\"",
+                        suggest_filename=f"{sid}_{dbadm}_db2_info"
                     )
 
                 elif dbtype == 'sap':
                     # SAP MAXDB
                     sid = fields[2][:-1]
                     self.add_copy_spec(
-                        "/sapdb/%s/data/config/%s.pah" % (sid, sid)
+                        f"/sapdb/{sid}/data/config/{sid}.pah"
                     )
 
                 elif dbtype == 'ora':
                     # Oracle
                     sid = fields[2][:-1]
-                    self.add_copy_spec("/oracle/%s/*/dbs/init.ora" % sid)
+                    self.add_copy_spec(f"/oracle/{sid}/*/dbs/init.ora")
 
                 elif dbtype == 'syb':
                     # Sybase
                     sid = fields[2][:-1]
-                    self.add_copy_spec("/sybase/%s/ASE*/%s.cfg" % (sid, sid))
+                    self.add_copy_spec(f"/sybase/{sid}/ASE*/{sid}.cfg")
 
     def setup(self):
         self.collect_list_instances()

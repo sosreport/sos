@@ -21,6 +21,22 @@ class Sudo(Plugin, IndependentPlugin):
     def setup(self):
         self.add_copy_spec("/etc/sudo*")
 
+        config_file = "/etc/sudo.conf"
+        log_files = ['/var/log/sudo_debug', '/var/log/sudoers_debug']
+        try:
+            with open(config_file, 'r', encoding='UTF-8') as cfile:
+                for line in cfile:
+                    if line.startswith('Debug'):
+                        log_files.append(line.split()[2])
+        except IOError as error:
+            self._log_error(f'Could not open conf file {config_file}: '
+                            f'{error}')
+
+        if not self.get_option('all_logs'):
+            self.add_copy_spec(log_files)
+        else:
+            self.add_copy_spec([f"{log}*" for log in log_files])
+
     def postproc(self):
         regexp = r"(\s*bindpw\s*)\S+"
         self.do_file_sub("/etc/sudo-ldap.conf", regexp, r"\1********")

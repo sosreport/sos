@@ -20,7 +20,7 @@ TEST_DIR = os.path.dirname(__file__)
 class GrepTest(unittest.TestCase):
 
     def test_file_obj(self):
-        test_s = u"\n".join(
+        test_s = "\n".join(
             ['this is only a test', 'there are only two lines'])
         test_fo = StringIO(test_s)
         matches = grep(".*test$", test_fo)
@@ -31,8 +31,9 @@ class GrepTest(unittest.TestCase):
         self.assertEqual(matches, ['import unittest\n'])
 
     def test_open_file(self):
-        matches = grep(".*unittest$", open(__file__.replace(".pyc", ".py")))
-        self.assertEqual(matches, ['import unittest\n'])
+        with open(__file__.replace(".pyc", ".py"), encoding='utf-8') as f:
+            matches = grep(".*unittest$", f)
+            self.assertEqual(matches, ['import unittest\n'])
 
     def test_grep_multiple_files(self):
         matches = grep(".*unittest$",
@@ -48,8 +49,9 @@ class TailTest(unittest.TestCase):
 
     def test_tail_too_many(self):
         t = tail("tests/unittests/tail_test.txt", 200)
-        expected = open("tests/unittests/tail_test.txt", "r").read()
-        self.assertEqual(t, str.encode(expected))
+        with open("tests/unittests/tail_test.txt", "r",
+                  encoding='utf-8') as expected:
+            self.assertEqual(t, str.encode(expected.read()))
 
 
 class ExecutableTest(unittest.TestCase):

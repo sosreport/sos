@@ -8,10 +8,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import tarfile
 
 from sos.cleaner.archives import SoSObfuscationArchive
-
-import tarfile
 
 
 class InsightsArchive(SoSObfuscationArchive):

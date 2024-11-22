@@ -76,12 +76,12 @@ class OpenStackInstack(Plugin):
             for _sid in stack_ids:
                 sid = _sid[1]
                 self.add_cmd_output([
-                    "openstack stack show %s" % sid,
-                    "openstack stack resource list -n 10 %s" % sid
+                    f"openstack stack show {sid}",
+                    f"openstack stack resource list -n 10 {sid}"
                 ])
 
                 # get details on failed deployments
-                cmd = "openstack stack resource list -f value -n 5 %s" % sid
+                cmd = f"openstack stack resource list -f value -n 5 {sid}"
                 deployments = self.exec_cmd(cmd)
                 for deployment in deployments['output'].splitlines():
                     if 'FAILED' in deployment:
@@ -93,8 +93,8 @@ class OpenStackInstack(Plugin):
                             continue
                         deploy = deployment.split()[1]
                         cmd = ("openstack software deployment "
-                               "show --long %s" % (deployment))
-                        fname = "failed-deployment-%s.log" % deploy
+                               f"show --long {deployment}")
+                        fname = f"failed-deployment-{deploy}.log"
                         self.add_cmd_output(cmd, suggest_filename=fname)
 
             self.add_cmd_output("openstack object save "
@@ -136,13 +136,13 @@ class OpenStackInstack(Plugin):
             "undercloud_swift_password",
             "undercloud_tuskar_password",
         ]
-        regexp = r"((%s)=)(.*)" % "|".join(protected_keys)
+        regexp = fr"(({'|'.join(protected_keys)})=)(.*)"
         self.do_file_sub("/home/stack/.instack/install-undercloud.log",
                          regexp, r"\1*********")
         self.do_file_sub(UNDERCLOUD_CONF_PATH, regexp, r"\1*********")
 
         protected_json_keys = ["pm_password", "ssh-key", "password"]
-        json_regexp = r'("(%s)": )(".*?")' % "|".join(protected_json_keys)
+        json_regexp = fr'("({"|".join(protected_json_keys)})": )(".*?")'
         self.do_file_sub("/home/stack/instackenv.json", json_regexp,
                          r"\1*********")
         self.do_file_sub('/home/stack/.tripleo/history',

@@ -20,12 +20,12 @@ class MsSQL(Plugin, RedHatPlugin):
     packages = ('mssql-server',)
 
     option_list = [
-        PluginOpt('mssql_conf', default='/var/opt/mssql/mssql.conf',
+        PluginOpt('mssql-conf', default='/var/opt/mssql/mssql.conf',
                   desc='SQL server configuration file')
     ]
 
     def setup(self):
-        mssql_conf = self.get_option('mssql_conf')
+        mssql_conf = self.get_option('mssql-conf')
 
         # Pick error log file from mssql_conf.
         # Expecting the following format
@@ -58,17 +58,16 @@ class MsSQL(Plugin, RedHatPlugin):
                          (section == '[network]'):
                         kerberoskeytabfile = words[1].strip()
         except IOError as ex:
-            self._log_error('Could not open conf file %s: %s' %
-                            (mssql_conf, ex))
+            self._log_error(f'Could not open conf file {mssql_conf}: {ex}')
             return
 
         # Collect AD authentication configuratoin
         keytab_err = ('keytab file is specfieid in mssql_conf'
-                      ' but not found in %s' % kerberoskeytabfile)
+                      f' but not found in {kerberoskeytabfile}')
         if kerberoskeytabfile is not None:
             if self.path_isfile(kerberoskeytabfile):
-                self.add_cmd_output('ls -l %s' % kerberoskeytabfile)
-                self.add_cmd_output('klist -e -k %s' % kerberoskeytabfile)
+                self.add_dir_listing(kerberoskeytabfile)
+                self.add_cmd_output(f'klist -e -k {kerberoskeytabfile}')
             else:
                 self._log_error(keytab_err)
 

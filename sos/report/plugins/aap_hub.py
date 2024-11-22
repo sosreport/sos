@@ -29,9 +29,9 @@ class AAPAutomationHub(Plugin, RedHatPlugin):
 
         ])
 
-        self.add_cmd_output([
-            "ls -alhR /etc/ansible-automation-platform/",
-            "ls -alhR /var/log/ansible-automation-platform/",
-        ])
+        self.add_dir_listing([
+            "/etc/ansible-automation-platform/",
+            "/var/log/ansible-automation-platform/",
+        ], recursive=True)
 
 # vim: set et ts=4 sw=4 :

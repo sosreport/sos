@@ -18,6 +18,7 @@ class Mysql(Plugin):
     plugin_name = "mysql"
     profiles = ('services',)
     mysql_cnf = "/etc/my.cnf"
+    my_cnf_dir = "/etc/my.cnf.d"
 
     pw_warn_text = " (password visible in process listings)"
 
@@ -56,7 +57,7 @@ class Mysql(Plugin):
 
         if self.get_option("dbdump"):
             msg = "database user name and password must be supplied"
-            dbdump_err = "mysql.dbdump: %s" % msg
+            dbdump_err = f"mysql.dbdump: {msg}"
 
             dbuser = self.get_option("dbuser")
             dbpass = self.get_option("dbpass")
@@ -65,7 +66,7 @@ class Mysql(Plugin):
                 dbpass = os.environ['MYSQL_PWD']
 
             if dbuser is True or dbpass is True:
-                # sosreport -a or -k mysql.{dbuser,dbpass}
+                # sos report -a or -k mysql.{dbuser,dbpass}
                 self.soslog.warning(dbdump_err)
                 return
 
@@ -78,11 +79,25 @@ class Mysql(Plugin):
             # the mysql plugin.
             os.environ['MYSQL_PWD'] = dbpass
 
-            opts = "--user=%s --all-databases" % dbuser
+            opts = f"--user={dbuser} --all-databases"
             name = "mysqldump_--all-databases"
-            self.add_cmd_output("mysqldump %s" % opts, suggest_filename=name)
+            self.add_cmd_output(f"mysqldump {opts}", suggest_filename=name)
 
         self.add_cmd_output("du -s /var/lib/mysql/*")
+
+    def postproc(self):
+        protect_keys = ['password']
+        regex = fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)"
+        sub = r"\1*********"
+
+        self.do_path_regex_sub(
+            f"{self.my_cnf_dir}/*",
+            regex, sub
+        )
+        self.do_file_sub(
+            f"{self.mysql_cnf}",
+            regex, sub
+        )
 
 
 class RedHatMysql(Mysql, RedHatPlugin):
@@ -100,7 +115,7 @@ class RedHatMysql(Mysql, RedHatPlugin):
         self.add_copy_spec([
             "/etc/ld.so.conf.d/mysql-*.conf",
             "/etc/ld.so.conf.d/mariadb-*.conf",
-            "/etc/my.cnf.d/*",
+            f"{self.my_cnf_dir}/*",
             "/var/lib/config-data/puppet-generated/mysql/etc/my.cnf.d/*"
         ])
 
@@ -115,10 +130,13 @@ class DebianMysql(Mysql, DebianPlugin, UbuntuPlugin):
         'percona-xtradb-cluster-server-.*',
     )
 
+    my_cnf_dir = "/etc/mysql/"
+    mysql_cnf = f"{my_cnf_dir}/my.cnf"
+
     def setup(self):
         super().setup()
         self.add_copy_spec([
-            "/etc/mysql/",
+            self.my_cnf_dir,
             "/var/log/mysql/error.log",
             "/var/lib/mysql/*.err",
             "/var/lib/percona-xtradb-cluster/*.err",

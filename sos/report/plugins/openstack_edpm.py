@@ -17,14 +17,16 @@ class OpenStackEDPM(Plugin, RedHatPlugin):
 
     plugin_name = 'openstack_edpm'
     profiles = ('openstack', 'openstack_edpm')
-    services = ('edpm-container-shutdown')
+    services = 'edpm-container-shutdown'
     edpm_log_paths = []
 
     def setup(self):
         # Notes: recursion is max 2 for edpm-config
         # Those directories are present on all OpenStack nodes
         self.edpm_log_paths = [
-            '/var/lib/edpm-config/'
+            '/etc/os-net-config/',
+            '/var/lib/config-data/',
+            '/var/lib/edpm-config/',
         ]
         self.add_copy_spec(self.edpm_log_paths)
 

@@ -21,9 +21,17 @@ from sos.report.plugins import (Plugin, IndependentPlugin,
 class FauxPolicy(Policy):
     distro = "Faux"
 
+    @classmethod
+    def check(cls, remote=''):
+        return False
+
 
 class FauxLinuxPolicy(LinuxPolicy):
     distro = "FauxLinux"
+
+    @classmethod
+    def check(cls, remote=''):
+        return False
 
     @classmethod
     def set_forbidden_paths(cls):
@@ -108,7 +116,7 @@ class RpmPackageManagerTests(unittest.TestCase):
         self.pm = RpmPackageManager()
 
     def test_load_all_packages(self):
-        self.assertNotEquals(self.pm.packages, {})
+        self.assertNotEqual(self.pm.packages, {})
 
     def test_pkg_is_formatted(self):
         kpkg = self.pm.pkg_by_name('coreutils')
@@ -125,7 +133,7 @@ class DpkgPackageManagerTests(unittest.TestCase):
         self.pm = DpkgPackageManager()
 
     def test_load_all_packages(self):
-        self.assertNotEquals(self.pm.packages, {})
+        self.assertNotEqual(self.pm.packages, {})
 
     def test_pkg_is_formatted(self):
         kpkg = self.pm.pkg_by_name('coreutils')
@@ -141,7 +149,7 @@ class MultiPackageManagerTests(unittest.TestCase):
                                       fallbacks=[DpkgPackageManager])
 
     def test_load_all_packages(self):
-        self.assertNotEquals(self.pm.packages, {})
+        self.assertNotEqual(self.pm.packages, {})
 
     def test_pkg_is_formatted(self):
         kpkg = self.pm.pkg_by_name('coreutils')

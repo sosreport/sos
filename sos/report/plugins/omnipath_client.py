@@ -2,8 +2,7 @@
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation; either version 2 of the License.
 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -48,9 +47,8 @@ class OmnipathClient(Plugin, RedHatPlugin, UbuntuPlugin):
         # This command calls 'depmod -a', so lets make sure we
         # specified the 'allow-system-changes' option before running it.
         if self.get_option('allow_system_changes'):
-            self.add_cmd_output("opacapture %s" %
-                                join(self.get_cmd_output_path(),
-                                     "opacapture.tgz"),
+            opa_fullpath = join(self.get_cmd_output_path(), "opacapture.tgz")
+            self.add_cmd_output(f"opacapture {opa_fullpath}",
                                 changes=True)
 
 # vim: set et ts=4 sw=4 :

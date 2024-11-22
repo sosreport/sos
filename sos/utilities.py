@@ -7,6 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
+import pwd
 import re
 import inspect
 from subprocess import Popen, PIPE, STDOUT
@@ -27,6 +28,8 @@ try:
 except ImportError:
     from pkg_resources import parse_version
 
+log = logging.getLogger('sos')
+
 # try loading magic>=0.4.20 which implements detect_from_filename method
 magic_mod = False
 try:
@@ -34,14 +37,13 @@ try:
     magic.detect_from_filename(__file__)
     magic_mod = True
 except (ImportError, AttributeError):
-    log = logging.getLogger('sos')
     from textwrap import fill
-    msg = ("""\
+    msg = """\
 WARNING: Failed to load 'magic' module version >= 0.4.20 which sos aims to \
 use for detecting binary files. A less effective method will be used. It is \
 recommended to install proper python3-magic package with the module.
-""")
-    log.warning('\n' + fill(msg, 72, replace_whitespace=False) + '\n')
+"""
+    log.warning(f'\n{fill(msg, 72, replace_whitespace=False)}\n')
 
 
 TIMEOUT_DEFAULT = 300
@@ -111,28 +113,21 @@ def fileobj(path_or_file, mode='r'):
     """Returns a file-like object that can be used as a context manager"""
     if isinstance(path_or_file, str):
         try:
-            return open(path_or_file, mode)
+            return open(path_or_file, mode, encoding='utf-8')
         except IOError:
-            log = logging.getLogger('sos')
-            log.debug("fileobj: %s could not be opened" % path_or_file)
+            log.debug(f"fileobj: {path_or_file} could not be opened")
             return closing(io.StringIO())
     else:
         return closing(path_or_file)
 
 
-def convert_bytes(bytes_, K=1 << 10, M=1 << 20, G=1 << 30, T=1 << 40):
+def convert_bytes(num_bytes):
     """Converts a number of bytes to a shorter, more human friendly format"""
-    fn = float(bytes_)
-    if bytes_ >= T:
-        return '%.1fT' % (fn / T)
-    elif bytes_ >= G:
-        return '%.1fG' % (fn / G)
-    elif bytes_ >= M:
-        return '%.1fM' % (fn / M)
-    elif bytes_ >= K:
-        return '%.1fK' % (fn / K)
-    else:
-        return '%d' % bytes_
+    sizes = {'T': 1 << 40, 'G': 1 << 30, 'M': 1 << 20, 'K': 1 << 10}
+    for symbol, size in sizes.items():
+        if num_bytes >= size:
+            return f"{float(num_bytes) / size:.1f}{symbol}"
+    return f"{num_bytes}"
 
 
 def file_is_binary(fname):
@@ -159,7 +154,7 @@ def file_is_binary(fname):
             pass
     # if for some reason the above check fails or magic>=0.4.20 is not present,
     # fail over to checking the very first byte of the file content
-    with open(fname, 'tr') as tfile:
+    with open(fname, 'tr', encoding='utf-8') as tfile:
         try:
             # when opened as above (tr), reading binary content will raise
             # an exception
@@ -218,7 +213,8 @@ def is_executable(command, sysroot=None):
 def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                            chroot=None, chdir=None, env=None, foreground=False,
                            binary=False, sizelimit=None, poller=None,
-                           to_file=False):
+                           to_file=False, runas=None):
+    # pylint: disable=too-many-locals,too-many-branches
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
@@ -229,7 +225,11 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
     def _child_prep_fn():
         if chroot and chroot != '/':
             os.chroot(chroot)
-        if (chdir):
+        if runas:
+            os.setgid(pwd.getpwnam(runas).pw_gid)
+            os.setuid(pwd.getpwnam(runas).pw_uid)
+            os.chdir(pwd.getpwnam(runas).pw_dir)
+        if chdir:
             os.chdir(chdir)
 
     def _check_poller(proc):
@@ -237,6 +237,15 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             proc.terminate()
             raise SoSTimeoutError
         time.sleep(0.01)
+
+    if runas:
+        pwd_user = pwd.getpwnam(runas)
+        env.update({
+            'HOME': pwd_user.pw_dir,
+            'LOGNAME': runas,
+            'PWD': pwd_user.pw_dir,
+            'USER': runas
+        })
 
     cmd_env = os.environ.copy()
     # ensure consistent locale for collected command output
@@ -250,11 +259,8 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                 cmd_env.pop(key, None)
     # use /usr/bin/timeout to implement a timeout
     if timeout and is_executable("timeout"):
-        command = "timeout %s %ds %s" % (
-            '--foreground' if foreground else '',
-            timeout,
-            command
-        )
+        command = (f"timeout {'--foreground' if foreground else ''} {timeout}s"
+                   f" {command}")
 
     args = shlex.split(command)
     # Expand arguments that are wildcard root paths.
@@ -269,63 +275,61 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         else:
             expanded_args.append(arg)
     if to_file:
-        _output = open(to_file, 'w')
+        # pylint: disable=consider-using-with
+        _output = open(to_file, 'w', encoding='utf-8')
     else:
         _output = PIPE
     try:
-        p = Popen(expanded_args, shell=False, stdout=_output,
-                  stderr=STDOUT if stderr else PIPE,
-                  bufsize=-1, env=cmd_env, close_fds=True,
-                  preexec_fn=_child_prep_fn)
+        with Popen(expanded_args, shell=False, stdout=_output,
+                   stderr=STDOUT if stderr else PIPE,
+                   bufsize=-1, env=cmd_env, close_fds=True,
+                   preexec_fn=_child_prep_fn) as p:
 
-        if not to_file:
-            reader = AsyncReader(p.stdout, sizelimit, binary)
-        else:
-            reader = FakeReader(p, binary)
+            if not to_file:
+                reader = AsyncReader(p.stdout, sizelimit, binary)
+            else:
+                reader = FakeReader(p, binary)
 
-        if poller:
-            while reader.running:
-                _check_poller(p)
-        else:
-            try:
-                # override timeout=0 to timeout=None, as Popen will treat the
-                # former as a literal 0-second timeout
-                p.wait(timeout if timeout else None)
-            except Exception:
-                p.terminate()
-                if to_file:
-                    _output.close()
-                # until we separate timeouts from the `timeout` command
-                # handle per-cmd timeouts via Plugin status checks
-                reader.running = False
-                return {'status': 124, 'output': reader.get_contents(),
-                        'truncated': reader.is_full}
-        if to_file:
-            _output.close()
+            if poller:
+                while reader.running:
+                    _check_poller(p)
+            else:
+                try:
+                    # override timeout=0 to timeout=None, as Popen will treat
+                    # the former as a literal 0-second timeout
+                    p.wait(timeout if timeout else None)
+                except Exception:
+                    p.terminate()
+                    if to_file:
+                        _output.close()
+                    # until we separate timeouts from the `timeout` command
+                    # handle per-cmd timeouts via Plugin status checks
+                    reader.running = False
+                    return {'status': 124, 'output': reader.get_contents(),
+                            'truncated': reader.is_full}
+            if to_file:
+                _output.close()
 
-        # wait for Popen to set the returncode
-        while p.poll() is None:
-            pass
+            # wait for Popen to set the returncode
+            while p.poll() is None:
+                pass
 
-        stdout = reader.get_contents()
-        truncated = reader.is_full
+            if p.returncode in (126, 127):
+                stdout = b""
+            else:
+                stdout = reader.get_contents()
 
+            return {
+                'status': p.returncode,
+                'output': stdout,
+                'truncated': reader.is_full
+            }
     except OSError as e:
         if to_file:
             _output.close()
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': "", 'truncated': ''}
-        else:
-            raise e
-
-    if p.returncode == 126 or p.returncode == 127:
-        stdout = b""
-
-    return {
-        'status': p.returncode,
-        'output': stdout,
-        'truncated': truncated
-    }
+        raise e
 
 
 def import_module(module_fqname, superclasses=None):
@@ -364,7 +368,7 @@ def get_human_readable(size, precision=2):
     while size > 1024 and suffixindex < 4:
         suffixindex += 1
         size = size/1024.0
-    return "%.*f%s" % (precision, size, suffixes[suffixindex])
+    return f"{size:.{precision}f}{suffixes[suffixindex]}"
 
 
 def _os_wrapper(path, sysroot, method, module=os.path):
@@ -501,7 +505,7 @@ class AsyncReader(threading.Thread):
     """
 
     def __init__(self, channel, sizelimit, binary):
-        super(AsyncReader, self).__init__()
+        super().__init__()
         self.chan = channel
         self.binary = binary
         self.chunksize = 2048
@@ -542,8 +546,7 @@ class AsyncReader(threading.Thread):
             time.sleep(0.01)
         if not self.binary:
             return ''.join(ln.decode('utf-8', 'ignore') for ln in self.deque)
-        else:
-            return b''.join(ln for ln in self.deque)
+        return b''.join(ln for ln in self.deque)
 
     @property
     def is_full(self):
@@ -553,7 +556,7 @@ class AsyncReader(threading.Thread):
         return len(self.deque) == self.slots
 
 
-class ImporterHelper(object):
+class ImporterHelper:
     """Provides a list of modules that can be imported in a package.
     Importable modules are located along the module __path__ list and modules
     are files that end in .py.
@@ -568,7 +571,7 @@ class ImporterHelper(object):
     def _plugin_name(self, path):
         "Returns the plugin module name given the path"
         base = os.path.basename(path)
-        name, ext = os.path.splitext(base)
+        name, _ = os.path.splitext(base)
         return name
 
     def _get_plugins_from_list(self, list_):
@@ -616,10 +619,12 @@ class TempFileUtil():
                 f.flush()
                 f.close()
             except Exception:
+                # file already closed or potentially already removed, ignore
                 pass
             try:
                 os.unlink(fname)
             except Exception:
+                # if the above failed, this is also likely to fail, ignore
                 pass
         self.files = []
 

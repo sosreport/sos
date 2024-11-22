@@ -6,6 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
@@ -29,7 +30,8 @@ class System(Plugin, IndependentPlugin):
             "/proc/sys/net/ipv4/route/flush",
             "/proc/sys/net/ipv6/route/flush",
             "/proc/sys/net/ipv6/neigh/*/retrans_time",
-            "/proc/sys/net/ipv6/neigh/*/base_reachable_time"
+            "/proc/sys/net/ipv6/neigh/*/base_reachable_time",
+            "/etc/default/grub.d/50-curtin-settings.cfg",
         ])
 
         # collect glibc tuning decisions
@@ -39,5 +41,17 @@ class System(Plugin, IndependentPlugin):
             "ld.so --list-tunables"
         ])
 
+        var_names = list(os.environ.keys())
+        var_names.sort()
+        self.add_string_as_file('\n'.join(var_names),
+                                "environment_varnames",
+                                plug_dir=True)
+
+    def postproc(self):
+        self.do_paths_http_sub([
+            "/etc/sysconfig",
+            "/etc/default",
+            "/etc/environment",
+        ])
 
 # vim: set et ts=4 sw=4 :

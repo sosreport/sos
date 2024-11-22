@@ -113,9 +113,10 @@ class DNFPlugin(Plugin, RedHatPlugin):
                         transactions = int(line.split('|')[0].strip())
                         break
                     except ValueError:
+                        # not a valid line to extract transactions from, ignore
                         pass
             for tr_id in range(1, min(transactions+1, 50)):
-                self.add_cmd_output("dnf history info %d" % tr_id,
+                self.add_cmd_output(f"dnf history info {tr_id}",
                                     subdir="history-info",
                                     tags='dnf_history_info')
 

@@ -12,13 +12,12 @@ import shutil
 import random
 
 from io import StringIO
-
+from string import ascii_lowercase
 from sos.report.plugins import (Plugin, regex_findall,
                                 _mangle_command, PluginOpt)
 from sos.archive import TarFileArchive
 from sos.policies.distros import LinuxPolicy
 from sos.policies.init_systems import InitSystem
-from string import ascii_lowercase
 
 PATH = os.path.dirname(__file__)
 
@@ -27,18 +26,19 @@ def j(filename):
     return os.path.join(PATH, filename)
 
 
-def create_file(size, dir=None):
-    f = tempfile.NamedTemporaryFile(delete=False, dir=dir, mode='w')
-    fsize = size * 1024 * 1024
-    content = ''.join(random.choice(ascii_lowercase) for x in range(fsize))
-    f.write(content)
-    f.flush()
-    f.close()
-    return f.name
+def create_file(size, dirname=None):
+    with tempfile.NamedTemporaryFile(delete=False, dir=dirname, mode='w') as f:
+        fsize = size * 1024 * 1024
+        content = ''.join(random.choice(ascii_lowercase) for x in range(fsize))
+        f.write(content)
+        f.flush()
+        return f.name
+    return None
 
 
 class MockArchive(TarFileArchive):
 
+    # pylint: disable=super-init-not-called
     def __init__(self):
         self.m = {}
         self.strings = {}
@@ -51,14 +51,14 @@ class MockArchive(TarFileArchive):
             dest = src
         self.m[src] = dest
 
-    def add_string(self, content, dest):
+    def add_string(self, content, dest, mode='w'):
         self.m[dest] = content
 
-    def add_link(self, dest, link_name):
+    def add_link(self, source, link_name):
         pass
 
-    def open_file(self, name):
-        return open(self.m.get(name), 'r')
+    def open_file(self, path):
+        return open(self.m.get(path), 'r', encoding='utf-8')
 
     def close(self):
         pass
@@ -111,11 +111,12 @@ class ForbiddenMockPlugin(Plugin):
 
 class EnablerPlugin(Plugin):
 
-    def is_installed(self, pkg):
+    # pylint: disable=unused-argument
+    def is_installed(self, package_name):
         return self.is_installed
 
 
-class MockOptions(object):
+class MockOptions:
     all_logs = False
     dry_run = False
     since = None
@@ -130,14 +131,14 @@ class MockOptions(object):
 class PluginToolTests(unittest.TestCase):
 
     def test_regex_findall(self):
-        test_s = u"\n".join(
+        test_s = "\n".join(
             ['this is only a test', 'there are only two lines'])
         test_fo = StringIO(test_s)
         matches = regex_findall(r".*lines$", test_fo)
         self.assertEqual(matches, ['there are only two lines'])
 
     def test_regex_findall_miss(self):
-        test_s = u"\n".join(
+        test_s = "\n".join(
             ['this is only a test', 'there are only two lines'])
         test_fo = StringIO(test_s)
         matches = regex_findall(r".*not_there$", test_fo)
@@ -377,8 +378,8 @@ class AddCopySpecTests(unittest.TestCase):
     def test_glob_file_limit_no_limit(self):
         self.mp.sysroot = '/'
         tmpdir = tempfile.mkdtemp()
-        create_file(2, dir=tmpdir)
-        create_file(2, dir=tmpdir)
+        create_file(2, dirname=tmpdir)
+        create_file(2, dirname=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*")
         self.assertEqual(len(self.mp.copy_paths), 2)
         shutil.rmtree(tmpdir)
@@ -386,11 +387,11 @@ class AddCopySpecTests(unittest.TestCase):
     def test_glob_file_over_limit(self):
         self.mp.sysroot = '/'
         tmpdir = tempfile.mkdtemp()
-        create_file(2, dir=tmpdir)
-        create_file(2, dir=tmpdir)
+        create_file(2, dirname=tmpdir)
+        create_file(2, dirname=tmpdir)
         self.mp.add_copy_spec(tmpdir + "/*", 1)
         self.assertEqual(len(self.mp._tail_files_list), 1)
-        fname, _size = self.mp._tail_files_list[0]
+        _, _size = self.mp._tail_files_list[0]
         self.assertEqual(1024 * 1024, _size)
         shutil.rmtree(tmpdir)
 
@@ -430,8 +431,8 @@ class CheckEnabledTests(unittest.TestCase):
 
     def test_allows_bad_tuple(self):
         f = j("tail_test.txt")
-        self.mp.files = (f)
-        self.mp.packages = ('foo')
+        self.mp.files = f
+        self.mp.packages = 'foo'
         self.assertTrue(self.mp.check_enabled())
 
     def test_enabled_by_default(self):

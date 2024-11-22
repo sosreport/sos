@@ -1,14 +1,13 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 4.7.1
+Version: 4.8.1
 Release: 1%{?dist}
 Source0: https://github.com/sosreport/sos/archive/%{name}-%{version}.tar.gz
-License: GPL-2.0-or-later
+License: GPL-2.0-only
 BuildArch: noarch
 Url: https://github.com/sosreport/sos
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
-Requires: python3-rpm
 Requires: python3-pexpect
 %if 0%{?rhel} && 0%{?rhel} < 10
 Requires: python3-setuptools
@@ -92,6 +91,16 @@ rm -rf %{buildroot}/usr/config/
 %config(noreplace) %{_sysconfdir}/sos/sos.conf
 
 %changelog
+* Tue Oct 15 2024 Pavel Moravec <pmoravec@redhat.com> = 4.8.1
+- New upstream release
+
+* Sat Aug 17 2024 Jake Hunsaker <jacob.r.hunsaker@gmail.com> = 4.8.0
+- New upstream release
+- License clarification to GPLv2 only
+
+* Fri Jun 21 2024 Pavel Moravec <pmoravec@redhat.com> = 4.7.2
+- New upstream release
+
 * Mon Apr 08 2024 Pavel Moravec <pmoravec@redhat.com> = 4.7.1
 - New upstream release
 

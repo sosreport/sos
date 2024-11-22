@@ -17,10 +17,10 @@ class Login(Plugin, IndependentPlugin):
     profiles = ('system', 'identity')
 
     def setup(self):
-        self.add_cmd_output("last", root_symlink="last")
+        self.add_cmd_output("last -F", root_symlink="last")
         self.add_cmd_output([
-            "last reboot",
-            "last shutdown",
+            "last -F reboot",
+            "last -F shutdown",
             "lastlog",
             "lastlog -u 0-999",
             "lastlog -u 1000-60000",

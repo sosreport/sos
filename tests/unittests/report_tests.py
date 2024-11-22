@@ -71,7 +71,7 @@ class TestPlainReport(unittest.TestCase):
         self.section = Section(name="plugin")
         self.div = '\n' + PlainTextReport.PLUGDIVIDER
         self.pluglist = "Loaded Plugins:\n{pluglist}"
-        self.defaultheader = u''.join([
+        self.defaultheader = ''.join([
             self.pluglist.format(pluglist="  plugin"),
             self.div,
             "\nplugin\n"
@@ -92,7 +92,7 @@ class TestPlainReport(unittest.TestCase):
         section2 = Section(name="second")
         self.report.add(section1, section2)
 
-        self.assertEqual(u''.join([
+        self.assertEqual(''.join([
             self.pluglist.format(pluglist="  first  second"),
             self.div,
             "\nfirst",
@@ -108,7 +108,7 @@ class TestPlainReport(unittest.TestCase):
         self.section.add(cmd)
         self.report.add(self.section)
 
-        self.assertEqual(u''.join([
+        self.assertEqual(''.join([
             self.defaultheader,
             "-  commands executed:\n  * ls -al /foo/bar/baz"
         ]),
@@ -119,7 +119,7 @@ class TestPlainReport(unittest.TestCase):
         self.section.add(cf)
         self.report.add(self.section)
 
-        self.assertEqual(u''.join([
+        self.assertEqual(''.join([
             self.defaultheader,
             "-  files copied:\n  * /etc/hosts"
         ]),
@@ -131,7 +131,7 @@ class TestPlainReport(unittest.TestCase):
         self.section.add(crf)
         self.report.add(self.section)
 
-        self.assertEqual(u''.join([
+        self.assertEqual(''.join([
             self.defaultheader,
             "-  files created:\n  * sample.txt"
         ]),
@@ -142,7 +142,7 @@ class TestPlainReport(unittest.TestCase):
         self.section.add(alrt)
         self.report.add(self.section)
 
-        self.assertEqual(u''.join([
+        self.assertEqual(''.join([
             self.defaultheader,
             "-  alerts:\n  ! this is an alert"
         ]),

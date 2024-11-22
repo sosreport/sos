@@ -33,4 +33,3 @@ class SudoLdapScrubbedTest(StageTwoReportTest):
 
     def test_bindpw_scrubbed(self):
         self.assertFileNotHasContent('/etc/sudo-ldap.conf', 'sostestpassword')
-

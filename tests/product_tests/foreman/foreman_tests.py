@@ -14,7 +14,11 @@ FOREMAN_DB_PASSWORD = r'S0Sdb=p@ssw0rd!'
 FOREMAN_ADMIN_PASSWORD = r'S0S@dmin\\p@ssw0rd!'
 CANDLEPIN_DB_PASSWORD = r'S0SKatello%sp@ssw0rd!'
 
-FOREMAN_PASSWORDS = [FOREMAN_DB_PASSWORD, FOREMAN_ADMIN_PASSWORD, CANDLEPIN_DB_PASSWORD]
+FOREMAN_PASSWORDS = [
+    FOREMAN_DB_PASSWORD,
+    FOREMAN_ADMIN_PASSWORD,
+    CANDLEPIN_DB_PASSWORD
+]
 
 
 class ForemanBasicTest(StageOneReportTest):
@@ -47,7 +51,9 @@ class ForemanBasicTest(StageOneReportTest):
         self.assertFileGlobNotInArchive("/etc/foreman*/*key.pem")
 
     def test_foreman_database_sizes_collected(self):
-        self.assertFileCollected('sos_commands/foreman/foreman_db_tables_sizes')
+        self.assertFileCollected(
+            'sos_commands/foreman/foreman_db_tables_sizes'
+        )
 
     def test_foreman_installer_dirs_collected(self):
         self.assertFileGlobInArchive("/etc/foreman-installer/*")
@@ -63,23 +69,34 @@ class ForemanBasicTest(StageOneReportTest):
         self.assertFileCollected('sos_commands/foreman/foreman_tasks_tasks')
 
     def test_proxyfeatures_not_collected(self):
-        self.assertFileGlobNotInArchive("sos_commands/foreman/smart_proxies_features/*")
+        self.assertFileGlobNotInArchive(
+            "sos_commands/foreman/smart_proxies_features/*"
+        )
 
     def test_foreman_config_postproc_worked(self):
-        self.assertFileNotHasContent('/etc/foreman/database.yml', FOREMAN_DB_PASSWORD)
+        self.assertFileNotHasContent(
+            '/etc/foreman/database.yml',
+            FOREMAN_DB_PASSWORD
+        )
 
     def test_foreman_password_postproc_worked(self):
-        for _check in ['/var/log/foreman-installer/foreman.log', '/etc/foreman-installer/scenarios.d/foreman-answers.yaml']:
+        for _check in ['/var/log/foreman-installer/foreman.log',
+                       '/etc/foreman-installer/scenarios.d/'
+                       'foreman-answers.yaml']:
             for passwd in FOREMAN_PASSWORDS:
                 self.assertFileNotHasContent(_check, passwd)
 
     @redhat_only
     def test_candlepin_table_sizes_collected(self):
-        self.assertFileCollected('sos_commands/candlepin/candlepin_db_tables_sizes')
+        self.assertFileCollected(
+            'sos_commands/candlepin/candlepin_db_tables_sizes'
+        )
 
     @redhat_only
     def test_katello_password_postproc_worked(self):
-        for _check in ['/var/log/foreman-installer/katello.log', '/etc/foreman-installer/scenarios.d/katello-answers.yaml']:
+        for _check in ['/var/log/foreman-installer/katello.log',
+                       '/etc/foreman-installer/scenarios.d/'
+                       'katello-answers.yaml']:
             for passwd in FOREMAN_PASSWORDS:
                 self.assertFileNotHasContent(_check, passwd)
 
@@ -107,7 +124,10 @@ class ForemanWithOptionsTest(StageOneReportTest):
 
     @redhat_only
     def test_proxyfeatures_collected(self):
-        self.assertFileGlobInArchive("sos_commands/foreman/smart_proxies_features/*")
+        self.assertFileGlobInArchive(
+            "sos_commands/foreman/smart_proxies_features/*"
+        )
+
 
 class ForemanInstallerTest(StageOneReportTest):
     """Check whether foreman-installer related data are properly collected
@@ -121,6 +141,7 @@ class ForemanInstallerTest(StageOneReportTest):
 
     def test_foreman_installer_etc_collected(self):
         self.assertFileCollected("/etc/foreman-installer/scenarios.d")
+
 
 class ForemanProxyTest(StageOneReportTest):
     """Check whether foreman-proxy related data are properly collected

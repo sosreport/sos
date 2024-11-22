@@ -42,8 +42,8 @@ class InitSystem():
         self.services = {}
 
         self.init_cmd = init_cmd
-        self.list_cmd = "%s %s" % (self.init_cmd, list_cmd) or None
-        self.query_cmd = "%s %s" % (self.init_cmd, query_cmd) or None
+        self.list_cmd = f"{self.init_cmd} {list_cmd}" or None
+        self.query_cmd = f"{self.init_cmd} {query_cmd}" or None
         self.chroot = chroot
 
     def is_enabled(self, name):
@@ -83,6 +83,7 @@ class InitSystem():
         """
         return name in self.services
 
+    # pylint: disable=unused-argument
     def is_running(self, name, default=True):
         """Checks if the given service name is in a running state.
 
@@ -100,7 +101,7 @@ class InitSystem():
         # This is going to be primarily used in gating if service related
         # commands are going to be run or not. Default to always returning
         # True when an actual init system is not specified by policy so that
-        # we don't inadvertantly restrict sosreports on those systems
+        # we don't inadvertantly restrict sos reports on those systems
         return default
 
     def load_all_services(self):
@@ -111,14 +112,14 @@ class InitSystem():
         This must be overridden by anything that subclasses `InitSystem` in
         order for service methods to function properly
         """
-        pass
+        raise NotImplementedError
 
     def _query_service(self, name):
         """Query an individual service"""
         if self.query_cmd:
             try:
                 return sos_get_command_output(
-                    "%s %s" % (self.query_cmd, name),
+                    f"{self.query_cmd} {name}",
                     chroot=self.chroot
                 )
             except Exception:
@@ -148,7 +149,7 @@ class InitSystem():
         :type regex: ``str``
         """
         reg = re.compile(regex, re.I)
-        return [s for s in self.services.keys() if reg.match(s)]
+        return [s for s in self.services if reg.match(s)]
 
     def get_service_status(self, name):
         """Get the status for the given service name along with the output

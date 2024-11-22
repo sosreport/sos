@@ -23,7 +23,7 @@ class NormalSoSReport(StageOneReportTest):
 
     def test_debug_not_printed_to_console(self):
         self.assertOutputNotContains('added cmd output')
-        self.assertOutputNotContains('\[archive:.*\]')
+        self.assertOutputNotContains(r'\[archive:.*\]')
 
     def test_postproc_called(self):
         self.assertSosLogContains('substituting scrpath')
@@ -40,9 +40,22 @@ class NormalSoSReport(StageOneReportTest):
             "No tag summary generated in report"
         )
         self.assertTrue(
-            isinstance(self.manifest['components']['report']['tag_summary'], dict),
+            isinstance(
+                self.manifest['components']['report']['tag_summary'],
+                dict
+            ),
             "Tag summary malformed"
         )
+
+    def test_dir_listing_works(self):
+        self.assertFileCollected('sos_commands/boot/ls_-alZR_.boot')
+        boot_ls = self.get_name_in_archive('sos_commands/boot/ls_-alZR_.boot')
+        with open(boot_ls, 'r', encoding='utf-8') as ls_file:
+            # make sure we actually got ls output
+            ln = ls_file.readline().strip()
+            self.assertEqual(
+                ln, '/boot:', f"dir listing first line looks incorrect: {ln}"
+            )
 
     @redhat_only
     def test_version_matches_package(self):
@@ -61,11 +74,11 @@ class LogLevelTest(StageOneReportTest):
     sos_cmd = '-vvv -o kernel,host,boot,filesys'
 
     def test_archive_logging_enabled(self):
-        self.assertSosLogContains('DEBUG: \[archive:.*\]')
+        self.assertSosLogContains(r'DEBUG: \[archive:.*\]')
         self.assertSosLogContains('Making leading paths for')
 
     def test_debug_printed_to_console(self):
-        self.assertOutputContains('\[plugin:.*\]')
+        self.assertOutputContains(r'\[plugin:.*\]')
 
 
 class RestrictedSoSReport(StageOneReportTest):
@@ -73,7 +86,8 @@ class RestrictedSoSReport(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = '-o kernel,host,sudo,hardware,dbus,x11 --no-env-var --no-report -t1 --no-postproc'
+    sos_cmd = ('-o kernel,host,sudo,hardware,dbus,x11 --no-env-var '
+               '--no-report -t1 --no-postproc')
 
     def test_no_env_vars_collected(self):
         self.assertFileNotCollected('environment')
@@ -90,7 +104,8 @@ class RestrictedSoSReport(StageOneReportTest):
         self.assertOutputNotContains('substituting')
 
     def test_only_selected_plugins_run(self):
-        self.assertOnlyPluginsIncluded(['kernel', 'host', 'sudo', 'hardware', 'dbus', 'x11'])
+        self.assertOnlyPluginsIncluded(['kernel', 'host', 'sudo',
+                                        'hardware', 'dbus', 'x11'])
 
 
 class DisabledCollectionsReport(StageOneReportTest):
@@ -98,7 +113,8 @@ class DisabledCollectionsReport(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = "-n networking,system,logs --skip-files=/etc/fstab --skip-commands='journalctl*'"
+    sos_cmd = ("-n networking,system,logs --skip-files=/etc/fstab "
+               "--skip-commands='journalctl*'")
 
     def test_plugins_disabled(self):
         self.assertPluginNotIncluded('networking')
@@ -115,4 +131,3 @@ class DisabledCollectionsReport(StageOneReportTest):
 
     def test_skip_commands_working(self):
         self.assertFileGlobNotInArchive('sos_commands/*/journalctl*')
-

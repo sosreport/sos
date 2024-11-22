@@ -15,8 +15,6 @@ from sos.presets import PresetDefaults
 RHEL_RELEASE_STR = "Red Hat Enterprise Linux"
 
 _opts_verify = SoSOptions(verify=True)
-_opts_all_logs = SoSOptions(all_logs=True)
-_opts_all_logs_verify = SoSOptions(all_logs=True, verify=True)
 _cb_profiles = ['boot', 'storage', 'system']
 _cb_plugopts = ['boot.all-images=on', 'rpm.rpmva=on', 'rpm.rpmdb=on']
 
@@ -31,7 +29,7 @@ RHOSP = "rhosp"
 RHOSP_DESC = "Red Hat OpenStack Platform"
 RHOSP_OPTS = SoSOptions(plugopts=[
                              'process.lsof=off',
-                             'networking.ethtool_namespaces=False',
+                             'networking.ethtool-namespaces=False',
                              'networking.namespaces=200'])
 
 RHOCP = "ocp"
@@ -42,7 +40,7 @@ RHOCP_OPTS = SoSOptions(
     plugopts=[
         'crio.timeout=600',
         'networking.timeout=600',
-        'networking.ethtool_namespaces=False',
+        'networking.ethtool-namespaces=False',
         'networking.namespaces=200'
     ])
 
@@ -64,13 +62,25 @@ AAPEDA_NOTE = ('Collects \'eda\' user output for the containers_common plugin.'
                ' If you need more users, do not forget to add \'eda\' '
                'to your own list for the \'rootlessusers\' option.')
 
+AAPCONTROLLER = 'aap_controller'
+AAPCONTROLLER_DESC = 'Ansible Automation Platform Controller'
+AAPCONTROLLER_OPTS = SoSOptions(
+    enable_plugins=['containers_common'],
+    plugopts=[
+        'containers_common.rootlessusers=awx'
+    ])
+AAPCONTROLLER_NOTE = ('Collects \'awx\' user output for the containers_common'
+                      'pluging. If you need more users, do not forget to add'
+                      '\'awx\' to your own list for the \'rootlessusers\' '
+                      'option.')
+
 CB = "cantboot"
 CB_DESC = "For use when normal system startup fails"
 CB_OPTS = SoSOptions(
             verify=True, all_logs=True, profiles=_cb_profiles,
             plugopts=_cb_plugopts
           )
-CB_NOTE = ("Data collection will be limited to a boot-affecting scope")
+CB_NOTE = "Data collection will be limited to a boot-affecting scope"
 
 NOTE_SIZE = "This preset may increase report size"
 NOTE_TIME = "This preset may increase report run time"
@@ -79,6 +89,9 @@ NOTE_SIZE_TIME = "This preset may increase report size and run time"
 RHEL_PRESETS = {
     AAPEDA: PresetDefaults(name=AAPEDA, desc=AAPEDA_DESC, opts=AAPEDA_OPTS,
                            note=AAPEDA_NOTE),
+    AAPCONTROLLER: PresetDefaults(name=AAPCONTROLLER, desc=AAPCONTROLLER_DESC,
+                                  opts=AAPCONTROLLER_OPTS,
+                                  note=AAPCONTROLLER_NOTE),
     RHV: PresetDefaults(name=RHV, desc=RHV_DESC, note=NOTE_TIME,
                         opts=_opts_verify),
     RHEL: PresetDefaults(name=RHEL, desc=RHEL_DESC),

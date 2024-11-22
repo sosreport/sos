@@ -59,11 +59,11 @@ class SeagateSES(Plugin, IndependentPlugin):
 
         for devid in devices:
             self.add_cmd_output([
-                "%s %d -CLI %s" % (cmd, devid, subcmd) for subcmd in subcmds
+                f"{cmd} {devid} -CLI {subcmd}" for subcmd in subcmds
             ])
 
             self.add_cmd_output([
-                "%s %d -cli %s" % (cmd, devid, subcmd) for subcmd in subcmds
+                f"{cmd} {devid} -cli {subcmd}" for subcmd in subcmds
             ])
 
 # vim: set et ts=4 sw=4 :

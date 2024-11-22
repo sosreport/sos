@@ -7,13 +7,15 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-# This sosreport plugin is meant for sas adapters.
-# This plugin logs inforamtion on each adapter it finds.
-
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class SAS3ircu(Plugin, IndependentPlugin):
+    """
+    The sas3ircu plugin is intended to gather information for sas adapters,
+    particularly sas-3 RAID adapters, and will collect information on each
+    adapter discovered on the system.
+    """
 
     short_desc = 'SAS-3 Integrated RAID adapter information'
 
@@ -32,7 +34,7 @@ class SAS3ircu(Plugin, IndependentPlugin):
             # for each adapter get some basic info
             for sas_info in sas_lst:
                 sas_num = sas_info.split()[0]
-                self.add_cmd_output("sas3ircu %s display" % sas_num, timeout=5)
-                self.add_cmd_output("sas3ircu %s status" % sas_num, timeout=5)
+                self.add_cmd_output(f"sas3ircu {sas_num} display", timeout=5)
+                self.add_cmd_output(f"sas3ircu {sas_num} status", timeout=5)
 
 # vim: et ts=4 sw=4

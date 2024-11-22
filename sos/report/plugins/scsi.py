@@ -45,7 +45,7 @@ class Scsi(Plugin, IndependentPlugin):
             for line in result['output'].splitlines():
                 if line.split()[1] in scsi_types:
                     devsg = line.split()[-1]
-                    self.add_cmd_output("sg_ses -p2 -b1 %s" % devsg)
+                    self.add_cmd_output(f"sg_ses -p2 -b1 {devsg}")
 
         self.add_cmd_output("lsscsi -i", suggest_filename="lsscsi",
                             tags="lsscsi")
@@ -58,7 +58,8 @@ class Scsi(Plugin, IndependentPlugin):
             "lsscsi -H",
             "lsscsi -d",
             "lsscsi -s",
-            "lsscsi -L"
+            "lsscsi -L",
+            "lsscsi -iw",
         ])
 
         scsi_hosts = glob("/sys/class/scsi_host/*")

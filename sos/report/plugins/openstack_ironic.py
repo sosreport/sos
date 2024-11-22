@@ -71,9 +71,10 @@ class OpenStackIronic(Plugin):
             for path in ['/var/lib/ironic', '/httpboot', '/tftpboot',
                          self.ins_puppet_gen + '/var/lib/httpboot/',
                          self.ins_puppet_gen + '/var/lib/tftpboot/']:
-                self.add_cmd_output('ls -laRt %s' % path)
-                self.add_cmd_output('ls -laRt %s' %
-                                    (self.var_puppet_gen + path))
+                self.add_dir_listing([
+                    path,
+                    f"{self.var_puppet_gen}{path}"
+                ], recursive=True)
 
             # Let's get the packages from the containers, always helpful when
             # troubleshooting.
@@ -109,8 +110,8 @@ class OpenStackIronic(Plugin):
                     "/var/log/ironic-inspector/*.log",
                 ])
 
-            for path in ['/var/lib/ironic', '/httpboot', '/tftpboot']:
-                self.add_cmd_output('ls -laRt %s' % path)
+            self.add_dir_listing(['/var/lib/ironic', '/httpboot', '/tftpboot'],
+                                 recursive=True)
 
         self.add_file_tags({
             ".*/etc/ironic/ironic.conf": "ironic_conf"
@@ -147,13 +148,14 @@ class OpenStackIronic(Plugin):
         ]
         connection_keys = ["connection", "sql_connection"]
 
+        join_con_keys = "|".join(connection_keys)
+
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1*********"
         )
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            fr"(^\s*({join_con_keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 
@@ -186,7 +188,7 @@ class RedHatIronic(OpenStackIronic, RedHatPlugin):
                  if uuid.strip()]
         for uuid in uuids:
             self.add_cmd_output('openstack baremetal introspection '
-                                'data save %s' % uuid)
+                                f'data save {uuid}')
 
     def setup(self):
         super().setup()

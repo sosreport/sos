@@ -9,6 +9,7 @@
 
 from sos_tests import StageTwoReportTest, redhat_only, ubuntu_only
 
+
 class Krb5PluginTest(StageTwoReportTest):
     """Ensure that the krb5 plugin activates for the distros that we support it
     on.

@@ -9,7 +9,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-""" This provides a restricted tag language to define the sosreport
+""" This provides a restricted tag language to define the sos report
     index/report
 """
 
@@ -19,18 +19,20 @@ except ImportError:
     import simplejson as json
 
 
-class Node(object):
+class Node:
+
+    data = {}
 
     def __str__(self):
         return json.dumps(self.data)
 
+    # pylint: disable=unused-argument
     def can_add(self, node):
         return False
 
 
 class Leaf(Node):
     """Marker class that can be added to a Section node"""
-    pass
 
 
 class Report(Node):
@@ -125,7 +127,7 @@ def ends_bs(string):
     return string.endswith('\\')
 
 
-class PlainTextReport(object):
+class PlainTextReport:
     """Will generate a plain text report from a top_level Report object"""
 
     HEADER = ""
@@ -157,7 +159,7 @@ class PlainTextReport(object):
     def unicode(self):
         self.line_buf = line_buf = []
 
-        if (len(self.HEADER) > 0):
+        if len(self.HEADER) > 0:
             line_buf.append(self.HEADER)
 
         # generate section/plugin list, split long list to multiple lines
@@ -180,12 +182,12 @@ class PlainTextReport(object):
                 self.process_subsection(section_contents, type_.ADDS_TO,
                                         header, format_, footer)
 
-        if (len(self.FOOTER) > 0):
+        if len(self.FOOTER) > 0:
             line_buf.append(self.FOOTER)
 
-        output = u'\n'.join(map(lambda i: (i if isinstance(i, str)
-                                           else i.decode('utf8', 'ignore')),
-                                line_buf))
+        output = '\n'.join(map(lambda i: (i if isinstance(i, str)
+                                          else i.decode('utf8', 'ignore')),
+                               line_buf))
         return output
 
     def process_subsection(self, section, key, header, format_, footer):
@@ -196,7 +198,7 @@ class PlainTextReport(object):
                     key=lambda x: x["name"] if isinstance(x, dict) else ''
             ):
                 self.line_buf.append(format_ % item)
-            if (len(footer) > 0):
+            if len(footer) > 0:
                 self.line_buf.append(footer)
 
 

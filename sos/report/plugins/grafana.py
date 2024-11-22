@@ -18,22 +18,14 @@ class Grafana(Plugin, IndependentPlugin):
     profiles = ('services', 'openstack', 'openstack_controller')
 
     packages = ('grafana',)
-    is_snap = False
-
-    def _is_snap_installed(self):
-        grafana_pkg = self.policy.package_manager.pkg_by_name('grafana')
-        if grafana_pkg:
-            return grafana_pkg['pkg_manager'] == 'snap'
-        return False
 
     def setup(self):
-        self.is_snap = self._is_snap_installed()
         if self.is_snap:
             grafana_cli = "grafana.grafana-cli"
             log_path = "/var/snap/grafana/common/data/log/"
             config_path = "/var/snap/grafana/current/conf/grafana.ini"
 
-            self.add_cmd_output("snap info grafana")
+            self.add_cmd_output("snap info grafana", snap_cmd=True)
         else:
             grafana_cli = "grafana-cli"
             log_path = "/var/log/grafana/"
@@ -44,7 +36,7 @@ class Grafana(Plugin, IndependentPlugin):
             f'{grafana_cli} plugins list-remote',
             f'{grafana_cli} -v',
             'grafana-server -v',
-        ])
+        ], snap_cmd=self.is_snap)
 
         log_file_pattern = "*.log*" if self.get_option("all_logs") else "*.log"
 
@@ -67,5 +59,5 @@ class Grafana(Plugin, IndependentPlugin):
             else "/etc/grafana/grafana.ini"
         )
 
-        regexp = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)"
         self.do_path_regex_sub(inifile, regexp, r"\1*********")

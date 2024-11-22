@@ -23,17 +23,27 @@ from sos.utilities import file_is_binary
 # process for extraction if this method is a part of the SoSObfuscationArchive
 # class. So, the simplest solution is to remove it from the class.
 def extract_archive(archive_path, tmpdir):
-    archive = tarfile.open(archive_path)
-    path = os.path.join(tmpdir, 'cleaner')
-    # set extract filter since python 3.12 (see PEP-706 for more)
-    # Because python 3.10 and 3.11 raises false alarms as exceptions
-    # (see #3330 for examples), we can't use data filter but must
-    # fully trust the archive (legacy behaviour)
-    archive.extraction_filter = getattr(tarfile, 'fully_trusted_filter',
-                                        (lambda member, path: member))
-    archive.extractall(path)
-    archive.close()
-    return os.path.join(path, archive.name.split('/')[-1].split('.tar')[0])
+    with tarfile.open(archive_path) as archive:
+        path = os.path.join(tmpdir, 'cleaner')
+        # set extract filter since python 3.12 (see PEP-706 for more)
+        # Because python 3.10 and 3.11 raises false alarms as exceptions
+        # (see #3330 for examples), we can't use data filter but must
+        # fully trust the archive (legacy behaviour)
+        archive.extraction_filter = getattr(tarfile, 'fully_trusted_filter',
+                                            (lambda member, path: member))
+
+        # Guard against "Arbitrary file write during tarfile extraction"
+        # Checks the extracted files don't stray out of the target directory.
+        for member in archive.getmembers():
+            member_path = os.path.join(path, member.name)
+            abs_directory = os.path.abspath(path)
+            abs_target = os.path.abspath(member_path)
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            if prefix != abs_directory:
+                raise Exception(f"Attempted path traversal in tarfle"
+                                f"{prefix} != {abs_directory}")
+            archive.extract(member, path)
+        return os.path.join(path, archive.name.split('/')[-1].split('.tar')[0])
 
 
 class SoSObfuscationArchive():
@@ -65,14 +75,13 @@ class SoSObfuscationArchive():
         self._load_self()
         self.archive_root = ''
         self.log_info(
-            "Loaded %s as type %s"
-            % (self.archive_path, self.description)
+            f"Loaded {self.archive_path} as type {self.description}"
         )
 
     @classmethod
     def check_is_type(cls, arc_path):
         """Check if the archive is a well-known type we directly support"""
-        return False
+        raise NotImplementedError
 
     @property
     def is_sos(self):
@@ -84,6 +93,7 @@ class SoSObfuscationArchive():
 
     def _load_self(self):
         if self.is_tarfile:
+            # pylint: disable=consider-using-with
             self.tarobj = tarfile.open(self.archive_path)
 
     def get_nested_archives(self):
@@ -103,8 +113,7 @@ class SoSObfuscationArchive():
             toplevel = self.tarobj.firstmember
             if toplevel.isdir():
                 return toplevel.name
-            else:
-                return os.sep
+            return os.path.dirname(toplevel.name) or os.sep
         return os.path.abspath(self.archive_path)
 
     def report_msg(self, msg):
@@ -112,7 +121,7 @@ class SoSObfuscationArchive():
         self.ui_log.info(f"{self.ui_name + ' :':<50} {msg}")
 
     def _fmt_log_msg(self, msg):
-        return "[cleaner:%s] %s" % (self.archive_name, msg)
+        return f"[cleaner:{self.archive_name}] {msg}"
 
     def log_debug(self, msg):
         self.soslog.debug(self._fmt_log_msg(msg))
@@ -148,7 +157,7 @@ class SoSObfuscationArchive():
         full_fname = self.get_file_path(fname)
         # don't call a blank remove() here
         if full_fname:
-            self.log_info("Removing binary file '%s' from archive" % fname)
+            self.log_info(f"Removing binary file '{fname}' from archive")
             os.remove(full_fname)
             self.removed_file_count += 1
 
@@ -161,8 +170,7 @@ class SoSObfuscationArchive():
             if not self.archive_root:
                 self.archive_root = self.get_archive_root()
             return os.path.join(self.archive_root, fname)
-        else:
-            return os.path.join(self.extracted_path, fname)
+        return os.path.join(self.extracted_path, fname)
 
     def get_file_content(self, fname):
         """Return the content from the specified fname. Particularly useful for
@@ -175,12 +183,13 @@ class SoSObfuscationArchive():
                 return self.tarobj.extractfile(filename).read().decode('utf-8')
             except KeyError:
                 self.log_debug(
-                    "Unable to retrieve %s: no such file in archive" % fname
+                    f"Unable to retrieve {fname}: no such file in archive"
                 )
                 return ''
         else:
             try:
-                with open(self.format_file_name(fname), 'r') as to_read:
+                with open(self.format_file_name(fname), 'r',
+                          encoding='utf-8') as to_read:
                     return to_read.read()
             except Exception as err:
                 self.log_debug(f"Failed to get contents of {fname}: {err}")
@@ -215,13 +224,13 @@ class SoSObfuscationArchive():
                         if (not os.access(fname, os.R_OK) or not
                                 os.access(fname, os.W_OK)):
                             self.log_debug(
-                                "Adding owner rw permissions to %s"
-                                % fname.split(self.archive_path)[-1]
+                                "Adding owner rw permissions to "
+                                f"{fname.split(self.archive_path)[-1]}"
                             )
                             os.chmod(fname, stat.S_IRUSR | stat.S_IWUSR)
                 except Exception as err:
-                    self.log_debug("Error while trying to set perms: %s" % err)
-        self.log_debug("Extracted path is %s" % self.extracted_path)
+                    self.log_debug(f"Error while trying to set perms: {err}")
+        self.log_debug(f"Extracted path is {self.extracted_path}")
 
     def rename_top_dir(self, new_name):
         """Rename the top-level directory to new_name, which should be an
@@ -251,17 +260,16 @@ class SoSObfuscationArchive():
         tarpath = self.extracted_path + '-obfuscated.tar'
         compr_args = {}
         if method:
-            mode += ":%s" % method
-            tarpath += ".%s" % method
+            mode += f":{method}"
+            tarpath += f".{method}"
             if method == 'xz':
                 compr_args = {'preset': 3}
             else:
                 compr_args = {'compresslevel': 6}
-        self.log_debug("Building tar file %s" % tarpath)
-        tar = tarfile.open(tarpath, mode=mode, **compr_args)
-        tar.add(self.extracted_path,
-                arcname=os.path.split(self.archive_name)[1])
-        tar.close()
+        self.log_debug(f"Building tar file {tarpath}")
+        with tarfile.open(tarpath, mode=mode, **compr_args) as tar:
+            tar.add(self.extracted_path,
+                    arcname=os.path.split(self.archive_name)[1])
         return tarpath
 
     def compress(self, method):
@@ -271,13 +279,13 @@ class SoSObfuscationArchive():
         try:
             self.final_archive_path = self.build_tar_file(method)
         except Exception as err:
-            self.log_debug("Exception while re-compressing archive: %s" % err)
+            self.log_debug(f"Exception while re-compressing archive: {err}")
             raise
-        self.log_debug("Compressed to %s" % self.final_archive_path)
+        self.log_debug(f"Compressed to {self.final_archive_path}")
         try:
             self.remove_extracted_path()
         except Exception as err:
-            self.log_debug("Failed to remove extraction directory: %s" % err)
+            self.log_debug(f"Failed to remove extraction directory: {err}")
             self.report_msg('Failed to remove temporary extraction directory')
 
     def remove_extracted_path(self):
@@ -285,14 +293,15 @@ class SoSObfuscationArchive():
         so that we don't take up that duplicate space any longer during
         execution
         """
-        def force_delete_file(action, name, exc):
-            os.chmod(name, stat.S_IWUSR)
-            if os.path.isfile(name):
-                os.remove(name)
+        try:
+            self.log_debug(f"Removing {self.extracted_path}")
+            shutil.rmtree(self.extracted_path)
+        except OSError:
+            os.chmod(self.extracted_path, stat.S_IWUSR)
+            if os.path.isfile(self.extracted_path):
+                os.remove(self.extracted_path)
             else:
-                shutil.rmtree(name)
-        self.log_debug("Removing %s" % self.extracted_path)
-        shutil.rmtree(self.extracted_path, onerror=force_delete_file)
+                shutil.rmtree(self.extracted_path)
 
     def extract_self(self):
         """Extract an archive into our tmpdir so that we may inspect it or
@@ -323,18 +332,16 @@ class SoSObfuscationArchive():
 
         Will not include symlinks, as those are handled separately
         """
-        for dirname, dirs, files in os.walk(self.extracted_path):
+        for dirname, _, files in os.walk(self.extracted_path):
             for filename in files:
                 _fname = os.path.join(dirname, filename.lstrip('/'))
-                if os.path.islink(_fname):
-                    continue
-                else:
+                if not os.path.islink(_fname):
                     yield _fname
 
     def get_directory_list(self):
         """Return a list of all directories within the archive"""
         dir_list = []
-        for dirname, dirs, files in os.walk(self.extracted_path):
+        for dirname, _, _ in os.walk(self.extracted_path):
             dir_list.append(dirname)
         return dir_list
 

@@ -98,8 +98,7 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
                     #
                     # Reverse the normal sos quoting convention here and place
                     # double quotes around the innermost quoted string.
-                    self.add_cmd_output('%s "%s"' %
-                                        (nmcli_con_details_cmd, con))
+                    self.add_cmd_output(f'{nmcli_con_details_cmd} "{con}"')
 
             self.add_device_cmd(
                 nmcli_dev_details_cmd + ' "%(dev)s"',

@@ -57,7 +57,7 @@ class Ovirt(Plugin, RedHatPlugin):
     option_list = [
         PluginOpt('jbosstrace', default=True,
                   desc='Enable oVirt Engine JBoss stack trace collection'),
-        PluginOpt('sensitive_keys', default=DEFAULT_SENSITIVE_KEYS,
+        PluginOpt('sensitive-keys', default=DEFAULT_SENSITIVE_KEYS,
                   desc='Sensitive keys to be masked in post-processing'),
         PluginOpt('heapdump', default=False,
                   desc='Collect heap dumps from /var/log/ovirt-engine/dump/')
@@ -66,7 +66,7 @@ class Ovirt(Plugin, RedHatPlugin):
     def setup(self):
         if self.get_option('jbosstrace') and self.is_installed('ovirt-engine'):
             engine_pattern = r"^ovirt-engine\ -server.*jboss-modules.jar"
-            pgrep = "pgrep -f '%s'" % engine_pattern
+            pgrep = f"pgrep -f '{engine_pattern}'"
             res = self.exec_cmd(pgrep)
             engine_pids = [int(x) for x in res['output'].splitlines()]
             if not engine_pids:
@@ -86,7 +86,7 @@ class Ovirt(Plugin, RedHatPlugin):
 
         if not self.get_option('heapdump'):
             self.add_forbidden_path('/var/log/ovirt-engine/dump')
-            self.add_cmd_output('ls -l /var/log/ovirt-engine/dump/')
+            self.add_dir_listing('/var/log/ovirt-engine/dump/')
 
         certificates = [
             '/etc/pki/ovirt-engine/ca.pem',
@@ -113,13 +113,13 @@ class Ovirt(Plugin, RedHatPlugin):
 
         self.add_cmd_output([
             # process certificate files
-            "openssl x509 -in %s -text -noout" % c for c in certificates
+            f"openssl x509 -in {c} -text -noout" for c in certificates
         ])
 
         self.add_cmd_output([
             # process TrustStore certificates
-            "keytool -list -storepass %s -rfc -keystore %s" %
-            (p, c) for (p, c) in keystores
+            f"keytool -list -storepass {p} -rfc -keystore {c}"
+            for (p, c) in keystores
         ])
 
         # 3.x line uses engine-manage-domains, 4.x uses ovirt-aaa-jdbc-tool
@@ -128,9 +128,9 @@ class Ovirt(Plugin, RedHatPlugin):
         jdbc_tool = 'ovirt-aaa-jdbc-tool'
 
         if is_executable(manage_domains):
-            self.add_cmd_output('%s list' % manage_domains)
+            self.add_cmd_output(f'{manage_domains} list')
         if is_executable(extensions_tool):
-            self.add_cmd_output('%s info list-extensions' % extensions_tool)
+            self.add_cmd_output(f'{extensions_tool} info list-extensions')
         if is_executable('ovirt-aaa-jdbc-tool'):
             subcmds = [
                 'query --what=user',
@@ -138,7 +138,7 @@ class Ovirt(Plugin, RedHatPlugin):
                 'settings show'
             ]
 
-            self.add_cmd_output(['%s %s' % (jdbc_tool, sc) for sc in subcmds])
+            self.add_cmd_output([f'{jdbc_tool} {sc}' for sc in subcmds])
 
         # Copy engine config files.
         self.add_copy_spec([
@@ -205,7 +205,7 @@ class Ovirt(Plugin, RedHatPlugin):
         )
         for filename in engine_files:
             self.do_file_sub(
-                "/var/tmp/ovirt-engine/config/%s" % filename,
+                f"/var/tmp/ovirt-engine/config/{filename}",
                 r"(<password>)(.*)(</password>)",
                 r"\1********\3"
             )
@@ -231,13 +231,13 @@ class Ovirt(Plugin, RedHatPlugin):
 
         sensitive_keys = self.DEFAULT_SENSITIVE_KEYS
         # Handle --alloptions case which set this to True.
-        keys_opt = self.get_option('sensitive_keys')
+        keys_opt = self.get_option('sensitive-keys')
         if keys_opt and keys_opt is not True:
             sensitive_keys = keys_opt
         key_list = [x for x in sensitive_keys.split(':') if x]
         self.do_path_regex_sub(
             self.DB_PASS_FILES,
-            r'(%s)=(.*)' % "|".join(key_list),
+            fr'({"|".join(key_list)})=(.*)',
             r'\1=********'
         )
 
@@ -263,7 +263,7 @@ class Ovirt(Plugin, RedHatPlugin):
             "pool.default.ssl.truststore.password",
             "config.datasource.dbpassword"
         ]
-        regexp = r"(^\s*#*(%s)\s*=\s*)(.*)" % "|".join(protect_keys)
+        regexp = fr"(^\s*#*({'|'.join(protect_keys)})\s*=\s*)(.*)"
 
         self.do_path_regex_sub(r"/etc/ovirt-engine/aaa/.*\.properties", regexp,
                                r"\1*********")

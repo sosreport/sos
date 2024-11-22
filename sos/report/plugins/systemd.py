@@ -30,9 +30,10 @@ class Systemd(Plugin, IndependentPlugin):
             '/etc/systemd/logind.conf': 'systemd_logind_conf'
         })
 
+        self.add_dir_listing('/lib/systemd', recursive=True)
+
         self.add_cmd_output([
             "journalctl --list-boots",
-            "ls -lR /lib/systemd",
             "systemctl list-dependencies",
             "systemctl list-jobs",
             "systemctl list-machines",
@@ -93,5 +94,12 @@ class Systemd(Plugin, IndependentPlugin):
             "/usr/lib/tmpfiles.d/*.conf",
         ])
         self.add_forbidden_path('/dev/null')
+
+    def postproc(self):
+        self.do_paths_http_sub([
+            "/etc/systemd/system",
+            "/lib/systemd/system",
+            "/run/systemd/system",
+        ])
 
 # vim: set et ts=4 sw=4 :

@@ -1,3 +1,4 @@
+
 import logging
 import os
 import platform
@@ -9,6 +10,7 @@ import string
 import sys
 
 from pwd import getpwuid
+from textwrap import fill
 from sos.presets import (NO_PRESET, GENERIC_PRESETS, PRESETS_PATH,
                          PresetDefaults, DESC, NOTE, OPTS)
 from sos.policies.package_managers import PackageManager
@@ -17,11 +19,10 @@ from sos.utilities import (ImporterHelper, import_module, get_human_readable,
 from sos.report.plugins import IndependentPlugin, ExperimentalPlugin
 from sos.options import SoSOptions
 from sos import _sos as _
-from textwrap import fill
 
 
 def import_policy(name):
-    policy_fqname = "sos.policies.distros.%s" % name
+    policy_fqname = f"sos.policies.distros.{name}"
     try:
         return import_module(policy_fqname, Policy)
     except ImportError:
@@ -41,6 +42,7 @@ def load(cache={}, sysroot=None, init=None, probe_runtime=True,
                 cache['policy'] = policy(sysroot=sysroot, init=init,
                                          probe_runtime=probe_runtime,
                                          remote_exec=remote_exec)
+                break
 
     if sys.platform != 'linux':
         raise Exception("SoS is not supported on this platform")
@@ -74,8 +76,16 @@ class Policy():
                             SoSTransport in use
     :type remote_exec:      ``SoSTranport.run_command()``
 
-    :cvar distro: The name of the distribution the Policy represents
-    :vartype distro: ``str``
+    :cvar os_release_name: The name of the distribution as it appears in the
+                           os-release (-esque) file for the NAME variable.
+    :vartype os_release_name: ``str``
+
+    :cvar os_release_id: The ID variable to match in a distribution's release
+                         file.
+    :vartype os_release_id: ``str``
+
+    :cvar os_release_file: The filepath of the distribution's os-release file
+    :vartype os_release_file: ``str``
 
     :cvar vendor: The name of the vendor producing the distribution
     :vartype vendor: ``str``
@@ -96,7 +106,7 @@ class Policy():
 
     msg = _("""\
 This command will collect system configuration and diagnostic information \
-from this %(distro)s system.
+from this %(os_release_name)s system.
 
 For more information on %(vendor)s visit:
 
@@ -110,8 +120,9 @@ any third party.
 
 %(vendor_text)s
 """)
-
-    distro = "Unknown"
+    os_release_name = 'Unknown'
+    os_release_file = ''
+    os_release_id = ''
     vendor = "Unknown"
     vendor_urls = [('Example URL', "http://www.example.com/")]
     vendor_text = ""
@@ -140,7 +151,8 @@ any third party.
         self.sysroot = sysroot
         self.register_presets(GENERIC_PRESETS)
 
-    def check(self, remote=''):
+    @classmethod
+    def check(cls, remote=''):
         """
         This function is responsible for determining if the underlying system
         is supported by this policy.
@@ -152,7 +164,7 @@ any third party.
         :returns: ``True`` if the Policy should be loaded, else ``False``
         :rtype: ``bool``
         """
-        return False
+        raise NotImplementedError
 
     @property
     def forbidden_paths(self):
@@ -195,7 +207,6 @@ any third party.
         """
         Return the OS version
         """
-        pass
 
     def get_preferred_archive(self):
         """
@@ -234,7 +245,7 @@ any third party.
                   the Policy `name_pattern`
         :rtype: ``str``
         """
-        name = self.get_local_name().split('.')[0]
+        name = self.get_local_name().split('.')[0]  # pylint: disable=no-member
         case = self.case_id
         label = self.commons['cmdlineopts'].label
         date = ''
@@ -252,6 +263,7 @@ any third party.
         else:
             nstr = self.name_pattern
 
+        # pylint: disable-next=no-member
         return self.sanitize_filename(time.strftime(nstr))
 
     # for some specific binaries like "xz", we need to determine package
@@ -305,13 +317,11 @@ any third party.
         """
         This function is called prior to collection.
         """
-        pass
 
     def post_work(self):
         """
-        This function is called after the sosreport has been generated.
+        This function is called after the sos report has been generated.
         """
-        pass
 
     def pkg_by_name(self, pkg):
         """Wrapper to retrieve a package from the Policy's package manager
@@ -326,7 +336,7 @@ any third party.
 
     def _parse_uname(self):
         (system, node, release,
-         version, machine, processor) = platform.uname()
+         version, machine, _) = platform.uname()
         self.system = system
         self.hostname = node
         self.release = release
@@ -351,7 +361,7 @@ any third party.
         :returns: ``True`` if user is superuser, else ``False``
         :rtype: ``bool``
         """
-        return (os.getuid() == 0)
+        return os.getuid() == 0
 
     def get_preferred_hash_name(self):
         """Returns the string name of the hashlib-supported checksum algorithm
@@ -359,7 +369,7 @@ any third party.
         return "sha256"
 
     @classmethod
-    def display_help(self, section):
+    def display_help(cls, section):
         section.set_title('SoS Policies')
         section.add_text(
             'Policies help govern how SoS operates on across different distri'
@@ -369,7 +379,8 @@ any third party.
         )
 
         section.add_text(
-            "When SoS intializes most functions, for example %s and %s, one "
+            "When SoS intializes most functions, for example "
+            f"{bold('sos report')} and {bold('sos collect')}, one "
             "of the first operations is to determine the correct policy to "
             "load for the local system. Policies will determine the proper "
             "package manager to use, any applicable container runtime(s), and "
@@ -377,7 +388,6 @@ any third party.
             " for collections. Generally speaking a single policy will map to"
             " a single distribution; for example there are separate policies "
             "for Debian, Ubuntu, RHEL, and Fedora."
-            % (bold('sos report'), bold('sos collect'))
         )
 
         section.add_text(
@@ -397,11 +407,8 @@ any third party.
         seealso.add_text(
             "For more information on distribution policies, see below\n"
         )
-        for pol in pols:
-            seealso.add_text(
-                f"{' ':>8}{pol:<20}{pols[pol]:<30}",
-                newline=False
-            )
+        for pol, value in pols.items():
+            seealso.add_text(f"{' ':>8}{pol:<20}{value:<30}", newline=False)
 
     def display_results(self, archive, directory, checksum, archivestat=None,
                         map_file=None):
@@ -439,7 +446,7 @@ any third party.
 
         if archive:
             self.ui_log.info(
-                _(f"\nYour sosreport has been generated and saved in:"
+                _(f"\nYour sos report has been generated and saved in:"
                   f"\n\t{archive}\n")
             )
             self.ui_log.info(
@@ -450,7 +457,7 @@ any third party.
             )
         else:
             self.ui_log.info(
-                _(f"Your sosreport build tree has been generated in:"
+                _(f"Your sos report build tree has been generated in:"
                   f"\n\t{directory}\n")
             )
         if checksum:
@@ -462,8 +469,8 @@ any third party.
 
     def get_msg(self):
         """This method is used to prepare the preamble text to display to
-        the user in non-batch mode. If your policy sets self.distro that
-        text will be substituted accordingly. You can also override this
+        the user in non-batch mode. If your policy sets self.os_release_name,
+        that text will be substituted accordingly. You can also override this
         method to do something more complicated.
 
         :returns: Formatted banner message string
@@ -474,7 +481,8 @@ any third party.
         else:
             changes_text = "No changes will be made to system configuration."
         width = 72
-        _msg = self.msg % {'distro': self.distro, 'vendor': self.vendor,
+        _msg = self.msg % {'os_release_name': self.os_release_name,
+                           'vendor': self.vendor,
                            'vendor_urls': self._fmt_vendor_urls(),
                            'vendor_text': self.vendor_text,
                            'tmpdir': self.commons['tmpdir'],
@@ -491,7 +499,7 @@ any third party.
         :returns:   Formatted string of URLS
         :rtype:     ``str``
         """
-        width = max([len(v[0]) for v in self.vendor_urls])
+        width = max(len(v[0]) for v in self.vendor_urls)
         return "\n".join(
             f"\t{url[0]:<{width}} : {url[1]}" for url in self.vendor_urls
         )
@@ -521,9 +529,9 @@ any third party.
             :returns: a matching PresetProfile.
         """
         # FIXME: allow fuzzy matching?
-        for match in self.presets.keys():
+        for match, value in self.presets.items():
             if match == preset:
-                return self.presets[match]
+                return value
 
         return None
 
@@ -540,7 +548,7 @@ any third party.
         """Load presets from disk.
 
             Read JSON formatted preset data from the specified path,
-            or the default location at ``/var/lib/sos/presets``.
+            or the default location at ``/etc/sos/presets.d``.
 
             :param presets_path: a directory containing JSON presets.
         """
@@ -550,7 +558,7 @@ any third party.
         for preset_path in os.listdir(presets_path):
             preset_path = os.path.join(presets_path, preset_path)
 
-            with open(preset_path) as pf:
+            with open(preset_path, encoding='utf-8') as pf:
                 try:
                     preset_data = json.load(pf)
                 except ValueError:
@@ -579,8 +587,8 @@ any third party.
         if not name:
             raise ValueError("Preset name cannot be empty")
 
-        if name in self.presets.keys():
-            raise ValueError("A preset with name '%s' already exists" % name)
+        if name in self.presets:
+            raise ValueError(f"A preset with name '{name}' already exists")
 
         preset = PresetDefaults(name=name, desc=desc, note=note, opts=opts)
         preset.builtin = False
@@ -588,14 +596,13 @@ any third party.
         preset.write(presets_path)
 
     def del_preset(self, name=""):
-        if not name or name not in self.presets.keys():
-            raise ValueError("Unknown profile: '%s'" % name)
+        if not name or name not in self.presets:
+            raise ValueError(f"Unknown profile: '{name}'")
 
         preset = self.presets[name]
 
         if preset.builtin:
-            raise ValueError("Cannot delete built-in preset '%s'" %
-                             preset.name)
+            raise ValueError(f"Cannot delete built-in preset '{preset.name}'")
 
         preset.delete(self.presets_path)
         self.presets.pop(name)

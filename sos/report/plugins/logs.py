@@ -22,8 +22,6 @@ class LogsBase(Plugin):
         confs = ['/etc/syslog.conf', rsyslog]
         logs = []
 
-        since = self.get_option("since")
-
         if self.path_exists(rsyslog):
             with open(self.path_join(rsyslog), 'r', encoding='UTF-8') as conf:
                 for line in conf.readlines():
@@ -56,7 +54,7 @@ class LogsBase(Plugin):
         ])
 
         self.add_cmd_output("journalctl --disk-usage")
-        self.add_cmd_output('ls -alRh /var/log/')
+        self.add_dir_listing('/var/log', recursive=True)
 
         # collect journal logs if:
         # - there is some data present, either persistent or runtime only
@@ -65,12 +63,10 @@ class LogsBase(Plugin):
         journal = any(self.path_exists(self.path_join(p, "log/journal/"))
                       for p in ["/var", "/run"])
         if journal and self.is_service("systemd-journald"):
-            self.add_journal(since=since, tags=['journal_full', 'journal_all'],
+            self.add_journal(tags=['journal_full', 'journal_all'],
                              priority=100)
-            self.add_journal(boot="this", since=since,
-                             tags='journal_since_boot')
-            self.add_journal(boot="last", since=since,
-                             tags='journal_last_boot')
+            self.add_journal(boot="this", tags='journal_since_boot')
+            self.add_journal(boot="last", tags='journal_last_boot')
             if self.get_option("all_logs"):
                 self.add_copy_spec([
                     "/var/log/journal/*",
@@ -122,7 +118,7 @@ class IndependentLogs(LogsBase, IndependentPlugin):
 
 class CosLogs(LogsBase, CosPlugin):
     option_list = [
-        PluginOpt(name="log_days", default=3,
+        PluginOpt(name="log-days", default=3,
                   desc="the number of days logs to collect")
     ]
 
@@ -131,7 +127,7 @@ class CosLogs(LogsBase, CosPlugin):
         if self.get_option("all_logs"):
             self.add_cmd_output("journalctl -o export")
         else:
-            days = self.get_option("log_days", 3)
-            self.add_journal(since="-%ddays" % days)
+            days = self.get_option("log-days", 3)
+            self.add_journal(since=f"-{days}days")
 
 # vim: set et ts=4 sw=4 :

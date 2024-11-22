@@ -58,15 +58,16 @@ class OpenStackMasakari(Plugin, UbuntuPlugin):
                         "memcache_secret_key", "rabbit_password"]
         connection_keys = ["connection", "sql_connection"]
 
+        join_con_keys = "|".join(connection_keys)
+
         self.do_path_regex_sub(
             f"{self.config_dir}/*",
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1*********"
         )
         self.do_path_regex_sub(
             f"{self.config_dir}/*",
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            fr"(^\s*({join_con_keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

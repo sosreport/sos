@@ -6,7 +6,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
+from sos.policies.distros.ubuntu import UbuntuPolicy
 
 
 class Processor(Plugin, IndependentPlugin):
@@ -18,18 +19,20 @@ class Processor(Plugin, IndependentPlugin):
     files = ('/proc/cpuinfo',)
     packages = ('cpufreq-utils', 'cpuid')
 
+    cpu_kmods = []
+
     def setup(self):
 
         cpupath = '/sys/devices/system/cpu'
 
         self.add_file_tags({
-            "%s/smt/control" % cpupath: 'cpu_smt_control',
-            "%s/smt/active" % cpupath: 'cpu_smt_active',
-            "%s/vulnerabilities/.*" % cpupath: 'cpu_vulns',
-            "%s/vulnerabilities/spectre_v2" % cpupath: 'cpu_vulns_spectre_v2',
-            "%s/vulnerabilities/meltdown" % cpupath: 'cpu_vulns_meltdown',
-            "%s/cpu.*/online" % cpupath: 'cpu_cores',
-            "%s/cpu/cpu0/cpufreq/cpuinfo_max_freq" % cpupath:
+            f"{cpupath}/smt/control": 'cpu_smt_control',
+            f"{cpupath}/smt/active": 'cpu_smt_active',
+            f"{cpupath}/vulnerabilities/.*": 'cpu_vulns',
+            f"{cpupath}/vulnerabilities/spectre_v2": 'cpu_vulns_spectre_v2',
+            f"{cpupath}/vulnerabilities/meltdown": 'cpu_vulns_meltdown',
+            f"{cpupath}/cpu.*/online": 'cpu_cores',
+            f"{cpupath}/cpu/cpu0/cpufreq/cpuinfo_max_freq":
                 'cpuinfo_max_freq'
         })
 
@@ -48,14 +51,25 @@ class Processor(Plugin, IndependentPlugin):
         self.add_cmd_output([
             "lscpu",
             "lscpu -ae",
-            "cpupower frequency-info",
-            "cpupower info",
-            "cpupower idle-info",
             "cpufreq-info",
             "cpuid",
             "cpuid -r",
-            "turbostat --debug sleep 10"
         ], cmd_as_tag=True)
+
+        if (isinstance(self.policy, UbuntuPolicy) and
+                self.policy.dist_version() >= 22.04):
+            self.cpu_kmods = ['msr']
+
+        cpupower_pred = SoSPredicate(self, kmods=self.cpu_kmods)
+
+        self.add_cmd_output([
+            "cpupower frequency-info",
+            "cpupower info",
+            "cpupower idle-info",
+        ], cmd_as_tag=True, pred=cpupower_pred)
+
+        self.add_cmd_output("turbostat --debug sleep 10", cmd_as_tag=True,
+                            pred=cpupower_pred, timeout=15)
 
         if '86' in self.policy.get_arch():
             self.add_cmd_output("x86info -a")

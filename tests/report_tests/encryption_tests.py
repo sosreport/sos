@@ -19,13 +19,15 @@ class EncryptedReportTest(StageOneReportTest):
     """
 
     encrypt_pass = 'sostest'
-    sos_cmd = "-o kernel --encrypt-pass %s" % encrypt_pass
+    sos_cmd = f"-o kernel --encrypt-pass {encrypt_pass}"
 
     def test_archive_gpg_encrypted(self):
-        self.assertOutputContains('/.*sosreport-.*tar.*\.gpg')
-        _cmd = "file %s" % self.encrypted_path
+        self.assertOutputContains(r'/.*sosreport-.*tar.*\.gpg')
+        _cmd = f"file {self.encrypted_path}"
         res = process.run(_cmd)
-        self.assertTrue("GPG symmetrically encrypted data" in res.stdout.decode())
+        self.assertTrue(
+            ("GPG symmetrically encrypted data" in res.stdout.decode())
+            or ("PGP symmetric key encrypted data" in res.stdout.decode()))
 
     def test_tarball_named_secure(self):
         self.assertTrue('secured-' in self.encrypted_path)
@@ -39,7 +41,7 @@ class EncryptedCleanedReportTest(EncryptedReportTest):
     """
 
     encrypt_pass = 'sostest'
-    sos_cmd = "-o host,networking --clean --encrypt-pass %s" % encrypt_pass
+    sos_cmd = f"-o host,networking --clean --encrypt-pass {encrypt_pass}"
 
     def test_hostname_obfuscated(self):
         self.assertFileHasContent('hostname', 'host0')
@@ -48,4 +50,7 @@ class EncryptedCleanedReportTest(EncryptedReportTest):
         self.assertTrue('obfuscated' in self.archive)
 
     def test_ip_address_was_obfuscated(self):
-        self.assertFileNotHasContent('ip_addr', self.sysinfo['pre']['networking']['ip_addr'])
+        self.assertFileNotHasContent(
+            'ip_addr',
+            self.sysinfo['pre']['networking']['ip_addr']
+        )

@@ -29,14 +29,27 @@ class Juju(Plugin, UbuntuPlugin):
             self.add_journal(service)
             self.add_service_status(service)
 
+        self.add_cmd_output([
+            'juju_engine_report',
+            'juju_goroutines',
+            'juju_heap_profile',
+            'juju_leases',
+            'juju_metrics',
+            'juju_pubsub_report',
+            'juju_presence_report',
+            'juju_statepool_report',
+            'juju_statetracker_report',
+            'juju_unit_status',
+        ])
+
         # Get agent configs for each agent.
         self.add_copy_spec("/var/lib/juju/agents/*/agent.conf")
 
         # Get a directory listing of /var/log/juju and /var/lib/juju
-        self.add_cmd_output([
-            "ls -alRh /var/log/juju*",
-            "ls -alRh /var/lib/juju*"
-        ])
+        self.add_dir_listing([
+            '/var/log/juju*',
+            '/var/lib/juju*'
+        ], recursive=True)
 
         if self.get_option("all_logs"):
             # /var/lib/juju used to be in the default capture moving here
@@ -63,7 +76,7 @@ class Juju(Plugin, UbuntuPlugin):
         ]
 
         # Redact simple yaml style "key: value".
-        keys_regex = r"(^\s*(%s)\s*:\s*)(.*)" % "|".join(protect_keys)
+        keys_regex = fr"(^\s*({'|'.join(protect_keys)})\s*:\s*)(.*)"
         sub_regex = r"\1*********"
         self.do_path_regex_sub(agents_path, keys_regex, sub_regex)
         # Redact certificates

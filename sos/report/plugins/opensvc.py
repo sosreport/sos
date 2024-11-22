@@ -18,12 +18,12 @@ class Opensvc(Plugin, IndependentPlugin):
 
     def get_status(self, kind):
         """ Get the status of opensvc management service """
-        getobjs = self.collect_cmd_output("om %s ls --color=no" % kind)
+        getobjs = self.collect_cmd_output(f"om {kind} ls --color=no")
         dirname = kind + '_status'
         if getobjs['status'] == 0:
             for line in getobjs['output'].splitlines():
                 self.add_cmd_output(
-                    "om %s print status --color=no" % line,
+                    f"om {line} print status --color=no",
                     subdir=dirname
                 )
 
@@ -49,7 +49,6 @@ class Opensvc(Plugin, IndependentPlugin):
             "/var/lib/opensvc/vol/*",
         ])
         self.add_cmd_output([
-            "ls -laRt /var/lib/opensvc",
             "om pool status --verbose --color=no",
             "om net status --verbose --color=no",
             "om mon --color=no",
@@ -57,6 +56,7 @@ class Opensvc(Plugin, IndependentPlugin):
             "om daemon relay status --color=no",
             "om daemon status --format flat_json --color=no"
         ])
+        self.add_dir_listing('/var/lib/opensvc', recursive=True)
         self.get_status('vol')
         self.get_status('svc')
 

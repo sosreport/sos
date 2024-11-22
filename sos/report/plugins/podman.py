@@ -62,6 +62,7 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
 
         subcmds = [
             'info',
+            'image trust show',
             'images',
             'images --digests',
             'pod ps',
@@ -73,23 +74,23 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
             'volume ls'
         ]
 
-        self.add_cmd_output(["podman %s" % s for s in subcmds])
+        self.add_cmd_output([f"podman {s}" for s in subcmds])
 
         # separately grab ps -s as this can take a *very* long time
         if self.get_option('size'):
             self.add_cmd_output('podman ps -as', priority=100)
 
-        self.add_cmd_output([
-            "ls -alhR /etc/cni",
-            "ls -alhR /etc/containers"
-        ])
+        self.add_dir_listing([
+            '/etc/cni',
+            '/etc/containers'
+        ], recursive=True)
 
         pnets = self.collect_cmd_output('podman network ls',
                                         tags='podman_list_networks')
         if pnets['status'] == 0:
             nets = [pn.split()[0] for pn in pnets['output'].splitlines()[1:]]
             self.add_cmd_output([
-                "podman network inspect %s" % net for net in nets
+                f"podman network inspect {net}" for net in nets
             ], subdir='networks', tags='podman_network_inspect')
 
         containers = [
@@ -100,24 +101,29 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
         volumes = self.get_container_volumes(runtime='podman')
 
         for container in containers:
-            self.add_cmd_output("podman inspect %s" % container,
+            self.add_cmd_output(f"podman inspect {container}",
                                 subdir='containers',
                                 tags='podman_container_inspect')
 
         for img in images:
             name, img_id = img
             insp = name if 'none' not in name else img_id
-            self.add_cmd_output("podman inspect %s" % insp, subdir='images',
+            self.add_cmd_output(f"podman inspect {insp}", subdir='images',
                                 tags='podman_image_inspect')
+            self.add_cmd_output(
+                f"podman image tree {insp}",
+                subdir='images/tree',
+                tags='podman_image_tree'
+            )
 
         for vol in volumes:
-            self.add_cmd_output("podman volume inspect %s" % vol,
+            self.add_cmd_output(f"podman volume inspect {vol}",
                                 subdir='volumes',
                                 tags='podman_volume_inspect')
 
         if self.get_option('logs'):
             for con in containers:
-                self.add_cmd_output("podman logs -t %s" % con,
+                self.add_cmd_output(f"podman logs -t {con}",
                                     subdir='containers', priority=50)
 
     def postproc(self):

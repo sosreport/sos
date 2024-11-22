@@ -25,6 +25,9 @@ class TeamdPluginTest(StageTwoReportTest):
     sos_cmd = '-o teamd'
     redhat_only = True
 
+    # teaming has been deprecated from RHEL 9
+    only_os_versions = ['8']
+
     def pre_sos_setup(self):
         # restart NetworkManager to account for the new package
         nmout = process.run('systemctl restart NetworkManager', timeout=30)
@@ -32,11 +35,15 @@ class TeamdPluginTest(StageTwoReportTest):
         # create the team device
         res = process.run('nmcli con add type team ifname sostesting',
                           timeout=30)
-        assert res.exit_status == 0, "Failed creating team device: %s" % res.stdout_text
+        assert \
+            res.exit_status == 0, \
+            f"Failed creating team device: {res.stdout_text}"
 
     def post_test_tear_down(self):
         res = process.run('nmcli con delete team-sostesting', timeout=30)
-        assert res.exit_status == 0, "Failed to delete temp team device: %s" % res.stdout_text
+        assert \
+            res.exit_status == 0, \
+            f"Failed to delete temp team device: {res.stdout_text}"
 
     def test_teamd_plugin_executed(self):
         self.assertPluginIncluded('teamd')

@@ -7,8 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from argparse import Action
-from configparser import (ConfigParser, ParsingError, Error,
-                          DuplicateOptionError)
+from configparser import ConfigParser
 
 
 def _is_seq(val):
@@ -22,10 +21,9 @@ def str_to_bool(val):
     _val = val.lower()
     if _val in ['true', 'on', 'yes']:
         return True
-    elif _val in ['false', 'off', 'no']:
+    if _val in ['false', 'off', 'no']:
         return False
-    else:
-        return None
+    return None
 
 
 class SoSOptions():
@@ -81,7 +79,7 @@ class SoSOptions():
             vals = [",".join(v) if _is_seq(v) else v for v in vals]
         else:
             # Only quote strings if quote=False
-            vals = ["'%s'" % v if isinstance(v, str) else v for v in vals]
+            vals = [f"'{v}'" if isinstance(v, str) else v for v in vals]
 
         return (args % tuple(vals)).strip(sep) + suffix
 
@@ -112,9 +110,9 @@ class SoSOptions():
         for arg in self.arg_defaults:
             setattr(self, arg, self.arg_defaults[arg])
         # next, load any kwargs
-        for arg in kwargs.keys():
+        for arg, kwarg in kwargs.items():
             self.arg_names.append(arg)
-            setattr(self, arg, kwargs[arg])
+            setattr(self, arg, kwarg)
 
     @classmethod
     def from_args(cls, args, arg_defaults={}):
@@ -143,10 +141,10 @@ class SoSOptions():
         )
         count = ("verbose",)
         if opt in no_value:
-            return ["--%s" % opt]
+            return [f"--{opt}"]
         if opt in count:
-            return ["--%s" % opt for d in range(0, int(val))]
-        return ["--" + opt + "=" + val]
+            return [f"--{opt}" for d in range(0, int(val))]
+        return [f"--{opt}={val}"]
 
     def _convert_to_type(self, key, val, conf):
         """Ensure that the value read from a config file is the proper type
@@ -161,21 +159,16 @@ class SoSOptions():
         if isinstance(self.arg_defaults[key], type(val)):
             return val
         if isinstance(self.arg_defaults[key], list):
-            return [v for v in val.split(',')]
+            return list(val.split(','))
         if isinstance(self.arg_defaults[key], bool):
             val = str_to_bool(val)
             if val is None:
                 raise Exception(
-                    "Value of '%s' in %s must be True or False or analagous"
-                    % (key, conf))
-            else:
-                return val
+                    f"Value of '{key}' in {conf} must be True or False or "
+                    "analagous")
+            return val
         if isinstance(self.arg_defaults[key], int):
-            try:
-                return int(val)
-            except ValueError:
-                raise Exception("Value of '%s' in %s must be integer"
-                                % (key, conf))
+            return int(val)
         return val
 
     def update_from_conf(self, config_file, component):
@@ -216,32 +209,25 @@ class SoSOptions():
                     if key not in self.arg_defaults:
                         # read an option that is not loaded by the current
                         # SoSComponent
-                        print("Unknown option '%s' in section '%s'"
-                              % (key, section))
+                        print(f"Unknown option '{key}' in section '{section}'")
                         continue
                     val = self._convert_to_type(key, val, config_file)
                     setattr(self, key, val)
 
         config = ConfigParser()
         try:
-            try:
-                with open(config_file) as f:
-                    config.read_file(f, config_file)
-            except DuplicateOptionError as err:
-                raise exit("Duplicate option '%s' in section '%s' in file %s"
-                           % (err.option, err.section, config_file))
-            except (ParsingError, Error):
-                raise exit('Failed to parse configuration file %s'
-                           % config_file)
+            with open(config_file, encoding='utf-8') as f:
+                config.read_file(f, config_file)
         except (OSError, IOError) as e:
             print(
-                'WARNING: Unable to read configuration file %s : %s'
-                % (config_file, e.args[1])
+                f'WARNING: Unable to read configuration file {config_file} : '
+                f'{e.args[1]}'
             )
 
         _update_from_section("global", config)
         _update_from_section(component, config)
         if config.has_section("plugin_options") and hasattr(self, 'plugopts'):
+            # pylint: disable=no-member
             for key, val in config.items("plugin_options"):
                 if not key.split('.')[0] in self.skip_plugins:
                     self.plugopts.append(key + '=' + val)
@@ -281,7 +267,7 @@ class SoSOptions():
         """Return command arguments for this object.
 
             Return a list of the non-default options of this ``SoSOptions``
-            object in ``sosreport`` command line argument notation:
+            object in ``sos report`` command line argument notation:
 
                 ``["--all-logs", "-vvv"]``
 
@@ -323,7 +309,7 @@ class SoSOptions():
             value = ",".join(value) if _is_seq(value) else value
 
             if value is not True:
-                opt = "%s %s" % (name, value)
+                opt = f"{name} {value}"
             else:
                 opt = name
 
@@ -339,7 +325,7 @@ class SosListOption(Action):
     """Allow to specify comma delimited list of plugins"""
 
     def __call__(self, parser, namespace, values, option_string=None):
-        items = [opt for opt in values.split(',')]
+        items = list(values.split(','))
         if getattr(namespace, self.dest):
             items += getattr(namespace, self.dest)
         setattr(namespace, self.dest, items)

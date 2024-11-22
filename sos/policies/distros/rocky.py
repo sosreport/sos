@@ -8,45 +8,22 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.policies.distros.redhat import RedHatPolicy, OS_RELEASE
-import os
+from sos.policies.distros.redhat import RedHatPolicy
 
 
 class RockyPolicy(RedHatPolicy):
-    distro = "Rocky Linux"
     vendor = "Rocky Enterprise Software Foundation"
     vendor_urls = [
             ('Distribution Website', 'https://rockylinux.org'),
             ('Vendor Website', 'https://resf.org')
     ]
+    os_release_file = '/etc/rocky-release'
+    os_release_name = 'Rocky Linux'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(RockyPolicy, self).__init__(sysroot=sysroot, init=init,
-                                          probe_runtime=probe_runtime,
-                                          remote_exec=remote_exec)
-
-    @classmethod
-    def check(cls, remote=''):
-        if remote:
-            return cls.distro in remote
-
-        # Return False if /etc/os-release is missing
-        if not os.path.exists(OS_RELEASE):
-            return False
-
-        # Return False if /etc/rocky-release is missing
-        if not os.path.isfile('/etc/rocky-release'):
-            return False
-
-        # If we've gotten this far, check for Rocky in
-        # /etc/os-release
-        with open(OS_RELEASE, 'r') as f:
-            for line in f:
-                if line.startswith('NAME'):
-                    if 'Rocky Linux' in line:
-                        return True
-
-        return False
+        super().__init__(sysroot=sysroot, init=init,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
 
 # vim: set et ts=4 sw=4 :

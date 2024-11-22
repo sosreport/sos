@@ -47,16 +47,12 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
 
     def postproc(self):
         super().postproc()
-        self.do_file_sub(
-            "/etc/apt/sources.list",
-            r"(deb\shttp(s)?://)\S+:\S+(@.*)",
-            r"\1******:******\3"
-        )
-        self.do_path_regex_sub(
-            "/etc/apt/sources.list.d/",
-            r"(deb\shttp(s)?://)\S+:\S+(@.*)",
-            r"\1******:******\3"
-        )
 
+        self.do_paths_http_sub([
+            "/etc/apt/sources.list",
+            "/etc/apt/sources.list.d/",
+            "/etc/apt/apt.conf",
+            "/etc/apt/apt.conf.d/",
+        ])
 
 # vim: set et ts=4 sw=4 :

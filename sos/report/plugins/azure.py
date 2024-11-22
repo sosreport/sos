@@ -31,7 +31,7 @@ class Azure(Plugin, UbuntuPlugin):
             "/var/lib/AzureEnhancedMonitor"
         ])
 
-        # Adds all files under /var/log/azure to the sosreport
+        # Adds all files under /var/log/azure to the sos report
         # os.walk is used because /var/log/azure is used by multiple Azure
         # extensions and there is no standard log filename format
         limit = self.get_option("log_size")

@@ -31,9 +31,9 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
 
     services = (
         'ceph-nfs@pacemaker',
-        'ceph-mds@%s' % ceph_hostname,
-        'ceph-mon@%s' % ceph_hostname,
-        'ceph-mgr@%s' % ceph_hostname,
+        f'ceph-mds@{ceph_hostname}',
+        f'ceph-mon@{ceph_hostname}',
+        f'ceph-mgr@{ceph_hostname}',
         'ceph-radosgw@*',
         'ceph-osd@*'
     )
@@ -95,12 +95,22 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
                     "/var/snap/microceph/common/logs/ceph.audit.log*",
                 ])
 
-            self.add_cmd_output("microceph status", subdir="microceph")
             self.add_cmd_output("snap info microceph", subdir="microceph")
-            # Collect all but exclude any keyrings
-            self.add_cmd_output("microceph cluster sql 'select * from config \
-                                 where key NOT LIKE \"%keyring%\"'",
-                                subdir="microceph")
+
+            cmds = [
+                'client config list',
+                'cluster config list',
+                'cluster list',
+                # exclude keyrings from the config db
+                'cluster sql \'select * from config where key NOT LIKE \
+                    \"%keyring%\"\'',
+                'disk list',
+                'log get-level',
+                'status',
+            ]
+
+            self.add_cmd_output([f"microceph {cmd}" for cmd in cmds],
+                                subdir='microceph')
 
         self.add_cmd_output([
             "ceph -v",

@@ -8,6 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import pwd
+from glob import glob
 from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
@@ -33,7 +35,8 @@ class Ssh(Plugin, IndependentPlugin):
 
         sshcfgs = [
             "/etc/ssh/ssh_config",
-            "/etc/ssh/sshd_config"
+            "/etc/ssh/sshd_config",
+            "/etc/ssh/sshd_config.d/*",
             ]
 
         # Include main config files
@@ -49,7 +52,12 @@ class Ssh(Plugin, IndependentPlugin):
         """ Include subconfig files """
         # Read configs for any includes and copy those
         try:
-            for sshcfg in sshcfgs:
+            cfgfiles = [
+                f for files in [
+                    glob(copyspec, recursive=True) for copyspec in sshcfgs
+                ] for f in files
+            ]
+            for sshcfg in cfgfiles:
                 tag = sshcfg.split('/')[-1]
                 with open(self.path_join(sshcfg), 'r',
                           encoding='UTF-8') as cfgfile:
@@ -70,28 +78,28 @@ class Ssh(Plugin, IndependentPlugin):
 
         Bad permissions can prevent SSH from allowing access to given user.
         """
-        users_data = self.exec_cmd('getent passwd')
+        users_data = pwd.getpwall()
 
-        if users_data['status']:
-            # If getent fails, fallback to just reading /etc/passwd
-            try:
-                with open(self.path_join('/etc/passwd'), 'r',
-                          encoding='UTF-8') as passwd_file:
-                    users_data_lines = passwd_file.readlines()
-            except Exception:  # pylint: disable=broad-except
-                # If we can't read /etc/passwd, then there's something wrong.
-                self._log_error("Couldn't read /etc/passwd")
-                return
-        else:
-            users_data_lines = users_data['output'].splitlines()
-
+        fs_mount_info = {}
+        try:
+            with open('/proc/mounts', "r", encoding='UTF-8') as mounts_file:
+                for line in mounts_file:
+                    (fs_file, fs_vstype) = line.split()[1:3]
+                    fs_mount_info[fs_file] = fs_vstype
+        except Exception:
+            self._log_error("Couldn't read /proc/mounts")
+            return
+        non_local_fs = {'nfs', 'nfs4', 'autofs'}
         # Read the home paths of users in the system and check the ~/.ssh dirs
-        for usr_line in users_data_lines:
-            try:
-                home_dir = self.path_join(usr_line.split(':')[5], '.ssh')
-                if self.path_isdir(home_dir):
-                    self.add_cmd_output(f"ls -laZ {home_dir}")
-            except IndexError:
-                pass
+        for user in users_data:
+            if user.pw_dir in fs_mount_info and \
+                    fs_mount_info[user.pw_dir] in non_local_fs:
+                self._log_info(
+                        f"Skipping capture in {user.pw_dir}"
+                        " because it's a remote directory"
+                )
+                continue
+            home_dir = self.path_join(user.pw_dir, '.ssh')
+            self.add_dir_listing(home_dir)
 
 # vim: set et ts=4 sw=4 :

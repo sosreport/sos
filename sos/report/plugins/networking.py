@@ -20,13 +20,13 @@ class Networking(Plugin):
 
     option_list = [
         PluginOpt("traceroute", default=False,
-                  desc="collect a traceroute to %s" % trace_host),
-        PluginOpt("namespace_pattern", default="", val_type=str,
+                  desc=f"collect a traceroute to {trace_host}"),
+        PluginOpt("namespace-pattern", default="", val_type=str,
                   desc=("Specific namespace names or patterns to collect, "
                         "whitespace delimited.")),
         PluginOpt("namespaces", default=None, val_type=int,
                   desc="Number of namespaces to collect, 0 for unlimited"),
-        PluginOpt("ethtool_namespaces", default=True,
+        PluginOpt("ethtool-namespaces", default=True,
                   desc=("Toggle if ethtool commands should be run for each "
                         "namespace")),
         PluginOpt("eepromdump", default=False,
@@ -67,6 +67,7 @@ class Networking(Plugin):
             "/sys/class/net/*/device/numa_node",
             "/sys/class/net/*/flags",
             "/sys/class/net/*/statistics/",
+            "/etc/nmstate/",
         ])
 
         self.add_forbidden_path([
@@ -86,13 +87,13 @@ class Networking(Plugin):
                             tags=['ip_route', 'iproute_show_table_all'])
         self.add_cmd_output("plotnetcfg")
 
-        self.add_cmd_output("netstat %s -neopa" % self.ns_wide,
+        self.add_cmd_output(f"netstat {self.ns_wide} -neopa",
                             root_symlink="netstat")
 
         self.add_cmd_output([
             "nstat -zas",
             "netstat -s",
-            "netstat %s -agn" % self.ns_wide,
+            f"netstat {self.ns_wide} -agn",
             "networkctl status -a",
             "ip -6 route show table all",
             "ip -d route show cache",
@@ -109,6 +110,8 @@ class Networking(Plugin):
             "ip neigh show nud noarp",
             "biosdevname -d",
             "tc -s qdisc show",
+            "nmstatectl show",
+            "nmstatectl show --running-config",
         ])
 
         if self.path_isdir('/sys/class/devlink'):
@@ -116,14 +119,35 @@ class Networking(Plugin):
                 "devlink dev param show",
                 "devlink dev info",
                 "devlink port show",
+                "devlink sb show",
+                "devlink sb pool show",
+                "devlink sb port pool show",
+                "devlink sb tc bind show",
+                "devlink -s -v trap show",
             ])
 
             devlinks = self.collect_cmd_output("devlink dev")
             if devlinks['status'] == 0:
                 devlinks_list = devlinks['output'].splitlines()
                 for devlink in devlinks_list:
-                    self.add_cmd_output("devlink dev eswitch show %s" %
-                                        devlink)
+                    self.add_cmd_output([
+                        f"devlink dev eswitch show {devlink}",
+                        f"devlink sb occupancy snapshot {devlink}",
+                        f"devlink sb occupancy show {devlink}",
+                        f"devlink -v resource show {devlink}"
+                    ])
+                    dev_tables = []
+                    dpipe = self.collect_cmd_output(
+                        f"devlink dpipe table show {devlink}"
+                    )
+                    if dpipe['status'] == 0:
+                        for tableln in dpipe['output'].splitlines():
+                            if tableln.startswith('name'):
+                                dev_tables.append(tableln.split()[1])
+                        self.add_cmd_output([
+                            f"devlink dpipe table show {devlink} name {dname}"
+                            for dname in dev_tables
+                        ])
 
         # below commands require some kernel module(s) to be loaded
         # run them only if the modules are loaded, or if explicitly requested
@@ -139,7 +163,7 @@ class Networking(Plugin):
         """ Command tags for ip/ethtool/netstat """
         for opt in self.ethtool_shortopts:
             self.add_cmd_tags({
-                'ethtool -%s .*' % opt: 'ethool_%s' % opt
+                f'ethtool -{opt} .*': f'ethool_{opt}'
             })
 
         self.add_cmd_tags({
@@ -172,7 +196,7 @@ class Networking(Plugin):
 
         # Get ethtool output for every device that does not exist in a
         # namespace.
-        _ecmds = ["ethtool -%s" % opt for opt in self.ethtool_shortopts]
+        _ecmds = [f"ethtool -{opt}" for opt in self.ethtool_shortopts]
         self.add_device_cmd([
             _cmd + " %(dev)s" for _cmd in _ecmds
         ], devices='ethernet')
@@ -196,7 +220,7 @@ class Networking(Plugin):
             self.add_device_cmd(cmd, devices="ethernet")
 
         if self.get_option("traceroute"):
-            self.add_cmd_output("/bin/traceroute -n %s" % self.trace_host,
+            self.add_cmd_output(f"/bin/traceroute -n {self.trace_host}",
                                 priority=100)
 
         # Capture additional data from namespaces; each command is run
@@ -204,7 +228,7 @@ class Networking(Plugin):
         self.add_cmd_output("ip netns")
         cmd_prefix = "ip netns exec "
         namespaces = self.get_network_namespaces(
-                self.get_option("namespace_pattern"),
+                self.get_option("namespace-pattern"),
                 self.get_option("namespaces"))
         if namespaces:
             # 'ip netns exec <foo> iptables-save' must be guarded by nf_tables
@@ -223,20 +247,20 @@ class Networking(Plugin):
 
             for namespace in namespaces:
                 _devs = self.devices['namespaced_network'][namespace]
-                _subdir = "namespaces/%s" % namespace
+                _subdir = f"namespaces/{namespace}"
                 ns_cmd_prefix = cmd_prefix + namespace + " "
                 self.add_cmd_output([
-                    ns_cmd_prefix + "ip -d address show",
-                    ns_cmd_prefix + "ip route show table all",
-                    ns_cmd_prefix + "ip -s -s neigh show",
-                    ns_cmd_prefix + "ip -4 rule list",
-                    ns_cmd_prefix + "ip -6 rule list",
-                    ns_cmd_prefix + "ip vrf show",
-                    ns_cmd_prefix + "sysctl -a",
-                    ns_cmd_prefix + "netstat %s -neopa" % self.ns_wide,
-                    ns_cmd_prefix + "netstat -s",
-                    ns_cmd_prefix + "netstat %s -agn" % self.ns_wide,
-                    ns_cmd_prefix + "nstat -zas",
+                    f"{ns_cmd_prefix} ip -d address show",
+                    f"{ns_cmd_prefix} ip route show table all",
+                    f"{ns_cmd_prefix} ip -s -s neigh show",
+                    f"{ns_cmd_prefix} ip -4 rule list",
+                    f"{ns_cmd_prefix} ip -6 rule list",
+                    f"{ns_cmd_prefix} ip vrf show",
+                    f"{ns_cmd_prefix} sysctl -a",
+                    f"{ns_cmd_prefix} netstat {self.ns_wide} -neopa",
+                    f"{ns_cmd_prefix} netstat -s",
+                    f"{ns_cmd_prefix} netstat {self.ns_wide} -agn",
+                    f"{ns_cmd_prefix} nstat -zas",
                 ], priority=50, subdir=_subdir)
                 self.add_cmd_output([ns_cmd_prefix + "iptables-save"],
                                     pred=iptables_with_nft,
@@ -255,14 +279,15 @@ class Networking(Plugin):
 
                 # Collect ethtool commands only when ethtool_namespaces
                 # is set to true.
-                if self.get_option("ethtool_namespaces"):
+                if self.get_option("ethtool-namespaces"):
                     # Devices that exist in a namespace use less ethtool
                     # parameters. Run this per namespace.
                     self.add_device_cmd([
-                        ns_cmd_prefix + "ethtool %(dev)s",
-                        ns_cmd_prefix + "ethtool -i %(dev)s",
-                        ns_cmd_prefix + "ethtool -k %(dev)s",
-                        ns_cmd_prefix + "ethtool -S %(dev)s"
+                        f"{ns_cmd_prefix} ethtool %(dev)s",
+                        f"{ns_cmd_prefix} ethtool -i %(dev)s",
+                        f"{ns_cmd_prefix} ethtool -k %(dev)s",
+                        f"{ns_cmd_prefix} ethtool -S %(dev)s",
+                        f"{ns_cmd_prefix} ethtool -m %(dev)s"
                     ], devices=_devs['ethernet'], priority=50, subdir=_subdir)
 
         self.add_command_tags()
@@ -284,21 +309,28 @@ class RedHatNetworking(Networking, RedHatPlugin):
 
         super().setup()
 
+    def postproc(self):
+
+        self.do_path_regex_sub(
+            "/etc/nmstate",
+            r"(\s+(mka-cak|private-key-password|psk|password):).*",
+            r"\1 ******"
+        )
+
 
 class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
     trace_host = "archive.ubuntu.com"
 
     def setup(self):
 
-        ubuntu_ss_kmods = dict.fromkeys([22.04, 23.10],
-                                        ['tcp_diag', 'udp_diag',
-                                         'inet_diag', 'unix_diag',
-                                         'netlink_diag',
-                                         'af_packet_diag', 'xsk_diag',
-                                         'mptcp_diag', 'raw_diag'])
+        ubuntu_jammy_and_after_ss_kmods = ['tcp_diag', 'udp_diag',
+                                           'inet_diag', 'unix_diag',
+                                           'netlink_diag', 'af_packet_diag',
+                                           'xsk_diag', 'mptcp_diag',
+                                           'raw_diag']
 
-        if self.policy.dist_version() in ubuntu_ss_kmods:
-            self.ss_kmods = ubuntu_ss_kmods[self.policy.dist_version()]
+        if self.policy.dist_version() >= 22.04:
+            self.ss_kmods = ubuntu_jammy_and_after_ss_kmods
 
         super().setup()
 

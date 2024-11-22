@@ -22,6 +22,7 @@ class AAPreceptorPlugin(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/receptor",
+            "/tmp/receptor/*/status",
             "/var/lib/receptor",
         ])
 
@@ -39,15 +40,19 @@ class AAPreceptorPlugin(Plugin, RedHatPlugin):
             "/etc/receptor/*key.pem"
         ])
 
-        self.add_cmd_output([
-            "ls -llZ /etc/receptor",
-            "ls -llZ /var/run/receptor",
-            "ls -llZ /var/run/awx-receptor"
+        self.add_dir_listing([
+            "/etc/receptor",
+            "/var/run/receptor",
+            "/var/run/awx-receptor"
         ])
 
         for s in glob.glob('/var/run/*receptor/*.sock'):
             self.add_cmd_output(f"receptorctl --socket {s} status",
                                 suggest_filename="receptorctl_status")
+            self.add_cmd_output(f"receptorctl --socket {s} status --json",
+                                suggest_filename="receptorctl_status.json")
+            self.add_cmd_output(f"receptorctl --socket {s} work list",
+                                suggest_filename="receptorctl_work_list.json")
             break
 
 # vim: set et ts=4 sw=4 :

@@ -8,6 +8,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+# pylint: disable=too-many-branches
+
 import os
 import re
 
@@ -23,7 +25,7 @@ from sos.policies.runtimes.docker import DockerContainerRuntime
 from sos.policies.runtimes.lxd import LxdContainerRuntime
 
 from sos.utilities import (shell_out, is_executable, bold,
-                           sos_get_command_output)
+                           sos_get_command_output, TIMEOUT_DEFAULT)
 
 
 try:
@@ -34,10 +36,12 @@ except ImportError:
 
 try:
     import boto3
+    from botocore.config import Config as BotocoreConfig
     BOTO3_LOADED = True
 except ImportError:
     BOTO3_LOADED = False
 
+OS_RELEASE = "/etc/os-release"
 # Container environment variables for detecting if we're in a container
 ENV_CONTAINER = 'container'
 ENV_HOST_SYSROOT = 'HOST'
@@ -46,11 +50,14 @@ ENV_HOST_SYSROOT = 'HOST'
 class LinuxPolicy(Policy):
     """This policy is meant to be an abc class that provides common
     implementations used in Linux distros"""
-
-    distro = "Linux"
     vendor = "None"
     PATH = "/bin:/sbin:/usr/bin:/usr/sbin"
     init = None
+    # the following will be used, in order, as part of check() to validate that
+    # we are running on a particular distro
+    os_release_file = ''
+    os_release_name = ''
+    os_release_id = ''
     # _ prefixed class attrs are used for storing any vendor-defined defaults
     # the non-prefixed attrs are used by the upload methods, and will be set
     # to the cmdline/config file values, if provided. If not provided, then
@@ -91,9 +98,9 @@ class LinuxPolicy(Policy):
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
-        super(LinuxPolicy, self).__init__(sysroot=sysroot,
-                                          probe_runtime=probe_runtime,
-                                          remote_exec=remote_exec)
+        super().__init__(sysroot=sysroot,
+                         probe_runtime=probe_runtime,
+                         remote_exec=remote_exec)
 
         if sysroot:
             self.sysroot = sysroot
@@ -124,7 +131,7 @@ class LinuxPolicy(Policy):
                         self.runtimes['default'] = self.runtimes[runtime.name]
                     self.runtimes[runtime.name].load_container_info()
 
-            if self.runtimes and 'default' not in self.runtimes.keys():
+            if self.runtimes and 'default' not in self.runtimes:
                 # still allow plugins to query a runtime present on the system
                 # even if that is not the policy default one
                 idx = list(self.runtimes.keys())
@@ -136,6 +143,32 @@ class LinuxPolicy(Policy):
             '/etc/passwd',
             '/etc/shadow'
         ]
+
+    @classmethod
+    def check(cls, remote=''):
+        """
+        This function is responsible for determining if the underlying system
+        is supported by this policy.
+        """
+        def _check_release(content):
+            _matches = [cls.os_release_name]
+            if cls.os_release_id:
+                _matches.append(cls.os_release_id)
+            for line in content.splitlines():
+                if line.startswith(('NAME=', 'ID=')):
+                    _distro = line.split('=')[1:][0].strip("\"'")
+                    if _distro in _matches:
+                        return True
+            return False
+
+        if remote:
+            return _check_release(remote)
+        # use the os-specific file primarily
+        if os.path.isfile(cls.os_release_file):
+            return True
+        # next check os-release for a NAME or ID value we expect
+        with open(OS_RELEASE, "r", encoding='utf-8') as f:
+            return _check_release(f.read())
 
     def kernel_version(self):
         return self.release
@@ -161,7 +194,7 @@ class LinuxPolicy(Policy):
         if cls == LinuxPolicy:
             cls.display_self_help(section)
         else:
-            section.set_title("%s Distribution Policy" % cls.distro)
+            section.set_title(f"{cls.os_release_name} Distribution Policy")
             cls.display_distro_help(section)
 
     @classmethod
@@ -186,14 +219,14 @@ class LinuxPolicy(Policy):
         # information like $PATH and loaded presets
         _pol = cls(None, None, False)
         section.add_text(
-            "Default --upload location: %s" % _pol._upload_url
+            f"Default --upload location: {_pol._upload_url}"
         )
         section.add_text(
-            "Default container runtime: %s" % _pol.default_container_runtime,
+            f"Default container runtime: {_pol.default_container_runtime}",
             newline=False
         )
         section.add_text(
-            "$PATH used when running report: %s" % _pol.PATH,
+            f"$PATH used when running report: {_pol.PATH}",
             newline=False
         )
 
@@ -209,11 +242,10 @@ class LinuxPolicy(Policy):
             ),
             newline=False
         )
-        for preset in _pol.presets:
-            _preset = _pol.presets[preset]
-            _opts = ' '.join(_preset.opts.to_args())
+        for preset, value in _pol.presets.items():
+            _opts = ' '.join(value.opts.to_args())
             presec.add_text(
-                f"{' ':>8}{preset:<20}{_preset.desc:<45}{_opts:<30}",
+                f"{' ':>8}{preset:<20}{value.desc:<45}{_opts:<30}",
                 newline=False
             )
 
@@ -249,10 +281,10 @@ class LinuxPolicy(Policy):
 
         # next, include kernel builtins
         builtins = self.join_sysroot(
-            "/usr/lib/modules/%s/modules.builtin" % release
+            f"/usr/lib/modules/{release}/modules.builtin"
         )
         try:
-            with open(builtins, "r") as mfile:
+            with open(builtins, "r", encoding='utf-8') as mfile:
                 for line in mfile:
                     kmod = line.split('/')[-1].split('.ko')[0]
                     self.kernel_mods.append(kmod)
@@ -267,18 +299,30 @@ class LinuxPolicy(Policy):
             'dm_mod': 'CONFIG_BLK_DEV_DM'
         }
 
-        booted_config = self.join_sysroot("/boot/config-%s" % release)
+        kconfigs = (
+            f"/boot/config-{release}",
+            f"/lib/modules/{release}/config",
+        )
+        for kconfig in kconfigs:
+            kconfig = self.join_sysroot(kconfig)
+            if os.path.exists(kconfig):
+                booted_config = kconfig
+                break
+        else:
+            self.soslog.warning("Unable to find booted kernel config")
+            return
+
         kconfigs = []
         try:
-            with open(booted_config, "r") as kfile:
+            with open(booted_config, "r", encoding='utf-8') as kfile:
                 for line in kfile:
                     if '=y' in line:
                         kconfigs.append(line.split('=y')[0])
         except IOError as err:
             self.soslog.warning(f"Unable to read booted kernel config: {err}")
 
-        for builtin in config_strings:
-            if config_strings[builtin] in kconfigs:
+        for builtin, value in config_strings.items():
+            if value in kconfigs:
                 self.kernel_mods.append(builtin)
 
     def join_sysroot(self, path):
@@ -314,16 +358,13 @@ class LinuxPolicy(Policy):
         # set or query for case id
         if not cmdline_opts.batch and not \
                 cmdline_opts.quiet:
-            try:
-                if caseid:
-                    self.commons['cmdlineopts'].case_id = caseid
-                else:
-                    self.commons['cmdlineopts'].case_id = input(
-                        _("Optionally, please enter the case id that you are "
-                          "generating this report for [%s]: ") % caseid
-                    )
-            except KeyboardInterrupt:
-                raise
+            if caseid:
+                self.commons['cmdlineopts'].case_id = caseid
+            else:
+                self.commons['cmdlineopts'].case_id = input(
+                    _("Optionally, please enter the case id that you are "
+                      "generating this report for [%s]: ") % caseid
+                )
         if cmdline_opts.case_id:
             self.case_id = cmdline_opts.case_id
 
@@ -331,22 +372,17 @@ class LinuxPolicy(Policy):
         # setting case id, as below methods might rely on detection of it
         if not cmdline_opts.batch and not \
                 cmdline_opts.quiet:
-            try:
-                # Policies will need to handle the prompts for user information
-                if cmdline_opts.upload and self.get_upload_url() and \
-                        not cmdline_opts.upload_protocol == 's3':
-                    self.prompt_for_upload_user()
-                    self.prompt_for_upload_password()
-                elif cmdline_opts.upload_protocol == 's3':
-                    self.prompt_for_upload_s3_bucket()
-                    self.prompt_for_upload_s3_endpoint()
-                    self.prompt_for_upload_s3_access_key()
-                    self.prompt_for_upload_s3_secret_key()
-                self.ui_log.info('')
-            except KeyboardInterrupt:
-                raise
-
-        return
+            # Policies will need to handle the prompts for user information
+            if cmdline_opts.upload and self.get_upload_url() and \
+                    not cmdline_opts.upload_protocol == 's3':
+                self.prompt_for_upload_user()
+                self.prompt_for_upload_password()
+            elif cmdline_opts.upload_protocol == 's3':
+                self.prompt_for_upload_s3_bucket()
+                self.prompt_for_upload_s3_endpoint()
+                self.prompt_for_upload_s3_access_key()
+                self.prompt_for_upload_s3_secret_key()
+            self.ui_log.info('')
 
     def _configure_low_priority(self):
         """Used to constrain sos to a 'low priority' execution, potentially
@@ -436,7 +472,7 @@ class LinuxPolicy(Policy):
         be provided or not
         """
         if not self.get_upload_user():
-            msg = "Please provide upload user for %s: " % self.get_upload_url()
+            msg = f"Please provide upload user for {self.get_upload_url()}: "
             self.upload_user = input(_(msg))
 
     def prompt_for_upload_password(self):
@@ -445,8 +481,8 @@ class LinuxPolicy(Policy):
         """
         if not self.get_upload_password() and (self.get_upload_user() !=
                                                self._upload_user):
-            msg = ("Please provide the upload password for %s: "
-                   % self.get_upload_user())
+            msg = ("Please provide the upload password for "
+                   f"{self.get_upload_user()}: ")
             self.upload_password = getpass(msg)
 
     def upload_archive(self, archive):
@@ -518,13 +554,13 @@ class LinuxPolicy(Policy):
             'https': self.upload_https,
             's3': self.upload_s3
         }
-        if self.commons['cmdlineopts'].upload_protocol in prots.keys():
+        if self.commons['cmdlineopts'].upload_protocol in prots:
             return prots[self.commons['cmdlineopts'].upload_protocol]
-        elif '://' not in self.upload_url:
+        if '://' not in self.upload_url:
             raise Exception("Must provide protocol in upload URL")
-        prot, url = self.upload_url.split('://')
-        if prot not in prots.keys():
-            raise Exception("Unsupported or unrecognized protocol: %s" % prot)
+        prot, _ = self.upload_url.split('://')
+        if prot not in prots:
+            raise Exception(f"Unsupported or unrecognized protocol: {prot}")
         return prots[prot]
 
     def get_upload_https_auth(self, user=None, password=None):
@@ -630,11 +666,16 @@ class LinuxPolicy(Policy):
             self._upload_url = f"s3://{bucket}/{prefix}"
         return self.upload_url or self._upload_url
 
+    def _get_obfuscated_upload_url(self, url):
+        pattern = r"([^:]+://[^:]+:)([^@]+)(@.+)"
+        obfuscated_url = re.sub(pattern, r'\1********\3', url)
+        return obfuscated_url
+
     def get_upload_url_string(self):
         """Used by distro policies to potentially change the string used to
         report upload location from the URL to a more human-friendly string
         """
-        return self.get_upload_url()
+        return self._get_obfuscated_upload_url(self.get_upload_url())
 
     def get_upload_user(self):
         """Helper function to determine if we should use the policy default
@@ -680,9 +721,9 @@ class LinuxPolicy(Policy):
         # via ssh python bindings commonly available among downstreams
         try:
             import pexpect
-        except ImportError:
+        except ImportError as err:
             raise Exception('SFTP upload requires python3-pexpect, which is '
-                            'not currently installed')
+                            'not currently installed') from err
 
         sftp_connected = False
 
@@ -693,13 +734,13 @@ class LinuxPolicy(Policy):
 
         # need to strip the protocol prefix here
         sftp_url = self.get_upload_url().replace('sftp://', '')
-        sftp_cmd = "sftp -oStrictHostKeyChecking=no %s@%s" % (user, sftp_url)
+        sftp_cmd = f"sftp -oStrictHostKeyChecking=no {user}@{sftp_url}"
         ret = pexpect.spawn(sftp_cmd, encoding='utf-8')
 
         sftp_expects = [
-            u'sftp>',
-            u'password:',
-            u'Connection refused',
+            'sftp>',
+            'password:',
+            'Connection refused',
             pexpect.TIMEOUT,
             pexpect.EOF
         ]
@@ -711,40 +752,40 @@ class LinuxPolicy(Policy):
         elif idx == 1:
             ret.sendline(password)
             pass_expects = [
-                u'sftp>',
-                u'Permission denied',
+                'sftp>',
+                'Permission denied',
                 pexpect.TIMEOUT,
                 pexpect.EOF
             ]
             sftp_connected = ret.expect(pass_expects, timeout=10) == 0
             if not sftp_connected:
                 ret.close()
-                raise Exception("Incorrect username or password for %s"
-                                % self.get_upload_url_string())
+                raise Exception("Incorrect username or password for "
+                                f"{self.get_upload_url_string()}")
         elif idx == 2:
-            raise Exception("Connection refused by %s. Incorrect port?"
-                            % self.get_upload_url_string())
+            raise Exception("Connection refused by "
+                            f"{self.get_upload_url_string()}. Incorrect port?")
         elif idx == 3:
-            raise Exception("Timeout hit trying to connect to %s"
-                            % self.get_upload_url_string())
+            raise Exception("Timeout hit trying to connect to "
+                            f"{self.get_upload_url_string()}")
         elif idx == 4:
-            raise Exception("Unexpected error trying to connect to sftp: %s"
-                            % ret.before)
+            raise Exception("Unexpected error trying to connect to sftp: "
+                            f"{ret.before}")
 
         if not sftp_connected:
             ret.close()
-            raise Exception("Unable to connect via SFTP to %s"
-                            % self.get_upload_url_string())
+            raise Exception("Unable to connect via SFTP to "
+                            f"{self.get_upload_url_string()}")
 
-        put_cmd = 'put %s %s' % (self.upload_archive_name,
-                                 self._get_sftp_upload_name())
+        put_cmd = (f'put {self.upload_archive_name} '
+                   f'{self._get_sftp_upload_name()}')
         ret.sendline(put_cmd)
 
         put_expects = [
-            u'100%',
+            '100%',
             pexpect.TIMEOUT,
             pexpect.EOF,
-            u'No such file or directory'
+            'No such file or directory'
         ]
 
         put_success = ret.expect(put_expects, timeout=180)
@@ -752,14 +793,13 @@ class LinuxPolicy(Policy):
         if put_success == 0:
             ret.sendline('bye')
             return True
-        elif put_success == 1:
+        if put_success == 1:
             raise Exception("Timeout expired while uploading")
-        elif put_success == 2:
-            raise Exception("Unknown error during upload: %s" % ret.before)
-        elif put_success == 3:
+        if put_success == 2:
+            raise Exception(f"Unknown error during upload: {ret.before}")
+        if put_success == 3:
             raise Exception("Unable to write archive to destination")
-        else:
-            raise Exception("Unexpected response from server: %s" % ret.before)
+        raise Exception(f"Unexpected response from server: {ret.before}")
 
     def _get_sftp_upload_name(self):
         """If a specific file name pattern is required by the SFTP server,
@@ -783,7 +823,7 @@ class LinuxPolicy(Policy):
         """
         return requests.put(self.get_upload_url(), data=archive,
                             auth=self.get_upload_https_auth(),
-                            verify=verify)
+                            verify=verify, timeout=TIMEOUT_DEFAULT)
 
     def _get_upload_headers(self):
         """Define any needed headers to be passed with the POST request here
@@ -803,7 +843,7 @@ class LinuxPolicy(Policy):
         }
         return requests.post(self.get_upload_url(), files=files,
                              auth=self.get_upload_https_auth(),
-                             verify=verify)
+                             verify=verify, timeout=TIMEOUT_DEFAULT)
 
     def upload_https(self):
         """Attempts to upload the archive to an HTTPS location.
@@ -827,13 +867,13 @@ class LinuxPolicy(Policy):
                 r = self._upload_https_put(arc, verify)
             else:
                 r = self._upload_https_post(arc, verify)
-            if r.status_code != 200 and r.status_code != 201:
+            if r.status_code not in (200, 201):
                 if r.status_code == 401:
                     raise Exception(
                         "Authentication failed: invalid user credentials"
                     )
-                raise Exception("POST request returned %s: %s"
-                                % (r.status_code, r.reason))
+                raise Exception(f"POST request returned {r.status_code}: "
+                                f"{r.reason}")
             return True
 
     def upload_ftp(self, url=None, directory=None, user=None, password=None):
@@ -857,13 +897,8 @@ class LinuxPolicy(Policy):
 
         :raises: ``Exception`` if upload in unsuccessful
         """
-        try:
-            import ftplib
-            import socket
-        except ImportError:
-            # socket is part of the standard library, should only fail here on
-            # ftplib
-            raise Exception("missing python ftplib library")
+        import ftplib
+        import socket
 
         if not url:
             url = self.get_upload_url()
@@ -888,32 +923,28 @@ class LinuxPolicy(Policy):
                 raise Exception("connection failed, did you set a user and "
                                 "password?")
             session.cwd(directory)
-        except socket.timeout:
-            raise Exception("timeout hit while connecting to %s" % url)
-        except socket.gaierror:
-            raise Exception("unable to connect to %s" % url)
+        except socket.timeout as err:
+            raise Exception(f"timeout hit while connecting to {url}") from err
+        except socket.gaierror as err:
+            raise Exception(f"unable to connect to {url}") from err
         except ftplib.error_perm as err:
             errno = str(err).split()[0]
             if errno == '503':
-                raise Exception("could not login as '%s'" % user)
+                raise Exception(f"could not login as '{user}'") from err
             if errno == '530':
-                raise Exception("invalid password for user '%s'" % user)
+                raise Exception(f"invalid password for user '{user}'") from err
             if errno == '550':
-                raise Exception("could not set upload directory to %s"
-                                % directory)
-            raise Exception("error trying to establish session: %s"
-                            % str(err))
+                raise Exception("could not set upload directory to "
+                                f"{directory}") from err
+            raise Exception(f"error trying to establish session: {str(err)}") \
+                from err
 
-        try:
-            with open(self.upload_archive_name, 'rb') as _arcfile:
-                session.storbinary(
-                    "STOR %s" % self.upload_archive_name.split('/')[-1],
-                    _arcfile
+        with open(self.upload_archive_name, 'rb') as _arcfile:
+            session.storbinary(
+                f"STOR {self.upload_archive_name.split('/')[-1]}", _arcfile
                 )
-            session.quit()
-            return True
-        except IOError:
-            raise Exception("could not open archive file")
+        session.quit()
+        return True
 
     def upload_s3(self, endpoint=None, region=None, bucket=None, prefix=None,
                   access_key=None, secret_key=None):
@@ -967,10 +998,13 @@ class LinuxPolicy(Policy):
         if not secret_key:
             secret_key = self.get_upload_s3_secret_key()
 
+        boto3_config = BotocoreConfig(user_agent_extra='app/sos')
+
         s3_client = boto3.client('s3', endpoint_url=endpoint,
                                  region_name=region,
                                  aws_access_key_id=access_key,
-                                 aws_secret_access_key=secret_key)
+                                 aws_secret_access_key=secret_key,
+                                 config=boto3_config)
 
         try:
             key = prefix + self.upload_archive_name.split('/')[-1]
@@ -981,7 +1015,7 @@ class LinuxPolicy(Policy):
             raise Exception(f"Failed to upload to S3: {str(e)}") from e
 
     def set_sos_prefix(self):
-        """If sosreport commands need to always be prefixed with something,
+        """If sos report commands need to always be prefixed with something,
         for example running in a specific container image, then it should be
         defined here.
 
@@ -995,6 +1029,7 @@ class LinuxPolicy(Policy):
         """
         return ''
 
+    # pylint: disable=unused-argument
     def create_sos_container(self, image=None, auth=None, force_pull=False):
         """Returns the command that will create the container that will be
         used for running commands inside a container on hosts that require it.
@@ -1019,6 +1054,7 @@ class LinuxPolicy(Policy):
         return ''
 
     def restart_sos_container(self):
+        # pylint: disable=no-member
         """Restarts the container created for sos collect if it has stopped.
 
         This is called immediately after create_sos_container() as the command
@@ -1027,10 +1063,10 @@ class LinuxPolicy(Policy):
         default to opening a bash shell in the container to keep it running,
         thus allowing us to exec into it again.
         """
-        return "%s start %s" % (self.container_runtime,
-                                self.sos_container_name)
+        return f"{self.container_runtime} start {self.sos_container_name}"
 
     def format_container_command(self, cmd):
+        # pylint: disable=no-member
         """Returns the command that allows us to exec into the created
         container for sos collect.
 
@@ -1041,11 +1077,9 @@ class LinuxPolicy(Policy):
         :rtype: ``str``
         """
         if self.container_runtime:
-            return '%s exec %s %s' % (self.container_runtime,
-                                      self.sos_container_name,
-                                      cmd)
-        else:
-            return cmd
+            return (f'{self.container_runtime} exec {self.sos_container_name} '
+                    f'{cmd}')
+        return cmd
 
 
 class GenericLinuxPolicy(LinuxPolicy):
@@ -1060,5 +1094,12 @@ class GenericLinuxPolicy(LinuxPolicy):
                    'users are encouraged to request a new distribution-specifc'
                    ' policy at the GitHub project above.\n')
 
+    @classmethod
+    def check(cls, remote=''):
+        """
+        This function is responsible for determining if the underlying system
+        is supported by this policy.
+        """
+        raise NotImplementedError
 
 # vim: set et ts=4 sw=4 :

@@ -33,7 +33,9 @@ class CommandPriorityTest(StageOneReportTest):
     def test_process_correct_priorities(self):
         cmds = self.get_plugin_manifest('process')['commands']
         # ensure root symlinked ps ran first
-        self.assertTrue(cmds[0]['priority'] == 1 and 'ps_aux' in cmds[0]['tags'])
+        self.assertTrue(
+            cmds[0]['priority'] == 1 and 'ps_aux' in cmds[0]['tags']
+        )
 
         # get lsof and iotop command entries
         _lsof = None
@@ -49,6 +51,3 @@ class CommandPriorityTest(StageOneReportTest):
         self.assertEqual(_lsof['priority'], 50)
         self.assertEqual(_iotop['priority'], 100)
         self.assertTrue(_lsof['start_time'] < _iotop['start_time'])
-
-            
-        

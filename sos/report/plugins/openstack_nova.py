@@ -135,7 +135,7 @@ class OpenStackNova(Plugin):
             self.var_puppet_gen + "_libvirt/var/lib/nova/.ssh/config"
         ] + list(
             filter(re.compile('^((?!libvirt.+httpd).)*$').match,
-                   ['%s%s%s' % (self.var_puppet_gen, p, s)
+                   [f'{self.var_puppet_gen}{p}{s}'
                     for p in npaths for s in syspaths
                     ]))
         self.add_copy_spec(specs)
@@ -145,7 +145,7 @@ class OpenStackNova(Plugin):
         self.do_path_regex_sub("/etc/nova/*", regexp, subst)
         for npath in ['', '_libvirt', '_metadata', '_placement']:
             self.do_path_regex_sub(
-                "%s%s/etc/nova/*" % (self.var_puppet_gen, npath),
+                f"{self.var_puppet_gen}{npath}/etc/nova/*",
                 regexp, subst)
 
     def postproc(self):
@@ -160,13 +160,14 @@ class OpenStackNova(Plugin):
         ]
         connection_keys = ["connection", "sql_connection"]
 
+        join_con_keys = "|".join(connection_keys)
+
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(protect_keys),
+            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
             r"\1*********"
         )
         self.apply_regex_sub(
-            r"(^\s*(%s)\s*=\s*(.*)://(\w*):)(.*)(@(.*))" %
-            "|".join(connection_keys),
+            fr"(^\s*({join_con_keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
             r"\1*********\6"
         )
 

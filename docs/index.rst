@@ -63,9 +63,9 @@ Manual Installation
 Pre-built Packaging
 ^^^^^^^^^^^^^^^^^^^
 
-Fedora/RHEL users install via yum:
+Fedora/RHEL users install via dnf:
 
-``yum install sos``
+``dnf install sos``
 
 Debian users install via apt:
 

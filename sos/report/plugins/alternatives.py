@@ -20,7 +20,7 @@ class Alternatives(Plugin):
 
     def setup(self):
 
-        self.add_cmd_output('%s --version' % self.alternatives_cmd)
+        self.add_cmd_output(f'{self.alternatives_cmd} --version')
 
         alts = []
         ignore = [
@@ -37,7 +37,7 @@ class Alternatives(Plugin):
                 alt = line.split()[0]
                 if alt not in ignore:
                     alts.append(alt)
-            disp_cmd = "%s --display %s" % (self.alternatives_cmd, "%s")
+            disp_cmd = f"{self.alternatives_cmd} --display %s"
             self.add_cmd_output([disp_cmd % alt for alt in alts])
 
 
@@ -47,7 +47,7 @@ class RedHatAlternatives(Alternatives, RedHatPlugin):
     commands = ('alternatives',)
 
     alternatives_cmd = 'alternatives'
-    alternatives_list = '%s --list' % alternatives_cmd
+    alternatives_list = f'{alternatives_cmd} --list'
 
     def setup(self):
 
@@ -66,7 +66,7 @@ class UbuntuAlternatives(Alternatives, UbuntuPlugin):
     commands = ('update-alternatives',)
 
     alternatives_cmd = 'update-alternatives'
-    alternatives_list = '%s --get-selections' % alternatives_cmd
+    alternatives_list = f'{alternatives_cmd} --get-selections'
 
     def setup(self):
 

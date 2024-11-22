@@ -98,8 +98,8 @@ class Slurm(Plugin, UbuntuPlugin, RedHatPlugin):
                     if words[0].strip() == 'SlurmctldLogFile':
                         slurmctld_log_file = words[1].strip()
         except IOError as error:
-            self._log_error('Could not open conf file %s: %s' %
-                            (config_file, error))
+            self._log_error(f'Could not open conf file {config_file}:'
+                            f' {error}')
 
         if not self.get_option("all_logs"):
             self.add_copy_spec([
@@ -122,7 +122,7 @@ class Slurm(Plugin, UbuntuPlugin, RedHatPlugin):
             'AccountingStoragePass',
             'JobCompPass',
         ]
-        slurm_keys_regex = r"(^\s*(%s)\s*=\s*)(.*)" % "|".join(slurm_keys)
+        slurm_keys_regex = fr"(^\s*({'|'.join(slurm_keys)})\s*=\s*)(.*)"
         slurmdbd_key_regex = r'(^\s*(StoragePass)\s*=\s*)(.*)'
 
         sub = r'\1********'

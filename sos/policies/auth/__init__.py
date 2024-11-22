@@ -17,6 +17,8 @@ except ImportError:
 import time
 from datetime import datetime, timedelta
 
+from sos.utilities import TIMEOUT_DEFAULT
+
 DEVICE_AUTH_CLIENT_ID = "sos-tools"
 GRANT_TYPE_DEVICE_CODE = "urn:ietf:params:oauth:grant-type:device_code"
 
@@ -58,7 +60,7 @@ class DeviceAuthorizationClass:
         requesting a new device code.
 
         """
-        data = "client_id={}".format(DEVICE_AUTH_CLIENT_ID)
+        data = f"client_id={DEVICE_AUTH_CLIENT_ID}"
         headers = {'content-type': 'application/x-www-form-urlencoded'}
         if not REQUESTS_LOADED:
             raise Exception("python3-requests is not installed and is required"
@@ -67,7 +69,8 @@ class DeviceAuthorizationClass:
             res = requests.post(
                 self.client_identifier_url,
                 data=data,
-                headers=headers)
+                headers=headers,
+                timeout=TIMEOUT_DEFAULT)
             res.raise_for_status()
             response = res.json()
             self._user_code = response.get("user_code")
@@ -99,7 +102,8 @@ class DeviceAuthorizationClass:
             time.sleep(self._interval)
             try:
                 check_auth_completion = requests.post(self.token_endpoint,
-                                                      data=token_data)
+                                                      data=token_data,
+                                                      timeout=TIMEOUT_DEFAULT)
 
                 status_code = check_auth_completion.status_code
 
@@ -142,13 +146,11 @@ class DeviceAuthorizationClass:
         """
         if self.is_access_token_valid():
             return self._access_token
-        else:
-            if self.is_refresh_token_valid():
-                self._use_refresh_token_grant()
-                return self._access_token
-            else:
-                self._use_device_code_grant()
-                return self._access_token
+        if self.is_refresh_token_valid():
+            self._use_refresh_token_grant()
+            return self._access_token
+        self._use_device_code_grant()
+        return self._access_token
 
     def is_access_token_valid(self):
         """
@@ -189,7 +191,8 @@ class DeviceAuthorizationClass:
                               refresh_token else refresh_token}
 
         refresh_token_res = requests.post(self.token_endpoint,
-                                          data=refresh_token_data)
+                                          data=refresh_token_data,
+                                          timeout=TIMEOUT_DEFAULT)
 
         if refresh_token_res.status_code == 200:
             self._set_token_data(refresh_token_res.json())
@@ -197,10 +200,9 @@ class DeviceAuthorizationClass:
         elif refresh_token_res.status_code == 400 and 'invalid' in\
                 refresh_token_res.json()['error']:
             logger.warning("Problem while fetching the new tokens from refresh"
-                           " token grant - {} {}."
-                           " New Device code will be requested !".format
-                           (refresh_token_res.status_code,
-                            refresh_token_res.json()['error']))
+                           f" token grant - {refresh_token_res.status_code} "
+                           f"{refresh_token_res.json()['error']}."
+                           " New Device code will be requested !")
             self._use_device_code_grant()
         else:
             raise Exception(

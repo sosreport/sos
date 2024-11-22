@@ -8,7 +8,7 @@
 
 import os
 
-from sos_tests import StageOneReportTest
+from sos_tests import StageOneReportTest, StageTwoReportTest, ubuntu_only
 
 
 class NetworkingPluginTest(StageOneReportTest):
@@ -37,5 +37,25 @@ class NetworkingPluginTest(StageOneReportTest):
             # https://lwn.net/Articles/142330/
             if not dev.startswith('bonding_'):
                 self.assertFileGlobInArchive(
-                    "sos_commands/networking/ethtool_*_%s" % dev
+                    f"sos_commands/networking/ethtool_*_{dev}"
                 )
+
+
+class NetplanScrubTest(StageTwoReportTest):
+    """
+    ensure that netplan configuration is collected and then the wifi password
+    is scrubbed correctly
+
+    :avocado: tags=stagetwo
+    """
+
+    sos_cmd = '-o networking'
+
+    files = [('90-NM-d377ae8e-fff5-11ee-bd96-07ef2a5f9e02.yaml',
+              '/etc/netplan/90-NM-d377ae8e-fff5-11ee-bd96-07ef2a5f9e02.yaml')]
+
+    @ubuntu_only
+    def test_netplan_wifi_password_scrubbed(self):
+        self.assertFileNotHasContent(
+            '/etc/netplan/90-NM-d377ae8e-fff5-11ee-bd96-07ef2a5f9e02.yaml',
+            'awifipasswordforauth')

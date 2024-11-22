@@ -11,9 +11,28 @@
 
 from fnmatch import translate
 import re
+import json
+import os
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
-import json
+
+
+KUBE_PACKAGES = (
+    'kubelet',
+    'kubernetes',
+)
+
+KUBE_SVCS = (
+    'kubelet',
+    'kube-apiserver',
+    'kube-proxy',
+    'kube-scheduler',
+    'kube-controller-manager',
+)
+
+KUBECONFIGS = (
+    '/etc/kubernetes/admin.conf',
+)
 
 
 class Kubernetes(Plugin):
@@ -45,7 +64,9 @@ class Kubernetes(Plugin):
         'jobs',
         'cronjobs',
         'clusterroles',
-        'clusterrolebindings'
+        'clusterrolebindings',
+        'limitranges',
+        'resourcequotas',
     ]
 
     # these are not namespaced, must pull separately.
@@ -53,7 +74,7 @@ class Kubernetes(Plugin):
         'sc',
         'pv',
         'roles',
-        'rolebindings'
+        'rolebindings',
     ]
 
     option_list = [
@@ -69,6 +90,14 @@ class Kubernetes(Plugin):
 
     kube_cmd = "kubectl"
 
+    def set_kubeconfig(self):
+        if os.environ.get('KUBECONFIG'):
+            return
+        for _kconf in self.files:
+            if self.path_exists(_kconf):
+                self.kube_cmd += f" --kubeconfig={_kconf}"
+                break
+
     def check_is_master(self):
         """ Check if this is the master node """
         return any(self.path_exists(f) for f in self.files)
@@ -80,24 +109,8 @@ class Kubernetes(Plugin):
             'KUBECONFIG',
             'KUBERNETES_HTTP_PROXY',
             'KUBERNETES_HTTPS_PROXY',
-            'KUBERNETES_NO_PROXY'
+            'KUBERNETES_NO_PROXY',
         ])
-
-        svcs = [
-            'kubelet',
-            'kube-apiserver',
-            'kube-proxy',
-            'kube-scheduler',
-            'kube-controller-manager',
-            'snap.kubelet.daemon',
-            'snap.kube-apiserver.daemon',
-            'snap.kube-proxy.daemon',
-            'snap.kube-scheduler.daemon',
-            'snap.kube-controller-manager.daemon'
-        ]
-
-        for svc in svcs:
-            self.add_journal(units=svc)
 
         # We can only grab kubectl output from the master
         if not self.check_is_master():
@@ -163,7 +176,7 @@ class Kubernetes(Plugin):
         knsps = [n.split()[0] for n in kn_output if n and len(n.split())]
 
         for nspace in knsps:
-            knsp = '--namespace=%s' % nspace
+            knsp = f'--namespace={nspace}'
             if self.get_option('all'):
                 k_cmd = f'{self.kube_cmd} get -o json {knsp}'
 
@@ -191,37 +204,40 @@ class Kubernetes(Plugin):
                             )
 
             if self.get_option('podlogs'):
-                k_cmd = f'{self.kube_cmd} get -o json {knsp}'
-                ret = self.exec_cmd(f'{k_cmd} pods')
-                if ret['status'] == 0:
-                    pods = json.loads(ret['output'])
-                    # allow shell-style regex
-                    reg = (translate(self.get_option('podlogs-filter')) if
-                           self.get_option('podlogs-filter') else None)
-                    for pod in pods["items"]:
-                        if reg and not re.match(reg, pod["metadata"]["name"]):
-                            continue
-                        _subdir = (f'cluster-info/'
-                                   f'{pod["metadata"]["namespace"]}/podlogs/'
-                                   f'{pod["metadata"]["name"]}')
-                        if "containers" in pod["spec"]:
-                            for cont in pod["spec"]["containers"]:
-                                pod_name = pod["metadata"]["name"]
-                                cont_name = cont["name"]
-                                self.add_cmd_output(
-                                    f'{self.kube_cmd} {knsp} logs '
-                                    f'{pod_name} -c {cont_name}',
-                                    subdir=_subdir
-                                )
-                        if "initContainers" in pod["spec"]:
-                            for cont in pod["spec"]["initContainers"]:
-                                pod_name = pod["metadata"]["name"]
-                                cont_name = cont["name"]
-                                self.add_cmd_output(
-                                    f'{self.kube_cmd} {knsp} logs '
-                                    f'{pod_name} -c {cont_name}',
-                                    subdir=_subdir
-                                )
+                self._get_pod_logs(knsp)
+
+    def _get_pod_logs(self, namespace):
+        k_cmd = f'{self.kube_cmd} get -o json {namespace}'
+        ret = self.exec_cmd(f'{k_cmd} pods')
+        if ret['status'] == 0:
+            pods = json.loads(ret['output'])
+            # allow shell-style regex
+            reg = (translate(self.get_option('podlogs-filter')) if
+                   self.get_option('podlogs-filter') else None)
+            for pod in pods["items"]:
+                if reg and not re.match(reg, pod["metadata"]["name"]):
+                    continue
+                _subdir = (f'cluster-info/'
+                           f'{pod["metadata"]["namespace"]}/podlogs/'
+                           f'{pod["metadata"]["name"]}')
+                if "containers" in pod["spec"]:
+                    for cont in pod["spec"]["containers"]:
+                        pod_name = pod["metadata"]["name"]
+                        cont_name = cont["name"]
+                        self.add_cmd_output(
+                            f'{self.kube_cmd} {namespace} logs '
+                            f'{pod_name} -c {cont_name}',
+                            subdir=_subdir
+                        )
+                if "initContainers" in pod["spec"]:
+                    for cont in pod["spec"]["initContainers"]:
+                        pod_name = pod["metadata"]["name"]
+                        cont_name = cont["name"]
+                        self.add_cmd_output(
+                            f'{self.kube_cmd} {namespace} logs '
+                            f'{pod_name} -c {cont_name}',
+                            subdir=_subdir
+                        )
 
     def collect_all_resources(self):
         """ Collect details about all resources """
@@ -247,69 +263,63 @@ class Kubernetes(Plugin):
         # output that is not hit by the previous iteration.
         self.do_cmd_private_sub(self.kube_cmd)
 
+        pathexp = fr'^({"|".join(self.config_files)})'
+        self.do_file_private_sub(pathexp)
+
+        # clear base64 encoded PEM from kubeconfigs files
+        regexp = r'LS0tLS1CRUdJ[A-Za-z0-9+/=]+'
+        subst = '***** SCRUBBED BASE64 PEM *****'
+        pathexp = fr'^({"|".join(list(self.files)+self.config_files)})'
+        self.do_path_regex_sub(pathexp, regexp, subst)
+
 
 class RedHatKubernetes(Kubernetes, RedHatPlugin):
 
-    # OpenShift Container Platform uses the atomic-openshift-master package
-    # to provide kubernetes
-    packages = ('kubernetes', 'kubernetes-master', 'atomic-openshift-master')
+    packages = KUBE_PACKAGES
 
-    files = (
-        '/etc/origin/master/admin.kubeconfig',
-        '/etc/origin/node/pods/master-config.yaml',
-    )
+    files = KUBECONFIGS
 
-    kube_cmd = "kubectl"
+    services = KUBE_SVCS
+
+    def check_enabled(self):
+        # do not run at the same time as the openshift plugin
+        if self.is_installed("openshift-hyperkube"):
+            return False
+        return super().check_enabled()
 
     def setup(self):
-        # Rather than loading the config file, use the OCP command directly
-        # that wraps kubectl, so we don't have to manually account for any
-        # other changes the `oc` binary may implement
-        if self.path_exists('/etc/origin/master/admin.kubeconfig'):
-            self.kube_cmd = 'oc'
-        self.resources.extend([
-            'limitranges',
-            'policies',
-            'resourcequotas',
-            'routes'
-        ])
-        self.global_resources.extend([
-            'projects',
-            'pvs'
-        ])
+        self.set_kubeconfig()
         super().setup()
 
 
 class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
 
-    packages = ('kubernetes',)
+    packages = KUBE_PACKAGES
 
-    files = (
+    files = KUBECONFIGS + (
         '/root/cdk/cdk_addons_kubectl_config',
-        '/etc/kubernetes/admin.conf',
         '/var/snap/microk8s/current/credentials/client.config',
     )
 
-    services = (
+    services = KUBE_SVCS + (
+        'snap.kubelet.daemon',
+        'snap.kube-apiserver.daemon',
+        'snap.kube-proxy.daemon',
+        'snap.kube-scheduler.daemon',
+        'snap.kube-controller-manager.daemon',
         # CDK
         'cdk.master.auth-webhook',
     )
 
     def setup(self):
-        for _kconf in self.files:
-            if self.path_exists(_kconf):
-                self.kube_cmd += f" --kubeconfig={_kconf}"
-                break
-
-        for svc in self.services:
-            self.add_journal(units=svc)
+        self.set_kubeconfig()
 
         if self.is_installed('microk8s'):
             self.kube_cmd = 'microk8s kubectl'
 
         self.config_files.extend([
             '/root/cdk/kubelet/config.yaml',
-            '/root/cdk/audit/audit-policy.yaml'
+            '/root/cdk/audit/audit-policy.yaml',
         ])
         super().setup()
 

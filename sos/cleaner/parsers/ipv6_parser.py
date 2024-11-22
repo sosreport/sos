@@ -35,9 +35,9 @@ class SoSIPv6Parser(SoSCleanerParser):
     ]
     compile_regexes = False
 
-    def __init__(self, config, skip_clean_files=[]):
+    def __init__(self, config, skip_cleaning_files=[]):
         self.mapping = SoSIPv6Map()
-        super(SoSIPv6Parser, self).__init__(config, skip_clean_files)
+        super().__init__(config, skip_cleaning_files)
 
     def get_map_contents(self):
         """Structure the dataset contents properly so that they can be reloaded
@@ -47,8 +47,7 @@ class SoSIPv6Parser(SoSCleanerParser):
             'version': self.mapping.version,
             'networks': {}
         }
-        for net in self.mapping.networks:
-            _net = self.mapping.networks[net]
+        for _, _net in self.mapping.networks.items():
             _d['networks'][_net.original_address] = {
                 'obfuscated': _net.obfuscated_address,
                 'hosts': {}

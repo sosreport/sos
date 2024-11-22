@@ -50,8 +50,11 @@ class NativeCmdTimeoutTest(StageTwoReportTest):
         self.assertFileCollected('sos_commands/timeout_test/echo_good')
 
     def test_command_timed_out(self):
-        self.assertSosLogContains(r"\[plugin:timeout_test\] command 'sleep 30' timed out after 10s")
+        self.assertSosLogContains(
+            r"\[plugin:timeout_test\] command 'sleep 30' timed out after 10s"
+        )
         self.assertFileCollected('sos_commands/timeout_test/sleep_30')
+
 
 class MultipleTimeoutValues(NativeCmdTimeoutTest):
     """Test that our plugin timeout option priority is functioning correctly
@@ -60,7 +63,8 @@ class MultipleTimeoutValues(NativeCmdTimeoutTest):
     """
 
     install_plugins = ['timeout_test']
-    sos_cmd = '-o timeout_test,host --plugin-timeout=30 -k timeout_test.timeout=60'
+    sos_cmd = ('-o timeout_test,host --plugin-timeout=30 -k '
+               'timeout_test.timeout=60')
 
     def test_correct_plugin_timeout(self):
         man = self.get_plugin_manifest('timeout_test')

@@ -91,11 +91,10 @@ class Foreman(Plugin):
         _host_f = self.exec_cmd('hostname -f')['output']
         _host_f = _host_f.strip()
 
-        # Collect these completely everytime
         self.add_copy_spec([
             "/var/log/foreman/production.log",
             f"/var/log/{self.apachepkg}*/foreman-ssl_*_ssl.log"
-        ], sizelimit=0)
+        ], sizelimit=500)
 
         # Allow limiting these
         self.add_copy_spec([
@@ -127,12 +126,16 @@ class Foreman(Plugin):
             'passenger-status --show requests',
             'passenger-status --show backtraces',
             'passenger-memory-stats',
-            'ls -lanR /root/ssl-build',
-            'ls -lanR /usr/share/foreman/config/hooks',
-            'ping -c1 -W1 %s' % _hostname,
-            'ping -c1 -W1 %s' % _host_f,
+            f'ping -c1 -W1 {_hostname}',
+            f'ping -c1 -W1 {_host_f}',
             'ping -c1 -W1 localhost'
         ])
+
+        self.add_dir_listing([
+            '/root/ssl-build',
+            '/usr/share/foreman/config/hooks'
+        ], recursive=True)
+
         self.add_cmd_output(
             'qpid-stat -b amqps://localhost:5671 -q \
                     --ssl-certificate=/etc/pki/katello/qpid_router_client.crt \
@@ -140,7 +143,7 @@ class Foreman(Plugin):
                     --sasl-mechanism=ANONYMOUS',
             suggest_filename='qpid-stat_-q'
         )
-        self.add_cmd_output("hammer ping", tags="hammer_ping")
+        self.add_cmd_output("hammer ping", tags="hammer_ping", timeout=120)
 
         # Dynflow Sidekiq
         self.add_cmd_output('systemctl list-units dynflow*',
@@ -182,8 +185,9 @@ class Foreman(Plugin):
         self.collect_proxies()
 
     def collect_foreman_db(self):
+        # pylint: disable=too-many-locals
         """ Collect foreman db and dynflow data """
-        days = '%s days' % self.get_option('days')
+        days = f'{self.get_option("days")} days'
         interval = quote(days)
 
         # Construct the DB queries, using the days option to limit the range
@@ -286,13 +290,18 @@ class Foreman(Plugin):
                     # proxy is now tuple [name, url]
                     _cmd = 'curl -s --key /etc/foreman/client_key.pem ' \
                            '--cert /etc/foreman/client_cert.pem ' \
-                           '%s/v2/features' % proxy[1]
+                           f'{proxy[1]}/v2/features'
                     self.add_cmd_output(_cmd, suggest_filename=proxy[0],
                                         subdir='smart_proxies_features',
                                         timeout=10)
 
         # collect http[|s]_proxy env.variables
-        self.add_env_var(["http_proxy", "https_proxy"])
+        self.add_env_var([
+            'HTTP_PROXY',
+            'HTTPS_PROXY',
+            'NO_PROXY',
+            'ALL_PROXY',
+        ])
 
     def build_query_cmd(self, query, csv=False, binary="psql"):
         """
@@ -303,8 +312,8 @@ class Foreman(Plugin):
         a large amount of quoting in sos logs referencing the command being run
         """
         if csv:
-            query = "COPY (%s) TO STDOUT " \
-                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)" % query
+            query = f"COPY ({query}) TO STDOUT " \
+                    "WITH (FORMAT 'csv', DELIMITER ',', HEADER)"
         _dbcmd = "%s --no-password -h %s -p 5432 -U foreman -d foreman -c %s"
         return _dbcmd % (binary, self.dbhost, quote(query))
 

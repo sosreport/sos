@@ -11,6 +11,7 @@ from sos_tests import StageTwoReportTest
 DO_SKIP = '/tmp/sos-test-version.txt'
 NO_SKIP = '/tmp/sos-test-version-noskip'
 
+
 class SkipVersionIPParser(StageTwoReportTest):
     """Ensures that we _skip_ files ending in 'version' (or 'version.txt') to
     avoid incorrectly obfuscating version numbers.

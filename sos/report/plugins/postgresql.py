@@ -56,17 +56,13 @@ class PostgreSQL(Plugin):
                     os.environ["PGPASSWORD"] = self.get_option("password")
 
                 if self.get_option("dbhost"):
-                    cmd = "pg_dump -U %s -h %s -p %s -w -F t %s" % (
-                        self.get_option("username"),
-                        self.get_option("dbhost"),
-                        self.get_option("dbport"),
-                        self.get_option("dbname")
-                    )
+                    cmd = (f"pg_dump -U {self.get_option('username')} "
+                           f"-h {self.get_option('dbhost')} "
+                           f"-p {self.get_option('dbport')} -w -F t "
+                           f"{self.get_option('dbname')}")
                 else:
-                    cmd = "pg_dump -C -U %s -w -F t %s " % (
-                        self.get_option("username"),
-                        self.get_option("dbname")
-                    )
+                    cmd = (f"pg_dump -C -U {self.get_option('username')} -w "
+                           f"-F t {self.get_option('dbname')}")
 
                 self.add_cmd_output(cmd, suggest_filename=filename,
                                     binary=True, sizelimit=0)
@@ -81,7 +77,7 @@ class PostgreSQL(Plugin):
 
     def setup(self):
         self.do_pg_dump()
-        self.add_cmd_output("du -sh %s" % self.get_option('pghome'))
+        self.add_cmd_output(f"du -sh {self.get_option('pghome')}")
 
 
 class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):

@@ -43,14 +43,14 @@ class LibvirtClient(Plugin, IndependentPlugin):
         ]
 
         for subcmd in subcmds:
-            self.add_cmd_output('%s %s' % (cmd, subcmd), foreground=True)
+            self.add_cmd_output(f'{cmd} {subcmd}', foreground=True)
 
-        self.add_cmd_output("%s list --all" % cmd,
+        self.add_cmd_output(f"{cmd} list --all",
                             tags="virsh_list_all", foreground=True)
 
         # get network, pool and nwfilter elements
         for k in ['net', 'nwfilter', 'pool']:
-            k_list = self.collect_cmd_output('%s %s-list %s' % (cmd, k, '--all'
+            k_list = self.collect_cmd_output(f'{cmd} {k}-list %s' % ('--all'
                                              if k in ['net', 'pool'] else ''),
                                              foreground=True)
             if k_list['status'] == 0:
@@ -63,18 +63,18 @@ class LibvirtClient(Plugin, IndependentPlugin):
                     continue
                 for j in filter(lambda x: x, k_lines[2:]):
                     name = j.split()[pos]
-                    self.add_cmd_output('%s %s-dumpxml %s' % (cmd, k, name),
+                    self.add_cmd_output(f'{cmd} {k}-dumpxml {name}',
                                         foreground=True)
 
         # cycle through the VMs/domains list, ignore 2 header lines and latest
         # empty line, and dumpxml domain name in 2nd column
-        domains_output = self.exec_cmd('%s list --all' % cmd, foreground=True)
+        domains_output = self.exec_cmd(f'{cmd} list --all', foreground=True)
         if domains_output['status'] == 0:
             domains_lines = domains_output['output'].splitlines()[2:]
             for domain in filter(lambda x: x, domains_lines):
                 domain = domain.split()[1]
                 for opt in ['dumpxml', 'dominfo', 'domblklist']:
-                    self.add_cmd_output('%s %s %s' % (cmd, opt, domain),
+                    self.add_cmd_output(f'{cmd} {opt} {domain}',
                                         foreground=True)
 
         nodedev_output = self.exec_cmd(f"{cmd} nodedev-list", foreground=True)

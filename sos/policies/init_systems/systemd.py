@@ -16,7 +16,7 @@ class SystemdInit(InitSystem):
     """InitSystem abstraction for SystemD systems"""
 
     def __init__(self, chroot=None):
-        super(SystemdInit, self).__init__(
+        super().__init__(
             init_cmd='systemctl',
             list_cmd='list-unit-files --type=service',
             query_cmd='status',
@@ -41,6 +41,7 @@ class SystemdInit(InitSystem):
                     'config': config
                 }
             except IndexError:
+                # not a valid line to extract status info from
                 pass
 
     def is_running(self, name, default=False):

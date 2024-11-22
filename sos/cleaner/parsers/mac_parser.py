@@ -8,10 +8,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import re
+
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.mac_map import SoSMacMap
 
-import re
 
 # aa:bb:cc:fe:ff:dd:ee:ff
 IPV6_REG_8HEX = (
@@ -49,9 +50,9 @@ class SoSMacParser(SoSCleanerParser):
     map_file_key = 'mac_map'
     compile_regexes = False
 
-    def __init__(self, config, skip_clean_files=[]):
+    def __init__(self, config, skip_cleaning_files=[]):
         self.mapping = SoSMacMap()
-        super(SoSMacParser, self).__init__(config, skip_clean_files)
+        super().__init__(config, skip_cleaning_files)
 
     def reduce_mac_match(self, match):
         """Strips away leading and trailing non-alphanum characters from any

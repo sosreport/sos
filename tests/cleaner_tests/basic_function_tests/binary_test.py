@@ -16,6 +16,5 @@ class BinaryPlugin(Plugin, IndependentPlugin):
     plugin_name = 'binary_test'
     short_desc = 'test plugin for removing binaries with --clean'
 
-
     def setup(self):
         self.add_copy_spec('/var/log/binary_test.tar.xz')
