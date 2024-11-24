@@ -9,6 +9,11 @@ sos (4.9.0) noble; urgency=medium
   * New 4.9.0 upstream release
 
  -- Jake Hunsaker <jacob.r.hunsaker@gmail.com> Mon, 17 Feb 2025 11:36:29 -0400
+doca-sosreport (4.8.1) unstable; urgency=low
+
+  * rebase on top of upstream 4.8.1
+
+ -- Michael Filanov <mfilanov@nvidia.com>  Sun, 24 Nov 2024 14:40:01 +0100
 
 doca-sosreport (4.8.0-1) unstable; urgency=low
 
