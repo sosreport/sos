@@ -218,7 +218,7 @@ class SoSOptions():
         try:
             with open(config_file, encoding='utf-8') as f:
                 config.read_file(f, config_file)
-        except (OSError, IOError) as e:
+        except OSError as e:
             print(
                 f'WARNING: Unable to read configuration file {config_file} : '
                 f'{e.args[1]}'

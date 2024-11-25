@@ -1304,7 +1304,7 @@ class Plugin():
             if not path:
                 return 0
             replacements = self.archive.do_file_sub(path, regexp, subst)
-        except (OSError, IOError) as e:
+        except OSError as e:
             # if trying to regexp a nonexisting file, dont log it as an
             # error to stdout
             if e.errno == errno.ENOENT:
@@ -1499,7 +1499,7 @@ class Plugin():
 
         try:
             st = os.lstat(srcpath)
-        except (OSError, IOError):
+        except OSError:
             self._log_info(f"failed to stat '{srcpath}'")
             return None
 

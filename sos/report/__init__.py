@@ -1220,7 +1220,7 @@ class SoSReport(SoSComponent):
             self.setup_archive()
             self._make_archive_paths()
             return
-        except (OSError, IOError) as e:
+        except OSError as e:
             # we must not use the logging subsystem here as it is potentially
             # in an inconsistent or unreliable state (e.g. an EROFS for the
             # file system containing our temporary log files).
@@ -1258,7 +1258,7 @@ class SoSReport(SoSComponent):
                 plug.manifest.add_field('setup_time', end - start)
             except KeyboardInterrupt:
                 raise KeyboardInterrupt  # pylint: disable=raise-missing-from
-            except (OSError, IOError) as e:
+            except OSError as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
                     self.ui_log.error(
@@ -1395,7 +1395,7 @@ class SoSReport(SoSComponent):
             # we already log and handle the plugin timeout in the nested thread
             # pool this is running in, so don't do anything here.
             pass
-        except (OSError, IOError) as e:
+        except OSError as e:
             if e.errno in fatal_fs_errors:
                 self.ui_log.error(
                     f"\n {e.strerror} while collecting plugin data")
@@ -1473,7 +1473,7 @@ class SoSReport(SoSComponent):
                 fd.flush()
                 self.archive.add_file(fd, dest=os.path.join('sos_reports',
                                                             filename))
-            except (OSError, IOError) as e:
+            except OSError as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
                     self.ui_log.error(
@@ -1494,7 +1494,7 @@ class SoSReport(SoSComponent):
                 else:
                     self.soslog.info(
                         f"Skipping postproc for plugin {plugname}")
-            except (OSError, IOError) as e:
+            except OSError as e:
                 if e.errno in fatal_fs_errors:
                     self.ui_log.error("")
                     self.ui_log.error(
@@ -1616,7 +1616,7 @@ class SoSReport(SoSComponent):
                     self.archive.rename_archive_root(cleaner)
                 archive = self.archive.finalize(
                     self.opts.compression_type)
-            except (OSError, IOError) as e:
+            except OSError as e:
                 print("")
                 print(_(f" {e.strerror} while finalizing archive "
                         f"{self.archive.get_archive_path()}"))
@@ -1643,7 +1643,7 @@ class SoSReport(SoSComponent):
                 final_dir = os.path.join(self.sys_tmp, dir_name)
                 os.rename(directory, final_dir)
                 directory = final_dir
-            except (OSError, IOError):
+            except OSError:
                 print(_(f"Error moving directory: {directory}"))
                 return False
 
@@ -1665,7 +1665,7 @@ class SoSReport(SoSComponent):
                     return False
                 try:
                     self._write_checksum(archive, hash_name, checksum)
-                except (OSError, IOError):
+                except OSError:
                     print(_(f"Error writing checksum for file: {archive}"))
 
                 # output filename is in the private tmpdir - move it to the
@@ -1686,7 +1686,7 @@ class SoSReport(SoSComponent):
                 try:
                     os.rename(archive, final_name)
                     archive = final_name
-                except (OSError, IOError):
+                except OSError:
                     print(_(f"Error moving archive file: {archive}"))
                     return False
 
@@ -1704,7 +1704,7 @@ class SoSReport(SoSComponent):
                 # under the control of the user creating the link.
                 try:
                     os.rename(archive_hash, final_hash)
-                except (OSError, IOError):
+                except OSError:
                     print(_(f"Error moving checksum file: {archive_hash}"))
 
                 self.policy.display_results(archive, directory, checksum,
