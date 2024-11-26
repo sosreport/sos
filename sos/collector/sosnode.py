@@ -51,6 +51,8 @@ class SosNode():
         self.hostlen = commons['hostlen']
         self.need_sudo = commons['need_sudo']
         self.sos_options = commons['sos_options']
+        self.node_config_file = self.opts.node_config_file
+        self.inherit_config_file = self.opts.inherit_config_file
         self.local = False
         self.host = None
         self.cluster = None
@@ -762,6 +764,21 @@ class SosNode():
         try:
             path = False
             checksum = False
+            config_file_arg = ''
+            if self.opts.node_config_file:
+                config_file_arg = f'--config-file={self.opts.node_config_file}'
+            elif self.opts.inherit_config_file:
+                if not self.local:
+                    remote_config = f"/tmp/{self.tmpdir.split('/')[-1]}.conf"
+                    self._transport.copy_file_to_remote(
+                        self.opts.config_file,
+                        remote_config)
+                    config_file_arg = f'--config-file={remote_config}'
+                else:
+                    config_file_arg = (
+                        f'--config-file={self.opts.config_file}')
+            if config_file_arg:
+                self.sos_cmd = f"{self.sos_cmd} {config_file_arg}"
             res = self.run_command(self.sos_cmd,
                                    timeout=self.opts.timeout,
                                    use_shell=True,

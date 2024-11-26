@@ -72,6 +72,13 @@ class JujuSSH(RemoteTransport):
         option = f"{model_option} {target_option}"
         return f"juju ssh {option}"
 
+    def _copy_file_to_remote(self, fname, dest):
+        model, unit = self.address.split(":")
+        model_option = f"-m {model}" if model else ""
+        cmd = f"juju scp {model_option} -- {fname} {unit}:{dest}"
+        res = sos_get_command_output(cmd, timeout=15)
+        return res["status"] == 0
+
     def _retrieve_file(self, fname, dest):
         self._chmod(fname)  # juju scp needs the archive to be world-readable
         model, unit = self.address.split(":")
