@@ -193,6 +193,12 @@ class SSHControlPersist(RemoteTransport):
                             f"{self.opts.ssh_user}@{self.address}")
         return self.ssh_cmd
 
+    def _copy_file_to_remote(self, fname, dest):
+        cmd = (f"/usr/bin/scp -oControlPath={self.control_path} "
+               f"{fname} {self.opts.ssh_user}@{self.address}:{dest}")
+        res = sos_get_command_output(cmd, timeout=10)
+        return res['status'] == 0
+
     def _retrieve_file(self, fname, dest):
         cmd = (f"/usr/bin/scp -oControlPath={self.control_path} "
                f"{self.opts.ssh_user}@{self.address}:{fname} {dest}")

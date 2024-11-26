@@ -232,6 +232,13 @@ class OCTransport(RemoteTransport):
         return (f"oc -n {self.project} exec --request-timeout=0 "
                 f"{self.pod_name} -- /bin/bash -c")
 
+    def _copy_file_to_remote(self, fname, dest):
+        result = self.run_oc("cp --retries", stderr=True)
+        flags = '' if "unknown flag" in result["output"] else '--retries=5'
+        cmd = self.run_oc(f"cp {flags} {fname} {self.pod_name}:{dest}",
+                          timeout=15)
+        return cmd['status'] == 0
+
     def _retrieve_file(self, fname, dest):
         # check if --retries flag is available for given version of oc
         result = self.run_oc("cp --retries", stderr=True)

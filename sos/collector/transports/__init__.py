@@ -352,6 +352,37 @@ class RemoteTransport():
         self.log_info(f"Hostname set to {self._hostname}")
         return self._hostname
 
+    def copy_file_to_remote(self, fname, dest):
+        """Copy a local file, fname, to dest on the remote node
+
+        :param fname:   The name of the file to copy
+        :type fname:    ``str``
+
+        :param dest:    Where to save the file to remotely
+        :type dest:     ``str``
+
+        :returns:   True if file was successfully copied to remote, or False
+        :rtype:     ``bool``
+        """
+        attempts = 0
+        try:
+            while attempts < 3:
+                attempts += 1
+                ret = self._copy_file_to_remote(fname, dest)
+                if ret:
+                    return True
+                self.log_info(f"File copy attempt {attempts} failed")
+            self.log_info("File copy failed after 3 attempts")
+            return False
+        except Exception as err:
+            self.log_error("Exception encountered during config copy attempt "
+                           f"{attempts} for {fname}: {err}")
+            raise err
+
+    def _copy_file_to_remote(self, fname, dest):
+        raise NotImplementedError(
+            f"Transport {self.name} does not support file copying")
+
     def retrieve_file(self, fname, dest):
         """Copy a remote file, fname, to dest on the local node
 
