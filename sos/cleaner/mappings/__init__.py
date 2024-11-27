@@ -99,7 +99,7 @@ class SoSMap():
         :rtype:         ``re.Pattern``
         """
         if self.match_full_words_only:
-            item = rf'(?=\b|_|-){re.escape(item)}(?=\b|_|-)'
+            item = rf'(?<![a-z0-9]){re.escape(item)}(?=\b|_|-)'
         else:
             item = re.escape(item)
         return re.compile(item, re.I)
