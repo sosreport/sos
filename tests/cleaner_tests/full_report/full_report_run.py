@@ -64,7 +64,10 @@ class FullCleanTest(StageTwoReportTest):
         host = self.sysinfo['pre']['networking']['hostname']
         short = host.split('.')[0]
         # much faster to just use grep here
-        content = self.grep_for_content(host) + self.grep_for_content(short)
+        host = rf'(?<![a-z0-9]){re.escape(host)}(?=\b|_|-)'
+        short = rf'(?<![a-z0-9]){re.escape(short)}(?=\b|_|-)'
+        content = self.grep_for_content(host, regexp=True) + \
+            self.grep_for_content(short, regexp=True)
         if not content:
             assert True
         else:
