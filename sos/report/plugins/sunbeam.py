@@ -10,6 +10,7 @@
 
 import json
 import pwd
+import yaml
 from sos.report.plugins import Plugin, UbuntuPlugin, PluginOpt
 
 
@@ -46,7 +47,17 @@ class Sunbeam(Plugin, UbuntuPlugin):
         self.add_cmd_output([
             'sunbeam cluster list',
             'sunbeam cluster list --format yaml',
+            'sunbeam manifest list',
         ], snap_cmd=True)
+
+        manifest_raw = self.collect_cmd_output(
+            'sunbeam manifest list --format yaml')
+
+        if manifest_raw['status'] == 0:
+            manifests = yaml.safe_load(manifest_raw['output'])
+            for manifest in manifests:
+                self.add_cmd_output(
+                    f'sunbeam manifest show --id {manifest["manifestid"]}')
 
         sunbeam_user = self.get_option("sunbeam-user")
         try:
