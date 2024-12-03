@@ -39,6 +39,7 @@ class SunbeamHypervisor(Plugin, UbuntuPlugin):
             f'{self.common_dir}/etc/libvirt/passwd.db',
             f'{self.common_dir}/etc/libvirt/krb5.tab',
             f'{self.common_dir}/var/log/ovn/',
+            f'{self.common_dir}/etc/pki/',
         ])
 
     def postproc(self):
