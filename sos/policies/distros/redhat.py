@@ -258,7 +258,7 @@ support representative.
             self.ui_log.info("No case id provided, uploading to SFTP")
             return RH_SFTP_HOST
         rh_case_api = "/support/v1/cases/%s/attachments"
-        return RH_API_HOST + rh_case_api % self.case_id
+        return RH_API_HOST + rh_case_api % self.commons['cmdlineopts'].case_id
 
     def _get_upload_https_auth(self):
         str_auth = f"Bearer {self._device_token}"
