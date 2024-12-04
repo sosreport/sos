@@ -51,6 +51,7 @@ class SELinux(Plugin, RedHatPlugin, UbuntuPlugin):
                 'login',
                 'node',
                 'interface',
+                'boolean',
                 'module'
             ]
 
