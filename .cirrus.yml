@@ -55,7 +55,7 @@ gcp_credentials: ENCRYPTED[!77d4c8251094346c41db63cb05eba2ff98eaff04e58c5d0e2a8e
 
 # Run a simple lint on the community cluster
 flake8_task:
-    skip: &man-changes-include "changesIncludeOnly('man/*')"
+    skip: &man-changes-include "changesIncludeOnly('man/**')"
     alias: "flake8_test"
     name: "Flake8 linting test"
     container:
