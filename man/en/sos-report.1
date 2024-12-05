@@ -8,7 +8,7 @@ sos_report \- Collect and package diagnostic and support data
           [-e|--enable-plugins plugin-names]\fR
           [-o|--only-plugins plugin-names]\fR
           [-a|--alloptions] [-v|--verbose]\fR
-          [-k plug.opt|--plugin-option plug.opt]\fR
+          [-k plug.opt|--plugin-option plug.opt]|--plugopts plug.opt\fR
           [--no-report] [--config-file conf]\fR
           [--no-postproc]\fR
           [--preset preset] [--add-preset add_preset]\fR
@@ -84,7 +84,8 @@ Enable the specified plugin(s) only (all other plugins should be
 disabled). Multiple plugins may be specified by repeating the option
 or as a comma-separated list.
 .TP
-.B \-k PLUGNAME.PLUGOPT[=VALUE], \--plugin-option=PLUGNAME.PLUGOPT[=VALUE]
+.B \-k PLUGNAME.PLUGOPT[=VALUE], \--plugin-option=PLUGNAME.PLUGOPT[=VALUE], \
+\--plugopts=PLUGNAME.PLUGOPT[=VALUE]
 Specify plug-in options. The option PLUGOPT is enabled, or set to the
 specified value in the plug-in PLUGNAME.
 .TP
