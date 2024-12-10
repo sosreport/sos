@@ -102,7 +102,6 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             # The ceph_mon plugin will collect all the "ceph ..." commands
             # which typically require the keyring.
 
-            "ceph config dump",
             "ceph config generate-minimal-conf",
             "ceph config log",
             "ceph config-key dump",
@@ -145,6 +144,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
                     self.add_cmd_output(f"ceph crash info {cid}")
 
         ceph_cmds = [
+            "config dump",
             "device ls",
             "df detail",
             "df",
