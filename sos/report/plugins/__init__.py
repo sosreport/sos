@@ -3083,10 +3083,20 @@ class Plugin():
         if output:
             journal_cmd += output_opt % output
 
+        fname = journal_cmd
+        if log_size > 0 and not lines:
+            # get the last 1000 lines
+            res = self.exec_cmd(f"{journal_cmd} -n1000")
+            if res['status'] == 0 and res['output'].count('\n') >= 1000:
+                # compute how many lines we need to reach log_size from
+                # the 1000 lines size, add 50% margin to avoid being short
+                lines = int(log_size*1024*1024/len(res['output'])*1000*1.5)
+                journal_cmd += lines_opt % lines
+
         self._log_debug(f"collecting journal: {journal_cmd}")
         self._add_cmd_output(cmd=journal_cmd, timeout=timeout,
                              sizelimit=log_size, pred=pred, tags=tags,
-                             priority=priority)
+                             priority=priority, suggest_filename=fname)
 
     def _expand_copy_spec(self, copyspec):
         def __expand(paths):
