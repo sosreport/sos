@@ -30,9 +30,9 @@ elif grep -iq debian /etc/os-release; then
     Pin: version 7.29.0*
     Pin-Priority: -10' | sed "s/^    //g" > /etc/apt/preferences.d/puppet.pref
     apt-get install /root/puppet7-release-bullseye.deb
-    curl https://deb.theforeman.org/foreman.asc --output /etc/apt/trusted.gpg.d/foreman.asc
-    echo "deb http://deb.theforeman.org/ bullseye $FOREMAN_VER" | tee /etc/apt/sources.list.d/foreman.list
-    echo "deb http://deb.theforeman.org/ plugins $FOREMAN_VER" | tee -a /etc/apt/sources.list.d/foreman.list
+    curl https://archivedeb.theforeman.org/foreman.asc --output /etc/apt/trusted.gpg.d/foreman.asc
+    echo "deb http://archivedeb.theforeman.org/ bullseye $FOREMAN_VER" | tee /etc/apt/sources.list.d/foreman.list
+    echo "deb http://archivedeb.theforeman.org/ plugins $FOREMAN_VER" | tee -a /etc/apt/sources.list.d/foreman.list
     apt-get update
     apt-get -y install foreman-installer && SUCCESS=1
 fi
