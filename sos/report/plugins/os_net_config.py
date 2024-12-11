@@ -20,6 +20,7 @@ class OsNetConfig(Plugin, IndependentPlugin):
     def setup(self):
         self.add_copy_spec("/etc/os-net-config")
         self.add_copy_spec("/var/lib/os-net-config")
+        self.add_copy_spec("/var/log/os-net-config.log")
 
 
 # vim: set et ts=4 sw=4 :
