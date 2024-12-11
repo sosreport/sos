@@ -164,7 +164,10 @@ class LinuxPolicy(Policy):
         if remote:
             return _check_release(remote)
         # use the os-specific file primarily
-        if os.path.isfile(cls.os_release_file):
+        # also check the symlink destination
+        if (os.path.isfile(cls.os_release_file) and
+            os.path.basename(cls.os_release_file)
+                == os.path.basename(os.path.realpath(cls.os_release_file))):
             return True
         # next check os-release for a NAME or ID value we expect
         with open(OS_RELEASE, "r", encoding='utf-8') as f:
