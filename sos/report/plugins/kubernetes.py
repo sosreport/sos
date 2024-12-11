@@ -53,6 +53,12 @@ class Kubernetes(Plugin):
     forbidden_paths = [
         "/etc/kubernetes/pki",
     ]
+    kube_system_logs = [
+        "/var/log/pods/kube-system_etcd-*",
+        "/var/log/pods/kube-system_kube-apiserver-*",
+        "/var/log/pods/kube-system_kube-controller-manager-*",
+        "/var/log/pods/kube-system_kube-scheduler-*",
+    ]
     resources = [
         'events',
         'deployments',
@@ -91,7 +97,9 @@ class Kubernetes(Plugin):
         PluginOpt('podlogs', default=False,
                   desc='capture stdout/stderr logs from pods'),
         PluginOpt('podlogs-filter', default='', val_type=str,
-                  desc='only collect logs from pods matching this pattern')
+                  desc='only collect logs from pods matching this pattern'),
+        PluginOpt('kube-system-log-files', default=False,
+                  desc='copy some kube-system pod logs without using the API'),
     ]
 
     kube_cmd = "kubectl"
@@ -112,6 +120,9 @@ class Kubernetes(Plugin):
         self.add_copy_spec(self.config_files)
 
         self.add_forbidden_path(self.forbidden_paths)
+
+        if self.get_option('kube-system-log-files'):
+            self.add_copy_spec(self.kube_system_logs)
 
         self.add_env_var([
             'KUBECONFIG',
