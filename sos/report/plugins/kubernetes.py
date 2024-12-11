@@ -46,6 +46,12 @@ class Kubernetes(Plugin):
     config_files = [
         "/etc/kubernetes",
         "/run/flannel",
+        "/var/lib/kubelet/config.yaml",
+        "/var/lib/kubelet/kubeadm-flags.env",
+        "/var/lib/kubelet/*_manager_state",
+    ]
+    forbidden_paths = [
+        "/etc/kubernetes/pki",
     ]
     resources = [
         'events',
@@ -105,7 +111,7 @@ class Kubernetes(Plugin):
     def setup(self):
         self.add_copy_spec(self.config_files)
 
-        self.add_forbidden_path("/etc/kubernetes/pki")
+        self.add_forbidden_path(self.forbidden_paths)
 
         self.add_env_var([
             'KUBECONFIG',
