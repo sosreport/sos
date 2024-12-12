@@ -327,6 +327,23 @@ class Foreman(Plugin):
             r"/etc/foreman/(.*)((yaml|yml)(.*)?)",
             r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
             r'\1"********"')
+        # hide proxy credentials..
+        self.do_paths_http_sub([
+            '/var/log/foreman/production.log*',
+        ])
+        # .. even those appearing TWICE in the logfile, in format (one-line):
+        # Setting (7) update event on value --- https://USER:PASS@foobar:443,\
+        # --- https://USER:PASS@foobar:3128
+        self.do_path_regex_sub(
+            '/var/log/foreman/production.log*',
+            r", --- (http(s)?://)\S+:\S+(@.*)",
+            r"\1******:******\3"
+        )
+        # hide proxy credentials from http_proxy setting
+        self.do_cmd_output_sub(
+            "from settings where",
+            r"(http(s)?://)\S+:\S+(@.*)",
+            r"\1******:******\3")
 
 # Let the base Foreman class handle the string substitution of the apachepkg
 # attr so we can keep all log definitions centralized in the main class
