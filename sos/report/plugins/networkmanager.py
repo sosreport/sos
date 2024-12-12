@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
@@ -19,14 +18,21 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
     packages = ('NetworkManager', 'network-manager')
 
     def setup(self):
+        self.system_connection_files = [
+            "/etc/NetworkManager/system-connections/",
+            "/usr/lib/NetworkManager/system-connections/",
+            "/run/NetworkManager/system-connections/",
+        ]
+
+        self.add_copy_spec(self.system_connection_files)
+
         self.add_copy_spec([
             "/etc/NetworkManager/NetworkManager.conf",
-            "/etc/NetworkManager/system-connections",
             "/etc/NetworkManager/dispatcher.d",
             "/etc/NetworkManager/conf.d",
             "/usr/lib/NetworkManager/conf.d",
             "/run/NetworkManager/conf.d",
-            "/var/lib/NetworkManager/NetworkManager-intern.conf"
+            "/var/lib/NetworkManager/NetworkManager-intern.conf",
         ])
 
         self.add_journal(units="NetworkManager")
@@ -111,15 +117,12 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
         })
 
     def postproc(self):
-        for _, _, files in os.walk(
-                "/etc/NetworkManager/system-connections"):
-            for net_conf in files:
-                self.do_file_sub(
-                    "/etc/NetworkManager/system-connections/"+net_conf,
-                    r"(password|psk|mka-cak|password-raw|pin|preshared-key"
-                    r"|private-key|secrets|wep-key[0-9])=(.*)",
-                    r"\1=***",
-                )
-
+        for sc_path in self.system_connection_files:
+            self.do_path_regex_sub(
+                f"{sc_path}",
+                r"(password|psk|mka-cak|password-raw|pin|preshared-key"
+                r"|private-key|secrets|wep-key[0-9])=(.*)",
+                r"\1=***",
+            )
 
 # vim: set et ts=4 sw=4 :
