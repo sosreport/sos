@@ -97,7 +97,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
                 "/var/snap/microceph/current/conf/*",
             ])
 
-        self.add_cmd_output("ceph report", tags="ceph_report")
+        self.add_cmd_output("ceph report", tags="ceph_report", stderr=False)
         self.add_cmd_output([
             # The ceph_mon plugin will collect all the "ceph ..." commands
             # which typically require the keyring.
@@ -186,6 +186,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_cmd_output(
             [f"ceph {cmd} --format json-pretty" for cmd in ceph_cmds],
             subdir="json_output",
+            stderr=False
         )
 
     def get_ceph_version(self):
