@@ -331,14 +331,6 @@ class Foreman(Plugin):
         self.do_paths_http_sub([
             '/var/log/foreman/production.log*',
         ])
-        # .. even those appearing TWICE in the logfile, in format (one-line):
-        # Setting (7) update event on value --- https://USER:PASS@foobar:443,\
-        # --- https://USER:PASS@foobar:3128
-        self.do_path_regex_sub(
-            '/var/log/foreman/production.log*',
-            r", --- (http(s)?://)\S+:\S+(@.*)",
-            r"\1******:******\3"
-        )
         # hide proxy credentials from http_proxy setting
         self.do_cmd_output_sub(
             "from settings where",

@@ -1317,9 +1317,9 @@ class Plugin():
         return replacements
 
     def do_paths_http_sub(self, pathspecs):
-        """ Obfuscate credentials in *_PROXY variables in all files in the
-        given list. Proxy setting without protocol is ignored, since that
-        is not recommended setting and obfuscating that one can hit false
+        """ Obfuscate Basic_AUTH URL credentials in all files in the given
+        list. Proxy setting without protocol is ignored, since that is
+        not recommended setting and obfuscating that one can hit false
         positives.
 
         :param pathspecs: A filepath to obfuscate credentials in
@@ -1329,7 +1329,7 @@ class Plugin():
             pathspecs = [pathspecs]
         for path in pathspecs:
             self.do_path_regex_sub(
-                path, r"(http(s)?://)\S+:\S+(@.*)", r"\1******:******\3")
+                path, r"http(s)?://\S+:\S+@", r"http\1://******:******@")
 
     def do_path_regex_sub(self, pathexp, regexp, subst):
         """Apply a regexp substituation to a set of files archived by
