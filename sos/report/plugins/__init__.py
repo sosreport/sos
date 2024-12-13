@@ -1317,9 +1317,9 @@ class Plugin():
         return replacements
 
     def do_paths_http_sub(self, pathspecs):
-        """ Obfuscate credentials in *_PROXY variables in all files in the
-        given list. Proxy setting without protocol is ignored, since that
-        is not recommended setting and obfuscating that one can hit false
+        """ Obfuscate proxy URL credentials in all files in the given
+        list. Proxy setting without protocol is ignored, since that is
+        not recommended setting and obfuscating that one can hit false
         positives.
 
         :param pathspecs: A filepath to obfuscate credentials in
