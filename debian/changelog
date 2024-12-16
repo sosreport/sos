@@ -1,3 +1,9 @@
+sosreport (4.8.2) New upstream release; urgency=medium
+
+  * New upstream release
+
+ -- Pavel Moravec <pmoravec@redhat.com>  Mon, 16 Dec 2024 08:33:03 +0100
+
 sosreport (4.8.1-2) oracular; urgency=medium
 
   * Change series to oracular
