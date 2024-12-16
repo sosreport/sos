@@ -125,7 +125,7 @@ class SaltStackMaster(RemoteTransport):
     def remote_exec(self):
         """The remote execution command to use for this transport."""
         salt_args = "--out json --static --no-color"
-        return f"salt {salt_args} {self.address} cmd.shell "
+        return f"salt {salt_args} {self.address} cmd.exec_code sh "
 
     def _copy_file_to_remote(self, fname, dest):
         """Copy a file to the remote host using SaltStack Master
