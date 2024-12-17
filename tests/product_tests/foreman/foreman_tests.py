@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-from sos_tests import StageOneReportTest, redhat_only, ubuntu_only
+from sos_tests import StageOneReportTest, redhat_only, debian_only
 
 # known values in our CI test images
 FOREMAN_DB_PASSWORD = r'S0Sdb=p@ssw0rd!'
@@ -104,7 +104,7 @@ class ForemanBasicTest(StageOneReportTest):
     def test_foreman_httpd_collected(self):
         self.assertFileGlobInArchive("/var/log/httpd*/foreman-ssl_*_ssl*log*")
 
-    @ubuntu_only
+    @debian_only
     def test_foreman_apache_collected(self):
         self.assertFileGlobInArchive("/var/log/apache2/foreman-ssl_*_ssl*log*")
 

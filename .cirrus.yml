@@ -6,7 +6,8 @@ env:
     FEDORA_NAME: "fedora-38"
     FEDORA_PRIOR_NAME: "fedora-37"
 
-    DEBIAN_NAME: "debian-11"
+    DEBIAN_12_NAME: "debian-12"
+    DEBIAN_11_NAME: "debian-11"
 
     UBUNTU_DEVEL_NAME: "ubuntu-25.04"
     UBUNTU_LATEST_NAME: "ubuntu-24.10"
@@ -135,22 +136,36 @@ rpm_build_task:
 deb_build_task:
     skip: *man-changes-include
     alias: "deb_build"
-    name: "deb Build From Checkout"
+    name: "deb Build From Checkout - ${BUILD_NAME}"
     gce_instance:
-        image_project: "${UBUNTU_PROJECT}"
-        image_family: "${UBUNTU_DEB_FAMILY_NAME}"
+        image_project: "${PROJECT}"
+        image_family: "${VM_FAMILY_NAME}"
         type: e2-medium
+    matrix:
+        - env: &debian-11-deb-pkg
+            PROJECT: ${DEBIAN_PROJECT}
+            BUILD_NAME: ${DEBIAN_11_NAME}
+            VM_FAMILY_NAME: ${DEBIAN_FAMILY_NAME}
+        - env: &debian-12-deb-pkg
+            PROJECT: ${DEBIAN_PROJECT}
+            BUILD_NAME: ${DEBIAN_12_NAME}
+            VM_FAMILY_NAME: ${DEBIAN_FAMILY_NAME}
+        - env: &ubuntu-latest-deb-pkg
+            PROJECT: ${UBUNTU_PROJECT}
+            BUILD_NAME: ${UBUNTU_LATEST_NAME}
+            VM_FAMILY_NAME: ${UBUNTU_DEB_FAMILY_NAME}
     setup_script: |
         apt update --allow-releaseinfo-change
         apt -y install devscripts equivs python3-pip
         mk-build-deps
         apt -y install ./sosreport-build-deps*.deb
-        pip3 install -r test-requirements.txt --break-system-packages
+        [[ $(pip3 install --help | grep break-system) ]] && PIP_EXTRA="--break-system-packages"
+        pip3 install -r test-requirements.txt ${PIP_EXTRA}
     main_script: |
         dpkg-buildpackage -b -us -uc -rfakeroot -m --build-by="noreply@canonical.com"
-    prep_artifacts_script: mv ../*.deb ./sos_cirrus.deb
+    prep_artifacts_script: mv ../*.deb ./sos_${BUILD_NAME}.deb
     packages_artifacts:
-        path: ./sos_cirrus.deb
+        path: ./sos_${BUILD_NAME}.deb
         type: application/octet-stream
 
 # Make sure a user can manually build a snap from the checkout
@@ -213,25 +228,36 @@ report_stageone_task:
             BUILD_NAME: "${UBUNTU_LATEST_NAME} - ${PKG}"
             VM_FAMILY_NAME: ${UBUNTU_LATEST_FAMILY_NAME}
         - env: &ubuntu-latest-deb
+            <<: *ubuntu-latest-deb-pkg
             PKG: "deb"
-            PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: "${UBUNTU_LATEST_NAME} - ${PKG}"
+            DEB_BUILD_NAME: ${UBUNTU_LATEST_NAME}
             VM_FAMILY_NAME: ${UBUNTU_LATEST_FAMILY_NAME}
+        - env: &debian-12
+            <<: *debian-12-deb-pkg
+            PKG: "deb"
+            DEB_BUILD_NAME: ${BUILD_NAME}
+        - env: &debian-11
+            <<: *debian-11-deb-pkg
+            PKG: "deb"
+            DEB_BUILD_NAME: ${BUILD_NAME}
     setup_script: &setup |
         if [ $(command -v apt) ]; then
             apt -y purge sosreport
             apt update --allow-releaseinfo-change
-            apt -y install python3-pip snapd
+            apt -y install python3-pip ethtool python3-systemd
             if [ ${PKG} == "snap" ] ; then
+                apt -y install snapd
                 echo "$ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap"
                 $ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap
                 systemctl start snapd
                 snap install ./sosreport_test_amd64.snap --classic --dangerous
                 snap alias sosreport.sos sos
             elif [ ${PKG} == "deb" ]; then
-                echo "$ARTCURL/deb%20Build%20From%20Checkout/packages/sos_cirrus.deb"
-                $ARTCURL/deb%20Build%20From%20Checkout/packages/sos_cirrus.deb
-                apt -y install ./sos_cirrus.deb
+                echo "$ARTCURL/deb%20Build%20From%20Checkout%20-%20${DEB_BUILD_NAME}/packages/sos_${DEB_BUILD_NAME}.deb"
+                $ARTCURL/deb%20Build%20From%20Checkout%20-%20${DEB_BUILD_NAME}/packages/sos_${DEB_BUILD_NAME}.deb
+                apt -y install ./sos_${DEB_BUILD_NAME}.deb
+                sed -i 's/\(127.0.1.1\)/#\1/g' /etc/hosts
             fi
         fi
         if [ $(command -v dnf) ]; then
@@ -290,6 +316,7 @@ report_stagetwo_task:
         - env: *ubuntu
         - env: *ubuntu-latest-snap
         - env: *ubuntu-latest-deb
+        - env: *debian-12
     setup_script: *setup
     install_pexpect_script: |
         if [ $(command -v apt) ]; then
@@ -330,9 +357,7 @@ report_foreman_task:
         type: e2-standard-2
     matrix:
         - env:
-            PROJECT: ${DEBIAN_PROJECT}
-            VM_FAMILY_NAME: ${DEBIAN_FAMILY_NAME}
-            BUILD_NAME: ${DEBIAN_NAME}
+            <<: *debian-11
             FOREMAN_VER: "3.7"
     setup_script: *setup
     foreman_setup_script: ./tests/test_data/foreman_setup.sh

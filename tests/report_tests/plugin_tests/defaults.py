@@ -16,8 +16,11 @@ class DefaultCollectionsTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    packages = {'rhel': 'cups',
-                'Ubuntu': 'cups'}
+    packages = {
+        'rhel': 'cups',
+        'Ubuntu': 'cups',
+        'debian': 'cups',
+    }
 
     sos_cmd = '-o cups'
 

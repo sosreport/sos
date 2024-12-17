@@ -10,7 +10,7 @@ import re
 
 
 from avocado.utils import process
-from sos_tests import StageOneReportTest, redhat_only, ubuntu_only
+from sos_tests import StageOneReportTest, redhat_only, debian_only
 
 
 # These are the header strings in --list-plugins output
@@ -105,7 +105,7 @@ class ExpectedDefaultPluginsTest(StageOneReportTest):
             'yum'
         ])
 
-    @ubuntu_only
+    @debian_only
     def test_ubuntu_default_plugins(self):
         """Plugins expected to always run on a Ubuntu (-like) system
         """
