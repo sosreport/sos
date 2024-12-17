@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-from sos_tests import StageTwoReportTest, redhat_only, ubuntu_only
+from sos_tests import StageTwoReportTest, redhat_only, debian_only
 
 
 class Krb5PluginTest(StageTwoReportTest):
@@ -22,7 +22,8 @@ class Krb5PluginTest(StageTwoReportTest):
     sos_cmd = '-o krb5'
     packages = {
         'rhel': ['krb5-libs', 'krb5-server'],
-        'Ubuntu': ['krb5-user', 'krb5-kdc']
+        'Ubuntu': ['krb5-user', 'krb5-kdc'],
+        'debian': ['krb5-user', 'krb5-kdc'],
     }
 
     def test_plugin_ran(self):
@@ -31,7 +32,7 @@ class Krb5PluginTest(StageTwoReportTest):
     def test_conf_collected(self):
         self.assertFileCollected('/etc/krb5.conf')
 
-    @ubuntu_only
+    @debian_only
     def test_ubuntu_kdcdir_collected(self):
         self.assertFileGlobInArchive('/var/lib/krb5kdc/*')
 

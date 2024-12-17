@@ -19,7 +19,7 @@ class AptConfScrubTest(StageTwoReportTest):
     """
 
     sos_cmd = '-o apt'
-    ubuntu_only = True
+    debian_only = True
     files = [
         ('apt-proxy.conf', '/etc/apt/apt.conf.d/50-apt-proxy'),
         ('apt-sources.list', '/etc/apt/sources.list'),
