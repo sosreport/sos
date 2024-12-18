@@ -20,6 +20,7 @@ class HBN(Plugin, IndependentPlugin):
         self.add_copy_spec([
             '/etc/mellanox',
             '/var/log/doca/hbn',
+            '/var/lib/dhcp',
             '/var/lib/hbn/etc/cumulus',
             '/var/log/sfc-install.log',
             '/usr/lib/udev',            # HBN udev rules
