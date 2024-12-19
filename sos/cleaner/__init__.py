@@ -693,6 +693,10 @@ third party.
                         archive.should_remove_file(short_name)):
                     archive.remove_file(short_name)
                     continue
+                if (self.opts.keep_binary_files and
+                        archive.should_remove_file(short_name)):
+                    archive.should_skip_file(short_name)
+                    continue
                 try:
                     count = self.obfuscate_file(fname, short_name,
                                                 archive.archive_name)
