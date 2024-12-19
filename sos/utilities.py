@@ -20,6 +20,7 @@ import tempfile
 import threading
 import time
 import io
+import mmap
 from contextlib import closing
 from collections import deque
 
@@ -213,7 +214,7 @@ def is_executable(command, sysroot=None):
 def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                            chroot=None, chdir=None, env=None, foreground=False,
                            binary=False, sizelimit=None, poller=None,
-                           to_file=False, runas=None):
+                           to_file=False, tac=False, runas=None):
     # pylint: disable=too-many-locals,too-many-branches
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
@@ -275,8 +276,11 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         else:
             expanded_args.append(arg)
     if to_file:
-        # pylint: disable=consider-using-with
-        _output = open(to_file, 'w', encoding='utf-8')
+        if tac:
+            _output = tempfile.TemporaryFile(dir=os.path.dirname(to_file))
+        else:
+            # pylint: disable=consider-using-with
+            _output = open(to_file, 'w', encoding='utf-8')
     else:
         _output = PIPE
     try:
@@ -285,10 +289,10 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                    bufsize=-1, env=cmd_env, close_fds=True,
                    preexec_fn=_child_prep_fn) as p:
 
-            if not to_file:
-                reader = AsyncReader(p.stdout, sizelimit, binary)
-            else:
+            if to_file:
                 reader = FakeReader(p, binary)
+            else:
+                reader = AsyncReader(p.stdout, sizelimit, binary)
 
             if poller:
                 while reader.running:
@@ -301,6 +305,9 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                 except Exception:
                     p.terminate()
                     if to_file:
+                        if tac:
+                            with open(to_file, 'wb') as f_dst:
+                                tac_logs(_output, f_dst)
                         _output.close()
                     # until we separate timeouts from the `timeout` command
                     # handle per-cmd timeouts via Plugin status checks
@@ -308,6 +315,9 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                     return {'status': 124, 'output': reader.get_contents(),
                             'truncated': reader.is_full}
             if to_file:
+                if tac:
+                    with open(to_file, 'wb') as f_dst:
+                        tac_logs(_output, f_dst)
                 _output.close()
 
             # wait for Popen to set the returncode
@@ -330,6 +340,37 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': "", 'truncated': ''}
         raise e
+
+
+def tac_logs(f_src, f_dst):
+    """Python implementation of the tac utility with support
+    for multiline logs (starting with space). It is intended
+    to reverse the output of 'journalctl --reverse'.
+    """
+    NEWLINE = b'\n'
+    SPACE = 32
+    with mmap.mmap(f_src.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+        # find the last NEWLINE, this skips the last line if it's partial
+        sep1 = sep2 = mm.rfind(NEWLINE)
+        while sep2 >= 0:
+            sep1 = mm.rfind(NEWLINE, 0, sep1)
+            # multiline logs have a first line not starting with space
+            # followed by lines starting with spaces
+            # line 5
+            # line 4
+            #  multiline 4
+            # line 3
+            if mm[sep1+1] == SPACE:
+                # first line starts with a space
+                # (this should not happen)
+                if sep1 == -1:
+                    break
+                # go find the previous NEWLINE
+                continue
+            # write the log line ending with the NEWLINE
+            f_dst.write(mm[sep1+1:sep2+1])
+            sep2 = sep1
+        mm.close()
 
 
 def import_module(module_fqname, superclasses=None):
