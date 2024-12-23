@@ -254,6 +254,14 @@ support representative.
             return self.commons['cmdlineopts'].upload_url
         if self.commons['cmdlineopts'].upload_protocol == 'sftp':
             return RH_SFTP_HOST
+        if self.commons['cmdlineopts'].upload_protocol == 's3':
+            endpoint = self.get_upload_s3_endpoint()
+            bucket = self.get_upload_s3_bucket()
+            if self.commons['cmdlineopts'].case_id:
+                rh_case_api = "/support/v1/cases/%s/attachments"
+                return f"{endpoint}/{bucket}" + rh_case_api % self.case_id
+            prefix = self.get_upload_s3_object_prefix()
+            return f"{endpoint}/{bucket}/{prefix}"
         if not self.commons['cmdlineopts'].case_id:
             self.ui_log.info("No case id provided, uploading to SFTP")
             return RH_SFTP_HOST
