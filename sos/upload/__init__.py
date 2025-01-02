@@ -45,7 +45,7 @@ class SoSUpload(SoSComponent):
         'upload_directory': None,
         'upload_user': None,
         'upload_pass': None,
-        'upload_method': 'auto',
+        'upload_http_method': 'put',
         'upload_no_ssl_verify': False,
         'upload_target': None,
         'upload_s3_endpoint': None,
@@ -154,8 +154,8 @@ class SoSUpload(SoSComponent):
                                 help="Username to authenticate with")
         upload_grp.add_argument("--upload-pass", default=None,
                                 help="Password to authenticate with")
-        upload_grp.add_argument("--upload-http-method", default='auto',
-                                choices=['auto', 'put', 'post'],
+        upload_grp.add_argument("--upload-http-method", default='put',
+                                choices=['put', 'post'],
                                 help="HTTP method to use for uploading")
         upload_grp.add_argument("--upload-no-ssl-verify", default=False,
                                 action='store_true',
