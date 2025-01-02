@@ -44,6 +44,7 @@ class SoS():
     loaded, and if a matching one is found, intialized.
     """
 
+    # noinspection PyTypedDict
     def __init__(self, args):
         self.cmdline = args
         # define the local subcommands that exist on the system
@@ -54,10 +55,12 @@ class SoS():
         import sos.report
         import sos.cleaner
         import sos.help
+        import sos.upload
         self._components = {
             'report': (sos.report.SoSReport, ['rep']),
             'clean': (sos.cleaner.SoSCleaner, ['cleaner', 'mask']),
-            'help': (sos.help.SoSHelper, [])
+            'help': (sos.help.SoSHelper, []),
+            'upload': (sos.upload.SoSUpload, [])
         }
         # some distros do not want pexpect as a default dep, so try to load
         # collector here, and if it fails add an entry that implies it is at
