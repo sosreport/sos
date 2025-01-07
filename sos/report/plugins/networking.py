@@ -8,6 +8,8 @@
 
 from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
                                 DebianPlugin, SoSPredicate, PluginOpt)
+from sos.policies.distros.ubuntu import UbuntuPolicy
+from sos.policies.distros.debian import DebianPolicy
 
 
 class Networking(Plugin):
@@ -323,14 +325,16 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
 
     def setup(self):
 
-        ubuntu_jammy_and_after_ss_kmods = ['tcp_diag', 'udp_diag',
-                                           'inet_diag', 'unix_diag',
-                                           'netlink_diag', 'af_packet_diag',
-                                           'xsk_diag', 'mptcp_diag',
-                                           'raw_diag']
+        common_ss_kmods = ['af_packet_diag', 'inet_diag', 'mptcp_diag',
+                           'netlink_diag', 'raw_diag', 'tcp_diag', 'udp_diag',
+                           'unix_diag']
 
-        if self.policy.dist_version() >= 22.04:
-            self.ss_kmods = ubuntu_jammy_and_after_ss_kmods
+        if (isinstance(self.policy, UbuntuPolicy) and
+                self.policy.dist_version() >= 22.04):
+            self.ss_kmods = common_ss_kmods + ['xsk_diag']
+        elif (isinstance(self.policy, DebianPolicy) and
+                self.policy.dist_version() >= 13):
+            self.ss_kmods = common_ss_kmods + ['vsock_diag']
 
         super().setup()
 
