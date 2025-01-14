@@ -72,25 +72,12 @@ class LogsBase(Plugin):
                     "/var/log/journal/*",
                     "/run/log/journal/*"
                 ])
-        else:  # If not using journal
-            if not self.get_option("all_logs"):
-                self.add_copy_spec([
-                    "/var/log/syslog",
-                    "/var/log/syslog.1",
-                    "/var/log/syslog.2*",
-                    "/var/log/kern.log",
-                    "/var/log/kern.log.1",
-                    "/var/log/kern.log.2*",
-                    "/var/log/auth.log",
-                    "/var/log/auth.log.1",
-                    "/var/log/auth.log.2*",
-                ])
-            else:
-                self.add_copy_spec([
-                    "/var/log/syslog*",
-                    "/var/log/kern.log*",
-                    "/var/log/auth.log*",
-                ])
+
+        self.add_copy_spec([
+            "/var/log/syslog*",
+            "/var/log/kern.log*",
+            "/var/log/auth.log*",
+        ])
 
     def postproc(self):
         self.do_path_regex_sub(
