@@ -18,7 +18,7 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt update
-        sudo apt install -y devscripts debhelper
+        sudo apt install -y devscripts debhelper build-essential:native
         sudo apt install dh-python python3-all python3-coverage python3-nose python3-sphinx python3-packaging
     - name: Build Debian package
       run: |
