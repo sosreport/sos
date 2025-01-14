@@ -29,7 +29,7 @@ setup(
         ('share/licenses/doca-sosreport', ['LICENSE']),
         ('share/doc/doca-sosreport', ['AUTHORS', 'README.md']),
         ('config', ['sos.conf', 'sos-mlx-cloud-verification.conf',
-                    'tmpfiles/tmpfilesd-sos-rh.conf'])
+                    'sos-nvidia.conf', 'tmpfiles/tmpfilesd-sos-rh.conf'])
     ],
     packages=find_packages(include=['sos', 'sos.*'])
 )

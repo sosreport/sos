@@ -12,6 +12,7 @@ override_dh_install:
 	mv debian/doca-sosreport/usr/config/sos.conf debian/doca-sosreport/etc/sos/sos.conf
 	mv debian/doca-sosreport/usr/config/sos-nvidia.conf debian/doca-sosreport/etc/sos/sos-nvidia.conf
 	mv debian/doca-sosreport/usr/config/sos-mlx-cloud-verification.conf debian/doca-sosreport/etc/sos/sos-mlx-cloud-verification.conf
+	mv debian/doca-sosreport/usr/config/sos-nvidia.conf debian/doca-sosreport/etc/sos/sos-nvidia.conf
 	# Remove unnecessary unused dir.
 	rm -rf debian/doca-sosreport/usr/config
 

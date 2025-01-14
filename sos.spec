@@ -64,6 +64,7 @@ install -d -m 755 %{buildroot}%{_sysconfdir}/%{sosname}/extras.d
 install -d -m 755 %{buildroot}%{_tmpfilesdir}
 install -m 644 %{sosname}.conf %{buildroot}%{_sysconfdir}/%{sosname}/%{sosname}.conf
 install -m 644 sos-mlx-cloud-verification.conf %{buildroot}%{_sysconfdir}/%{sosname}/sos-mlx-cloud-verification.conf
+install -m 644 sos-nvidia.conf %{buildroot}%{_sysconfdir}/%{sosname}/sos-nvidia.conf
 install -m 644 tmpfiles/tmpfilesd-sos-rh.conf %{buildroot}%{_tmpfilesdir}/%{sosname}.conf
 
 rm -rf %{buildroot}/usr/config/
@@ -90,6 +91,7 @@ rm -rf %{buildroot}/usr/config/
 %license LICENSE
 %config(noreplace) %{_sysconfdir}/sos/sos.conf
 %config(noreplace) %{_sysconfdir}/sos/sos-mlx-cloud-verification.conf
+%config(noreplace) %{_sysconfdir}/sos/sos-nvidia.conf
 
 %changelog
 * Mon Feb 17 2025 Jake Hunsaker <jacob.r.hunsaker@gmail.com> = 4.9.0
