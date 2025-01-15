@@ -26,7 +26,7 @@ class ForemanInstaller(Plugin, DebianPlugin, UbuntuPlugin):
             "/var/log/foreman-installer/*",
             "/var/log/foreman-maintain/*",
             "/var/lib/foreman-maintain/data.yml",
-            "/var/lib/foreman_maintain/satellite_metrics.yml",
+            "/var/lib/foreman-maintain/satellite_metrics.yml",
             "/etc/foreman-maintain/foreman_maintain.yml",
             # specifically collect .applied files
             # that would be skipped otherwise as hidden files
