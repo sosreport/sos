@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Rudnei Bertol Jr <rudnei@redhat.com>
+# Copyright (c) 2025 Rudnei Bertol Jr <rudnei@redhat.com>
 
 # This file is part of the sos project: https://github.com/sosreport/sos
 #
@@ -19,15 +19,20 @@ class AAPEDAControllerPlugin(Plugin, RedHatPlugin):
                 'automation-eda-controller-server')
 
     def setup(self):
-        self.add_copy_spec([
-            "/etc/ansible-automation-platform/",
-            "/var/log/ansible-automation-platform/eda/worker.log*",
-            "/var/log/ansible-automation-platform/eda/scheduler.log*",
-            "/var/log/ansible-automation-platform/eda/gunicorn.log*",
-            "/var/log/ansible-automation-platform/eda/activation.log*",
-            "/var/log/nginx/automationedacontroller.access.log*",
-            "/var/log/nginx/automationedacontroller.error.log*",
-        ])
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/etc/ansible-automation-platform/",
+                "/var/log/ansible-automation-platform/eda/",
+                "/var/log/nginx/automationedacontroller.access.log*",
+                "/var/log/nginx/automationedacontroller.error.log*",
+            ])
+        else:
+            self.add_copy_spec([
+                "/etc/ansible-automation-platform/",
+                "/var/log/ansible-automation-platform/eda/*.log",
+                "/var/log/nginx/automationedacontroller.access.log",
+                "/var/log/nginx/automationedacontroller.error.log",
+            ])
 
         self.add_forbidden_path([
             "/etc/ansible-automation-platform/eda/SECRET_KEY",
