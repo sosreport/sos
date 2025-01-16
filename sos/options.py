@@ -226,7 +226,8 @@ class SoSOptions():
 
         _update_from_section("global", config)
         _update_from_section(component, config)
-        if config.has_section("plugin_options") and hasattr(self, 'plugopts'):
+        if config.has_section("plugin_options") and hasattr(self, 'plugopts') \
+                and hasattr(self, 'skip_plugins'):
             # pylint: disable=no-member
             for key, val in config.items("plugin_options"):
                 if not key.split('.')[0] in self.skip_plugins:
