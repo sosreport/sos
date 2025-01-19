@@ -1,0 +1,13 @@
+{
+    "plugopts_preset": {
+        "desc": "test preset for plugin options",
+        "args": {
+            "plugopts": [
+                "crio.timeout=600",
+                "networking.namespaces=200",
+                "networking.ethtool-namespaces=False",
+                "networking.timeout=600"
+            ]
+        }
+    }
+}

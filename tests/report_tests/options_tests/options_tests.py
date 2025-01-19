@@ -10,14 +10,15 @@
 from sos_tests import StageTwoReportTest
 
 
-class OptionsFromConfigTest(StageTwoReportTest):
-    """Ensure that we handle options specified in sos.conf properly
+class OptionsConfigPresetCmdlineTest(StageTwoReportTest):
+    """Ensure that we handle options specified in sos.conf and
+    merge them with cmdline and preset properly
 
     :avocado: tags=stagetwo
     """
 
     files = [('options_tests_sos.conf', '/etc/sos/sos.conf')]
-    sos_cmd = ''
+    sos_cmd = '--preset minimal --journal-size 20 --cmd-timeout 60'
 
     def test_case_id_from_config(self):
         self.assertTrue('8675309' in self.archive)
@@ -44,8 +45,41 @@ class OptionsFromConfigTest(StageTwoReportTest):
         self.assertFileCollected('sys/kernel/debug/tracing/trace')
 
     def test_effective_options_logged_correctly(self):
-        self.assertSosLogContains(
-            "effective options now: --batch --case-id 8675309 "
-            "--only-plugins host,kernel "
-            "--plugopts kernel.with-timer=on,kernel.trace=yes"
-        )
+        for option in [
+            "--case-id 8675309",
+            "--only-plugins host,kernel",
+            "--plugopts kernel.with-timer=on,kernel.trace=yes",
+            "--preset minimal",
+            "--cmd-timeout 60",      # cmdline beats config and preset
+            "--journal-size 20",     # cmdline beats preset
+            "--log-size 10",         # preset setting is honored
+            "--plugin-timeout 30",   # preset beats config file
+        ]:
+            self.assertSosLogContains(f"effective options now: .* {option}")
+
+
+class PlugOptsConfigPresetCmdlineTest(StageTwoReportTest):
+    """Ensure that plugin options specified in sos.conf or preset or cmdline
+    are handled and merged properly.
+
+    :avocado: tags=stagetwo
+    """
+
+    files = [
+        ('options_tests_sos.conf', '/etc/sos/sos.conf'),
+        ('options_tests_preset.json', '/etc/sos/presets.d/plugopts_preset')
+    ]
+    sos_cmd = '--preset plugopts_preset --container-runtime=none ' \
+              '-k crio.timeout=10,networking.timeout=20 -o crio,networking'
+    redhat_only = True
+
+    def test_effective_plugopts_logged_correctly(self):
+        for option in [
+            "--only-plugins crio,networking",
+            "--preset plugopts_preset",
+            "networking.timeout=20",                # cmd beats config&preset
+            "crio.timeout=10",                      # cmdline beats preset
+            "networking.ethtool-namespaces=False",  # preset setting is honored
+            "networking.namespaces=100",            # preset beats config file
+        ]:
+            self.assertSosLogContains(f"effective options now: .*{option}")
