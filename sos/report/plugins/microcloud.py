@@ -30,6 +30,7 @@ class MicroCloud(Plugin, UbuntuPlugin):
 
         microcloud_subcmds = [
             'cluster list',
+            'status',
             '--version'
         ]
         self.add_copy_spec([
