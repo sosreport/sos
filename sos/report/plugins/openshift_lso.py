@@ -9,7 +9,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import os
 from sos.report.plugins import (Plugin, RedHatPlugin)
 
 class OpenshiftLSO(Plugin, RedHatPlugin):
@@ -29,13 +28,12 @@ class OpenshiftLSO(Plugin, RedHatPlugin):
     short_desc = 'Openshift LSO'
     
     plugin_name = "openshift_lso"
-    profiles = ('storage', 'openshift', 'ceph')    
-    # Each node runs the ceph-osd daemon, 
+    profiles = ('storage', 'openshift', 'ceph')
+    # Each node runs the ceph-osd daemon,
     # which interacts with logical disks attached to the node.
-    files = ('/run/ceph/**/ceph-osd*')
+    files = '/run/ceph/**/ceph-osd*'
     
-    def setup(self): 
+    def setup(self):
         self.add_cmd_output([
             'ls -lanR /mnt'
         ])
-
