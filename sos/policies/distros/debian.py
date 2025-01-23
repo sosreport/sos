@@ -32,6 +32,7 @@ class DebianPolicy(LinuxPolicy):
         'bookworm': 12,
         'trixie':   13,
         'forky':    14,
+        'duke':     15,
         }
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
