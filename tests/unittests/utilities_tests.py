@@ -6,13 +6,14 @@
 #
 # See the LICENSE file in the source distribution for further information.
 import os.path
+import tempfile
 import unittest
 
 # PYCOMPAT
 from io import StringIO
 
 from sos.utilities import (grep, is_executable, sos_get_command_output,
-                           find, tail, shell_out)
+                           find, tail, shell_out, tac_logs)
 
 TEST_DIR = os.path.dirname(__file__)
 
@@ -100,5 +101,102 @@ class FindTest(unittest.TestCase):
     def test_not_in_pattern(self):
         leaves = find("leaf", TEST_DIR, path_pattern="tests/path")
         self.assertFalse(any(name.endswith("leaf") for name in leaves))
+
+
+class TacTest(unittest.TestCase):
+
+    @staticmethod
+    def tac_logs_str(str_src, drop_last_log):
+        """Helper to use tac_logs with strings instead of file descriptors"""
+        with tempfile.TemporaryFile() as f_src, \
+             tempfile.TemporaryFile() as f_dst:
+            f_src.write(str_src)
+            tac_logs(f_src, f_dst, drop_last_log)
+            f_dst.seek(0)
+            return f_dst.read()
+
+    def test_tac_limits(self):
+        self.assertEqual(self.tac_logs_str(b"", True), b"")
+        self.assertEqual(self.tac_logs_str(b"", False), b"")
+
+        self.assertEqual(self.tac_logs_str(b"\n", True), b"")
+        self.assertEqual(self.tac_logs_str(b"\n", False), b"\n")
+
+        self.assertEqual(self.tac_logs_str(b"\n\n\n", True), b"\n\n")
+        self.assertEqual(self.tac_logs_str(b"\n\n\n", False), b"\n\n\n")
+
+        self.assertEqual(self.tac_logs_str(b" ", True), b"")
+        self.assertEqual(self.tac_logs_str(b" ", False), b"")
+
+    def test_tac_partialline(self):
+        tac = (b"line 3\n"
+               b"line 2\n"
+               b"line 1 no new line")
+
+        cat = (b"line 2\n"
+               b"line 3\n")
+
+        # partial log line are always dropped
+        self.assertEqual(self.tac_logs_str(tac, True), cat)
+        self.assertEqual(self.tac_logs_str(tac, False), cat)
+
+    def test_tac_multiline1(self):
+        tac = (b"line 5\n"
+               b"line 4\n"
+               b"multiline 3.0\n"
+               b" multiline 3.1\n"
+               b" multiline 3.2\n"
+               b"line 2\n"
+               b"maybe multiline 1.0\n")
+
+        cat1 = (b"line 2\n"
+                b"multiline 3.0\n"
+                b" multiline 3.1\n"
+                b" multiline 3.2\n"
+                b"line 4\n"
+                b"line 5\n")
+
+        cat2 = (b"maybe multiline 1.0\n"
+                b"line 2\n"
+                b"multiline 3.0\n"
+                b" multiline 3.1\n"
+                b" multiline 3.2\n"
+                b"line 4\n"
+                b"line 5\n")
+
+        self.assertEqual(self.tac_logs_str(tac, True), cat1)
+        self.assertEqual(self.tac_logs_str(tac, False), cat2)
+
+    def test_tac_multiline2(self):
+        tac = (b"line 3\n"
+               b"line 2\n"
+               b"multiline 1.0\n"
+               b" multiline 1.1\n"
+               b" multiline 1.2\n")
+
+        cat1 = (b"line 2\n"
+                b"line 3\n")
+
+        cat2 = (b"multiline 1.0\n"
+                b" multiline 1.1\n"
+                b" multiline 1.2\n"
+                b"line 2\n"
+                b"line 3\n")
+
+        self.assertEqual(self.tac_logs_str(tac, True), cat1)
+        self.assertEqual(self.tac_logs_str(tac, False), cat2)
+
+    def test_tac_multiline_partial(self):
+        tac = (b"line 3\n"
+               b"line 2\n"
+               b"multiline 1.0\n"
+               b" multiline 1.1\n"
+               b" multiline 1.2")
+
+        cat = (b"line 2\n"
+               b"line 3\n")
+
+        self.assertEqual(self.tac_logs_str(tac, True), cat)
+        self.assertEqual(self.tac_logs_str(tac, False), cat)
 
 # vim: set et ts=4 sw=4 :
