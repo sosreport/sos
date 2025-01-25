@@ -3088,8 +3088,15 @@ class Plugin():
         if output:
             journal_cmd += output_opt % output
 
+        fname = journal_cmd
+        tac = False
+        if log_size > 0:
+            journal_cmd = f"{journal_cmd} --reverse"
+            tac = True
+
         self._log_debug(f"collecting journal: {journal_cmd}")
         self._add_cmd_output(cmd=journal_cmd, timeout=timeout,
+                             tac=tac, to_file=True, suggest_filename=fname,
                              sizelimit=log_size, pred=pred, tags=tags,
                              priority=priority)
 

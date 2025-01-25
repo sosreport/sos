@@ -36,7 +36,7 @@ class DefaultCollectionsTest(StageTwoReportTest):
         _m = self.get_plugin_manifest('cups')
         ent = None
         for cmd in _m['commands']:
-            if cmd['exec'] == 'journalctl --no-pager  --unit cups':
+            if cmd['exec'] == 'journalctl --no-pager  --unit cups --reverse':
                 ent = cmd
         assert ent, "No manifest entry for journalctl cups"
 
