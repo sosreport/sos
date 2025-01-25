@@ -20,6 +20,7 @@ import tempfile
 import threading
 import time
 import io
+import mmap
 from contextlib import closing
 from collections import deque
 
@@ -71,6 +72,7 @@ __all__ = [
     'recursive_dict_values_by_key',
     'shell_out',
     'sos_get_command_output',
+    'tac_logs',
     'tail',
 ]
 
@@ -330,6 +332,48 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': "", 'truncated': ''}
         raise e
+
+
+def tac_logs(f_src, f_dst, drop_last_log=False):
+    """Python implementation of the tac utility with support
+    for multiline logs (starting with space). It is intended
+    to reverse the output of 'journalctl --reverse'.
+    """
+    NEWLINE_B = b'\n'
+    NEWLINE_I = 10
+    SPACE_I = 32
+    # make sure all python/libc buffers are flushed
+    # else fstat()/mmap() might see partial data
+    f_src.flush()
+    if os.fstat(f_src.fileno()).st_size == 0:
+        return
+    with mmap.mmap(f_src.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+        sep1 = sep2 = mm.size()-1
+        if mm[sep2] != NEWLINE_I:
+            drop_last_log = True
+        while sep2 >= 0:
+            sep1 = mm.rfind(NEWLINE_B, 0, sep1)
+            # multiline logs have a first line not starting with space
+            # followed by lines starting with spaces
+            # line 5
+            # line 4
+            #  multiline 4
+            # line 3
+            if mm[sep1+1] == SPACE_I:
+                # first line starts with a space
+                # (this should not happen)
+                if sep1 == -1:
+                    break
+                # go find the previous NEWLINE
+                continue
+            # When we truncate or timeout, the last log
+            # might be a partial multiline log
+            if drop_last_log:
+                drop_last_log = False
+            else:
+                # write the (multi)line log ending with the NEWLINE
+                f_dst.write(mm[sep1+1:sep2+1])
+            sep2 = sep1
 
 
 def import_module(module_fqname, superclasses=None):
