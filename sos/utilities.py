@@ -287,10 +287,10 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                    bufsize=-1, env=cmd_env, close_fds=True,
                    preexec_fn=_child_prep_fn) as p:
 
-            if not to_file:
-                reader = AsyncReader(p.stdout, sizelimit, binary)
-            else:
+            if to_file:
                 reader = FakeReader(p, binary)
+            else:
+                reader = TailReader(p.stdout, sizelimit, binary)
 
             if poller:
                 while reader.running:
@@ -519,8 +519,8 @@ def recursive_dict_values_by_key(dobj, keys=[]):
 
 
 class FakeReader():
-    """Used as a replacement AsyncReader for when we are writing directly to
-    disk, and allows us to keep more simplified flows for executing,
+    """Used when we are writing directly to disk without sizelimits,
+    this allows us to keep more simplified flows for executing,
     monitoring, and collecting command output.
     """
 
@@ -540,8 +540,8 @@ class FakeReader():
         return self.process.poll() is None
 
 
-class AsyncReader(threading.Thread):
-    """Used to limit command output to a given size without deadlocking
+class TailReader(threading.Thread):
+    """Used to tail the command output to a given size without deadlocking
     sos.
 
     Takes a sizelimit value in MB, and will compile stdout from Popen into a
