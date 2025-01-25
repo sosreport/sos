@@ -2032,6 +2032,7 @@ class Plugin():
             kwargs['changes'] = False
         if (not getattr(SoSCommand(**kwargs), "snap_cmd", False) and
            (self.get_option('all_logs') or kwargs['sizelimit'] == 0)):
+            kwargs['sizelimit'] = 0
             kwargs['to_file'] = True
         if "snap_cmd" in kwargs:
             kwargs.pop("snap_cmd")
@@ -2372,7 +2373,7 @@ class Plugin():
                             binary=False, sizelimit=None, subdir=None,
                             changes=False, foreground=False, tags=[],
                             priority=10, cmd_as_tag=False, to_file=False,
-                            container_cmd=False, runas=None):
+                            tac=False, container_cmd=False, runas=None):
         """Execute a command and save the output to a file for inclusion in the
         report.
 
@@ -2400,6 +2401,7 @@ class Plugin():
             :param cmd_as_tag:          Format command string to tag
             :param to_file:             Write output directly to file instead
                                         of saving in memory
+            :param tac:                 Reverse log lines order
             :param runas:               Run the `cmd` as the `runas` user
 
         :returns:       dict containing status, output, and filename in the
@@ -2451,7 +2453,7 @@ class Plugin():
             cmd, timeout=timeout, stderr=stderr, chroot=root,
             chdir=runat, env=_env, binary=binary, sizelimit=sizelimit,
             poller=self.check_timeout, foreground=foreground,
-            to_file=out_file, runas=runas
+            to_file=out_file, tac=tac, runas=runas
         )
 
         end = time()
@@ -2489,7 +2491,7 @@ class Plugin():
                     result = sos_get_command_output(
                         cmd, timeout=timeout, chroot=False, chdir=runat,
                         env=env, binary=binary, sizelimit=sizelimit,
-                        poller=self.check_timeout, to_file=out_file
+                        poller=self.check_timeout, to_file=out_file, tac=tac,
                     )
                     run_time = time() - start
             self._log_debug(f"could not run '{cmd}': command not found")
@@ -2508,6 +2510,9 @@ class Plugin():
                            "truncated")
             linkfn = outfn
             outfn = outfn.replace('sos_commands', 'sos_strings') + '.tailed'
+            if out_file:
+                dest = self.archive.check_path(outfn, P_FILE, force=True)
+                os.rename(out_file, dest)
 
         if not to_file:
             if binary:
