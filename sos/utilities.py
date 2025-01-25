@@ -540,6 +540,43 @@ class FakeReader():
         return self.process.poll() is None
 
 
+class HeadReader(threading.Thread):
+    """Used to 'head' the command output (f_src) to a given size
+    without deadlocking sos. Takes a sizelimit value in MB.
+    """
+
+    COPY_BUFSIZE = 1024*1024
+
+    def __init__(self, f_src, f_dst, sizelimit, binary):
+        super().__init__()
+        self.f_src = f_src
+        self.f_dst = f_dst
+        self.remaining = sizelimit * 1048576  # convert to bytes
+        self.binary = binary
+        self.running = True
+        self.start()
+
+    def run(self):
+        """Reads from the f_src (Popen stdout pipe) until we reach sizelimit.
+        once done, close f_src to signal the program that we are done.
+        """
+        while self.remaining > 0:
+            buf = self.f_src.read(min(self.remaining, self.COPY_BUFSIZE))
+            if not buf:
+                break
+            self.f_dst.write(buf)
+            self.remaining -= len(buf)
+        self.f_src.close()
+        self.running = False
+
+    def get_contents(self):
+        return '' if not self.binary else b''
+
+    @property
+    def is_full(self):
+        return self.remaining <= 0
+
+
 class TailReader(threading.Thread):
     """Used to tail the command output to a given size without deadlocking
     sos.
