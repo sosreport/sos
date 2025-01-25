@@ -215,7 +215,7 @@ def is_executable(command, sysroot=None):
 def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                            chroot=None, chdir=None, env=None, foreground=False,
                            binary=False, sizelimit=None, poller=None,
-                           to_file=False, runas=None):
+                           to_file=False, tac=False, runas=None):
     # pylint: disable=too-many-locals,too-many-branches
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
@@ -277,8 +277,15 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         else:
             expanded_args.append(arg)
     if to_file:
-        # pylint: disable=consider-using-with
-        _output = open(to_file, 'w', encoding='utf-8')
+        if sizelimit:
+            # going to use HeadReader
+            _output = PIPE
+        elif tac:
+            # no limit but we need an intermediate file
+            _output = tempfile.TemporaryFile(dir=os.path.dirname(to_file))
+        else:
+            # pylint: disable=consider-using-with
+            _output = open(to_file, 'wb')
     else:
         _output = PIPE
     try:
@@ -288,7 +295,17 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                    preexec_fn=_child_prep_fn) as p:
 
             if to_file:
-                reader = FakeReader(p, binary)
+                if sizelimit:
+                    if tac:
+                        _output = tempfile.TemporaryFile(
+                            dir=os.path.dirname(to_file)
+                        )
+                    else:
+                        # pylint: disable=consider-using-with
+                        _output = open(to_file, 'wb')
+                    reader = HeadReader(p.stdout, _output, sizelimit, binary)
+                else:
+                    reader = FakeReader(p, binary)
             else:
                 reader = TailReader(p.stdout, sizelimit, binary)
 
@@ -303,18 +320,23 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                 except Exception:
                     p.terminate()
                     if to_file:
-                        _output.close()
+                        if tac:
+                            with open(to_file, 'wb') as f_dst:
+                                tac_logs(_output, f_dst, True)
                     # until we separate timeouts from the `timeout` command
                     # handle per-cmd timeouts via Plugin status checks
                     reader.running = False
                     return {'status': 124, 'output': reader.get_contents(),
                             'truncated': reader.is_full}
-            if to_file:
-                _output.close()
 
             # wait for Popen to set the returncode
             while p.poll() is None:
                 pass
+
+            if to_file and tac:
+                with open(to_file, 'wb') as f_dst:
+                    tac_logs(_output, f_dst,
+                             reader.is_full or p.returncode != 0)
 
             if p.returncode in (126, 127):
                 stdout = b""
@@ -327,11 +349,12 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                 'truncated': reader.is_full
             }
     except OSError as e:
-        if to_file:
-            _output.close()
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': "", 'truncated': ''}
         raise e
+    finally:
+        if hasattr(_output, 'close'):
+            _output.close()
 
 
 def tac_logs(f_src, f_dst, drop_last_log=False):
