@@ -71,12 +71,8 @@ rm -rf %{buildroot}/usr/config/
 %files
 %if 0%{?fedora} >= 39
 %{_bindir}/sos
-%{_bindir}/sosreport
-%{_bindir}/sos-collector
 %else
 %{_sbindir}/sos
-%{_sbindir}/sosreport
-%{_sbindir}/sos-collector
 %endif
 %dir /etc/sos/cleaner
 %dir /etc/sos/presets.d

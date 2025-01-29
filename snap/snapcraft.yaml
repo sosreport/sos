@@ -41,7 +41,3 @@ parts:
 apps:
   sos:
     command: bin/sos
-  sosreport:
-    command: bin/sos report
-  sos-collector:
-    command: bin/sos collector
