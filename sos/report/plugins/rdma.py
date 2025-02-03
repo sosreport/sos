@@ -17,7 +17,7 @@ class Rdma(Plugin, IndependentPlugin):
 
     plugin_name = "rdma"
     profiles = ('hardware',)
-    packages = ('iproute2',)
+    packages = ('iproute2', 'iproute', 'mlnx-iproute2')
 
     def setup(self):
 
@@ -38,7 +38,10 @@ class Rdma(Plugin, IndependentPlugin):
             "srq"
         ]
 
-        self.add_cmd_output([f"rdma {cmd} -d" for cmd in rdma_cmds])
+        rdma = '/opt/mellanox/iproute2/sbin/rdma'
+        if not self.path_exists(rdma):
+            rdma = 'rdma'
+        self.add_cmd_output([f"{rdma} {cmd} -d" for cmd in rdma_cmds])
 
-        self.add_cmd_output([f"rdma resource show {rsc} -d"
+        self.add_cmd_output([f"{rdma} resource show {rsc} -d"
                              for rsc in rdma_rsc_obj])
