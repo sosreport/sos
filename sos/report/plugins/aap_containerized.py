@@ -112,7 +112,9 @@ class AAPContainerized(Plugin, RedHatPlugin):
         try:
             cmd = f"su - {username} -c 'podman ps -a --format {{{{.Names}}}}'"
             cmd_out = self.exec_cmd(cmd)
-            return cmd_out['output'].strip().split("\n")
+            if cmd_out['status'] == 0:
+                return cmd_out['output'].strip().split("\n")
+            return []
         except Exception:
             self._log_error("Error retrieving Podman containers")
             return []
