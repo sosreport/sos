@@ -25,7 +25,9 @@ class Chrony(Plugin):
             "chronyc sourcestats",
             "chronyc serverstats",
             "chronyc ntpdata",
-            "chronyc -n clients"
+            "chronyc -n clients",
+            "chronyc -N authdata",
+            "chronyc -n selectdata",
         ])
         self.add_cmd_output("chronyc -n sources", tags="chronyc_sources")
 
