@@ -40,7 +40,7 @@ class Python(Plugin):
             # pip: /usr/bin/pip2.7 /usr/bin/pip3.6
             # where we must skip the first word
             for pip in pips['output'].split()[1:]:
-                self.add_cmd_output(f"{pip} list installed")
+                self.add_cmd_output(f"{pip} -v list installed")
 
 
 class UbuntuPython(Python, DebianPlugin, UbuntuPlugin):
