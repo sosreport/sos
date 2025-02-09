@@ -16,7 +16,7 @@ setup(
     author='Bryn M. Reeves',
     author_email='bmr@redhat.com',
     maintainer='Jake Hunsaker',
-    maintainer_email='jhunsake@redhat.com',
+    maintainer_email='jacob.r.hunsaker@gmail.com',
     url='https://github.com/sosreport/sos',
     license="GPLv2+",
     scripts=['bin/sos'],
