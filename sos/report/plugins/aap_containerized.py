@@ -121,5 +121,19 @@ class AAPContainerized(Plugin, RedHatPlugin):
 
     # Check and enable plugin on a AAP Containerized host
     def check_enabled(self):
-        ps = self.exec_cmd("ps --noheaders axco command")
-        return "awx-manage" in ps["output"] and "aap-gateway" in ps["output"]
+        aap_processes = [
+                'dumb-init -- /usr/bin/envoy',
+                'dumb-init -- /usr/bin/supervisord',
+                'dumb-init -- /usr/bin/launch_awx_web.sh',
+                'dumb-init -- /usr/bin/launch_awx_task.sh',
+                'pulpcore-content --name pulp-content --bind',
+                'dumb-init -- aap-eda-manage',
+            ]
+
+        ps_output = self.exec_cmd("ps --noheaders -eo args")
+
+        if ps_output['status'] == 0:
+            for process in aap_processes:
+                if process in ps_output['output']:
+                    return True
+        return False
