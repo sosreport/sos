@@ -24,7 +24,9 @@ class Ptp(Plugin, IndependentPlugin):
         self.add_copy_spec([
             "/etc/ptp4l.conf",
             "/etc/timemaster.conf",
-            "/sys/class/ptp"
+            "/sys/class/ptp",
+            "/etc/sysconfig/ptp4l",
+            "/etc/sysconfig/phc2sys",
         ])
 
 # vim: et ts=4 sw=4
