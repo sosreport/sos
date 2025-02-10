@@ -254,6 +254,10 @@ support representative.
             return self.commons['cmdlineopts'].upload_url
         if self.commons['cmdlineopts'].upload_protocol == 'sftp':
             return RH_SFTP_HOST
+        if self.commons['cmdlineopts'].upload_protocol == 's3':
+            bucket = self.get_upload_s3_bucket()
+            prefix = self.get_upload_s3_object_prefix()
+            return f"s3://{bucket}/{prefix}"
         if not self.commons['cmdlineopts'].case_id:
             self.ui_log.info("No case id provided, uploading to SFTP")
             return RH_SFTP_HOST
@@ -299,6 +303,9 @@ support representative.
             return "Red Hat Customer Portal"
         if self.get_upload_url().startswith(RH_SFTP_HOST):
             return "Red Hat Secure FTP"
+        if self.get_upload_url().startswith('s3://'):
+            endpoint = self.get_upload_s3_endpoint()
+            return f"{self.get_upload_url()} on endpoint {endpoint}"
         return self._get_obfuscated_upload_url(self.upload_url)
 
     def _get_sftp_upload_name(self):
