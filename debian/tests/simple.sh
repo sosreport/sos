@@ -44,10 +44,12 @@ run_expecting_success () {
     echo "#### Sos Total time (seconds):" $runtime
 
     if [ -s /dev/shm/stderr ]; then
-       add_failure "test generated stderr output, see above"
-       echo "### start stderr"
-       cat /dev/shm/stderr
-       echo "### end stderr"
+       if [ "$(grep -v -E "Unable to read kernel|Unable to find booted" /dev/shm/stderr)" ] ; then
+           add_failure "test generated stderr output, see above"
+           echo "### start stderr"
+           cat /dev/shm/stderr
+           echo "### end stderr"
+       fi
     fi
     
     echo "### start stdout"
@@ -111,9 +113,6 @@ test_normal_report () {
         if [ ! -f /tmp/sosreport_test/sos_reports/manifest.json ]; then
             add_failure "did not generate manifest.json"
         fi
-        if [ ! -f /tmp/sosreport_test/free ]; then
-            add_failure "did not create free symlink in archive root"
-        fi
         if [ ! "$(grep "DEBUG" /tmp/sosreport_test/sos_logs/sos.log)" ]; then
             add_failure "did not find debug logging when using -vvv"
         fi
@@ -145,7 +144,7 @@ test_noreport_label_only () {
         fi
         update_failures
     fi
-    update_summary "$cmd"
+    update_summary "$cmd"	
 }
 
 # test using mask
@@ -157,9 +156,10 @@ test_mask () {
             add_failure "hostname not obfuscated with --mask"
         fi
         # we don't yet support binary obfuscation, so skip binary matches
-        if [ "$(grep -rI `hostname` /tmp/sosreport_test/*)" ]; then
+        hostname_check=$(grep -rI $(hostname) /tmp/sosreport_test/* | grep -v -E "autopkgtest-run|autopkgtest-vir|S01autopkgtest|autopkgtest root shell|90autopkgtest|debug.*autopkgtest")
+        if [ "${hostname_check}" ]; then
             add_failure "hostname not obfuscated in all places"
-            echo "$(grep -rI `hostname` /tmp/sosreport_test/*)"
+            echo "${hostname_check}"
         fi
         # only tests first interface
         mac_addr=$(cat /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address)
@@ -168,7 +168,7 @@ test_mask () {
             echo "$(grep -rI $mac_addr /tmp/sosreport_test/*)"
         fi
         # only tests first interface
-        ip_addr=$(ip route show default | awk '/default/ {print $3}')
+        ip_addr=$(ip route show default | awk '/default/ {print $3}' | sed 's/\./\\\./g')
         if [ "$(grep -rI $ip_addr /tmp/sosreport_test/*)" ]; then
             add_failure "IP address not obfuscated in all places"
             echo "$(grep -rI $ip_addr /tmp/sosreport_test/*)"
@@ -202,7 +202,7 @@ test_enable_opts_postproc () {
         if [ ! "$(grep "opencl" /dev/shm/stdout)" ]; then
             add_failure "force enabled plugin opencl did not run"
         fi
-        if [ ! -f /tmp/sosreport_test/proc/timer* ]; then
+        if [ ! "$(uname -a | grep -v armhf)" ] && [ ! -f /tmp/sosreport_test/proc/timer* ]; then
             add_failure "/proc/timer* not captured when using -k kernel.with-timer"
         fi
         if [ ! -f /tmp/sosreport_test/sos_commands/libraries/ldconfig_-v* ]; then
@@ -222,7 +222,7 @@ test_build_threads () {
     cmd="--build -t1 -o host,kernel,filesys,hardware,date,logs"
     run_expecting_success "$cmd"
     if [ $? -eq 0 ]; then
-        if [ ! "$(grep "Your sosreport build tree" /dev/shm/stdout)" ]; then
+        if [ ! "$(grep "Your sos report build tree" /dev/shm/stdout)" ]; then
             add_failure "did not save the build tree"
         fi
         if [ $(grep "Finishing plugins" /dev/shm/stdout) ]; then

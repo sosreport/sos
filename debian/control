@@ -1,29 +1,45 @@
-Source: sosreport
-Maintainer: David Negreira <david.negreira@canonical.com>
+Source: sos
+Maintainer: sosreport Dev Team <sosreport-dev@lists.canonical.com>
+Uploaders:
+ Arif Ali <arif.ali@canonical.com>,
 Section: admin
 Priority: optional
-Standards-Version: 4.5.1
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
 Build-Depends:
  debhelper-compat (= 13),
  dh-python,
+ fdisk,
  gettext,
  python3-all,
- python3-coverage,
- python3-nose,
+ python3-magic,
+ python3-packaging,
+ python3-pexpect,
  python3-setuptools,
  python3-sphinx,
- python3-magic,
- python3-pexpect,
- python3-packaging,
  python3-yaml,
 Homepage: https://github.com/sosreport/sos
 Vcs-Browser: https://salsa.debian.org/sosreport-team/sosreport
 Vcs-Git: https://salsa.debian.org/sosreport-team/sosreport.git
-X-Python3-Version: >= 3.6
 
-Package: sosreport
+Package: sos
+Replaces:
+ sosreport (<< 4.8.2-4~),
+Breaks:
+ sosreport (<< 4.8.2-4~),
 Architecture: any
-Depends: ${python3:Depends}, ${misc:Depends}, python3-pexpect, python3-magic, python3-packaging, python3-boto3, python3-yaml
+Depends:
+ python3-magic,
+ python3-packaging,
+ python3-pexpect,
+ python3-yaml,
+ ${misc:Depends},
+ ${python3:Depends},
+Recommends:
+ e2fsprogs,
+ lsof,
+ mount,
+ python3-boto3,
 Description: Set of tools to gather troubleshooting data from a system
  Sos is a set of tools that gathers information about system
  hardware and configuration. The information can then be used for

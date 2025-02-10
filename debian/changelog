@@ -1,4 +1,10 @@
-sosreport (4.8.2) New upstream release; urgency=medium
+sos (4.8.2-4) oracular; urgency=medium
+
+  * Update to new sos package and version for Breakage.
+
+ -- Arif Ali <arif.ali@canonical.com>  Mon, 17 Feb 2025 10:39:30 +0000
+
+sosreport (4.8.2) oracular; urgency=medium
 
   * New upstream release
 

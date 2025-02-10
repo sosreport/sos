@@ -158,7 +158,7 @@ deb_build_task:
         apt update --allow-releaseinfo-change
         apt -y install devscripts equivs python3-pip
         mk-build-deps
-        apt -y install ./sosreport-build-deps*.deb
+        apt -y install ./sos-build-deps*.deb
         [[ $(pip3 install --help | grep break-system) ]] && PIP_EXTRA="--break-system-packages"
         pip3 install -r test-requirements.txt ${PIP_EXTRA}
     main_script: |
@@ -243,7 +243,8 @@ report_stageone_task:
             DEB_BUILD_NAME: ${BUILD_NAME}
     setup_script: &setup |
         if [ $(command -v apt) ]; then
-            apt -y purge sosreport
+            [[ "$(dpkg -l sos)" ]] && apt -y purge sos
+            [[ "$(dpkg -l sosreport)" ]] && apt -y purge sosreport
             apt update --allow-releaseinfo-change
             apt -y install python3-pip ethtool python3-systemd
             if [ ${PKG} == "snap" ] ; then

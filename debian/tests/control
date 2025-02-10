@@ -1,3 +1,10 @@
-Tests: simple.sh
-Depends: sosreport
-Restrictions: needs-root, allow-stderr, isolation-machine
+Tests:
+ simple.sh,
+Depends:
+ iproute2,
+ kmod,
+ lshw,
+ sos,
+Restrictions:
+ allow-stderr,
+ needs-root,
