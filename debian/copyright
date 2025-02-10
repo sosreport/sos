@@ -5,8 +5,94 @@ Source: https://github.com/sosreport/sos
 
 Files: *
 Copyright: (C) 2012-2017 Bryn M. Reeves
-  (C) 2007-2024 Red Hat, Inc.
-  (C) 2012-2024 Canonical Ltd.
+ (C) 2007-2025 Red Hat, Inc.
+ (C) 2012-2025 Canonical Ltd.
+License: GPL-2
+
+Files: sos/policies/distros/almalinux.py
+Copyright: (C) Eduard Abdullin <eabdullin@almalinux.org>
+License: GPL-2
+
+Files: sos/policies/distros/azure.py
+Copyright: (C) Eric Desrochers <edesrochers@microsoft.com>
+License: GPL-2
+
+Files: sos/report/plugins/bird.py
+Copyright: (C) 2024 Jake Hunsaker <jacob.r.hunsaker@gmail.com>
+ (C) 2019 Alexander Petrovskiy <alexpe@mellanox.com>
+License: GPL-2
+
+Files: sos/policies/distros/circle.py
+Copyright: (C) Bella Zhang <bella@cclinux.org>
+License: GPL-2
+
+Files: sos/policies/distros/opencloudos.py
+Copyright: (C) 2022 Tencent., ZoeDong <zoedong@tencent.com>
+License: GPL-2
+
+Files: sos/policies/distros/rocky.py
+Copyright: (C) Louis Abel <label@rockylinux.org>
+License: GPL-2
+
+Files: sos/report/plugins/elastic.py
+Copyright: (C) 2018 Amit Ghadge <amitg.b14@gmail.com>
+License: GPL-2
+
+Files: sos/report/plugins/kimchi.py
+Copyright: (C) IBM, Corp. 2014, Christy Perez <christy@linux.vnet.ibm.com>
+License: GPL-2
+
+Files: sos/report/plugins/mellanox_firmware.py
+Copyright: (C) 2023 Nvidia Corporation, Alin Serdean <aserdean@nvidia.com>
+License: GPL-2
+
+Files: sos/report/plugins/memcached.py
+Copyright: (C) 2018 Mikel Olasagasti Uranga <mikel@olasagasti.info>
+License: GPL-2
+
+Files: sos/report/plugins/navicli.py
+ sos/report/plugins/powerpath.py
+ sos/report/plugins/symcli.py
+Copyright: (C) 2008 EMC Corporation. Keith Kearnan <kearnan_keith@emc.com>
+License: GPL-2
+
+Files: sos/report/plugins/opencontrail.py
+Copyright: (C) 2021 Mirantis, Inc., Oleksii Molchanov <omolchanov@mirantis.com>
+License: GPL-2
+
+Files: sos/report/plugins/openstack_ansible.py
+Copyright: (C) 2017 Major Hayden <major@mhtx.net>
+License: GPL-2
+
+Files: sos/report/plugins/openstack_barbican.py
+Copyright: (C) 2019 Mirantis, Inc., Denis Egorenko <degorenko@mirantis.com>
+License: GPL-2
+
+Files: sos/report/plugins/openstack_ceilometer.py
+ sos/report/plugins/openstack_cinder.py
+ sos/report/plugins/openstack_glance.py
+ sos/report/plugins/openstack_horizon.py
+ sos/report/plugins/openstack_nova.py
+ sos/report/plugins/openstack_swift.py
+Copyright: (C) 2012 Rackspace US, Inc.
+License: GPL-2
+
+Files:  sos/report/plugins/pcp.py
+Copyright: (C) 2014 Michele Baldessari <michele at acksyn.org>
+License: GPL-2
+
+Files: sos/report/plugins/proxmox.py
+Copyright: (C) 2024 ORNESS/Ditrit Drien Breton <drien.breton@orness.com>
+License: GPL-2
+
+Files: debian/*
+Copyright: 2013 Adam Stokes <adam.stokes@ubuntu.com>
+ (C) 2013-2025 Canonical Ltd.
+License: GPL-2+
+
+Files: debian/tests/simple.sh
+Copyright: 2020 Eric Desrochers <eric.desrochers@canonical.com>
+ (C) 2020-2025 Canonical Ltd.
 License: GPL-2
 
 License: GPL-2
@@ -23,3 +109,22 @@ License: GPL-2
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301,
  USA.
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or (at
+ your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301,
+ USA.
+ .
+ On Debian systems, the complete text of the GNU General Public
+ License, version 2, can be found in /usr/share/common-licenses/GPL-2.

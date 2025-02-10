@@ -24,7 +24,8 @@ docs/_build
 .idea/
 
 # debian files
-debian/sosreport*
+debian/sosreport/*
+debian/sos/*
 debian/files
 debian/.debhelper
 debian/debhelper-build-stamp

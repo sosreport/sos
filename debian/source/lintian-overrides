@@ -1,0 +1,3 @@
+sos source: debian-watch-does-not-check-openpgp-signature [debian/watch]
+sos source: very-long-line-length-in-source-file 1039 > 512 [tests/report_tests/plugin_tests/juju/agent.conf:188]
+sos source: very-long-line-length-in-source-file 2374 > 512 [tests/report_tests/plugin_tests/curtin/curtin-install.log:883]

@@ -1,4 +1,2 @@
 version=4
-  opts="filenamemangle=s%(?:.*?)?v?(\d[\d.]*)\.tar\.gz%sos-$1.tar.gz%" \
-      https://github.com/sosreport/sos/tags \
-      (?:.*?/)?v?(\d[\d.]*)\.tar\.gz debian uupdate
+https://github.com/sosreport/sos/tags .*/v?(\d.*)@ARCHIVE_EXT@
