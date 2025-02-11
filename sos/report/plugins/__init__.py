@@ -3551,7 +3551,7 @@ class Plugin():
     def get_process_pids(self, process):
         """Get a list of all PIDs that match a specified name
 
-        :param process:     The name of the process the get PIDs for
+        :param process:     The name or regex of the process the get PIDs for
         :type process:  ``str``
 
         :returns: A list of PIDs
@@ -3563,8 +3563,8 @@ class Plugin():
         for path in cmd_line_paths:
             try:
                 with open(path, 'r', encoding='utf-8') as f:
-                    cmd_line = f.read().strip()
-                    if process in cmd_line:
+                    cmd_line = f.read().strip('\x00')
+                    if re.match(process, cmd_line):
                         pids.append(path.split("/")[2])
             except IOError:
                 continue
