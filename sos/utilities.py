@@ -23,6 +23,7 @@ import io
 import mmap
 from contextlib import closing
 from collections import deque
+from textwrap import fill
 
 try:
     from packaging.version import parse as parse_version
@@ -38,7 +39,6 @@ try:
     magic.detect_from_filename(__file__)
     magic_mod = True
 except (ImportError, AttributeError):
-    from textwrap import fill
     msg = """\
 WARNING: Failed to load 'magic' module version >= 0.4.20 which sos aims to \
 use for detecting binary files. A less effective method will be used. It is \
@@ -397,6 +397,15 @@ def tac_logs(f_src, f_dst, drop_last_log=False):
                 # write the (multi)line log ending with the NEWLINE
                 f_dst.write(mm[sep1+1:sep2+1])
             sep2 = sep1
+
+
+def fmt_msg(message):
+    """Formats a message for an 80-character wrap"""
+    width = 80
+    _fmt = ''
+    for line in message.splitlines():
+        _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
+    return _fmt
 
 
 def import_module(module_fqname, superclasses=None):

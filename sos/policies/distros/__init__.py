@@ -552,8 +552,6 @@ class LinuxPolicy(Policy):
         myvendor.com/api or myvendor.com
         """
         prots = {
-            'ftp': self.upload_ftp,
-            'sftp': self.upload_sftp,
             'https': self.upload_https,
             's3': self.upload_s3
         }
@@ -705,118 +703,6 @@ class LinuxPolicy(Policy):
                 self.upload_password or
                 self._upload_password)
 
-    def upload_sftp(self, user=None, password=None):
-        """Attempts to upload the archive to an SFTP location.
-
-        Due to the lack of well maintained, secure, and generally widespread
-        python libraries for SFTP, sos will shell-out to the system's local ssh
-        installation in order to handle these uploads.
-
-        Do not override this method with one that uses python-paramiko, as the
-        upstream sos team will reject any PR that includes that dependency.
-        """
-        # if we somehow don't have sftp available locally, fail early
-        if not is_executable('sftp'):
-            raise Exception('SFTP is not locally supported')
-
-        # soft dependency on python3-pexpect, which we need to use to control
-        # sftp login since as of this writing we don't have a viable solution
-        # via ssh python bindings commonly available among downstreams
-        try:
-            import pexpect
-        except ImportError as err:
-            raise Exception('SFTP upload requires python3-pexpect, which is '
-                            'not currently installed') from err
-
-        sftp_connected = False
-
-        if not user:
-            user = self.get_upload_user()
-        if not password:
-            password = self.get_upload_password()
-
-        # need to strip the protocol prefix here
-        sftp_url = self.get_upload_url().replace('sftp://', '')
-        sftp_cmd = f"sftp -oStrictHostKeyChecking=no {user}@{sftp_url}"
-        ret = pexpect.spawn(sftp_cmd, encoding='utf-8')
-
-        sftp_expects = [
-            'sftp>',
-            'password:',
-            'Connection refused',
-            pexpect.TIMEOUT,
-            pexpect.EOF
-        ]
-
-        idx = ret.expect(sftp_expects, timeout=15)
-
-        if idx == 0:
-            sftp_connected = True
-        elif idx == 1:
-            ret.sendline(password)
-            pass_expects = [
-                'sftp>',
-                'Permission denied',
-                pexpect.TIMEOUT,
-                pexpect.EOF
-            ]
-            sftp_connected = ret.expect(pass_expects, timeout=10) == 0
-            if not sftp_connected:
-                ret.close()
-                raise Exception("Incorrect username or password for "
-                                f"{self.get_upload_url_string()}")
-        elif idx == 2:
-            raise Exception("Connection refused by "
-                            f"{self.get_upload_url_string()}. Incorrect port?")
-        elif idx == 3:
-            raise Exception("Timeout hit trying to connect to "
-                            f"{self.get_upload_url_string()}")
-        elif idx == 4:
-            raise Exception("Unexpected error trying to connect to sftp: "
-                            f"{ret.before}")
-
-        if not sftp_connected:
-            ret.close()
-            raise Exception("Unable to connect via SFTP to "
-                            f"{self.get_upload_url_string()}")
-
-        put_cmd = (f'put {self.upload_archive_name} '
-                   f'{self._get_sftp_upload_name()}')
-        ret.sendline(put_cmd)
-
-        put_expects = [
-            '100%',
-            pexpect.TIMEOUT,
-            pexpect.EOF,
-            'No such file or directory'
-        ]
-
-        put_success = ret.expect(put_expects, timeout=180)
-
-        if put_success == 0:
-            ret.sendline('bye')
-            return True
-        if put_success == 1:
-            raise Exception("Timeout expired while uploading")
-        if put_success == 2:
-            raise Exception(f"Unknown error during upload: {ret.before}")
-        if put_success == 3:
-            raise Exception("Unable to write archive to destination")
-        raise Exception(f"Unexpected response from server: {ret.before}")
-
-    def _get_sftp_upload_name(self):
-        """If a specific file name pattern is required by the SFTP server,
-        override this method in the relevant Policy. Otherwise the archive's
-        name on disk will be used
-
-        :returns:       Filename as it will exist on the SFTP server
-        :rtype:         ``str``
-        """
-        fname = self.upload_archive_name.split('/')[-1]
-        if self.upload_directory:
-            fname = os.path.join(self.upload_directory, fname)
-        return fname
-
     def _upload_https_put(self, archive, verify=True):
         """If upload_https() needs to use requests.put(), use this method.
 
@@ -878,76 +764,6 @@ class LinuxPolicy(Policy):
                 raise Exception(f"POST request returned {r.status_code}: "
                                 f"{r.reason}")
             return True
-
-    def upload_ftp(self, url=None, directory=None, user=None, password=None):
-        """Attempts to upload the archive to either the policy defined or user
-        provided FTP location.
-
-        :param url: The URL to upload to
-        :type url: ``str``
-
-        :param directory: The directory on the FTP server to write to
-        :type directory: ``str`` or ``None``
-
-        :param user: The user to authenticate with
-        :type user: ``str``
-
-        :param password: The password to use for `user`
-        :type password: ``str``
-
-        :returns: ``True`` if upload is successful
-        :rtype: ``bool``
-
-        :raises: ``Exception`` if upload in unsuccessful
-        """
-        import ftplib
-        import socket
-
-        if not url:
-            url = self.get_upload_url()
-        if url is None:
-            raise Exception("no FTP server specified by policy, use --upload-"
-                            "url to specify a location")
-
-        url = url.replace('ftp://', '')
-
-        if not user:
-            user = self.get_upload_user()
-
-        if not password:
-            password = self.get_upload_password()
-
-        if not directory:
-            directory = self.upload_directory or self._upload_directory
-
-        try:
-            session = ftplib.FTP(url, user, password, timeout=15)
-            if not session:
-                raise Exception("connection failed, did you set a user and "
-                                "password?")
-            session.cwd(directory)
-        except socket.timeout as err:
-            raise Exception(f"timeout hit while connecting to {url}") from err
-        except socket.gaierror as err:
-            raise Exception(f"unable to connect to {url}") from err
-        except ftplib.error_perm as err:
-            errno = str(err).split()[0]
-            if errno == '503':
-                raise Exception(f"could not login as '{user}'") from err
-            if errno == '530':
-                raise Exception(f"invalid password for user '{user}'") from err
-            if errno == '550':
-                raise Exception("could not set upload directory to "
-                                f"{directory}") from err
-            raise Exception(f"error trying to establish session: {str(err)}") \
-                from err
-
-        with open(self.upload_archive_name, 'rb') as _arcfile:
-            session.storbinary(
-                f"STOR {self.upload_archive_name.split('/')[-1]}", _arcfile
-                )
-        session.quit()
-        return True
 
     def upload_s3(self, endpoint=None, region=None, bucket=None, prefix=None,
                   access_key=None, secret_key=None):

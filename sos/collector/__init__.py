@@ -26,12 +26,11 @@ from concurrent.futures import ThreadPoolExecutor
 from getpass import getpass
 from pathlib import Path
 from shlex import quote
-from textwrap import fill
 from sos.cleaner import SoSCleaner
 from sos.collector.sosnode import SosNode
 from sos.options import ClusterOption, str_to_bool
 from sos.component import SoSComponent
-from sos.utilities import bold
+from sos.utilities import bold, fmt_msg
 from sos import __version__
 
 COLLECTOR_CONFIG_DIR = '/etc/sos/groups.d'
@@ -722,13 +721,6 @@ class SoSCollector(SoSComponent):
         compr = 'gz'
         return self.tmpdir + '/' + self.arc_name + '.tar.' + compr
 
-    def _fmt_msg(self, msg):
-        width = 80
-        _fmt = ''
-        for line in msg.splitlines():
-            _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
-        return _fmt
-
     def _load_group_config(self):
         """
         Attempts to load the host group specified on the command line.
@@ -800,7 +792,7 @@ class SoSCollector(SoSComponent):
             self.log_debug('password not specified, assuming SSH keys')
             msg = ('sos collect ASSUMES that SSH keys are installed on all '
                    'nodes unless the --password option is provided.\n')
-            self.ui_log.info(self._fmt_msg(msg))
+            self.ui_log.info(fmt_msg(msg))
 
         try:
             if ((self.opts.password or (self.opts.password_per_node and
@@ -1184,7 +1176,7 @@ No configuration changes will be made to the system running \
 this utility or remote systems that it connects to.
 """
         self.ui_log.info(f"\nsos collect (version {__version__})\n")
-        intro_msg = self._fmt_msg(disclaimer % self.tmpdir)
+        intro_msg = fmt_msg(disclaimer % self.tmpdir)
         self.ui_log.info(intro_msg)
 
         prompt = "\nPress ENTER to continue, or CTRL-C to quit\n"
