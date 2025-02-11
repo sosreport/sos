@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class Containerd(Plugin, IndependentPlugin):
@@ -15,6 +15,9 @@ class Containerd(Plugin, IndependentPlugin):
     plugin_name = 'containerd'
     profiles = ('container',)
     packages = ('containerd', 'containerd.io',)
+    option_list = [
+        PluginOpt('stackdump', False, desc='collect containerd stack dump(s)')
+    ]
 
     def setup(self):
         self.add_copy_spec([
@@ -34,5 +37,9 @@ class Containerd(Plugin, IndependentPlugin):
 
         # collect the containerd logs.
         self.add_journal(units='containerd')
+
+        if self.get_option('stackdump'):
+            for pid in self.signal_process_usr1(r'^/usr/bin/containerd$'):
+                self.add_copy_spec(f"/tmp/containerd.{pid}.stacks.log")
 
 # vim: set et ts=4 sw=4 :
