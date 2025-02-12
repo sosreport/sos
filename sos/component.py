@@ -243,7 +243,20 @@ class SoSComponent():
                         setattr(opts, oopt, [x for x in getattr(opts, oopt)
                                 if x not in common])
 
-            if val != opts.arg_defaults[opt]:
+            # plugin options as a list should be concatenated, not overriden
+            # BUT if cmdline plugoption overrides same option in opts, we must
+            # drop the opts's value; since the items are in form
+            # 'apache.log=on', we must separate the *name* of each option
+            if opt == 'plugopts':
+                oplugopts = getattr(opts, opt)
+                valnames = [v.split('=')[0] for v in val]
+                ovalnames = [v.split('=')[0] for v in oplugopts]
+                for common in set(valnames) & set(ovalnames):
+                    cstring = f"{common}="
+                    oplugopts = [oopt for oopt in oplugopts
+                                 if not oopt.startswith(cstring)]
+                setattr(opts, opt, list(set(val) | set(oplugopts)))
+            elif val != opts.arg_defaults[opt]:
                 setattr(opts, opt, val)
 
         return opts
