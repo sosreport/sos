@@ -8,7 +8,6 @@
 
 import glob
 import os
-import time
 from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 
@@ -26,21 +25,6 @@ class Gluster(Plugin, RedHatPlugin):
     option_list = [
         PluginOpt("dump", default=False, desc="enable glusterdump support")
     ]
-
-    def wait_for_statedump(self, name_dir):
-        """ Wait until state dump is done """
-        statedumps_present = 0
-        statedump_entries = [
-                f for f in self.listdir(name_dir) if self.path_isfile(f)
-        ]
-        for statedump_file in statedump_entries:
-            statedumps_present = statedumps_present+1
-            _spath = self.path_join(name_dir, statedump_file)
-            ret = -1
-            while ret == -1:
-                with open(_spath, 'r', encoding='UTF-8') as sfile:
-                    last_line = sfile.readlines()[-1]
-                    ret = last_line.count('DUMP_END_TIME')
 
     def postproc(self):
         if self.get_option("dump"):
@@ -92,16 +76,8 @@ class Gluster(Plugin, RedHatPlugin):
 
         if self.get_option("dump"):
             if self.path_exists(self.statedump_dir):
-                statedump_cmd = "killall -USR1 glusterfs glusterfsd glusterd"
-                if self.exec_cmd(statedump_cmd)['status'] == 0:
-                    # let all the processes catch the signal and create
-                    # statedump file entries.
-                    time.sleep(1)
-                    self.wait_for_statedump(self.statedump_dir)
+                if self.signal_process_usr1(r'gluster(fs|fsd|d)'):
                     self.add_copy_spec(self.statedump_dir)
-                else:
-                    self.soslog.info("could not send SIGUSR1 to glusterfs/"
-                                     "glusterd processes")
             else:
                 self.soslog.warning("Unable to generate statedumps, no such "
                                     "directory: %s", self.statedump_dir)

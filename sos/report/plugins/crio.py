@@ -107,12 +107,7 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
         return ret
 
     def _get_crio_goroutine_stacks(self):
-        result = self.exec_cmd("pidof crio")
-        if result['status'] != 0:
-            return
-        pid = result['output'].strip()
-        result = self.exec_cmd("kill -USR1 " + pid)
-        if result['status'] == 0:
+        if self.signal_process_usr1(r'^/usr/bin/crio$'):
             self.add_copy_spec("/tmp/crio-goroutine-stacks*.log")
 
 # vim: set et ts=4 sw=4 :
