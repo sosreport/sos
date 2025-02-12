@@ -383,6 +383,8 @@ class OpenVSwitch(Plugin):
                     f"{self.ofctl} -O {flow} dump-flows {bridge}",
                     f"{self.ofctl} -O {flow} dump-tlv-map {bridge}",
                     f"{self.ofctl} -O {flow} dump-ports-desc {bridge}",
+                    f"{self.ofctl} -O {flow} dump-meters {bridge}",
+                    f"{self.ofctl} -O {flow} meter-stats {bridge}",
                 ])
 
     def get_port_list(self, bridge):
