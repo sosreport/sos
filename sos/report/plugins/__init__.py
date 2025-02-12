@@ -16,8 +16,9 @@ import contextlib
 import os
 import glob
 import re
+import signal
 import stat
-from time import time
+from time import time, sleep
 import logging
 import fnmatch
 import errno
@@ -3569,6 +3570,34 @@ class Plugin():
             except IOError:
                 continue
         return pids
+
+    def signal_process_usr1(self, process):
+        """
+        Send a SIGUSR1 to the pid(s) associated with the specified process
+        name. Callers should be aware that a 1-second delay per signalled pid,
+        up to 5 seconds at most, is expected as to allow sufficient time for
+        the signalled process(es) to react to the received signal.
+
+        :param process: The name or regex pattern of the process(es) to signal
+        :type process:  ``str``
+
+        :returns:   A list of pids that were successfully signalled
+        :rtype:     ``list``
+        """
+        signalled = []
+        pids = self.get_process_pids(process)
+        for pid in pids:
+            try:
+                os.kill(int(pid), signal.SIGUSR1)
+                signalled.append(pid)
+            except Exception as err:
+                self._log_debug(
+                    f"Failed to signal pid {pid} for '{process}': {err}"
+                )
+        # allow a small grace period to allow the signalled pids to complete
+        # whatever they're doing in response to the signal
+        sleep(min(len(signalled), 5))
+        return signalled
 
     def get_network_namespaces(self, ns_pattern=None, ns_max=None):
         if ns_max is None and self.commons['cmdlineopts'].namespaces:
