@@ -27,6 +27,7 @@ class PulpCore(Plugin, IndependentPlugin):
     dbhost = "localhost"
     dbport = 5432
     dbname = "pulpcore"
+    dbuser = "pulp"
     dbpasswd = ""
     staticroot = "/var/lib/pulp/assets"
     uploaddir = "/var/lib/pulp/media/upload"
@@ -66,6 +67,8 @@ class PulpCore(Plugin, IndependentPlugin):
                         self.dbport = separate_value(line)
                     if databases_scope and match(pattern % 'NAME', line):
                         self.dbname = separate_value(line)
+                    if databases_scope and match(pattern % 'USER', line):
+                        self.dbuser = separate_value(line)
                     if databases_scope and match(pattern % 'PASSWORD', line):
                         self.dbpasswd = separate_value(line)
                     # if line contains closing '}' database_scope end
@@ -148,8 +151,9 @@ class PulpCore(Plugin, IndependentPlugin):
         if csv:
             query = f"COPY ({query}) TO STDOUT " \
                     "WITH (FORMAT 'csv', DELIMITER ',', HEADER)"
-        _dbcmd = "psql --no-password -h %s -p %s -U pulp -d %s -c %s"
-        return _dbcmd % (self.dbhost, self.dbport, self.dbname, quote(query))
+        _dbcmd = "psql --no-password -h %s -p %s -U %s -d %s -c %s"
+        return _dbcmd % (self.dbhost, self.dbport,
+                         self.dbuser, self.dbname, quote(query))
 
     def postproc(self):
         # obfuscate from /etc/pulp/settings.py and "dynaconf list":
