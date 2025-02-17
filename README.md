@@ -52,15 +52,17 @@ Please refer to the [contributor guidelines][0] for guidance on formatting
 patches and commit messages.
 
 Before sending a [pull request][0], it is advisable to check your contribution
-against the `flake8` linter, the unit tests, and the stage one avocado test suite:
+against the `flake8` & `pylint` linter, the unit tests, and the stage one avocado
+test suite:
 
 ```
 # from within the git checkout
-$ flake8 sos
-$ nosetests -v tests/unittests/
+$ tox -e flake8
+$ tox -e pylint
+$ tox -e unit_tests
 
 # as root
-# PYTHONPATH=tests/ avocado run --test-runner=runner -t stageone tests/{cleaner,collect,report,vendor}_tests
+# tox -e stageone_tests
 ```
 
 Note that the avocado test suite will generate and remove several reports over its
