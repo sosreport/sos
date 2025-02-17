@@ -1,6 +1,6 @@
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
-Version: 4.8.2
+Version: 4.9.0
 Release: 1%{?dist}
 Source0: https://github.com/sosreport/sos/archive/%{name}-%{version}.tar.gz
 License: GPL-2.0-only
@@ -87,6 +87,9 @@ rm -rf %{buildroot}/usr/config/
 %config(noreplace) %{_sysconfdir}/sos/sos.conf
 
 %changelog
+* Mon Feb 17 2025 Jake Hunsaker <jacob.r.hunsaker@gmail.com> = 4.9.0
+- New upstream release
+
 * Mon Dec 16 2024 Pavel Moravec <pmoravec@redhat.com> = 4.8.2
 - New upstream release
 
