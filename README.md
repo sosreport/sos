@@ -1,4 +1,11 @@
-[![Build Status](https://api.cirrus-ci.com/github/sosreport/sos.svg?branch=main)](https://cirrus-ci.com/github/sosreport/sos) [![Documentation Status](https://readthedocs.org/projects/sos/badge/?version=main)](https://sos.readthedocs.io/en/main/?badge=main) [![](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/) [![sosreport](https://snapcraft.io/sosreport/badge.svg)](https://snapcraft.io/sosreport) [![Fedora package](https://img.shields.io/fedora/v/sos?color=darkgreen)](https://packages.fedoraproject.org/pkgs/sos/sos/) [![Ubuntu Package Version](https://img.shields.io/ubuntu/v/sosreport?color=darkgreen)](https://launchpad.net/ubuntu/+source/sosreport) [![Debian package (for distribution)](https://img.shields.io/debian/v/sosreport/unstable?color=darkgreen)](https://packages.debian.org/unstable/sosreport) ![GitHub contributors](https://img.shields.io/github/contributors/sosreport/sos)
+[![Build Status](https://api.cirrus-ci.com/github/sosreport/sos.svg?branch=main)](https://cirrus-ci.com/github/sosreport/sos)
+[![Documentation Status](https://readthedocs.org/projects/sos/badge/?version=main)](https://sos.readthedocs.io/en/main/?badge=main)
+[![](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![sosreport](https://snapcraft.io/sosreport/badge.svg)](https://snapcraft.io/sosreport)
+[![Fedora package](https://img.shields.io/fedora/v/sos?color=darkgreen)](https://packages.fedoraproject.org/pkgs/sos/sos/)
+[![Ubuntu Package Version](https://img.shields.io/ubuntu/v/sos?color=darkgreen)](https://launchpad.net/ubuntu/+source/sos)
+[![Debian package (for distribution)](https://img.shields.io/debian/v/sos/unstable?color=darkgreen)](https://packages.debian.org/unstable/sos)
+![GitHub contributors](https://img.shields.io/github/contributors/sosreport/sos)
 
 # SoS
 
