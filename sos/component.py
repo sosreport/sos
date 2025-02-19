@@ -16,6 +16,7 @@ import tempfile
 import sys
 import time
 
+from textwrap import fill
 from argparse import SUPPRESS
 from datetime import datetime
 from getpass import getpass
@@ -470,6 +471,13 @@ class SoSComponent():
 
     def get_temp_file(self):
         return self.tempfile_util.new()
+
+    def _fmt_msg(self, msg):
+        width = 80
+        _fmt = ''
+        for line in msg.splitlines():
+            _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
+        return _fmt
 
 
 class SoSMetadata():

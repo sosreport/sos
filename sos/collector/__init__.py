@@ -26,7 +26,6 @@ from concurrent.futures import ThreadPoolExecutor
 from getpass import getpass
 from pathlib import Path
 from shlex import quote
-from textwrap import fill
 from sos.cleaner import SoSCleaner
 from sos.collector.sosnode import SosNode
 from sos.options import ClusterOption, str_to_bool
@@ -723,13 +722,6 @@ class SoSCollector(SoSComponent):
         self.arc_name = self._get_archive_name()
         compr = 'gz'
         return self.tmpdir + '/' + self.arc_name + '.tar.' + compr
-
-    def _fmt_msg(self, msg):
-        width = 80
-        _fmt = ''
-        for line in msg.splitlines():
-            _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
-        return _fmt
 
     def _load_group_config(self):
         """

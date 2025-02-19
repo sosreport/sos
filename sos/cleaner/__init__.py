@@ -19,7 +19,6 @@ import fnmatch
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pwd import getpwuid
-from textwrap import fill
 
 import sos.cleaner.preppers
 
@@ -177,13 +176,6 @@ class SoSCleaner(SoSComponent):
 
     def log_error(self, msg, caller=None):
         self.soslog.error(self._fmt_log_msg(msg, caller))
-
-    def _fmt_msg(self, msg):
-        width = 80
-        _fmt = ''
-        for line in msg.splitlines():
-            _fmt = _fmt + fill(line, width, replace_whitespace=False) + '\n'
-        return _fmt
 
     @classmethod
     def display_help(cls, section):
