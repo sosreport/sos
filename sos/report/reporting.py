@@ -136,11 +136,9 @@ class PlainTextReport:
     ALERT = "  ! %s"
     NOTE = "  * %s"
     PLUGLISTHEADER = "Loaded Plugins:"
-    PLUGLISTITEM = "  {name}"
     PLUGLISTSEP = "\n"
     PLUGLISTMAXITEMS = 5
     PLUGLISTFOOTER = ""
-    PLUGINFORMAT = "{name}"
     PLUGDIVIDER = "=" * 72
 
     subsections = (
@@ -156,6 +154,12 @@ class PlainTextReport:
     def __init__(self, report_node):
         self.report_data = sorted(dict.items(report_node.data))
 
+    def plugListHeader(self, name):
+        return f"  {name}"
+
+    def pluginFormat(self, name):
+        return f"{name}"
+
     def unicode(self):
         self.line_buf = line_buf = []
 
@@ -168,7 +172,7 @@ class PlainTextReport:
         i = 0
         plugcount = len(self.report_data)
         for section_name, _ in self.report_data:
-            line += f"  {section_name}"
+            line += self.plugListHeader(section_name)
             i += 1
             if (i % self.PLUGLISTMAXITEMS == 0) and (i < plugcount):
                 line += self.PLUGLISTSEP
@@ -177,7 +181,7 @@ class PlainTextReport:
 
         for section_name, section_contents in self.report_data:
             line_buf.append(self.PLUGDIVIDER)
-            line_buf.append(f"{section_name}")
+            line_buf.append(self.pluginFormat(section_name))
             for type_, format_, header, footer in self.subsections:
                 self.process_subsection(section_contents, type_.ADDS_TO,
                                         header, format_, footer)
@@ -224,11 +228,9 @@ class HTMLReport(PlainTextReport):
     ALERT = "<li>%s</li>"
     NOTE = "<li>%s</li>"
     PLUGLISTHEADER = "<h3>Loaded Plugins:</h3><table><tr>"
-    PLUGLISTITEM = '<td><a href="#{name}">{name}</a></td>\n'
     PLUGLISTSEP = "</tr>\n<tr>"
     PLUGLISTMAXITEMS = 5
     PLUGLISTFOOTER = "</tr></table>"
-    PLUGINFORMAT = '<h2 id="{name}">Plugin <em>{name}</em></h2>'
     PLUGDIVIDER = "<hr/>\n"
 
     subsections = (
@@ -238,6 +240,12 @@ class HTMLReport(PlainTextReport):
         (Alert, ALERT,       "<p>Alerts:</p><ul>",            "</ul>"),
         (Note, NOTE,         "<p>Notes:</p><ul>",             "</ul>"),
     )
+
+    def plugListHeader(self, name):
+        return f'<td><a href="#{name}">{name}</a></td>\n'
+
+    def pluginFormat(self, name):
+        return f'<h2 id="{name}">Plugin <em>{name}</em></h2>'
 
 
 class JSONReport(PlainTextReport):
