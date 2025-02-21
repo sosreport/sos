@@ -41,16 +41,18 @@ class LogsBase(Plugin):
                 self.add_copy_spec(i)
 
         self.add_copy_spec([
-            "/etc/syslog.conf",
-            "/etc/rsyslog.conf",
-            "/etc/rsyslog.d",
+            "/var/log/auth.log*",
             "/var/log/boot.log",
+            "/var/log/dist-upgrade",
             "/var/log/installer",
+            "/var/log/kern.log*",
             "/var/log/messages*",
             "/var/log/secure*",
+            "/var/log/syslog*",
             "/var/log/udev",
-            "/var/log/dist-upgrade",
-            "/var/log/auth.log",
+            "/etc/rsyslog.conf",
+            "/etc/rsyslog.d",
+            "/etc/syslog.conf",
         ])
 
         self.add_cmd_output("journalctl --disk-usage")
@@ -71,25 +73,6 @@ class LogsBase(Plugin):
                 self.add_copy_spec([
                     "/var/log/journal/*",
                     "/run/log/journal/*"
-                ])
-        else:  # If not using journal
-            if not self.get_option("all_logs"):
-                self.add_copy_spec([
-                    "/var/log/syslog",
-                    "/var/log/syslog.1",
-                    "/var/log/syslog.2*",
-                    "/var/log/kern.log",
-                    "/var/log/kern.log.1",
-                    "/var/log/kern.log.2*",
-                    "/var/log/auth.log",
-                    "/var/log/auth.log.1",
-                    "/var/log/auth.log.2*",
-                ])
-            else:
-                self.add_copy_spec([
-                    "/var/log/syslog*",
-                    "/var/log/kern.log*",
-                    "/var/log/auth.log*",
                 ])
 
     def postproc(self):
