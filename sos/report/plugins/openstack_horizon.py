@@ -47,12 +47,15 @@ class OpenStackHorizon(Plugin):
     def postproc(self):
         var_puppet_gen = self.var_puppet_gen + "/horizon"
         protect_keys = [
-            "SECRET_KEY", "EMAIL_HOST_PASSWORD"
+            "EMAIL_HOST_PASSWORD",
+            "PASSWORD",
+            "SECRET_KEY",
         ]
 
-        regexp = fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)"
+        regexp = fr"(^\s*\'?({'|'.join(protect_keys)})\'?\s*(:|=)\s*)(.*)"
         for regpath in [r"/etc/openstack-dashboard/.*\.json",
-                        "/etc/openstack-dashboard/local_settings$"]:
+                        "/etc/openstack-dashboard/local_settings$",
+                        "/etc/openstack-dashboard/local_settings.py$"]:
             self.do_path_regex_sub(regpath, regexp, r"\1*********")
             self.do_path_regex_sub(var_puppet_gen + regpath,
                                    regexp, r"\1*********")
