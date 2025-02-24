@@ -34,13 +34,15 @@ class RedHatSquid(Squid, RedHatPlugin):
 class DebianSquid(Squid, DebianPlugin, UbuntuPlugin):
 
     plugin_name = 'squid'
-    files = ('/etc/squid3/squid.conf',)
-    packages = ('squid3',)
+    files = ('/etc/squid/squid.conf',)
+    packages = ('squid',)
 
     def setup(self):
-        self.add_copy_spec("/etc/squid3/squid.conf")
-        self.add_copy_spec("/var/log/squid3/*")
-        self.add_copy_spec('/etc/squid-deb-proxy')
-        self.add_copy_spec("/var/log/squid-deb-proxy/*")
+        self.add_copy_spec([
+            "/etc/squid/squid.conf",
+            "/var/log/squid/*",
+            "/etc/squid-deb-proxy",
+            "/var/log/squid-deb-proxy/*",
+        ])
 
 # vim: set et ts=4 sw=4 :
