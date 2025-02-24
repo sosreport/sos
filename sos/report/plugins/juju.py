@@ -115,6 +115,7 @@ class Juju(Plugin, UbuntuPlugin):
                 "/var/lib/juju/**/.*",
             ])
             self.add_forbidden_path("/var/lib/juju/kvm")
+            self.add_forbidden_path("/var/lib/juju/tools")
         else:
             # We need this because we want to collect to the limit of all
             # logs in the directory.
