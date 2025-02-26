@@ -349,6 +349,14 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
             "/run/systemd/network"
         ])
 
+        # Netplan only consumes files with the `.yaml` extension (LP#1815734),
+        # so give visibility on other files that might be present.
+        self.add_dir_listing([
+            "/etc/netplan",
+            "/lib/netplan",
+            "/run/netplan",
+        ])
+
     def postproc(self):
 
         self.do_path_regex_sub(
