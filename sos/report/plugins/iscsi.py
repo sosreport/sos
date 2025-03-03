@@ -50,9 +50,9 @@ class Iscsi(Plugin):
         self.do_path_regex_sub('/etc/iscsi/iscsid.conf', nodesessionpwd, repl)
         self.do_path_regex_sub('/etc/iscsi/iscsid.conf', discoverypwd, repl)
         self.do_path_regex_sub(
-                '/var/lib/iscsi/nodes/*/*/*', nodesessionpwd, repl)
+                '/var/lib/iscsi/', nodesessionpwd, repl)
         self.do_path_regex_sub(
-                '/var/lib/iscsi/nodes/*/*/*', discoverypwd, repl)
+                '/var/lib/iscsi/', discoverypwd, repl)
 
 
 class RedHatIscsi(Iscsi, RedHatPlugin):
