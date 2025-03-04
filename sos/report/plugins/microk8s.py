@@ -34,6 +34,9 @@ class Microk8s(Plugin, UbuntuPlugin):
 
         microk8s_subcmds = [
             'addons repo list',
+            'helm list -a',
+            'helm repo list',
+            'helm plugin list',
             'config',
             'ctr plugins ls',
             'ctr plugins ls -d',
