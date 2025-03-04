@@ -118,4 +118,11 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph -v",
         ])
 
+    def postproc(self):
+        protect_keys = [
+            "rgw keystone admin password",
+        ]
+        regex = fr"(^({'|'.join(protect_keys)})\s*=\s*)(.*)"
+        self.do_path_regex_sub("/etc/ceph/ceph.conf", regex, r"\1*********")
+
 # vim: set et ts=4 sw=4 :
