@@ -108,6 +108,8 @@ class OpenVSwitch(Plugin):
             f"{self.actl} upcall/show",
             # Capture OVS list
             f"{self.vctl} -t 5 list Open_vSwitch",
+            # Capture OVS manager
+            f"{self.vctl} -t 5 list manager",
             # Capture OVS interface list
             f"{self.vctl} -t 5 list interface",
             # Capture OVS detailed information from all the bridges
