@@ -59,6 +59,21 @@ class Opensvc(Plugin, IndependentPlugin):
         self.add_dir_listing('/var/lib/opensvc', recursive=True)
         self.get_status('vol')
         self.get_status('svc')
+        pid_file = "/var/lib/opensvc/osvcd.pid"
+        try:
+            with open(pid_file, 'r', encoding='utf-8') as file:
+                pid = file.read().strip()
+                if not pid:
+                    self._log_debug(f"{pid_file} is empty")
+                    return
+                if not pid.isdigit():
+                    self._log_debug(f"Invalid PID in {pid_file}: {pid}")
+                    return
+                self.add_copy_spec(f"/proc/{pid}/task/*/status")
+        except (IOError, FileNotFoundError, PermissionError) as error:
+            self._log_debug(
+                f"Error while reading PID file {pid_file}: {error}"
+            )
 
     def postproc(self):
         # Example:
