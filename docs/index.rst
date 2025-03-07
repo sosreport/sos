@@ -91,3 +91,5 @@ Core Reference
    plugins
    reporting
    utilities
+   upload
+   targets
