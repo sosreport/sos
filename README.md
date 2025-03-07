@@ -82,16 +82,11 @@ All contributions must pass the entire test suite before being accepted.
 User and API [documentation][6] is automatically generated using [Sphinx][7]
 and [Read the Docs][8].
 
-To generate HTML documents locally, install dependencies using
+To generate HTML documents locally, by default this will build locally into
+`docs/_build`
 
 ```
-pip install -r requirements.txt
-```
-
-and run
-
-```
-sphinx-build -b html docs <destination dir> 
+tox -e docs
 ```
 
 
