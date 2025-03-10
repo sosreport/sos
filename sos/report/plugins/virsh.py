@@ -16,7 +16,7 @@ class LibvirtClient(Plugin, IndependentPlugin):
     plugin_name = 'virsh'
     profiles = ('system', 'virt')
 
-    packages = ('libvirt-client',)
+    packages = ('libvirt-client', 'libvirt-clients',)
 
     def setup(self):
         # virt-manager logs
