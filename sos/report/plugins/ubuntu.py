@@ -48,12 +48,18 @@ class Ubuntu(Plugin, UbuntuPlugin):
                "/var/log/ubuntu-advantage.log",
                "/var/log/ubuntu-advantage.log.1",
                "/var/log/ubuntu-advantage.log.2*",
+               "/var/log/ubuntu-advantage-apt-hook.log",
+               "/var/log/ubuntu-advantage-apt-hook.log.1",
+               "/var/log/ubuntu-advantage-apt-hook.log.2*",
                "/var/log/ubuntu-advantage-timer.log",
                "/var/log/ubuntu-advantage-timer.log.1",
                "/var/log/ubuntu-advantage-timer.log.2*",
             ])
         else:
-            self.add_copy_spec("/var/log/ubuntu-advantage.log*")
-            self.add_copy_spec("/var/log/ubuntu-advantage-timer.log*")
+            self.add_copy_spec([
+               "/var/log/ubuntu-advantage.log*",
+               "/var/log/ubuntu-advantage-apt-hook.log*",
+               "/var/log/ubuntu-advantage-timer.log*",
+            ])
 
 # vim: set et ts=4 sw=4 :
