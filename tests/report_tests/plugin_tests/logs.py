@@ -11,6 +11,7 @@ import os
 
 from string import ascii_uppercase, digits
 from time import sleep
+from avocado.utils import process
 from sos_tests import StageOneReportTest, StageTwoReportTest
 
 
@@ -52,8 +53,9 @@ class JournalSizeLimitTest(StageTwoReportTest):
         # if the journal is already over our size limit, don't write anything
         # new to it
         from systemd import journal  # pylint: disable=import-error
-        _reader = journal.Reader()
-        _size = _reader.get_usage() / 1024 / 1024
+        jout = process.run('journalctl', timeout=30)
+        assert jout.exit_status == 0, "journalctl failed to run"
+        _size = len(jout) / 1024 / 1024
         if _size > 20:
             return
         # write 20MB at a time to side-step rate/size limiting on some distros
