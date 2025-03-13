@@ -35,7 +35,8 @@ from sos.cleaner.archives.sos import (SoSReportArchive, SoSReportDirectory,
                                       SoSCollectorDirectory)
 from sos.cleaner.archives.generic import DataDirArchive, TarballArchive
 from sos.cleaner.archives.insights import InsightsArchive
-from sos.utilities import get_human_readable, import_module, ImporterHelper
+from sos.utilities import (get_human_readable, import_module, ImporterHelper,
+                           file_is_binary)
 
 
 class SoSCleaner(SoSComponent):
@@ -684,6 +685,10 @@ third party.
                 if (not self.opts.keep_binary_files and
                         archive.should_remove_file(short_name)):
                     archive.remove_file(short_name)
+                    continue
+                if (self.opts.keep_binary_files and
+                        (file_is_binary(fname) or
+                         archive.should_remove_file(short_name))):
                     continue
                 try:
                     count = self.obfuscate_file(fname, short_name,
