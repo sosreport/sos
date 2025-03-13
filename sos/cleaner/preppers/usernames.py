@@ -28,6 +28,7 @@ class UsernamePrepper(SoSPrepper):
         'stack',
         'reboot',
         'root',
+        'timeout:',
         'ubuntu',
         'username',
         'wtmp'
@@ -39,10 +40,12 @@ class UsernamePrepper(SoSPrepper):
             'sos_commands/login/lastlog_-u_1000-60000',
             'sos_commands/login/lastlog_-u_60001-65536',
             'sos_commands/login/lastlog_-u_65537-4294967295',
+            'sos_commands/login/lastlog2',
             # AD users will be reported here, but favor the lastlog files since
             # those will include local users who have not logged in
             'sos_commands/login/last',
             'sos_commands/login/last_-F',
+            'sos_commands/login/lslogins',
             'etc/cron.allow',
             'etc/cron.deny'
         ]
@@ -53,6 +56,11 @@ class UsernamePrepper(SoSPrepper):
             for line in content.splitlines():
                 try:
                     user = line.split()[0].lower()
+                    if "lslogins" in _file:
+                        if int(line.split()[0]) >= 1000:
+                            user = line.split()[1].lower()
+                        else:
+                            continue
                     if user and user not in self.skip_list:
                         items.add(user)
                         if '\\' in user:
