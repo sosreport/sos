@@ -42,6 +42,7 @@ class UsernamePrepper(SoSPrepper):
             # AD users will be reported here, but favor the lastlog files since
             # those will include local users who have not logged in
             'sos_commands/login/last',
+            'sos_commands/login/last_-F',
             'etc/cron.allow',
             'etc/cron.deny'
         ]
