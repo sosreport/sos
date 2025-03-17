@@ -916,17 +916,17 @@ class SoSReport(SoSComponent):
                     val = True
 
                 if isinstance(val, str):
-                    val = val.lower()
-                    if val in ["on", "enable", "enabled", "true", "yes"]:
+                    arg = val.lower()
+                    if arg in ["on", "enable", "enabled", "true", "yes"]:
                         val = True
-                    elif val in ["off", "disable", "disabled", "false", "no"]:
+                    elif arg in ["off", "disable", "disabled", "false", "no"]:
                         val = False
                     else:
                         # try to convert string "val" to int()
                         try:
-                            val = int(val)
+                            val = int(arg)
                         except ValueError:
-                            # not a number to convert back to int from argparse
+                            # Value is a string argument to be used unmodified
                             pass
 
                 try:
