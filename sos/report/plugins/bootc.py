@@ -29,4 +29,6 @@ class Bootc(Plugin, RedHatPlugin):
             "bootc status",
         )
 
+        self.add_forbidden_path("/usr/lib/bootc/storage")
+
 # vim: set et ts=4 sw=4 :
