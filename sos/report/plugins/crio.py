@@ -61,7 +61,7 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
             'pods',
             'ps',
             'ps -a',
-            'ps -v',
+            'ps -va',
             'stats',
             'version',
         ]
