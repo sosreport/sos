@@ -31,6 +31,15 @@ class Chrony(Plugin):
         ])
         self.add_cmd_output("chronyc -n sources", tags="chronyc_sources")
 
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                    "/var/log/chrony/*",
+            ])
+        else:
+            self.add_copy_spec([
+                    "/var/log/chrony/*.log",
+            ])
+
 
 class RedHatChrony(Chrony, RedHatPlugin):
     def setup(self):
