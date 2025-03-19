@@ -22,7 +22,7 @@ class Cups(Plugin, IndependentPlugin):
     packages = ('cups',)
 
     option_list = [
-        PluginOpt('userconfs', default=False, val_type=str,
+        PluginOpt('userconfs', default=False,
                   desc=('Changes whether plugin will '
                         'collect user .cups configs'))
     ]
