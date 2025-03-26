@@ -10,17 +10,6 @@ import os
 
 from sos.report.plugins import Plugin, PluginOpt, UbuntuPlugin
 
-SNAP_PATH_COMMON = "/var/snap/charmed-mysql/common"
-SNAP_PATH_CURRENT = "/var/snap/charmed-mysql/current"
-
-PATHS = {
-    "MYSQL_CONF": f"{SNAP_PATH_CURRENT}/etc/mysql",
-    "MYSQL_LOGS": f"{SNAP_PATH_COMMON}/var/log/mysql",
-    "MYSQL_ROUTER_CONF": f"{SNAP_PATH_CURRENT}/etc/mysqlrouter",
-    "MYSQL_ROUTER_LOGS": f"{SNAP_PATH_COMMON}/var/log/mysqlrouter",
-    "MYSQL_SHELL_LOGS": f"{SNAP_PATH_COMMON}/var/log/mysqlsh",
-}
-
 
 class CharmedMySQL(Plugin, UbuntuPlugin):
     """
@@ -56,27 +45,52 @@ class CharmedMySQL(Plugin, UbuntuPlugin):
     ]
 
     def setup(self):
+        # Set default paths for snap
+        snap_path_common = "/var/snap/charmed-mysql/common"
+        snap_path_current = "/var/snap/charmed-mysql/current"
+
+        # Check if deployment is in a Kubernetes cluster
+        k8s_deploy = any("KUBERNETES" in key for key in os.environ)
+
+        # If in a Kubernetes cluster, set the snap paths to "None" as
+        # MySQL configuration does not exist in snap paths
+        if k8s_deploy:
+            snap_path_common = ""
+            snap_path_current = ""
+
+        # Set the configuration paths
+        conf_paths = {
+            "MYSQL_CONF": f"{snap_path_current}/etc/mysql",
+            "MYSQL_LOGS": f"{snap_path_common}/var/log/mysql",
+            "MYSQL_ROUTER_CONF": f"{snap_path_current}/etc/mysqlrouter",
+            "MYSQL_ROUTER_LOGS": f"{snap_path_common}/var/log/mysqlrouter",
+            "MYSQL_SHELL_LOGS": f"{snap_path_common}/var/log/mysqlsh",
+        }
 
         # Ignore private keys
         self.add_forbidden_path([
-            f"{PATHS['MYSQL_CONF']}/*.pem",
-            f"{PATHS['MYSQL_CONF']}/*.key",
+            f"{conf_paths['MYSQL_CONF']}/*.pem",
+            f"{conf_paths['MYSQL_CONF']}/*.key",
         ])
 
         # Include the files we want to get
         self.add_copy_spec([
-            PATHS["MYSQL_CONF"],
-            PATHS["MYSQL_LOGS"],
-            PATHS["MYSQL_ROUTER_CONF"],
-            PATHS["MYSQL_ROUTER_LOGS"],
-            PATHS["MYSQL_SHELL_LOGS"],
+            conf_paths["MYSQL_CONF"],
+            conf_paths["MYSQL_LOGS"],
+            conf_paths["MYSQL_ROUTER_CONF"],
+            conf_paths["MYSQL_ROUTER_LOGS"],
+            conf_paths["MYSQL_SHELL_LOGS"],
         ])
 
-        # Get snap logs
-        self.add_journal("snap.charmed-mysql.*")
+        # Only applicable if not in a Kubernetes cluster
+        # as `snap info` and `journalctl` are not available
+        # in the Kubernetes container
+        if not k8s_deploy:
+            # Get snap logs
+            self.add_journal("snap.charmed-mysql.*")
 
-        # Get snap info
-        self.add_cmd_output("snap info charmed-mysql")
+            # Get snap info
+            self.add_cmd_output("snap info charmed-mysql")
 
         # If dumpdbs is set, then get all databases
         if self.get_option("dumpdbs"):
@@ -100,12 +114,30 @@ class CharmedMySQL(Plugin, UbuntuPlugin):
                 return
 
             mysql_env = {"MYSQL_PWD": db_pass}
-
             opts = f"-h 127.0.0.1 -u{db_user}"
+            sql_cmd = f"mysql {opts} -e"
+            queries = [
+                # Get databases user has access to
+                "'show databases;'",
 
-            # Record all available databases
+                # Get unit operations from MySQL to see, for example,
+                # if a unit is stuck on joining the cluster
+                "'select * from mysql.juju_units_operations;'",
+
+                # Get the cluster group replication status
+                ("'select * from performance_schema.replication_group_members "
+                    "order by MEMBER_HOST;'"),
+
+                # Get connection stats
+                "'show global status like \"%conne%\";'",
+
+                # Get errors per client and host
+                # Useful for problens like an app disconnectting randomly
+                "'select * from performance_schema.host_cache;'"
+            ]
+
             self.add_cmd_output(
-                f"mysql {opts} -e 'show databases;'",
+                [f"{sql_cmd} {query}" for query in queries],
                 env=mysql_env
             )
 
