@@ -9,7 +9,7 @@
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
-class Soundcard(Plugin):
+class Soundcard(Plugin, DebianPlugin, UbuntuPlugin):
 
     short_desc = 'Sound devices'
 
@@ -33,12 +33,5 @@ class RedHatSoundcard(Soundcard, RedHatPlugin):
             "/etc/alsa/*",
             "/etc/asound.*"
         ])
-
-
-class DebianSoundcard(Soundcard, DebianPlugin, UbuntuPlugin):
-
-    def setup(self):
-        super().setup()
-        self.add_copy_spec("/etc/pulse/*")
 
 # vim: set et ts=4 sw=4 :
