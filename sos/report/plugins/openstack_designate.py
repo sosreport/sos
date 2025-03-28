@@ -33,8 +33,8 @@ class OpenStackDesignate(Plugin):
             "/etc/designate/*",
             self.var_puppet_gen + "/etc/designate/designate.conf",
             self.var_puppet_gen + "/etc/designate/pools.yaml",
-            self.var_ansible_gen + "/designate/etc/designate/named.conf",
-            self.var_ansible_gen + "/designate/etc/designate/named/*",
+            self.var_ansible_gen + "/designate/etc/named.conf",
+            self.var_ansible_gen + "/designate/etc/named/*",
             self.var_ansible_gen + "/unbound/*"
         ])
 
