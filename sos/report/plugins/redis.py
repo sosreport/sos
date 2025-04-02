@@ -25,7 +25,7 @@ class Redis(Plugin, IndependentPlugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/etc/redis.conf",
+            "/etc/redis/redis.conf",
             self.var_puppet_gen + "/etc/redis*",
             self.var_puppet_gen + "/etc/redis/",
             self.var_puppet_gen + "/etc/security/limits.d/"
@@ -42,7 +42,7 @@ class Redis(Plugin, IndependentPlugin):
             ])
 
     def postproc(self):
-        for path in ["/etc/", self.var_puppet_gen + "/etc/"]:
+        for path in ["/etc/redis/", self.var_puppet_gen + "/etc/redis"]:
             self.do_file_sub(
                 path + "redis.conf",
                 r"(masterauth|requirepass)\s.*",
