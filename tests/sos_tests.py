@@ -137,6 +137,8 @@ class BaseSoSTest(Test):
         # get networking info
         hostname = socket.gethostname()
         ip_addr = socket.gethostbyname(hostname)
+        if ip_addr.split(".")[0] == "127":
+            ip_addr = socket.gethostbyname(f"{hostname}.local")
         sysinfo['networking'] = {}
         sysinfo['networking']['hostname'] = hostname
         sysinfo['networking']['ip_addr'] = ip_addr
