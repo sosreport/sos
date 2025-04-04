@@ -25,11 +25,9 @@ class KDump(Plugin):
             "/proc/sys/kernel/panic",
             "/proc/sys/kernel/panic_on_oops",
             "/sys/kernel/kexec_loaded",
+            "/sys/kernel/fadump",
             "/sys/kernel/fadump_enabled",
-            "/sys/kernel/fadump/enabled",
             "/sys/kernel/fadump_registered",
-            "/sys/kernel/fadump/registered",
-            "/sys/kernel/fadump/mem_reserved",
             "/sys/kernel/kexec_crash_size"
         ])
 
