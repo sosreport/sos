@@ -3,8 +3,8 @@
 # Main environment vars to set for all tasks
 env:
 
-    FEDORA_NAME: "fedora-38"
-    FEDORA_PRIOR_NAME: "fedora-37"
+    FEDORA_NAME: "fedora-41"
+    FEDORA_PRIOR_NAME: "fedora-40"
 
     DEBIAN_12_NAME: "debian-12"
     DEBIAN_11_NAME: "debian-11"
@@ -27,8 +27,8 @@ env:
     # Images exist on GCP already
     CENTOS_9_FAMILY_NAME: "centos-stream-9"
     DEBIAN_FAMILY_NAME: "debian-11"
-    FEDORA_FAMILY_NAME: "fedora-cloud-38"
-    FEDORA_PRIOR_FAMILY_NAME: "fedora-cloud-37"
+    FEDORA_FAMILY_NAME: "fedora-cloud-41"
+    FEDORA_PRIOR_FAMILY_NAME: "fedora-cloud-40"
 
     UBUNTU_DEB_FAMILY_NAME: "ubuntu-minimal-2410-amd64"
     UBUNTU_LATEST_FAMILY_NAME: "ubuntu-2410-amd64"
@@ -117,7 +117,9 @@ rpm_build_task:
             VM_FAMILY_NAME: ${FEDORA_PRIOR_FAMILY_NAME}
     setup_script: |
         dnf clean all
-        dnf -y install rpm-build rpmdevtools gettext python3-devel
+        dnf -y install rpm-build rpmdevtools gettext python3-devel python3-pexpect python3-pyyaml
+        dnf -y install python3-wheel || true
+    # dnf failures above ignored for distros that do not yet have python3-wheel, e.g. CS 9
     main_script: |
         mkdir -p /rpmbuild/{BUILD,BUILDROOT,RPMS,SRPMS,SOURCES}
         python3 setup.py sdist
