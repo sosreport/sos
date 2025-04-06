@@ -35,7 +35,8 @@ from sos.cleaner.archives.sos import (SoSReportArchive, SoSReportDirectory,
                                       SoSCollectorDirectory)
 from sos.cleaner.archives.generic import DataDirArchive, TarballArchive
 from sos.cleaner.archives.insights import InsightsArchive
-from sos.utilities import get_human_readable, import_module, ImporterHelper
+from sos.utilities import (get_human_readable, import_module, ImporterHelper,
+                           file_is_binary)
 
 
 class SoSCleaner(SoSComponent):
@@ -683,7 +684,16 @@ third party.
                     continue
                 if (not self.opts.keep_binary_files and
                         archive.should_remove_file(short_name)):
+                    # We reach this case if the option --keep-binary-files
+                    # was not used, and the file is in a list to be removed
                     archive.remove_file(short_name)
+                    continue
+                if (self.opts.keep_binary_files and
+                        (file_is_binary(fname) or
+                         archive.should_remove_file(short_name))):
+                    # We reach this case if the option --keep-binary-files
+                    # is used. In this case we want to make sure
+                    # the cleaner doesn't try to clean a binary file
                     continue
                 try:
                     count = self.obfuscate_file(fname, short_name,
