@@ -36,9 +36,13 @@ RHOCP = "ocp"
 RHOCP_DESC = "OpenShift Container Platform by Red Hat"
 RHOCP_OPTS = SoSOptions(
     skip_plugins=['cgroups'], container_runtime='crio', no_report=True,
-    log_size=100,
+    log_size=100, enable_plugins=['openshift', 'openshift_ovn'],
     plugopts=[
         'crio.timeout=600',
+        'crio.all=on',
+        'crio.logs=on',
+        'podman.all=on',
+        'podman.logs=on',
         'networking.timeout=600',
         'networking.ethtool-namespaces=False',
         'networking.namespaces=200'
