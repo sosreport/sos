@@ -58,10 +58,21 @@ class Gnocchi(Plugin):
             ])
 
     def postproc(self):
-        self.do_file_sub(
-            "/etc/gnocchi/gnocchi.conf",
-            r"(ceph_secret|password|memcache_secret_key)\s?=(.*)",
-            r"\1=*****",
+        config_dir = "/etc/gnocchi"
+        protect_keys = ["ceph_secret",
+                        "password", "memcache_secret_key"]
+        connection_keys = ["url"]
+        join_con_keys = "|".join(connection_keys)
+
+        self.do_path_regex_sub(
+            f"{config_dir}/*",
+            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
+            r"\1*********"
+        )
+        self.do_path_regex_sub(
+            f"{config_dir}/*",
+            fr"(^\s*({join_con_keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
+            r"\1*********\6"
         )
 
 
@@ -86,13 +97,29 @@ class RedHatGnocchi(Gnocchi, RedHatPlugin):
             self.var_puppet_gen + "/etc/my.cnf.d/tripleo.cnf"
         ])
 
+    def apply_regex_sub(self, regexp, subst):
+        """ Apply regex substitution """
+        self.do_path_regex_sub("/etc/gnocchi/*", regexp, subst)
+        self.do_path_regex_sub(
+            self.var_puppet_gen + "/etc/gnocchi/*",
+            regexp, subst
+        )
+
     def postproc(self):
         super().postproc()
-        self.do_file_sub(
-            self.var_puppet_gen + "/etc/gnocchi/"
-            "gnocchi.conf",
-            r"(ceph_secret|password|memcache_secret_key)\s?=(.*)",
-            r"\1=*****",
+        protect_keys = ["ceph_secret",
+                        "password", "memcache_secret_key"]
+        connection_keys = ["url"]
+
+        join_con_keys = "|".join(connection_keys)
+
+        self.apply_regex_sub(
+            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
+            r"\1*********"
+        )
+        self.apply_regex_sub(
+            fr"(^\s*({join_con_keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
+            r"\1*********\6"
         )
 
 
