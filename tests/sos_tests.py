@@ -136,7 +136,10 @@ class BaseSoSTest(Test):
 
         # get networking info
         hostname = socket.gethostname()
-        ip_addr = socket.gethostbyname(hostname)
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # This doesn't send any data
+        s.connect(('10.255.255.255', 1))
+        ip_addr = s.getsockname()[0]
         sysinfo['networking'] = {}
         sysinfo['networking']['hostname'] = hostname
         sysinfo['networking']['ip_addr'] = ip_addr
