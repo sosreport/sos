@@ -130,7 +130,42 @@ class RedHatApache(Apache, RedHatPlugin):
                 for log in logs:
                     self.add_copy_spec(f"{ldir}/{log}")
 
+        self.add_copy_spec([
+            "/var/lib/httpd/*",
+        ])
+
+        self.add_forbidden_path([
+            "/var/lib/httpd/*.pem",
+        ])
+
         self.add_service_status('httpd', tags='systemctl_httpd')
+
+    def postproc(self):
+        # Example for scrubbing RSA keys from json files
+        #
+        #     "key": {
+        #       "kty": "RSA",
+        #       "n": "<keydata>",
+        #       "e": "<keydata>"
+        #     }
+        #
+        # to
+        #
+        #     "key": {
+        #       "kty": "RSA",
+        #      "n": ********,
+        #      "e": ********
+        #     }
+        self.do_path_regex_sub(
+            '/var/lib/httpd/.*json',
+            r"(\"e\"\s*:|\"n\"\s*:)(.*[,]$)",
+            r"\1 ********,"
+        )
+        self.do_path_regex_sub(
+            '/var/lib/httpd/.*json',
+            r"(\"e\"\s*:|\"n\"\s*:)(.*[^,]$)",
+            r"\1 ********"
+        )
 
 
 class DebianApache(Apache, DebianPlugin, UbuntuPlugin):
