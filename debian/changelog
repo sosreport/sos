@@ -1,3 +1,9 @@
+sos (4.9.1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Pavel Moravec <pmoravec@redhat.com>  Tue, 15 Apr 2025 08:43:46 +0200
+
 sos (4.9.0) noble; urgency=medium
 
   * New 4.9.0 upstream release
