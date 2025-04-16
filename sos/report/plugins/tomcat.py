@@ -26,6 +26,7 @@ class Tomcat(Plugin, RedHatPlugin):
             "/etc/tomcat7",
             "/etc/tomcat8"
         ])
+        self.add_forbidden_path("/etc/tomcat*/keystore")
 
         if not self.get_option("all_logs"):
             log_glob = "/var/log/tomcat*/catalina.out"
