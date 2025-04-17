@@ -45,6 +45,7 @@ class ReportListPluginsTest(StageOneOutputTest):
                          "The following plugins are currently disabled:",
                          self.cmd_output.stdout, re.S).group(1).splitlines()
         for ln in _out:
+            ln = ln.split()
             # Ignore newlines
             if not ln:
                 continue
