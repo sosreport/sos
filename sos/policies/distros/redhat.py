@@ -376,6 +376,7 @@ class FedoraPolicy(RedHatPolicy):
     os_release_file = '/etc/fedora-release'
     os_release_name = 'Fedora Linux'
     os_release_id = 'fedora'
+    sos_bin_path = '/usr/bin'
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
