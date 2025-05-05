@@ -36,6 +36,7 @@ class SoSIPParser(SoSCleanerParser):
         'sos_commands/yum/.*list.*',
         'sos_commands/snappy/snap_list_--all',
         'sos_commands/vulkan/vulkaninfo',
+        'etc/rhsm/facts/satellite.facts',
         'var/log/.*dnf.*',
         'var/log/.*packag.*',  # get 'packages' and 'packaging' logs
         '.*(version|release)(\\.txt)?$',  # obvious version files
