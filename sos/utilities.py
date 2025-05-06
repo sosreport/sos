@@ -212,6 +212,28 @@ def is_executable(command, sysroot=None):
     return any(os.access(path, os.X_OK) for path in candidates)
 
 
+def scrub_url_credential(url: str):
+    """
+    Replace username:password@ with ********@ in proxy URL if present
+    """
+    from urllib.parse import urlparse, urlunparse
+    try:
+        parsed_url = urlparse(url)
+        if parsed_url.username or parsed_url.password:
+            netloc = "********@"
+            if parsed_url.hostname:
+                netloc += parsed_url.hostname
+            if parsed_url.port:
+                netloc += f":{parsed_url.port}"
+            return urlunparse((
+                parsed_url.scheme, netloc, parsed_url.path,
+                parsed_url.params, parsed_url.query, parsed_url.fragment
+            ))
+        return url
+    except Exception:  # pylint: disable=broad-except
+        return url
+
+
 def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                            chroot=None, chdir=None, env=None, foreground=False,
                            binary=False, sizelimit=None, poller=None,

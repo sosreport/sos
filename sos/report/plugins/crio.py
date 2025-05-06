@@ -38,13 +38,6 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
             "/etc/sysconfig/crio-*"
         ])
 
-        self.add_env_var([
-            'HTTP_PROXY',
-            'HTTPS_PROXY',
-            'NO_PROXY',
-            'ALL_PROXY'
-        ])
-
         self.add_cmd_output([
             "crio config"
         ])
