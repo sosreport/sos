@@ -35,10 +35,6 @@ class Docker(Plugin, CosPlugin):
         ])
 
         self.add_env_var([
-            'HTTP_PROXY',
-            'HTTPS_PROXY',
-            'NO_PROXY',
-            'ALL_PROXY',
             'DOCKER_BUILD_PROXY',
             'DOCKER_RUN_PROXY'
         ])

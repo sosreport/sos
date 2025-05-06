@@ -27,7 +27,7 @@ from shutil import rmtree
 import sos.report.plugins
 from sos.utilities import (ImporterHelper, SoSTimeoutError, bold,
                            sos_get_command_output, TIMEOUT_DEFAULT, listdir,
-                           is_executable)
+                           is_executable, scrub_url_credential)
 
 from sos import _sos as _
 from sos import __version__
@@ -71,6 +71,12 @@ def _format_since(date):
 
 # valid modes for --chroot
 chroot_modes = ["auto", "always", "never"]
+
+# collect default env vars
+default_env_vars = {
+    'http_proxy', 'https_proxy', 'HTTP_PROXY', 'HTTPS_PROXY',
+    'NO_PROXY', 'ALL_PROXY'
+}
 
 
 class SoSReport(SoSComponent):
@@ -151,7 +157,7 @@ class SoSReport(SoSComponent):
         self.loaded_plugins = []
         self.skipped_plugins = []
         self.all_options = []
-        self.env_vars = set()
+        self.env_vars = default_env_vars
         self._args = args
         self.sysroot = "/"
         self.estimated_plugsizes = {}
@@ -1422,7 +1428,7 @@ class SoSReport(SoSComponent):
         if not self.env_vars:
             return
         env = '\n'.join([
-            f"{name}={val}" for (name, val) in
+            f"{name}={scrub_url_credential(val)}" for (name, val) in
             [(name, f'{os.environ.get(name)}') for name in self.env_vars if
              os.environ.get(name) is not None]
         ]) + '\n'
