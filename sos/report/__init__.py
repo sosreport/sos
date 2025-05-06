@@ -453,7 +453,7 @@ class SoSReport(SoSComponent):
         ssec.add_text(helpln)
 
     def print_header(self):
-        print(f"\n{_(f'sos report (version {__version__})')}\n")
+        self.ui_log.info(f"\n{_(f'sos report (version {__version__})')}\n")
 
     def _get_hardware_devices(self):
         self.devices = {
