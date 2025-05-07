@@ -28,7 +28,9 @@ class Rear(Plugin, RedHatPlugin):
             '/etc/rear/mappings/*',
             '/var/lib/rear/layout/*',
             '/var/lib/rear/recovery/*',
-            '/var/log/rear/*log*'
+            '/var/log/rear/*log*',
+            '/var/log/rear/recover/*log*',
+            '/var/log/rear/recover/restore/*log*'
         ])
 
         self.add_cmd_output([
