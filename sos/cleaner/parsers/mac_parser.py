@@ -16,21 +16,19 @@ from sos.cleaner.mappings.mac_map import SoSMacMap
 
 # aa:bb:cc:fe:ff:dd:ee:ff
 IPV6_REG_8HEX = (
-    r'((?<!([0-9a-fA-F\'\"]:)|::)([^:|-])?([0-9a-fA-F]{2}(:|-)){7}'
-    r'[0-9a-fA-F]{2}(\'|\")?(\/|\,|\-|\.|\s|$))'
+    r'((?<!\w)([0-9a-fA-F]{2}[:-]){7}([0-9a-fA-F]{2}))(?!\w)'
 )
 # aabb:ccee:ddee:ffaa
 # - but disallow "substrings"
 #   - but allow fe80: or fe80:: prefix for link-local
 IPV6_REG_4HEX = (
-        r'((?<!(?:([.|^|\b]{5}\w|[.|^|\b]fe80:|fe80::)))'
-        r'(([0-9a-fA-F]{4}:){3}[0-9a-fA-F]{4})(?!\w))|'
-        r'((?<!\w)(([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{4})(?!\w))'
+        r'((?<!\w)([a-fA-F0-9]{4}[:-]){3}([a-fA-F0-9]{4}))(?!\w)'
 )
 # aa:bb:cc:dd:ee:ff avoiding ipv6 substring matches
 IPV4_REG = (
-    r'((?<!([0-9a-fA-F\'\"]:)|::)'
-    r'(([^:\-])?(([0-9a-fA-F]{2}([:\-\_])){5,6}([0-9a-fA-F]{2}))))'
+    r'((?<!\w)(?<![0-9a-fA-F]{2}[:\-_])'
+    r'([0-9a-fA-F]{2}[:\-_]){5,6}([0-9a-fA-F]{2})'
+    r'(?!([:\-_][0-9a-fA-F]{2})))(?!\w)'
 )
 
 
