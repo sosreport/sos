@@ -45,7 +45,8 @@ class Boot(Plugin, IndependentPlugin):
         self.add_cmd_output([
             "efibootmgr -v",
             "lsinitramfs -l /initrd.img",
-            "lsinitramfs -l /boot/initrd.img"
+            "lsinitramfs -l /boot/initrd.img",
+            "grubby --default-kernel"
         ])
 
         if self.get_option("all-images"):
