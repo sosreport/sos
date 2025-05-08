@@ -36,6 +36,9 @@ class Fapolicyd(Plugin, RedHatPlugin):
             "fapolicyd-cli --list",
             "fapolicyd-cli --check-config",
             "fapolicyd-cli --check-trustdb",
+            "fapolicyd-cli --check-path",
+            "fapolicyd-cli --check-status",
+            "fapolicyd-cli --check-watch_fs",
         ])
 
 
