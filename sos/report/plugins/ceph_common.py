@@ -109,6 +109,9 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
                 'disk list',
                 'log get-level',
                 'status',
+                'pool list',
+                'remote list',
+                'replication list rbd',
             ]
 
             self.add_cmd_output([f"microceph {cmd}" for cmd in cmds],
