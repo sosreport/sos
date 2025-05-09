@@ -21,7 +21,7 @@ class Ssh(Plugin, IndependentPlugin):
     profiles = ('services', 'security', 'system', 'identity')
 
     option_list = [
-        PluginOpt('userconfs', default=True,
+        PluginOpt('userconfs', default=False,
                   desc=('Changes whether module will '
                         'collect user .ssh configs'))
     ]
