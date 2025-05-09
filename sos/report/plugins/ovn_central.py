@@ -192,7 +192,16 @@ class OVNCentral(Plugin):
             cmds, foreground=True, container=self.container_name
         )
 
+        # Collect Certificate Validity Dates
+        for path in ['/etc/ovn/ovn-central.crt', '/etc/ovn/cert_host']:
+            if self.path_exists(path):
+                self.add_cmd_output(
+                   f"openssl x509 -in {path} -noout -dates"
+                )
+
         self.add_copy_spec("/etc/sysconfig/ovn-northd")
+        # Collect Northd DB Parameters
+        self.add_copy_spec('/etc/ovn/ovn-northd-db-params.conf')
 
         ovs_dbdir = os.environ.get('OVS_DBDIR')
         for dbfile in ["ovnnb_db.db", "ovnsb_db.db"]:
