@@ -71,7 +71,7 @@ class ReportListPluginsTest(StageOneOutputTest):
         for plug in disabled_plugins:
             if not plug.strip():
                 continue
-            self.assertRegex(plug, r' ([\S ]){20} (inactive[ ]{6}) ([\S ])*')
+            self.assertRegex(plug, r' ([\S ]){30} (inactive[ ]{6}) ([\S ])*')
         for opt in options:
             if not opt.strip():
                 continue
@@ -79,7 +79,7 @@ class ReportListPluginsTest(StageOneOutputTest):
         for opt in plugin_options:
             if not opt.strip():
                 continue
-            self.assertRegex(opt, r' ([\S ]){30} ([\S ]{15}) ([\S ])*')
+            self.assertRegex(opt, r' ([\S ]){35} ([\S ]{15}) ([\S ])*')
 
 
 class ReportListPresetsTest(StageOneOutputTest):
