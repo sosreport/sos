@@ -1041,7 +1041,7 @@ class SoSReport(SoSComponent):
                                "disabled:"))
             self.ui_log.info("")
             for (plugname, plugclass, reason) in self.skipped_plugins:
-                self.ui_log.info(f" {plugname:<20} {reason:<14} "
+                self.ui_log.info(f" {plugname:<30} {reason:<14} "
                                  f"{plugclass.get_description()}")
 
         self.ui_log.info("")
@@ -1082,7 +1082,7 @@ class SoSReport(SoSComponent):
                 if tmpopt is None:
                     tmpopt = 0
 
-                self.ui_log.info(f" {f'{opt.plugin}.{opt.name}':<30} "
+                self.ui_log.info(f" {f'{opt.plugin}.{opt.name}':<35} "
                                  f"{tmpopt:<15} {opt.desc}")
         else:
             self.ui_log.info(_("No plugin options available."))
