@@ -10,6 +10,7 @@
 
 import pwd
 import json
+import re
 from sos.report.plugins import Plugin, UbuntuPlugin, PluginOpt
 
 
@@ -83,18 +84,25 @@ class Juju(Plugin, UbuntuPlugin):
             self.add_journal(service)
             self.add_service_status(service)
 
-        self.add_cmd_output([
-            'juju_engine_report',
-            'juju_goroutines',
-            'juju_heap_profile',
-            'juju_leases',
-            'juju_metrics',
-            'juju_pubsub_report',
-            'juju_presence_report',
-            'juju_statepool_report',
-            'juju_statetracker_report',
-            'juju_unit_status',
-        ])
+        juju_agent_cmds = {
+            'juju_engine_report': 'depengine',
+            'juju_goroutines': 'debug/pprof/goroutine?debug=1',
+            'juju_heap_profile': 'debug/pprof/heap?debug=1',
+            'juju_metrics': 'metrics',
+            'juju_pubsub_report': 'pubsub',
+            'juju_presence_report': 'presence',
+            'juju_statepool_report': 'statepool',
+            'juju_statetracker_report': ('debug/pprof/juju/state/tracker?'
+                                         'debug=1'),
+            'juju_unit_status': 'units?action=status',
+        }
+
+        if self.path_exists("/var/lib/juju/agents"):
+            for cmd, agent_cmd in juju_agent_cmds.items():
+                self.add_cmd_output(
+                    self._juju_agent(agent_cmd),
+                    suggest_filename=cmd
+                )
 
         # Get agent configs for each agent.
         self.add_copy_spec("/var/lib/juju/agents/*/agent.conf")
@@ -202,5 +210,14 @@ class Juju(Plugin, UbuntuPlugin):
         # Redact certificates
         self.do_file_private_sub(agents_path)
         self.do_cmd_private_sub('juju controllers')
+
+    def _juju_agent(self, command):
+        agent_name = ""
+        for dir_name in self.listdir("/var/lib/juju/agents"):
+            if re.search('machine-*|controller-*|application-*', dir_name):
+                agent_name = dir_name
+                break
+
+        return f"juju-introspect --agent={agent_name} {command}"
 
 # vim: set et ts=4 sw=4 :
