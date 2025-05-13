@@ -55,6 +55,9 @@ class SoSCleanerParser():
         self.skip_cleaning_files = skip_cleaning_files
         self._generate_skip_regexes()
 
+    def load_map_entries(self):
+        self.mapping.load_entries()
+
     def _generate_skip_regexes(self):
         """Generate the regexes for the parser's configured parser_skip_files
         or global skip_cleaning_files, so that we don't regenerate them on

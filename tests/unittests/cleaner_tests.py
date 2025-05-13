@@ -7,8 +7,10 @@
 # See the LICENSE file in the source distribution for further information.
 
 import unittest
-
 from ipaddress import ip_interface
+from os.path import join
+
+import sos.policies
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
@@ -30,12 +32,17 @@ from sos.options import SoSOptions
 class CleanerMapTests(unittest.TestCase):
 
     def setUp(self):
-        self.mac_map = SoSMacMap()
-        self.ip_map = SoSIPMap()
-        self.host_map = SoSHostnameMap()
+        workdir = join(sos.policies.load().get_tmp_dir(None),
+                       'sos_avocado_testing')
+        self.mac_map = SoSMacMap(workdir)
+        self.ip_map = SoSIPMap(workdir)
+        self.host_map = SoSHostnameMap(workdir)
         self.host_map.sanitize_item('redhat.com')
-        self.kw_map = SoSKeywordMap()
-        self.ipv6_map = SoSIPv6Map()
+        self.kw_map = SoSKeywordMap(workdir)
+        self.ipv6_map = SoSIPv6Map(workdir)
+        # required for test_hostname_concurrently* tests
+        self.host_parser = SoSHostnameParser(config={}, workdir=workdir)
+        self.host_parser.mapping.add('foobar.com')
 
     def test_mac_map_obfuscate_valid_v4(self):
         _test = self.mac_map.get('12:34:56:78:90:ab')
@@ -91,15 +98,15 @@ class CleanerMapTests(unittest.TestCase):
 
     def test_hostname_obfuscate_just_domain(self):
         _test = self.host_map.get('redhat.com')
-        self.assertEqual(_test, 'obfuscateddomain0.com')
+        self.assertNotEqual(_test, 'redhat.com')
 
-    def test_hostname_no_obfuscate_non_loaded_domain(self):
+    def test_hostname_concurrently_obfuscate_non_loaded_domain(self):
         _test = self.host_map.get('foobar.com')
-        self.assertEqual(_test, 'foobar.com')
+        self.assertNotEqual(_test, 'foobar.com')
 
-    def test_hostname_no_obfuscate_non_loaded_fqdn(self):
+    def test_hostname_concurrently_obfuscate_non_loaded_fqdn(self):
         _test = self.host_map.get('example.foobar.com')
-        self.assertEqual(_test, 'example.foobar.com')
+        self.assertNotEqual(_test, 'example.foobar.com')
 
     def test_keyword_single(self):
         _test = self.kw_map.get('foobar')
@@ -166,16 +173,18 @@ class CleanerMapTests(unittest.TestCase):
 class CleanerParserTests(unittest.TestCase):
 
     def setUp(self):
-        self.ip_parser = SoSIPParser(config={})
-        self.ipv6_parser = SoSIPv6Parser(config={})
-        self.mac_parser = SoSMacParser(config={})
-        self.host_parser = SoSHostnameParser(config={})
+        workdir = join(sos.policies.load().get_tmp_dir(None),
+                       'sos_avocado_testing')
+        self.ip_parser = SoSIPParser(config={}, workdir=workdir)
+        self.ipv6_parser = SoSIPv6Parser(config={}, workdir=workdir)
+        self.mac_parser = SoSMacParser(config={}, workdir=workdir)
+        self.host_parser = SoSHostnameParser(config={}, workdir=workdir)
         self.host_parser.mapping.add('foobar.com')
-        self.kw_parser = SoSKeywordParser(config={})
+        self.kw_parser = SoSKeywordParser(config={}, workdir=workdir)
         self.kw_parser.mapping.add('foobar')
-        self.kw_parser_none = SoSKeywordParser(config={})
+        self.kw_parser_none = SoSKeywordParser(config={}, workdir=workdir)
         self.kw_parser.generate_item_regexes()
-        self.uname_parser = SoSUsernameParser(config={})
+        self.uname_parser = SoSUsernameParser(config={}, workdir=workdir)
         self.uname_parser.mapping.add('DOMAIN\\myusername')
         self.uname_parser.mapping.add('foo')
 
@@ -185,8 +194,10 @@ class CleanerParserTests(unittest.TestCase):
         self.assertNotEqual(line, _test)
 
     def test_ip_parser_invalid_ipv4_line(self):
+        # test that invalid IP address is ignored
         line = 'foobar foo 10.1.2.350 barfoo bar'
-        self.assertRaises(ValueError, self.ip_parser.parse_line, line)
+        _test = self.ip_parser.parse_line(line)[0]
+        self.assertEqual(line, _test)
 
     def test_ip_parser_package_version_line(self):
         line = 'mycoolpackage-1.2.3.4.5'
@@ -265,10 +276,12 @@ class CleanerParserTests(unittest.TestCase):
         _test = self.kw_parser.parse_line(line)[0]
         self.assertEqual(line, _test)
 
-    def test_keyword_parser_no_change_by_default(self):
+    def test_keyword_parser_concurrently_changed(self):
+        # a change done to self.kw_parser in setUp will be loaded by
+        # self.kw_parser_none as well
         line = 'this is my foobar test line'
         _test = self.kw_parser_none.parse_line(line)[0]
-        self.assertEqual(line, _test)
+        self.assertNotEqual(line, _test)
 
     def test_ipv6_parser_strings(self):
         t1 = 'testing abcd:ef01::1234 as a compressed address'
@@ -325,6 +338,7 @@ class PrepperTests(unittest.TestCase):
         self.archive = SoSReportArchive(
             archive_path='tests/test_data/'
                          'sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz',
+            keep_binary_files=[],
             tmpdir='/tmp'
         )
         self.host_prepper = HostnamePrepper(SoSOptions(domains=[]))
