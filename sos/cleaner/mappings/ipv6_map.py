@@ -10,37 +10,7 @@
 
 import ipaddress
 
-from random import getrandbits
 from sos.cleaner.mappings import SoSMap
-
-
-def generate_hextets(hextets):
-    """Generate a random set of hextets, based on the length of the source
-    hextet. If any hextets are compressed, keep that compression.
-
-    E.G. '::1234:bcd' will generate a leading empty '' hextet, followed by two
-    4-character hextets.
-
-    :param hextets:     The extracted hextets from a source address
-    :type hextets:      ``list``
-
-    :returns:           A set of randomized hextets for use in an obfuscated
-                        address
-    :rtype:             ``list``
-    """
-    return [random_hex(4) if h else '' for h in hextets]
-
-
-def random_hex(length):
-    """Generate a string of size length of random hex characters.
-
-    :param length:  The number of characters to generate
-    :type length:   ``int``
-
-    :returns:       A string of ``length`` hex characters
-    :rtype:         ``str``
-    """
-    return f"{getrandbits(4*length):0{length}x}"
 
 
 class SoSIPv6Map(SoSMap):
@@ -137,6 +107,9 @@ class ObfuscatedIPv6Network():
     an obfuscation string is not passed, one will be created during init.
     """
 
+    # dict of counters for obfuscated hexes generation
+    ob_counters = {}
+
     def __init__(self, addr, obfuscation='', used_hexes=None):
         """Basic setup for the obfuscated network. Minor validation on the addr
         used to create the instance, as well as on an optional ``obfuscation``
@@ -179,6 +152,37 @@ class ObfuscatedIPv6Network():
     def original_address(self):
         return self.addr.compressed
 
+    def generate_hextets(self, hextets):
+        """Generate a set of obfuscated hextets, based on the length of the
+        source hextet. If any hextets are compressed, keep that compression.
+
+        E.G. '::1234:bcd' will generate a leading empty '' hextet, followed by
+        two 4-character hextets, e.g. '::0005:0006'.
+
+        :param hextets:     The extracted hextets from a source address
+        :type hextets:      ``list``
+
+        :returns:           A set of generated hextets for use in an obfuscated
+                            address
+        :rtype:             ``list``
+        """
+        return [self.obfuscate_hex(4) if h else '' for h in hextets]
+
+    def obfuscate_hex(self, length):
+        """Generate a string of size length of hex characters. Due to the need
+        of deterministic generation in concurrent cleaner, generation starts
+        from zero values and is incremented by one (for a given length).
+
+        :param length:  The number of characters to generate
+        :type length:   ``int``
+
+        :returns:       A string of ``length`` hex characters
+        :rtype:         ``str``
+        """
+        val = self.ob_counters.get(length, 0) + 1
+        self.ob_counters[length] = val
+        return f"{val:0{length}x}"
+
     def _obfuscate_network_address(self):
         """Generate the obfuscated pair for the network address. This is
         determined based on the netmask of the network this class was built
@@ -202,7 +206,7 @@ class ObfuscatedIPv6Network():
         sos-specific identifier that could never be seen in the wild,
         '534f:'
 
-        We then randomize the subnet hextet.
+        We then obfuscate the subnet hextet.
         """
         _hextets = self.network_addr.split(':')[1:]
         _ob_hex = ['534f']
@@ -213,24 +217,25 @@ class ObfuscatedIPv6Network():
             # Set the leading bits to 53, but increment upwards from there for
             # when we exceed 256 networks obfuscated in this manner.
             _start = 53 + (len(self.first_hexes) // 256)
-            _ob_hex = f"{_start}{random_hex(2)}"
+            _ob_hex = f"{_start}{self.obfuscate_hex(2)}"
             while _ob_hex in self.first_hexes:
                 # prevent duplicates
-                _ob_hex = f"{_start}{random_hex(2)}"
+                _ob_hex = f"{_start}{self.obfuscate_hex(2)}"
             self.first_hexes.append(_ob_hex)
             _ob_hex = [_ob_hex]
-        _ob_hex.extend(generate_hextets(_hextets))
+        ext = self.generate_hextets(_hextets)
+        _ob_hex.extend(ext)
         return ':'.join(_ob_hex)
 
     def _obfuscate_private_address(self):
         """The first 8 bits will always be 'fd', the next 40 bits are meant
         to be a global ID, followed by 16 bits for the subnet. To keep things
         relatively simply we maintain the first hextet as 'fd53', and then
-        randomize any remaining hextets
+        obfuscate any remaining hextets.
         """
         _hextets = self.network_addr.split(':')[1:]
         _ob_hex = ['fd53']
-        _ob_hex.extend(generate_hextets(_hextets))
+        _ob_hex.extend(self.generate_hextets(_hextets))
         return ':'.join(_ob_hex)
 
     def obfuscate_host_address(self, addr):
@@ -259,7 +264,7 @@ class ObfuscatedIPv6Network():
         def _generate_address(host):
             return ''.join([
                 self._obfuscated_network,
-                ':'.join(generate_hextets(host.split(':')))
+                ':'.join(self.generate_hextets(host.split(':')))
             ])
 
         if addr.compressed not in self.hosts:
