@@ -13,10 +13,9 @@ import json
 import logging
 import os
 import shutil
-import tempfile
 import fnmatch
 
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from pwd import getpwuid
 
@@ -35,8 +34,12 @@ from sos.cleaner.archives.sos import (SoSReportArchive, SoSReportDirectory,
                                       SoSCollectorDirectory)
 from sos.cleaner.archives.generic import DataDirArchive, TarballArchive
 from sos.cleaner.archives.insights import InsightsArchive
-from sos.utilities import (get_human_readable, import_module, ImporterHelper,
-                           file_is_binary)
+from sos.utilities import (get_human_readable, import_module, ImporterHelper)
+
+
+# an auxiliary method to kick off child processes over its instances
+def obfuscate_arc_files(arc, flist):
+    return arc.obfuscate_arc_files(flist)
 
 
 class SoSCleaner(SoSComponent):
@@ -62,7 +65,8 @@ class SoSCleaner(SoSComponent):
     In the case of IP addresses, support is for IPv4 and IPv6 - effort is made
     to keep network topology intact so that later analysis is as accurate and
     easily understandable as possible. If an IP address is encountered that we
-    cannot determine the netmask for, a random IP address is used instead.
+    cannot determine the netmask for, a private IP address from 172.17.0.0/22
+    range is used instead.
 
     For IPv6, note that IPv4-mapped addresses, e.g. ::ffff:10.11.12.13, are
     NOT supported currently, and will remain unobfuscated.
@@ -111,8 +115,9 @@ class SoSCleaner(SoSComponent):
             self.policy = hook_commons['policy']
             self.manifest = hook_commons['manifest']
             self.from_cmdline = False
+            # precede 'report -t' option above 'cleaner --jobs'
             if not hasattr(self.opts, 'jobs'):
-                self.opts.jobs = 4
+                self.opts.jobs = self.opts.threads
             self.opts.archive_type = 'auto'
             self.soslog = logging.getLogger('sos')
             self.ui_log = logging.getLogger('sos_ui')
@@ -129,14 +134,20 @@ class SoSCleaner(SoSComponent):
 
         self.cleaner_md = self.manifest.components.add_section('cleaner')
 
-        skip_cleaning_files = self.opts.skip_cleaning_files
+        cleaner_dir = os.path.dirname(self.opts.map_file) \
+            if self.opts.map_file else '/etc/sos/cleaner'
+        parser_args = [
+            self.cleaner_mapping,
+            cleaner_dir,
+            self.opts.skip_cleaning_files,
+        ]
         self.parsers = [
-            SoSHostnameParser(self.cleaner_mapping, skip_cleaning_files),
-            SoSIPParser(self.cleaner_mapping, skip_cleaning_files),
-            SoSIPv6Parser(self.cleaner_mapping, skip_cleaning_files),
-            SoSMacParser(self.cleaner_mapping, skip_cleaning_files),
-            SoSKeywordParser(self.cleaner_mapping, skip_cleaning_files),
-            SoSUsernameParser(self.cleaner_mapping, skip_cleaning_files)
+            SoSHostnameParser(*parser_args),
+            SoSIPParser(*parser_args),
+            SoSIPv6Parser(*parser_args),
+            SoSMacParser(*parser_args),
+            SoSKeywordParser(*parser_args),
+            SoSUsernameParser(*parser_args),
         ]
 
         for _parser in self.opts.disable_parsers:
@@ -308,14 +319,17 @@ third party.
             check_type = self.opts.archive_type.replace('-', '_')
             for archive in self.archive_types:
                 if archive.type_name == check_type:
-                    _arc = archive(self.opts.target, self.tmpdir)
+                    _arc = archive(self.opts.target, self.tmpdir,
+                                   self.opts.keep_binary_files)
         else:
             for arc in self.archive_types:
                 if arc.check_is_type(self.opts.target):
-                    _arc = arc(self.opts.target, self.tmpdir)
+                    _arc = arc(self.opts.target, self.tmpdir,
+                               self.opts.keep_binary_files)
                     break
         if not _arc:
             return
+        self.main_archive = _arc
         self.report_paths.append(_arc)
         if _arc.is_nested:
             self.report_paths.extend(_arc.get_nested_archives())
@@ -523,7 +537,7 @@ third party.
                 logfile.write(line)
 
         if archive:
-            self.obfuscate_file(log_name)
+            self.obfuscate_file(log_name, short_name="sos_logs/cleaner.log")
             self.archive.add_file(log_name, dest="sos_logs/cleaner.log")
 
     def get_new_checksum(self, archive_path):
@@ -554,7 +568,8 @@ third party.
         try:
             msg = (
                 f"Found {len(self.report_paths)} total reports to obfuscate, "
-                f"processing up to {self.opts.jobs} concurrently\n"
+                f"processing up to {self.opts.jobs} concurrently within one "
+                "archive\n"
             )
             self.ui_log.info(msg)
             if self.opts.keep_binary_files:
@@ -562,9 +577,9 @@ third party.
                     "WARNING: binary files that potentially contain sensitive "
                     "information will NOT be removed from the final archive\n"
                 )
-            pool = ThreadPoolExecutor(self.opts.jobs)
-            pool.map(self.obfuscate_report, self.report_paths, chunksize=1)
-            pool.shutdown(wait=True)
+            for report_path in self.report_paths:
+                self.ui_log.info(f"Obfuscating {report_path.archive_path}")
+                self.obfuscate_report(report_path)
             # finally, obfuscate the nested archive if one exists
             if self.nested_archive:
                 self._replace_obfuscated_archives()
@@ -635,6 +650,8 @@ third party.
 
             for ritem in prepper.regex_items[pname]:
                 _parser.mapping.add_regex_item(ritem)
+        # we must initialize stuff inside (cloned processes') archive - REALLY?
+        archive.set_parsers(self.parsers)
 
     def get_preppers(self):
         """
@@ -668,8 +685,9 @@ third party.
 
         Positional arguments:
 
-            :param report str:      Filepath to the directory or archive
+            :param archive str:      Filepath to the directory or archive
         """
+
         try:
             arc_md = self.cleaner_md.add_section(archive.archive_name)
             start_time = datetime.now()
@@ -679,30 +697,47 @@ third party.
                 archive.extract()
             archive.report_msg("Beginning obfuscation...")
 
-            for fname in archive.get_file_list():
-                short_name = fname.split(archive.archive_name + '/')[1]
-                if archive.should_skip_file(short_name):
-                    continue
-                if (not self.opts.keep_binary_files and
-                        archive.should_remove_file(short_name)):
-                    # We reach this case if the option --keep-binary-files
-                    # was not used, and the file is in a list to be removed
-                    archive.remove_file(short_name)
-                    continue
-                if (self.opts.keep_binary_files and
-                        (file_is_binary(fname) or
-                         archive.should_remove_file(short_name))):
-                    # We reach this case if the option --keep-binary-files
-                    # is used. In this case we want to make sure
-                    # the cleaner doesn't try to clean a binary file
-                    continue
-                try:
-                    count = self.obfuscate_file(fname, short_name,
-                                                archive.archive_name)
-                    if count:
-                        archive.update_sub_count(short_name, count)
-                except Exception as err:
-                    self.log_debug(f"Unable to parse file {short_name}: {err}")
+            file_list = list(archive.get_files())
+            # we can't call simple
+            # executor.map(archive.obfuscate_arc_files,archive.get_files())
+            # because a child process does not carry forward internal changes
+            # (e.g. mappings' datasets) from one call of obfuscate_arc_files
+            # method to another. Each obfuscate_arc_files method starts with
+            # vanilla parent archive, that is initialised *once* at its
+            # beginning via initializer=archive.load_parser_entries
+            # - but not afterwards..
+            #
+            # So we must pass list of all files for each worker at the
+            # beginning. This means less granularity of the child processes
+            # work (one worker can finish much sooner than the other), but
+            # it is the best we can have (or have found)
+            #
+            # At least, the "file_list[i::self.opts.jobs]" means subsequent
+            # files (speculativelly of similar size and content) are
+            # distributed to different processes, which attempts to split the
+            # load evenly. Yet better approach might be reorderig file_list
+            # based on files' sizes.
+
+            files_obfuscated_count = total_sub_count = removed_file_count = 0
+            archive_list = [archive for i in range(self.opts.jobs)]
+            with ProcessPoolExecutor(
+                    max_workers=self.opts.jobs,
+                    initializer=archive.load_parser_entries) as executor:
+                futures = executor.map(obfuscate_arc_files, archive_list,
+                                       [file_list[i::self.opts.jobs] for i in
+                                        range(self.opts.jobs)])
+                for (foc, tsc, rfc) in futures:
+                    files_obfuscated_count += foc
+                    total_sub_count += tsc
+                    removed_file_count += rfc
+
+            # As there is no easy way to get dataset dicts from child
+            # processes' mappings, we can reload our own parent-process
+            # archive from the disk files. The trick is that sequence of
+            # files/entries is the source of truth of *sequence* of calling
+            # *all* mapping.all(item) methods - so replaying this will
+            # generate the right datasets!
+            archive.load_parser_entries()
 
             try:
                 self.obfuscate_directory_names(archive)
@@ -737,95 +772,20 @@ third party.
             end_time = datetime.now()
             arc_md.add_field('end_time', end_time)
             arc_md.add_field('run_time', end_time - start_time)
-            arc_md.add_field('files_obfuscated', len(archive.file_sub_list))
-            arc_md.add_field('total_substitutions', archive.total_sub_count)
+            arc_md.add_field('files_obfuscated', files_obfuscated_count)
+            arc_md.add_field('total_substitutions', total_sub_count)
             rmsg = ''
-            if archive.removed_file_count:
+            if removed_file_count:
                 rmsg = " [removed %s unprocessable files]"
-                rmsg = rmsg % archive.removed_file_count
+                rmsg = rmsg % removed_file_count
             archive.report_msg(f"Obfuscation completed{rmsg}")
 
         except Exception as err:
             self.ui_log.info("Exception while processing "
                              f"{archive.archive_name}: {err}")
 
-    def obfuscate_file(self, filename, short_name=None, arc_name=None):
-        # pylint: disable=too-many-locals
-        """Obfuscate and individual file, line by line.
-
-        Lines processed, even if no substitutions occur, are then written to a
-        temp file without our own tmpdir. Once the file has been completely
-        iterated through, if there have been substitutions then the temp file
-        overwrites the original file. If there are no substitutions, then the
-        original file is left in place.
-
-        Positional arguments:
-
-            :param filename str:        Filename relative to the extracted
-                                        archive root
-        """
-        if not filename:
-            # the requested file doesn't exist in the archive
-            return None
-        subs = 0
-        if not short_name:
-            short_name = filename.split('/')[-1]
-        if not os.path.islink(filename):
-            # don't run the obfuscation on the link, but on the actual file
-            # at some other point.
-            _parsers = [
-                _p for _p in self.parsers if not
-                any(
-                    _skip.match(short_name) for _skip in _p.skip_patterns
-                )
-            ]
-            if not _parsers:
-                self.log_debug(
-                    f"Skipping obfuscation of {short_name or filename} due to "
-                    f"matching file skip pattern"
-                )
-                return 0
-            self.log_debug(f"Obfuscating {short_name or filename}",
-                           caller=arc_name)
-            with tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir) \
-                    as tfile:
-                with open(filename, 'r', encoding='utf-8',
-                          errors='replace') as fname:
-                    for line in fname:
-                        try:
-                            line, count = self.obfuscate_line(line, _parsers)
-                            subs += count
-                            tfile.write(line)
-                        except Exception as err:
-                            self.log_debug(f"Unable to obfuscate {short_name}:"
-                                           f"{err}", caller=arc_name)
-                tfile.seek(0)
-                if subs:
-                    shutil.copyfile(tfile.name, filename)
-
-        _ob_short_name = self.obfuscate_string(short_name.split('/')[-1])
-        _ob_filename = short_name.replace(short_name.split('/')[-1],
-                                          _ob_short_name)
-
-        if _ob_filename != short_name:
-            arc_path = filename.split(short_name)[0]
-            _ob_path = os.path.join(arc_path, _ob_filename)
-            # ensure that any plugin subdirs that contain obfuscated strings
-            # get created with obfuscated counterparts
-            if not os.path.islink(filename):
-                os.rename(filename, _ob_path)
-            else:
-                # generate the obfuscated name of the link target
-                _target_ob = self.obfuscate_string(os.readlink(filename))
-                # remove the unobfuscated original symlink first, in case the
-                # symlink name hasn't changed but the target has
-                os.remove(filename)
-                # create the newly obfuscated symlink, pointing to the
-                # obfuscated target name, which may not exist just yet, but
-                # when the actual file is obfuscated, will be created
-                os.symlink(_target_ob, _ob_path)
-
-        return subs
+    def obfuscate_file(self, filename, short_name):
+        self.main_archive.obfuscate_filename(filename, short_name)
 
     def obfuscate_symlinks(self, archive):
         """Iterate over symlinks in the archive and obfuscate their names.
@@ -894,6 +854,8 @@ third party.
                         )
                         os.rename(_dirname, _ob_arc_dir)
 
+    # TODO: this is a duplicate method from SoSObfuscationArchive but we can't
+    # easily remove either of them..?
     def obfuscate_string(self, string_data):
         for parser in self.parsers:
             try:
@@ -901,34 +863,6 @@ third party.
             except Exception as err:
                 self.log_info(f"Error obfuscating string data: {err}")
         return string_data
-
-    def obfuscate_line(self, line, parsers=None):
-        """Run a line through each of the obfuscation parsers, keeping a
-        cumulative total of substitutions done on that particular line.
-
-        Positional arguments:
-
-            :param line str:        The raw line as read from the file being
-                                    processed
-            :param parsers:         A list of parser objects to obfuscate
-                                    with. If None, use all.
-
-        Returns the fully obfuscated line and the number of substitutions made
-        """
-        # don't iterate over blank lines, but still write them to the tempfile
-        # to maintain the same structure when we write a scrubbed file back
-        count = 0
-        if not line.strip():
-            return line, count
-        if parsers is None:
-            parsers = self.parsers
-        for parser in parsers:
-            try:
-                line, _count = parser.parse_line(line)
-                count += _count
-            except Exception as err:
-                self.log_debug(f"failed to parse line: {err}", parser.name)
-        return line, count
 
     def write_stats_to_manifest(self):
         """Write some cleaner-level, non-report-specific stats to the manifest

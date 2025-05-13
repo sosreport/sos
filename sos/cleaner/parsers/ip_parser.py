@@ -45,6 +45,6 @@ class SoSIPParser(SoSCleanerParser):
     map_file_key = 'ip_map'
     compile_regexes = False
 
-    def __init__(self, config, skip_cleaning_files=[]):
-        self.mapping = SoSIPMap()
+    def __init__(self, config, workdir, skip_cleaning_files=[]):
+        self.mapping = SoSIPMap(workdir)
         super().__init__(config, skip_cleaning_files)
