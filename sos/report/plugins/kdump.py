@@ -82,7 +82,8 @@ class RedHatKDump(KDump, RedHatPlugin):
             "/etc/udev/rules.d/*kexec.rules",
             "/usr/lib/udev/rules.d/*kexec.rules",
             "/var/crash/*/kexec-dmesg.log",
-            "/var/log/kdump.log"
+            "/var/log/kdump.log",
+            "/var/crash/*/vmcore-creation.status",
         ])
         self.add_copy_spec("/var/crash/*/vmcore-dmesg.txt",
                            tags="vmcore_dmesg")
@@ -95,6 +96,7 @@ class RedHatKDump(KDump, RedHatPlugin):
         self.add_dir_listing(path, recursive=True)
         self.add_copy_spec(f"{path}/*/vmcore-dmesg.txt")
         self.add_copy_spec(f"{path}/*/kexec-dmesg.log")
+        self.add_copy_spec(f"{path}/*/vmcore-creation.status")
 
         # collect the latest vmcore created in the last 24hrs <= 2GB
         if self.get_option("get-vm-core"):
@@ -173,6 +175,7 @@ class AzureKDump(KDump, AzurePlugin):
         self.add_dir_listing(path, recursive=True)
         self.add_copy_spec(f"{path}/*/vmcore-dmesg.txt")
         self.add_copy_spec(f"{path}/*/kexec-dmesg.log")
+        self.add_copy_spec(f"{path}/*/vmcore-creation.status")
 
         # collect the latest vmcore created in the last 24hrs <= 2GB
         if self.get_option("get-vm-core"):
