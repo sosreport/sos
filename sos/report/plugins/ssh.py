@@ -48,6 +48,9 @@ class Ssh(Plugin, IndependentPlugin):
         if self.get_option('userconfs'):
             self.user_ssh_files_permissions()
 
+        # Capture the output of extended test mode
+        self.add_cmd_output("sshd -T")
+
     def included_configs(self, sshcfgs):
         """ Include subconfig files """
         # Read configs for any includes and copy those
