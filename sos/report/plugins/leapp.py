@@ -34,4 +34,6 @@ class Leapp(Plugin, RedHatPlugin):
         # capture DB without sizelimit
         self.add_copy_spec('/var/lib/leapp/leapp.db', sizelimit=0)
 
+        self.add_cmd_output('leapp --version')
+
 # vim: set et ts=4 sw=4 :
