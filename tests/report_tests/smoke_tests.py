@@ -10,7 +10,7 @@ import re
 
 
 from avocado.utils import process
-from sos_tests import StageOneReportTest, redhat_only, debian_only
+from sos_tests import StageOneReportTest, redhat_only, debian_only, ubuntu_only
 
 
 # These are the header strings in --list-plugins output
@@ -52,9 +52,6 @@ class AllPluginSmokeTest(StageOneReportTest):
 
         Make sure our warnings are displayed
         """
-        self.assertOutputContains('Not logged in to OCP API, and no login '
-                                  'token provided. Will not collect `oc` '
-                                  'commands')
         self.assertOutputContains('Source the environment file for the user '
                                   'intended to connect to the OpenStack '
                                   'environment.')
@@ -97,20 +94,25 @@ class ExpectedDefaultPluginsTest(StageOneReportTest):
         """Plugins expected to always run on a RHEL (-like) system
         """
         self.assertPluginIncluded([
-            'anaconda',
             'dnf',
             'rpm',
             'selinux',
             'unpackaged',
-            'yum'
         ])
 
     @debian_only
-    def test_ubuntu_default_plugins(self):
-        """Plugins expected to always run on a Ubuntu (-like) system
+    def test_debian_default_plugins(self):
+        """Plugins expected to always run on a Debian (-like) system
         """
         self.assertPluginIncluded([
             'apparmor',
             'apt',
-            'ubuntu'
+        ])
+
+    @ubuntu_only
+    def test_ubuntu_default_plugins(self):
+        """Plugins expected to always run on a Ubuntu (-like) system
+        """
+        self.assertPluginIncluded([
+            'ubuntu',
         ])

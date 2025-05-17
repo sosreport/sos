@@ -51,27 +51,27 @@ def skipIf(cond, message=None):
     return decorator
 
 
-# pylint: disable=unused-argument
 def redhat_only(tst):
-    def wrapper(func):
+    def wrapper(*args, **kwargs):
         if _distro.name not in RH_DIST:
             raise TestSkipError('Not running on a Red Hat distro')
+        tst(*args, *kwargs)
     return wrapper
 
 
-# pylint: disable=unused-argument
 def ubuntu_only(tst):
-    def wrapper(func):
+    def wrapper(*args, **kwargs):
         if _distro.name not in UBUNTU_DIST:
             raise TestSkipError('Not running on a Ubuntu distro')
+        tst(*args, **kwargs)
     return wrapper
 
 
-# pylint: disable=unused-argument
 def debian_only(tst):
-    def wrapper(func):
+    def wrapper(*args, **kwargs):
         if _distro.name not in DEBIAN_DIST:
             raise TestSkipError('Not running on a Debian or Ubuntu distro')
+        tst(*args, *kwargs)
     return wrapper
 
 
