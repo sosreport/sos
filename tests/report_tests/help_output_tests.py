@@ -45,7 +45,59 @@ class ReportListPluginsTest(StageOneOutputTest):
                          "The following plugins are currently disabled:",
                          self.cmd_output.stdout, re.S).group(1).splitlines()
         for ln in _out:
+            ln = ln.split()
             # Ignore newlines
             if not ln:
                 continue
             assert len(ln) > 1, f"Plugin '{ln[0]}' missing description"
+
+    def test_plugin_formatting(self):
+        _out = re.search("The following plugins are currently enabled:(.*?)"
+                         "The following plugins are currently disabled:(.*?)"
+                         "The following options are available "
+                         "for ALL plugins:(.*?)"
+                         "The following plugin options are available:(.*?)"
+                         "Profiles:",
+                         self.cmd_output.stdout, re.S)
+        enabled_plugins = _out.group(1).splitlines()
+        disabled_plugins = _out.group(2).splitlines()
+        options = _out.group(3).splitlines()
+        plugin_options = _out.group(4).splitlines()
+        for plug in enabled_plugins:
+            # Ignore empty lines
+            if not plug.strip():
+                continue
+            self.assertRegex(plug, r' ([\S ]){20} ([\S ])*')
+        for plug in disabled_plugins:
+            if not plug.strip():
+                continue
+            self.assertRegex(plug, r' ([\S ]){30} (inactive[ ]{6}) ([\S ])*')
+        for opt in options:
+            if not opt.strip():
+                continue
+            self.assertRegex(opt, r' ([\S ]){25} ([\d ]{15}) ([\S ])*')
+        for opt in plugin_options:
+            if not opt.strip():
+                continue
+            self.assertRegex(opt, r' ([\S ]){35} ([\S ]{15}) ([\S ])*')
+
+
+class ReportListPresetsTest(StageOneOutputTest):
+    """Ensure that --list-presets gives the expected output
+
+    :avocado: tags=stageone
+    """
+
+    sos_cmd = 'report --list-presets'
+
+    def test_presets_formatting(self):
+        _out = re.search("The following presets are available:\n\n(.*)",
+                         self.cmd_output.stdout, re.S)
+        presets = _out.group(1).split("\n\n")
+        for preset in presets:
+            if not preset.strip():
+                continue
+            self.assertRegex(
+                preset,
+                r'[ ]{9}name: .*?\n[ ]{2}description: .*?(\n[ ]{9}note: .*)?'
+            )
