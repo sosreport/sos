@@ -128,7 +128,8 @@ class Foreman(Plugin):
             'passenger-memory-stats',
             f'ping -c1 -W1 {_hostname}',
             f'ping -c1 -W1 {_host_f}',
-            'ping -c1 -W1 localhost'
+            'ping -c1 -W1 localhost',
+            'rpm -q satellite',
         ])
 
         self.add_dir_listing([
