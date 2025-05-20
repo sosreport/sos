@@ -150,4 +150,10 @@ class DNFPlugin(Plugin, RedHatPlugin):
         #
         self.do_file_sub("/etc/dnf/dnf.conf", regexp, repl)
 
+        # Scrub credentials in http URIs
+        self.do_paths_http_sub([
+            '/etc/yum.repos.d/*',
+            '/var/log/dnf.*',
+        ])
+
 # vim: set et ts=4 sw=4 :
