@@ -282,6 +282,9 @@ this utility.
         if self.from_cmdline:
             self.intro()
             self.archive = self.opts.upload_file
+            self.caseid = self.policy.prompt_for_case_id(
+                cmdline_opts=self.opts
+            )
         cmdline_target = self.opts.upload_target
         if cmdline_target and cmdline_target != 'local':
             self.upload_target = self.upload_targets[cmdline_target]
