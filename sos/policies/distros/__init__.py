@@ -13,6 +13,7 @@
 import os
 import re
 
+from sos import _sos as _
 from sos.policies import Policy
 from sos.policies.init_systems import InitSystem
 from sos.policies.init_systems.systemd import SystemdInit
@@ -296,10 +297,21 @@ class LinuxPolicy(Policy):
         # this method will be called before the gathering begins
 
         cmdline_opts = self.commons['cmdlineopts']
+        caseid = cmdline_opts.case_id if cmdline_opts.case_id else ""
 
         if cmdline_opts.low_priority:
             self._configure_low_priority()
 
+        # set or query for case id
+        if not cmdline_opts.batch and not \
+                cmdline_opts.quiet:
+            if caseid:
+                self.commons['cmdlineopts'].case_id = caseid
+            else:
+                self.commons['cmdlineopts'].case_id = input(
+                    _("Optionally, please enter the case id that you are "
+                      "generating this report for [%s]: ") % caseid
+                )
         if cmdline_opts.case_id:
             self.case_id = cmdline_opts.case_id
 
