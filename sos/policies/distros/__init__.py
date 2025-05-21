@@ -13,6 +13,7 @@
 import os
 import re
 
+from sos import _sos as _
 from sos.policies import Policy
 from sos.policies.init_systems import InitSystem
 from sos.policies.init_systems.systemd import SystemdInit
@@ -300,8 +301,21 @@ class LinuxPolicy(Policy):
         if cmdline_opts.low_priority:
             self._configure_low_priority()
 
-        if cmdline_opts.case_id:
-            self.case_id = cmdline_opts.case_id
+        # set or query for case id
+        self.case_id = self.prompt_for_case_id(cmdline_opts)
+
+    def prompt_for_case_id(self, cmdline_opts):
+        if not cmdline_opts.batch and not \
+                cmdline_opts.quiet:
+            if not cmdline_opts.case_id:
+                cmdline_opts.case_id = input(
+                    _("Optionally, please enter the case id that you are "
+                      "generating this report for: ")
+                )
+        self.case_id = cmdline_opts.case_id if \
+            cmdline_opts.case_id else ""
+
+        return self.case_id
 
     def _configure_low_priority(self):
         """Used to constrain sos to a 'low priority' execution, potentially

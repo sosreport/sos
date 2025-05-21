@@ -52,25 +52,6 @@ class RHELUploadTarget(UploadTarget):
 
         self.upload_directory = self.commons['cmdlineopts'].upload_directory
 
-    def prompt_for_case_id(self):
-        caseid = self.commons['cmdlineopts'].case_id if \
-            self.commons['cmdlineopts'].case_id else ""
-
-        # set or query for case id
-        if not self.commons['cmdlineopts'].batch and not \
-                self.commons['cmdlineopts'].quiet:
-            if caseid:
-                self.commons['cmdlineopts'].case_id = caseid
-            else:
-                self.commons['cmdlineopts'].case_id = input(
-                    _("Optionally, please enter the case id that you are "
-                      "generating this report for: ")
-                )
-        if self.commons['cmdlineopts'].case_id:
-            self.case_id = self.commons['cmdlineopts'].case_id
-
-        return self.case_id
-
     def prompt_for_upload_user(self):
         if self.commons['cmdlineopts'].upload_user:
             self.ui_log.info(
@@ -101,7 +82,8 @@ class RHELUploadTarget(UploadTarget):
             if self.commons['cmdlineopts'].upload_protocol == 'sftp':
                 return self.RH_SFTP_HOST
             if not self.commons['cmdlineopts'].case_id and not\
-               self.prompt_for_case_id():
+                self.commons['policy'].prompt_for_case_id(
+                    self.commons['cmdlineopts']):
                 return self.RH_SFTP_HOST
 
         except Exception as e:
