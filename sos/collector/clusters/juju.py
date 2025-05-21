@@ -141,7 +141,9 @@ class juju(Cluster):
 
     def _cleanup_juju_output(self, output):
         """Remove leading characters before {."""
-        return re.sub(r"(^[^{]*)(.*)", "\\2", output, 0, re.MULTILINE)
+        return re.sub(
+            r"(^[^{]*)(.*)", "\\2", output, count=0, flags=re.MULTILINE
+        )
 
     def _get_model_info(self, model_name):
         """Parse juju status output and return target dict.
