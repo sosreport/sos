@@ -47,6 +47,13 @@ class OVNHost(Plugin):
 
         self.add_journal(units="ovn-controller")
 
+        # Collect Certificate Validity Dates
+        for path in ['/etc/ovn/ovn-chassis.crt', '/etc/ovn/cert_host']:
+            if self.path_exists(path):
+                self.add_cmd_output(
+                   f"openssl x509 -in {path} -noout -dates"
+                )
+
     def check_enabled(self):
         return (any(self.path_isfile(self.path_join(pid_path, self.pidfile))
                 for pid_path in self.pid_paths) or super().check_enabled())
