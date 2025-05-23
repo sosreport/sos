@@ -103,9 +103,6 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
                 'client config list',
                 'cluster config list',
                 'cluster list',
-                # exclude keyrings from the config db
-                'cluster sql \'select * from config where key NOT LIKE \
-                    \"%keyring%\"\'',
                 'disk list',
                 'log get-level',
                 'status',
