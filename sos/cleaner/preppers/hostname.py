@@ -29,7 +29,7 @@ class HostnamePrepper(SoSPrepper):
         items = []
         _file = 'hostname'
         if archive.is_sos:
-            _file = 'sos_commands/host/hostname'
+            _file = 'sos_commands/host/hostname_-f'
         elif archive.is_insights:
             _file = 'data/insights_commands/hostname_-f'
 
