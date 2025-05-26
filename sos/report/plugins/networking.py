@@ -70,6 +70,7 @@ class Networking(Plugin):
             "/sys/class/net/*/flags",
             "/sys/class/net/*/statistics/",
             "/etc/nmstate/",
+            "/var/lib/lldpad/",
         ])
 
         self.add_forbidden_path([
