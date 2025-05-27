@@ -19,6 +19,7 @@ class OpenSearch(Plugin, IndependentPlugin):
     profiles = ('services', )
 
     packages = ('opensearch',)
+    services = ('opensearch',)
 
     def get_hostname_port(self, opensearch_config_file):
         """ Get hostname and port number """
