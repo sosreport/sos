@@ -43,6 +43,7 @@ class Samba(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             "net primarytrust dumpinfo",
             "net ads info",
             "net ads testjoin",
+            "net conf list",
         ])
 
 
