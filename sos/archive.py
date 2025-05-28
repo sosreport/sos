@@ -653,7 +653,7 @@ class FileCacheArchive(Archive):
             enc_cmd += "-c --passphrase-fd 0 "
             enc_cmd = f"/bin/bash -c \"echo $sos_gpg | {enc_cmd}\""
             enc_cmd += archive
-        r = sos_get_command_output(enc_cmd, timeout=0, env=env)
+        r = sos_get_command_output(enc_cmd, timeout=0, env=env, stderr=True)
         if r["status"] == 0:
             return arc_name
         if r["status"] == 2:
@@ -662,9 +662,7 @@ class FileCacheArchive(Archive):
             else:
                 msg = "Could not read passphrase"
         else:
-            # TODO: report the actual error from gpg. Currently, we cannot as
-            # sos_get_command_output() does not capture stderr
-            msg = f"gpg exited with code {r['status']}"
+            msg = f"gpg exited with code {r['status']} and error {r['output']}"
         raise Exception(msg)
 
     def _build_archive(self, method):  # pylint: disable=unused-argument
