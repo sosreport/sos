@@ -16,7 +16,8 @@ class Puppet(Plugin, IndependentPlugin):
 
     plugin_name = 'puppet'
     profiles = ('services',)
-    packages = ('puppet', 'puppet-common', 'puppet-server',
+    packages = ('openvox-agent', 'openvox-server',
+                'puppet', 'puppet-agent', 'puppet-common', 'puppet-server',
                 'puppetserver', 'puppetmaster', 'puppet-master')
 
     def setup(self):
