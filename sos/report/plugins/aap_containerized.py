@@ -107,6 +107,19 @@ class AAPContainerized(Plugin, RedHatPlugin):
                     subdir="aap_containers_log"
             )
 
+        if "automation-controller-task" in aap_containers:
+            container = "automation-controller-task"
+            podman_commands = [
+                (f"su - {username} -c 'podman exec -it {container} bash -c"
+                 " \"awx-manage check_license --data\"'",
+                 "awx-manage_check_license_--data"),
+                (f"su - {username} -c 'podman exec -it {container} bash -c"
+                 " \"awx-manage list_instances\"'",
+                 "awx-manage_list_instances"),
+            ]
+            for command, filename in podman_commands:
+                self.add_cmd_output(command, suggest_filename=filename)
+
     # Function to fetch podman container names
     def _get_aap_container_names(self, username):
         try:
