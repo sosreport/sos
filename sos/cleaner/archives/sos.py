@@ -69,7 +69,8 @@ class SoSCollectorArchive(SoSObfuscationArchive):
         for fname in os.listdir(_path):
             arc_name = os.path.join(_path, fname)
             if 'sosreport-' in fname and tarfile.is_tarfile(arc_name):
-                archives.append(SoSReportArchive(arc_name, self.tmpdir))
+                archives.append(SoSReportArchive(arc_name, self.tmpdir,
+                                                 self.keep_binary_files))
         return archives
 
 
