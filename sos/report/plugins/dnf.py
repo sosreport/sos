@@ -78,8 +78,10 @@ class DNFPlugin(Plugin, RedHatPlugin):
         self.add_cmd_output([
             "dnf --version",
             "dnf list extras",
+            "dnf updateinfo info security",
+            "dnf updateinfo list --available",
             "package-cleanup --dupes",
-            "package-cleanup --problems"
+            "package-cleanup --problems",
         ])
 
         self.add_cmd_output("dnf list installed",
