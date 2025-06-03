@@ -45,6 +45,8 @@ env:
         curl --fail --location -O
         --url https://api.cirrus-ci.com/v1/artifact/build/${CIRRUS_BUILD_ID}
 
+    SUNBEAM_VER: "2024.1/stable"
+
 # Default task timeout
 timeout_in: 30m
 
@@ -365,6 +367,28 @@ report_foreman_task:
     setup_script: *setup
     foreman_setup_script: ./tests/test_data/foreman_setup.sh
     main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t foreman tests/product_tests/foreman/
+    on_failure:
+        fail_script: *faillogs
+        log_artifacts: *logs
+
+report_sunbeam_task:
+    skip: "!changesInclude('.cirrus.yml', '**/{__init__,sunbeam,sunbeam_hypervisor,juju,kubernetes,ovn_host}.py', '**/sunbeam_setup.sh')"
+    timeout_in: 90m
+    alias: "sunbeam_integration"
+    name: "Integration Test - Sunbeam ${SUNBEAM_VER} - ${BUILD_NAME}"
+    allow_failures: true
+    depends_on: stageone_report
+    gce_instance: &xbigvm
+        <<: *standardvm
+        type: e2-standard-8
+        disk: 100
+    environment:
+        SUNBEAM_VER: ${SUNBEAM_VER}
+    matrix:
+        - env: *ubuntu
+    setup_script: *setup
+    sunbeam_setup_script: ./tests/test_data/sunbeam_setup.sh
+    main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t sunbeam tests/product_tests/sunbeam/
     on_failure:
         fail_script: *faillogs
         log_artifacts: *logs
