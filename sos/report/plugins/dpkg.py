@@ -24,6 +24,7 @@ class Dpkg(Plugin, DebianPlugin, UbuntuPlugin):
             self.add_cmd_output("dpkg -V")
             self.add_cmd_output("dpkg -C")
         self.add_copy_spec([
+            "/etc/dpkg",
             "/var/cache/debconf/config.dat",
             "/etc/debconf.conf"
         ])
