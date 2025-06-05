@@ -45,8 +45,6 @@ class Sunbeam(Plugin, UbuntuPlugin):
         ])
 
         self.add_cmd_output([
-            'sunbeam cluster list',
-            'sunbeam cluster list --format yaml',
             'sunbeam manifest list',
         ], snap_cmd=True)
 
@@ -57,7 +55,9 @@ class Sunbeam(Plugin, UbuntuPlugin):
             manifests = yaml.safe_load(manifest_raw['output'])
             for manifest in manifests:
                 self.add_cmd_output(
-                    f'sunbeam manifest show --id {manifest["manifestid"]}')
+                    f'sunbeam manifest show {manifest["manifestid"]}',
+                    snap_cmd=True
+                )
 
         sunbeam_user = self.get_option("sunbeam-user")
         try:
@@ -71,12 +71,33 @@ class Sunbeam(Plugin, UbuntuPlugin):
             return
 
         if user_pwd:
+            self.add_cmd_output([
+                'sunbeam cluster list',
+                'sunbeam cluster list --format yaml',
+                'sunbeam deployment list',
+            ], snap_cmd=True, runas=sunbeam_user)
+
+            deployment_raw = self.collect_cmd_output(
+                'sunbeam deployment list --format yaml',
+                runas=sunbeam_user
+            )
+
+            if deployment_raw['status'] == 0:
+                deployments = yaml.safe_load(deployment_raw['output'])
+                for deployment in deployments['deployments']:
+                    self.add_cmd_output([
+                        f'sunbeam deployment show {deployment["name"]}',
+                        f'sunbeam deployment show {deployment["name"]} '
+                        '--format yaml',
+                    ], snap_cmd=True, runas=sunbeam_user)
+
             sb_snap_homedir = f'{user_pwd.pw_dir}/snap/openstack/common'
 
             self.add_copy_spec([
                 f"{sb_snap_homedir}/*.log",
                 f"{sb_snap_homedir}/etc/*/*.log",
                 f"{sb_snap_homedir}/logs/*.log",
+                f"{sb_snap_homedir}/reports/*.yaml",
             ])
 
             if self.get_option("juju-allow-login"):
