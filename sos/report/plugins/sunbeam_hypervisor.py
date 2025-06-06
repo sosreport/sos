@@ -17,13 +17,26 @@ class SunbeamHypervisor(Plugin, UbuntuPlugin):
     profiles = ('cloud',)
     packages = ('openstack-hypervisor',)
 
+    plugin_timeout = 600
+
+    services = (
+        'snap.openstack-hypervisor.ceilometer-compute-agent',
+        'snap.openstack-hypervisor.libvirt-exporter',
+        'snap.openstack-hypervisor.libvirtd',
+        'snap.openstack-hypervisor.masakari-instancemonitor',
+        'snap.openstack-hypervisor.neutron-ovn-metadata-agent',
+        'snap.openstack-hypervisor.nova-api-metadata',
+        'snap.openstack-hypervisor.nova-compute',
+        'snap.openstack-hypervisor.ovn-controller',
+        'snap.openstack-hypervisor.ovs-exporter',
+        'snap.openstack-hypervisor.ovs-vswitchd',
+        'snap.openstack-hypervisor.ovsdb-server',
+        'snap.openstack-hypervisor.virtlogd',
+    )
+
     common_dir = '/var/snap/openstack-hypervisor/common'
 
     def setup(self):
-
-        self.add_service_status('snap.openstack-hypervisor.*')
-
-        self.add_journal('nova-compute')
 
         self.add_copy_spec([
             f'{self.common_dir}/*.log',
