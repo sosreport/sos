@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
 from sos.report.plugins import Plugin, UbuntuPlugin, SoSPredicate
 
 
@@ -44,6 +45,63 @@ class LXD(Plugin, UbuntuPlugin):
                 self.add_copy_spec([
                     '/var/snap/lxd/common/lxd/logs/**',
                 ])
+
+            dqlite_crt = "/var/snap/lxd/common/lxd/cluster.crt"
+            self.add_cmd_output(
+                f"openssl x509 -in {dqlite_crt} -noout -dates",
+            )
+
+            db_path = "/var/snap/lxd/common/lxd/database/global"
+            self.add_dir_listing(
+                db_path,
+                suggest_filename="ls_lxd_dqlite_dir",
+            )
+
+            queries = [
+                {
+                    "query": (
+                        "SELECT * FROM sqlite_master WHERE type=\"table\";"
+                    ),
+                    "suggested_file_suffix": "schema",
+                    "db": "local",
+                },
+                {
+                    "query": (
+                        "SELECT * FROM config WHERE NOT ( "
+                        "key LIKE \"%keyring%\" OR "
+                        "key LIKE \"%ca_cert%\" OR "
+                        "key LIKE \"%ca_key%\" );"
+                    ),
+                    "suggested_file_suffix": "config",
+                    "db": "local"
+                },
+                {
+                    "query": "SELECT * FROM raft_nodes;",
+                    "suggested_file_suffix": "raft_nodes",
+                    "db": "local",
+                },
+                {
+                    "query": "SELECT * FROM nodes;",
+                    "suggested_file_suffix": "nodes",
+                    "db": "global",
+                },
+                {
+                    "query": "SELECT * FROM nodes_roles;",
+                    "suggested_file_suffix": "nodes_roles",
+                    "db": "global",
+                },
+            ]
+
+            for query_entry in queries:
+                db = query_entry.get("db", "local")
+                query = json.dumps(query_entry.get("query"))
+                file_suffix = query_entry.get("suggested_file_suffix")
+                self.add_cmd_output(
+                    f"lxd sql {db} {query}",
+                    suggest_filename=f"lxd_sql_{db}_{file_suffix}",
+                    pred=lxd_pred,
+                )
+
         else:
             lxd_pred = SoSPredicate(self, services=['lxd'],
                                     required={'services': 'all'})

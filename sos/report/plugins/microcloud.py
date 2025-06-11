@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
 from sos.report.plugins import Plugin, UbuntuPlugin
 
 
@@ -33,13 +34,59 @@ class MicroCloud(Plugin, UbuntuPlugin):
             'status',
             '--version'
         ]
-        self.add_copy_spec([
-            '/var/snap/microcloud/common/state/database/cluster.yaml',
-            '/var/snap/microcloud/common/state/database/info.yaml',
-        ])
 
         self.add_cmd_output([
             f"microcloud {subcmd}" for subcmd in microcloud_subcmds
         ])
+
+        dqlite_crt = "/var/snap/microcloud/common/state/cluster.crt"
+
+        self.add_cmd_output(
+            f"openssl x509 -in {dqlite_crt} -noout -dates",
+        )
+
+        db_path = "/var/snap/microcloud/common/state/database"
+
+        # Check for inconsistent dqlite db intervals
+        self.add_dir_listing(
+            db_path,
+            suggest_filename="ls_microcloud_dqlite_dir",
+        )
+
+        self.add_copy_spec([
+            f"{db_path}/cluster.yaml",
+            f"{db_path}/info.yaml",
+            f"{db_path}/../daemon.yaml",
+        ])
+
+        queries = [
+            {
+                "query": "SELECT * FROM sqlite_master WHERE type=\"table\";",
+                "suggested_file_suffix": "schema",
+            },
+            {
+                "query": (
+                    "SELECT id, name, expiry_date "
+                    "FROM core_token_records;"
+                ),
+                "suggested_file_suffix": "token_records",
+            },
+            {
+                "query": (
+                    "SELECT id, name, address, schema_internal, "
+                    "schema_external, heartbeat, role, api_extensions "
+                    "FROM core_cluster_members;"
+                ),
+                "suggested_file_suffix": "core_cluster_members",
+            },
+        ]
+
+        for query_entry in queries:
+            query = json.dumps(query_entry.get("query"))
+            file_suffix = query_entry.get("suggested_file_suffix")
+            self.add_cmd_output(
+                f"microcloud sql {query}",
+                suggest_filename=f"microcloud_sql_{file_suffix}",
+            )
 
 # vim: set et ts=4 sw=4
