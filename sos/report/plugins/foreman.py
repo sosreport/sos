@@ -133,7 +133,8 @@ class Foreman(Plugin):
 
         self.add_dir_listing([
             '/root/ssl-build',
-            '/usr/share/foreman/config/hooks'
+            '/usr/share/foreman/config/hooks',
+            '/var/lib/foreman/red_hat_inventory',
         ], recursive=True)
 
         self.add_cmd_output(
