@@ -352,6 +352,7 @@ third party.
         be unpacked, cleaned, and repacked and the final top-level archive will
         then be repacked as well.
         """
+        self.opts.target = self.opts.target.rstrip('/')
         self.arc_name = self.opts.target.split('/')[-1].split('.tar')[0]
         if self.from_cmdline:
             self.print_disclaimer()
