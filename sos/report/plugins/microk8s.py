@@ -9,6 +9,8 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
+import re
 from sos.report.plugins import Plugin, UbuntuPlugin
 
 
@@ -47,6 +49,79 @@ class Microk8s(Plugin, UbuntuPlugin):
         self.add_cmd_output([
             f"{self.microk8s_cmd} {subcmd}" for subcmd in microk8s_subcmds
         ])
+
+        crt_dir = "/var/snap/microk8s/current/var/kubernetes/backend"
+        dqlite_crt = f"{crt_dir}/cluster.crt"
+
+        self.add_cmd_output(
+            f"openssl x509 -in {dqlite_crt} -noout -dates",
+        )
+
+        db_path = "/var/snap/microk8s/current/var/kubernetes/backend"
+
+        # Check for inconsistent dqlite db intervals
+        self.add_dir_listing(
+            db_path,
+            suggest_filename="ls_microk8s_dqlite_dir",
+        )
+
+        self.add_copy_spec([
+            f"{db_path}/info.yaml",
+            f"{db_path}/cluster.yaml",
+            f"{db_path}/failure-domain",
+        ])
+
+        dqlite_bin = "/snap/microk8s/current/bin/dqlite"
+        cert = f"{db_path}/cluster.crt"
+        key = f"{db_path}/cluster.key"
+        servers = f"{db_path}/cluster.yaml"
+        dqlite_cmd = f"{dqlite_bin} -c {cert} -k {key} -s file://{servers} k8s"
+
+        queries = [
+            {
+                "query": ".cluster",
+                "suggested_file_suffix": ".cluster",
+            },
+            {
+                "query": ".cluster",
+                "opts": ["-f json",],
+                "suggested_file_suffix": ".cluster_-f_json",
+            },
+            {
+                "query": ".leader",
+                "suggested_file_suffix": ".leader",
+            },
+        ]
+
+        try:
+            with open(servers, 'r', encoding='utf-8') as cluster_definition:
+                cluster = cluster_definition.read()
+                nodes = re.findall(
+                    r'Address:\s*(\d+\.\d+\.\d+\.\d+:\d+)', cluster
+                )
+
+                for node in nodes:
+                    queries.append({
+                        "query": f".describe {node}",
+                        "suggested_file_suffix": f".describe_{node}",
+                        "opts": ["-f json",],
+                    })
+
+        except Exception as e:
+            self.add_alert(f"Failed to parse {servers}: {e}")
+
+        for query_entry in queries:
+            sql_cmd = dqlite_cmd
+            opts = query_entry.get("opts", [])
+            for opt in opts:
+                sql_cmd = f"{sql_cmd} {opt}"
+
+            query = json.dumps(query_entry.get("query"))
+            file_suffix = query_entry.get("suggested_file_suffix")
+            self.add_cmd_output(
+                f"{sql_cmd} {query}",
+                suggest_filename=f"microk8s_sql_{file_suffix}",
+            )
 
     def postproc(self):
         rsub = r'(certificate-authority-data:|token:)\s.*'

@@ -5,7 +5,7 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
-
+import json
 from socket import gethostname
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
@@ -103,9 +103,6 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
                 'client config list',
                 'cluster config list',
                 'cluster list',
-                # exclude keyrings from the config db
-                'cluster sql \'select * from config where key NOT LIKE \
-                    \"%keyring%\"\'',
                 'disk list',
                 'log get-level',
                 'status',
@@ -116,6 +113,85 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
 
             self.add_cmd_output([f"microceph {cmd}" for cmd in cmds],
                                 subdir='microceph')
+
+            dqlite_crt = "/var/snap/microceph/common/state/cluster.crt"
+            self.add_cmd_output(
+                f"openssl x509 -in {dqlite_crt} -noout -dates",
+                subdir="microceph"
+            )
+
+            db_path = "/var/snap/microceph/common/state/database"
+
+            # Check for inconsistent dqlite db intervals
+            self.add_dir_listing(
+                db_path,
+                suggest_filename="ls_microceph_dqlite_dir",
+                subdir="microceph",
+            )
+
+            self.add_copy_spec([
+                    f"{db_path}/info.yaml",
+                    f"{db_path}/cluster.yaml",
+                    f"{db_path}/../daemon.yaml",
+            ])
+
+            queries = [
+                {
+                    "query": (
+                        "SELECT * FROM sqlite_master WHERE type=\"table\";"
+                    ),
+                    "suggested_file_suffix": "schema",
+                },
+                {
+                    "query": (
+                        "SELECT * FROM config WHERE NOT ( "
+                        "key LIKE \"%keyring%\" OR "
+                        "key LIKE \"%ca_cert%\" OR "
+                        "key LIKE \"%ca_key%\" );"
+                    ),
+                    "suggested_file_suffix": "config",
+                },
+                {
+                    "query": "SELECT * FROM services;",
+                    "suggested_file_suffix": "services",
+                },
+                {
+                    "query": (
+                        "SELECT id, name, expiry_date "
+                        "FROM core_token_records;"
+                    ),
+                    "suggested_file_suffix": "token_records",
+                },
+                {
+                    "query": (
+                        "SELECT id, name, address, schema_internal, "
+                        "schema_external, heartbeat, role, api_extensions "
+                        "FROM core_cluster_members;"
+                    ),
+                    "suggested_file_suffix": "core_cluster_members",
+                },
+                {
+                    "query": "SELECT * FROM disks;",
+                    "suggested_file_suffix": "disks",
+                },
+                {
+                    "query": "SELECT * FROM client_config;",
+                    "suggested_file_suffix": "client_config",
+                },
+                {
+                    "query": "SELECT * FROM remote;",
+                    "suggested_file_suffix": "remote",
+                },
+            ]
+
+            for query_entry in queries:
+                query = json.dumps(query_entry.get("query"))
+                file_suffix = query_entry.get("suggested_file_suffix")
+                self.add_cmd_output(
+                    f"microceph cluster sql {query}",
+                    suggest_filename=f"microceph_cluster_sql_{file_suffix}",
+                    subdir="microceph"
+                )
 
         self.add_cmd_output([
             "ceph -v",
