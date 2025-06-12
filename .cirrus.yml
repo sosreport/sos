@@ -13,7 +13,6 @@ env:
     UBUNTU_LATEST_NAME: "ubuntu-25.04"
     UBUNTU_NAME: "ubuntu-24.04"
     UBUNTU_PRIOR_NAME: "ubuntu-22.04"
-    UBUNTU_PRIOR2_NAME: "ubuntu-20.04"
 
     CENTOS_9_NAME: "centos-stream-9"
 
@@ -34,7 +33,6 @@ env:
     UBUNTU_LATEST_FAMILY_NAME: "ubuntu-2504-amd64"
     UBUNTU_FAMILY_NAME: "ubuntu-2404-lts-amd64"
     UBUNTU_PRIOR_FAMILY_NAME: "ubuntu-2204-lts"
-    UBUNTU_PRIOR2_FAMILY_NAME: "ubuntu-2004-lts"
     UBUNTU_SNAP_FAMILY_NAME: "ubuntu-2404-lts-amd64"
     UBUNTU_DEVEL_FAMILY_NAME: "ubuntu-2510-amd64"
 
@@ -219,11 +217,6 @@ report_stageone_task:
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: "${UBUNTU_PRIOR_NAME} - ${PKG}"
             VM_FAMILY_NAME: ${UBUNTU_PRIOR_FAMILY_NAME}
-        - env: &ubuntuprior2
-            PKG: "snap"
-            PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: "${UBUNTU_PRIOR2_NAME} - ${PKG}"
-            VM_FAMILY_NAME: ${UBUNTU_PRIOR2_FAMILY_NAME}
         - env: &ubuntu-latest-snap
             PKG: "snap"
             PROJECT: ${UBUNTU_PROJECT}
