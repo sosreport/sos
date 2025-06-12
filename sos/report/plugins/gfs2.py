@@ -24,7 +24,8 @@ class Gfs2(Plugin, IndependentPlugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/sys/fs/gfs2/*/withdraw"
+            "/sys/fs/gfs2/*/withdraw",
+            "/sys/fs/gfs2/*/status",
         ])
         self.add_cmd_output([
             "gfs_control ls -n",
