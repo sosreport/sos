@@ -94,7 +94,8 @@ class Sunbeam(Plugin, UbuntuPlugin):
 
             self.add_copy_spec([
                 f"{sb_snap_homedir}/*.log",
-                f"{sb_snap_homedir}/etc/*/*.log",
+                f"{sb_snap_homedir}/etc/**/*.log",
+                f"{sb_snap_homedir}/etc/**/terraform.tfvars.json",
                 f"{sb_snap_homedir}/logs/*.log",
                 f"{sb_snap_homedir}/reports/*.yaml",
             ])
