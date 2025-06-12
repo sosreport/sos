@@ -278,45 +278,50 @@ this utility.
             self.policy._configure_low_priority()
 
     def execute(self):
-        self.pre_work()
-        if self.from_cmdline:
-            self.intro()
-            self.archive = self.opts.upload_file
-            self.caseid = self.policy.prompt_for_case_id(
-                cmdline_opts=self.opts
-            )
-        cmdline_target = self.opts.upload_target
-        if cmdline_target and cmdline_target != 'local':
-            self.upload_target = self.upload_targets[cmdline_target]
-        else:
-            self.determine_upload_target()
-        if not self.upload_target:
-            # There was no upload target set, so we'll throw
-            # an error here and exit
-            self.ui_log.error(
-                "No upload target set via command line options or"
-                " autodetected.\n"
-                "Please specify one using the option --upload-target.\n"
-                "Exiting."
-            )
-            sys.exit(1)
-        self.upload_target.pre_work(self.get_commons())
         try:
-            if os.stat(self.archive).st_size > 0:
-                if os.path.isfile(self.archive):
-                    try:
-                        self.upload_target.upload_archive(self.archive)
-                        self.ui_log.info(
-                            _(f"File {self.archive} uploaded successfully")
-                        )
-                    except Exception as err:
-                        self.ui_log.error(_(f"Upload attempt failed: {err}"))
-                        sys.exit(1)
-                else:
-                    self.ui_log.error(_(f"{self.archive} is not a file."))
+            self.pre_work()
+            if self.from_cmdline:
+                self.intro()
+                self.archive = self.opts.upload_file
+                self.caseid = self.policy.prompt_for_case_id(
+                    cmdline_opts=self.opts
+                )
+            cmdline_target = self.opts.upload_target
+            if cmdline_target and cmdline_target != 'local':
+                self.upload_target = self.upload_targets[cmdline_target]
             else:
-                self.ui_log.error(_(f"File {self.archive} is empty."))
-        except Exception as e:
-            self.ui_log.error(_(f"Cannot upload {self.archive}: {e} "))
+                self.determine_upload_target()
+            if not self.upload_target:
+                # There was no upload target set, so we'll throw
+                # an error here and exit
+                self.ui_log.error(
+                    "No upload target set via command line options or"
+                    " autodetected.\n"
+                    "Please specify one using the option --upload-target.\n"
+                    "Exiting."
+                )
+                sys.exit(1)
+            self.upload_target.pre_work(self.get_commons())
+            try:
+                if os.stat(self.archive).st_size > 0:
+                    if os.path.isfile(self.archive):
+                        try:
+                            self.upload_target.upload_archive(self.archive)
+                            self.ui_log.info(
+                                _(f"File {self.archive} uploaded successfully")
+                            )
+                        except Exception as err:
+                            self.ui_log.error(_(
+                                f"Upload attempt failed: {err}"))
+                            sys.exit(1)
+                    else:
+                        self.ui_log.error(_(f"{self.archive} is not a file."))
+                else:
+                    self.ui_log.error(_(f"File {self.archive} is empty."))
+            except Exception as e:
+                self.ui_log.error(_(f"Cannot upload {self.archive}: {e} "))
+        except KeyboardInterrupt:
+            self._exit("Exiting on user cancel", 130)
+
 
 # vim: set et ts=4 sw=4 :
