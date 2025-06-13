@@ -25,7 +25,8 @@ env:
 
     # Images exist on GCP already
     CENTOS_9_FAMILY_NAME: "centos-stream-9"
-    DEBIAN_FAMILY_NAME: "debian-11"
+    DEBIAN_12_FAMILY_NAME: "debian-12"
+    DEBIAN_11_FAMILY_NAME: "debian-11"
     FEDORA_FAMILY_NAME: "fedora-cloud-42-x86-64"
     FEDORA_PRIOR_FAMILY_NAME: "fedora-cloud-41-x86-64"
 
@@ -145,11 +146,11 @@ deb_build_task:
         - env: &debian-11-deb-pkg
             PROJECT: ${DEBIAN_PROJECT}
             BUILD_NAME: ${DEBIAN_11_NAME}
-            VM_FAMILY_NAME: ${DEBIAN_FAMILY_NAME}
+            VM_FAMILY_NAME: ${DEBIAN_11_FAMILY_NAME}
         - env: &debian-12-deb-pkg
             PROJECT: ${DEBIAN_PROJECT}
             BUILD_NAME: ${DEBIAN_12_NAME}
-            VM_FAMILY_NAME: ${DEBIAN_FAMILY_NAME}
+            VM_FAMILY_NAME: ${DEBIAN_12_FAMILY_NAME}
         - env: &ubuntu-latest-deb-pkg
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_LATEST_NAME}
