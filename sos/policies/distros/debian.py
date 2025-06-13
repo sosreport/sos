@@ -16,6 +16,7 @@ class DebianPolicy(LinuxPolicy):
     vendor_urls = [('Community Website', 'https://www.debian.org/')]
     os_release_name = 'Debian'
     os_release_file = '/etc/debian_version'
+    _tmp_dir = "/tmp"
     name_pattern = 'friendly'
     valid_subclasses = [DebianPlugin]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
@@ -64,5 +65,10 @@ class DebianPolicy(LinuxPolicy):
             return False
         except IOError:
             return False
+
+    def get_tmp_dir(self, opt_tmp_dir):
+        if not opt_tmp_dir:
+            return self._tmp_dir
+        return opt_tmp_dir
 
 # vim: set et ts=4 sw=4 :
