@@ -325,6 +325,7 @@ class PrepperTests(unittest.TestCase):
         self.archive = SoSReportArchive(
             archive_path='tests/test_data/'
                          'sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz',
+            keep_binary_files=[],
             tmpdir='/tmp'
         )
         self.host_prepper = HostnamePrepper(SoSOptions(domains=[]))
