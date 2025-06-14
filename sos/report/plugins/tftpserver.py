@@ -24,7 +24,7 @@ class TftpServer(Plugin, IndependentPlugin):
         self.add_dir_listing([
             '/var/lib/tftpboot',
             '/tftpboot',
-            '/sr/tftp'
+            '/srv/tftp'
         ], recursive=True)
 
 # vim: set et ts=4 sw=4 :
