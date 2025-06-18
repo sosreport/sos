@@ -20,6 +20,10 @@ class SaltMaster(Plugin, IndependentPlugin):
 
     packages = ('salt-master', 'salt-api',)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.collected_pillar_roots = []
+
     def setup(self):
         if self.get_option("all_logs"):
             self.add_copy_spec("/var/log/salt")
@@ -61,6 +65,7 @@ class SaltMaster(Plugin, IndependentPlugin):
                     cfg_pillar_roots = []
                 all_pillar_roots.extend(cfg_pillar_roots)
 
+        self.collected_pillar_roots = all_pillar_roots
         self.add_copy_spec(all_pillar_roots)
 
     def postproc(self):
@@ -69,6 +74,13 @@ class SaltMaster(Plugin, IndependentPlugin):
             r'api_?key|encryption_?key).*:\ ).+'
         )
         subst = r'\1******'
+
         self.do_path_regex_sub("/etc/salt/*", regexp, subst)
+
+        for pillar_root in self.collected_pillar_roots:
+            normalized_root = pillar_root if pillar_root.endswith('/') else (
+                f"{pillar_root}/"
+            )
+            self.do_path_regex_sub(f"{normalized_root}*", regexp, subst)
 
 # vim: set et ts=4 sw=4 :
