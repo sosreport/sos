@@ -64,7 +64,10 @@ class SaltMaster(Plugin, IndependentPlugin):
         self.add_copy_spec(all_pillar_roots)
 
     def postproc(self):
-        regexp = r'(^\s*.*(pass|secret|(?<![A-z])key(?![A-z])).*:\ ).+$'
+        regexp = (
+            r'(^\s*.*(pass|secret|(?<![A-z])key(?![A-z])|'
+            r'api_?key|encryption_?key).*:\ ).+'
+        )
         subst = r'\1******'
         self.do_path_regex_sub("/etc/salt/*", regexp, subst)
 
