@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
 
 class TftpServer(Plugin, IndependentPlugin):
@@ -16,15 +16,25 @@ class TftpServer(Plugin, IndependentPlugin):
     short_desc = 'TFTP Server information'
     plugin_name = 'tftpserver'
     profiles = ('sysmgmt', 'network')
-
+    services = ('tftp', 'tftpd-hpa')
     files = ('/etc/xinetd.d/tftp',)
-    packages = ('tftp-server',)
+    packages = ('tftp-server', 'tftpd-hpa')
+    option_list = [
+        PluginOpt('tftpboot', default=False,
+                  desc='collect content from tftpboot path')
+    ]
 
     def setup(self):
-        self.add_dir_listing([
-            '/var/lib/tftpboot',
+        self.add_copy_spec('/etc/default/tftp-hpa')
+
+        tftp_dirs = [
+            '/srv/tftp',
             '/tftpboot',
-            '/srv/tftp'
-        ], recursive=True)
+            '/var/lib/tftpboot',
+        ]
+        self.add_dir_listing(tftp_dirs, recursive=True)
+
+        if self.get_option('tftpboot'):
+            self.add_copy_spec(tftp_dirs)
 
 # vim: set et ts=4 sw=4 :
