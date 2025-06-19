@@ -20,11 +20,9 @@ class SaltMaster(Plugin, IndependentPlugin):
 
     packages = ('salt-master', 'salt-api',)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def setup(self):
         self.collected_pillar_roots = []
 
-    def setup(self):
         if self.get_option("all_logs"):
             self.add_copy_spec("/var/log/salt")
         else:
