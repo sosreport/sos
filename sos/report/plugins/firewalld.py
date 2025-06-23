@@ -47,6 +47,8 @@ class FirewallD(Plugin, RedHatPlugin):
             "firewall-cmd --get-log-denied",
             "firewall-cmd --list-all-zones",
             "firewall-cmd --permanent --list-all-zones",
+            "firewall-cmd --list-all-policies",
+            "firewall-cmd --permanent --list-all-policies",
             "firewall-cmd --permanent --direct --get-all-chains",
             "firewall-cmd --permanent --direct --get-all-rules",
             "firewall-cmd --permanent --direct --get-all-passthroughs",
