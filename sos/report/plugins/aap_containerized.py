@@ -97,14 +97,18 @@ class AAPContainerized(Plugin, RedHatPlugin):
         # Collect AAP container names
         aap_containers = self._get_aap_container_names(username)
 
-        # Copy podman container log files in plugin sub directory
-        # under aap_containers_log
+        # Copy podman container log and inspect files
+        # into their respective sub directories
         for container in aap_containers:
-            log_file = f"{container}.log"
             self.add_cmd_output(
                     f"su - {username} -c 'podman logs {container}'",
-                    suggest_filename=f"{log_file}",
-                    subdir="aap_containers_log"
+                    suggest_filename=f"{container}.log",
+                    subdir="aap_container_logs"
+            )
+            self.add_cmd_output(
+                    f"su - {username} -c 'podman inspect {container}'",
+                    suggest_filename=container,
+                    subdir="podman_inspect_logs"
             )
 
         if "automation-controller-task" in aap_containers:
