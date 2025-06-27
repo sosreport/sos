@@ -42,9 +42,10 @@ class Microk8s(Plugin, UbuntuPlugin):
             'status',
             'version'
         ]
-        self.add_copy_spec(
-            "/var/snap/microk8s/current/credentials/client.config"
-        )
+        self.add_copy_spec([
+            "/var/snap/microk8s/current/args/*",
+            "/var/snap/microk8s/current/credentials/client.config",
+        ])
 
         self.add_cmd_output([
             f"{self.microk8s_cmd} {subcmd}" for subcmd in microk8s_subcmds
