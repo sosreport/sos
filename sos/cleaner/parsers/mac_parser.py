@@ -53,8 +53,8 @@ class SoSMacParser(SoSCleanerParser):
     map_file_key = 'mac_map'
     compile_regexes = False
 
-    def __init__(self, config, skip_cleaning_files=[]):
-        self.mapping = SoSMacMap()
+    def __init__(self, config, workdir, skip_cleaning_files=[]):
+        self.mapping = SoSMacMap(workdir)
         super().__init__(config, skip_cleaning_files)
 
     def reduce_mac_match(self, match):
