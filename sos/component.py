@@ -170,7 +170,9 @@ class SoSComponent():
         else:
             tmpdir = os.getenv('TMPDIR', None) or self.policy.get_tmp_dir(None)
 
-        if os.getenv('HOST', None) and os.getenv('container', None):
+        if os.getenv('HOST', None) \
+           and (os.path.isfile('/run/.containerenv')
+                or os.path.isfile('/.dockerenv')):
             tmpdir = os.path.join(os.getenv('HOST'), tmpdir.lstrip('/'))
 
         # no standard library method exists for this, so call out to stat to
