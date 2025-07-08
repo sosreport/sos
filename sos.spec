@@ -33,20 +33,20 @@ support technicians and developers.
 %prep
 %setup -qn %{name}-%{version}
 
-%if 0%{?fedora} >= 39
+%if 0%{?fedora} >= 39 || 0%{?rhel} >= 11
 %generate_buildrequires
 %pyproject_buildrequires
 %endif
 
 %build
-%if 0%{?fedora} >= 39
+%if 0%{?fedora} >= 39 || 0%{?rhel} >= 11
 %pyproject_wheel
 %else
 %py3_build
 %endif
 
 %install
-%if 0%{?fedora} >= 39
+%if 0%{?fedora} >= 39 || 0%{?rhel} >= 11
 %pyproject_install
 %pyproject_save_files sos
 %else
@@ -69,7 +69,7 @@ rm -rf %{buildroot}/usr/config/
 # internationalization is currently broken. Uncomment this line once fixed.
 # %%files -f %%{name}.lang
 %files
-%if 0%{?fedora} >= 39
+%if 0%{?fedora} >= 39 || 0%{?rhel} >= 11
 %{_bindir}/sos
 %else
 %{_sbindir}/sos
