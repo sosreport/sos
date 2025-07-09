@@ -2111,7 +2111,8 @@ class Plugin():
                        sizelimit=None, pred=None, subdir=None,
                        changes=False, foreground=False, tags=[],
                        priority=10, cmd_as_tag=False, container=None,
-                       to_file=False, runas=None, snap_cmd=False):
+                       to_file=False, runas=None, snap_cmd=False,
+                       runtime=None):
         """Run a program or a list of programs and collect the output
 
         Output will be limited to `sizelimit`, collecting the last X amount
@@ -2190,6 +2191,9 @@ class Plugin():
 
         :param snap_cmd: Are the commands being run from a snap?
         :type snap_cmd: ``bool``
+
+        :param runtime: Specific runtime to use to run container cmd
+        :type runtime: ``str``
         """
         if isinstance(cmds, str):
             cmds = [cmds]
@@ -2204,7 +2208,8 @@ class Plugin():
             if container:
                 ocmd = cmd
                 container_cmd = (ocmd, container)
-                cmd = self.fmt_container_cmd(container, cmd, runas=runas)
+                cmd = self.fmt_container_cmd(container, cmd, runtime=runtime,
+                                             runas=runas)
                 if not cmd:
                     self._log_debug(f"Skipping command '{ocmd}' as the "
                                     f"requested container '{container}' does "
@@ -2636,7 +2641,7 @@ class Plugin():
     def exec_cmd(self, cmd, timeout=None, stderr=True, chroot=True,
                  runat=None, env=None, binary=False, pred=None,
                  foreground=False, container=False, quotecmd=False,
-                 runas=None):
+                 runas=None, runtime=None):
         """Execute a command right now and return the output and status, but
         do not save the output within the archive.
 
@@ -2681,6 +2686,10 @@ class Plugin():
         :param runas:               Run the `cmd` as the `runas` user
         :type runas: ``str``
 
+        :param runtime:             Specific runtime to use to execute the
+                                    container command
+        :type runtime: ``str``
+
         :returns:                   Command exit status and output
         :rtype: ``dict``
         """
@@ -2703,8 +2712,9 @@ class Plugin():
                 self._log_info(f"Cannot run cmd '{cmd}' in container "
                                f"{container}: no runtime detected on host.")
                 return _default
-            if self.container_exists(container) or runas is not None:
-                cmd = self.fmt_container_cmd(container, cmd, quotecmd, runas)
+            if self.container_exists(container, runtime) or runas is not None:
+                cmd = self.fmt_container_cmd(container, cmd, quotecmd,
+                                             runtime, runas)
             else:
                 self._log_info(f"Cannot run cmd '{cmd}' in container "
                                f"{container}: no such container is running.")
@@ -2784,17 +2794,20 @@ class Plugin():
                     return self.policy.runtimes[pol_runtime]
         return None
 
-    def container_exists(self, name):
+    def container_exists(self, name, runtime=None):
         """If a container runtime is present, check to see if a container with
         a given name is currently running
 
         :param name:    The name or ID of the container to check presence of
         :type name: ``str``
 
+        :param runtime:    The runtime to use
+        :type runtime: ``str``
+
         :returns: ``True`` if `name` exists, else ``False``
         :rtype: ``bool``
         """
-        _runtime = self._get_container_runtime()
+        _runtime = self._get_container_runtime(runtime)
         if _runtime is not None:
             return (_runtime.container_exists(name) or
                     _runtime.get_container_by_name(name) is not None)
@@ -2818,16 +2831,19 @@ class Plugin():
             return [c for c in _containers if re.match(regex, c[1])]
         return []
 
-    def get_container_by_name(self, name):
+    def get_container_by_name(self, name, runtime=None):
         """Get the container ID for a specific container
 
         :param name:    The name of the container
         :type name: ``str``
 
+        :param runtime: The runtime to use
+        :type runtime: ``str``
+
         :returns: The ID of the container if it exists
         :rtype: ``str`` or ``None``
         """
-        _runtime = self._get_container_runtime()
+        _runtime = self._get_container_runtime(runtime)
         if _runtime is not None:
             return _runtime.get_container_by_name(name)
         return None
@@ -2921,7 +2937,8 @@ class Plugin():
                     cmd = _runtime.get_logs_command(_con[1])
                     self.add_cmd_output(cmd, **kwargs)
 
-    def fmt_container_cmd(self, container, cmd, quotecmd=False, runas=None):
+    def fmt_container_cmd(self, container, cmd, quotecmd=False, runtime=None,
+                          runas=None):
         """Format a command to be executed by the loaded ``ContainerRuntime``
         in a specified container
 
@@ -2934,6 +2951,10 @@ class Plugin():
         :param quotecmd:    Whether the cmd should be quoted.
         :type quotecmd: ``bool``
 
+        :param runtime:     The specific runtime to use to run the command
+                            within the container
+        :type runtime: ``str``
+
         :param runas:       What user runs the container. If set, we trust
                             the container really runs (we dont keep them atm)
         :type runas: ``str``
@@ -2942,8 +2963,9 @@ class Plugin():
                   within the `container` and not on the host
         :rtype: ``str``
         """
-        if self.container_exists(container) or \
-           ((_runtime := self._get_container_runtime()) and runas is not None):
+        if self.container_exists(container, runtime) or \
+           ((_runtime := self._get_container_runtime(runtime)) and
+           runas is not None):
             return _runtime.fmt_container_cmd(container, cmd, quotecmd)
         return ''
 
