@@ -7,8 +7,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 import platform
-from sos.report.plugins import Plugin, PluginOpt, RedHatPlugin, DebianPlugin, \
-    UbuntuPlugin, CosPlugin, AzurePlugin
+from sos.report.plugins import (Plugin, PluginOpt, RedHatPlugin, DebianPlugin,
+                                UbuntuPlugin, CosPlugin, AzurePlugin)
 
 
 class KDump(Plugin):
