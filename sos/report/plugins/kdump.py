@@ -102,6 +102,12 @@ class RedHatKDump(KDump, RedHatPlugin):
         if self.get_option("get-vm-core"):
             self.add_copy_spec(f"{path}/*/vmcore", sizelimit=2048, maxage=24)
 
+        # collect status via kdumpctl
+        self.add_cmd_output([
+            "kdumpctl status",
+            "kdumpctl estimate",
+        ])
+
 
 class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
 
