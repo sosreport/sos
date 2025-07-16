@@ -128,5 +128,9 @@ class SubscriptionManager(Plugin, RedHatPlugin):
         # if curl used config file to hide proxy password, remove the file
         if self._curl_cfg_fname:
             remove(self._curl_cfg_fname)
+        # Remove proxy information from curl command
+        http_proxy_regexp = r"(http(s)?://)\S+:\S+(@.*)"
+        http_proxy_repl = r"\1******:******\3"
+        self.do_cmd_output_sub('*curl*', http_proxy_regexp, http_proxy_repl)
 
 # vim: et ts=4 sw=4
