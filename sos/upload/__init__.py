@@ -12,6 +12,7 @@ import os
 import sys
 import logging
 import inspect
+import importlib
 
 from sos.component import SoSComponent
 from sos import _sos as _
@@ -254,19 +255,12 @@ this utility.
     @classmethod
     def _import_modules(cls, modname):
         """Import and return all found classes in a module"""
-        mod_short_name = modname.split('.')[2]
-        try:
-            module = __import__(modname, globals(), locals(), [mod_short_name])
-        except ImportError as e:
-            raise e
-        modules = inspect.getmembers(module, inspect.isclass)
-        for mod in modules.copy():
-            if mod[0] in (
-                    'DeviceAuthorizationClass',
-                    'Upload',
-                    'RHELPolicy',
-                    'UbuntuPolicy'):
-                modules.remove(mod)
+        module = importlib.import_module(modname)
+        modules = [
+            (name, cls)
+            for name, cls in inspect.getmembers(module, inspect.isclass)
+            if cls.__module__.startswith("sos.upload.targets")
+        ]
         return modules
 
     def pre_work(self):
