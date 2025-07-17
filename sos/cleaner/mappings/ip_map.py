@@ -9,7 +9,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 import ipaddress
-import random
 
 from sos.cleaner.mappings import SoSMap
 
@@ -45,6 +44,11 @@ class SoSIPMap(SoSMap):
     network_first_octet = 100
     skip_network_octets = ['127', '169', '172', '192']
     compile_regexes = False
+    # counter for obfuscating a single IP address; the value stands for
+    # 172.17.0.0; we use a private block of IP addresses and ignore
+    # 172.16.0.0/16 block as those addresses are more often used in real
+    # (an attempt to prevent confusion)
+    _saddr_cnt = 2886795264
 
     def ip_in_dataset(self, ipaddr):
         """There are multiple ways in which an ip address could be handed to us
@@ -162,13 +166,14 @@ class SoSIPMap(SoSMap):
         return self._new_obfuscated_single_address()
 
     def _new_obfuscated_single_address(self):
-        def _gen_address():
-            _octets = []
-            for _ in range(0, 4):
-                _octets.append(random.randint(11, 99))
-            return f"{_octets[0]}.{_octets[1]}.{_octets[2]}.{_octets[3]}"
-
-        _addr = _gen_address()
+        # increment the counter and ignore *.0 and *.255 addresses
+        self._saddr_cnt += 1
+        while self._saddr_cnt % 256 in (0, 255):
+            self._saddr_cnt += 1
+        # split the counter value to four octets (i.e. % 256) to get an
+        # obfuscated IP address
+        _addr = f"{self._saddr_cnt >> 24}.{(self._saddr_cnt >> 16) % 256}." \
+            f"{(self._saddr_cnt >> 8) % 256}.{self._saddr_cnt % 256}"
         if _addr in self.dataset.values():
             return self._new_obfuscated_single_address()
         return _addr

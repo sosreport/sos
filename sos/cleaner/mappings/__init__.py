@@ -9,8 +9,9 @@
 # See the LICENSE file in the source distribution for further information.
 
 import re
-
-from threading import Lock
+import os
+import tempfile
+from pathlib import Path
 
 
 class SoSMap():
@@ -28,11 +29,33 @@ class SoSMap():
     ignore_short_items = False
     match_full_words_only = False
 
-    def __init__(self):
+    def __init__(self, workdir):
         self.dataset = {}
         self._regexes_made = set()
         self.compiled_regexes = []
-        self.lock = Lock()
+        self.cname = self.__class__.__name__.lower()
+        # workdir's default value '/tmp' is used just by avocado tests,
+        # otherwise we override it to /etc/sos/cleaner (or map_file dir)
+        self.workdir = workdir
+        self.cache_dir = os.path.join(self.workdir, 'cleaner_cache',
+                                      self.cname)
+        self.load_entries()
+
+    def load_entries(self):
+        """ Load cached entries from the disk. This method must be called when
+        we initialize a Map instance and whenever we want to retrieve
+        self.dataset (e.g. to store default_mapping file). The later is
+        essential since a concurrent Map can add more objects to the cache,
+        so we need to update self.dataset up to date.
+
+        Keep in mind that size of self.dataset is usually bigger than number
+        of files in the corresponding cleaner's directory: directory contains
+        just whole items (e.g. IP addresses) while dataset contains more
+        derived objects (e.g. subnets).
+        """
+
+        Path(self.cache_dir).mkdir(parents=True, exist_ok=True)
+        self.load_new_entries_from_dir(1)
 
     def ignore_item(self, item):
         """Some items need to be completely ignored, for example link-local or
@@ -46,6 +69,36 @@ class SoSMap():
                 return True
         return False
 
+    def add_sanitised_item_to_dataset(self, item):
+        try:
+            self.dataset[item] = self.sanitize_item(item)
+        except Exception:
+            self.dataset[item] = item
+        if self.compile_regexes:
+            self.add_regex_item(item)
+
+    def load_new_entries_from_dir(self, counter):
+        # this is a performance hack; there can be gaps in counter values as
+        # e.g. sanitised item #14 is an IP address (in file) while item #15
+        # is its network (in dataset but not in files). So the next file
+        # number is 16. The diffs should be at most 2, the above is so far
+        # the only type of "underneath dataset growth". But let be
+        # conservative and test next 5 numbers "only".
+        no_files_cnt = 5
+        while no_files_cnt > 0:
+            fname = os.path.join(self.cache_dir, f"{counter}")
+            while os.path.isfile(fname):
+                no_files_cnt = 5
+                with open(fname, 'r', encoding='utf-8') as f:
+                    item = f.read()
+                if not self.dataset.get(item, False):
+                    self.add_sanitised_item_to_dataset(item)
+                counter += 1
+                fname = os.path.join(self.cache_dir, f"{counter}")
+            # no next file, but try a new next ones until no_files_cnt==0
+            no_files_cnt -= 1
+            counter += 1
+
     def add(self, item):
         """Add a particular item to the map, generating an obfuscated pair
         for it.
@@ -56,11 +109,23 @@ class SoSMap():
         """
         if self.ignore_item(item):
             return item
-        with self.lock:
-            self.dataset[item] = self.sanitize_item(item)
-            if self.compile_regexes:
-                self.add_regex_item(item)
-            return self.dataset[item]
+
+        tmpfile = None
+        while not self.dataset.get(item, False):
+            if not tmpfile:
+                # pylint: disable=consider-using-with
+                tmpfile = tempfile.NamedTemporaryFile(dir=self.cache_dir)
+                with open(tmpfile.name, 'w', encoding='utf-8') as f:
+                    f.write(item)
+            try:
+                counter = len(self.dataset) + 1
+                os.link(tmpfile.name, os.path.join(self.cache_dir,
+                                                   f"{counter}"))
+                self.add_sanitised_item_to_dataset(item)
+            except FileExistsError:
+                self.load_new_entries_from_dir(counter)
+
+        return self.dataset[item]
 
     def add_regex_item(self, item):
         """Add an item to the regexes dict and then re-sort the list that the
