@@ -81,9 +81,7 @@ class RHELUploadTarget(UploadTarget):
                 return self.commons['cmdlineopts'].upload_url
             if self.commons['cmdlineopts'].upload_protocol == 'sftp':
                 return self.RH_SFTP_HOST
-            if not self.commons['cmdlineopts'].case_id and not\
-                self.commons['policy'].prompt_for_case_id(
-                    self.commons['cmdlineopts']):
+            if not self.commons['cmdlineopts'].case_id:
                 return self.RH_SFTP_HOST
 
         except Exception as e:
