@@ -64,5 +64,6 @@ class RedHatInsights(Plugin, RedHatPlugin):
             self.do_file_sub(
                 conf, r'(proxy[\t\ ]*=.*)(:)(.*)(@.*)', r'\1\2********\4'
             )
+        self.do_paths_http_sub(["/var/log/insights-client/*"])
 
 # vim: set et ts=4 sw=4 :
