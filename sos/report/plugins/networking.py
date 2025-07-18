@@ -62,6 +62,7 @@ class Networking(Plugin):
             "/etc/network*",
             "/etc/nsswitch.conf",
             "/etc/resolv.conf",
+            "/etc/gai.conf",
             "/etc/xinetd.conf",
             "/etc/xinetd.d",
             "/etc/yp.conf",
