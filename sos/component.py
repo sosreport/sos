@@ -300,7 +300,7 @@ class SoSComponent():
             if not self.preset:
                 self.preset = self.policy.probe_preset()
             # now merge preset options to opts
-            opts.merge(self.preset.opts)
+            opts.merge(self.preset.opts, prefer_new=True)
             # re-apply any cmdline overrides to the preset
             opts = self.apply_options_from_cmdline(opts)
 
