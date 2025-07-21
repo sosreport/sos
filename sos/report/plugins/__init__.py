@@ -1669,7 +1669,8 @@ class Plugin():
                 self.manifest.files.append(manifest_data)
 
     def add_copy_spec(self, copyspecs, sizelimit=None, maxage=None,
-                      tailit=True, pred=None, tags=[], container=None):
+                      tailit=True, pred=None, tags=[], container=None,
+                      runas=None):
         """Add a file, directory, or globs matching filepaths to the archive
 
         :param copyspecs: Files, directories, or globs matching filepaths
@@ -1696,6 +1697,10 @@ class Plugin():
 
         :param container: Container(s) from which this file should be copied
         :type container: ``str`` or a ``list`` of strings
+
+        :param runas: When collecting data from a container, run it under this
+                      user.
+        :type runas: ``str``
 
         `copyspecs` will be expanded and/or globbed as appropriate. Specifying
         a directory here will cause the plugin to attempt to collect the entire
@@ -1806,14 +1811,14 @@ class Plugin():
                 if isinstance(container, str):
                     container = [container]
                 for con in container:
-                    if not self.container_exists(con):
+                    if not self.container_exists(con) and runas is None:
                         continue
                     _tail = False
                     if sizelimit:
                         # to get just the size, stat requires a literal '%s'
                         # which conflicts with python string formatting
                         cmd = f"stat -c %s {copyspec}"
-                        ret = self.exec_cmd(cmd, container=con)
+                        ret = self.exec_cmd(cmd, container=con, runas=runas)
                         if ret['status'] == 0:
                             try:
                                 consize = int(ret['output'])
@@ -1833,7 +1838,7 @@ class Plugin():
                                 f"{ret['output']}")
                             continue
                     self.container_copy_paths.append(
-                        (con, copyspec, sizelimit, _tail, _spec_tags)
+                        (con, copyspec, sizelimit, _tail, _spec_tags, runas)
                     )
                     self._log_info(
                         f"added collection of '{copyspec}' from container "
@@ -2082,7 +2087,8 @@ class Plugin():
 
         if container:
             paths = [p for p in paths if
-                     self.container_path_exists(p, container=container)]
+                     self.container_path_exists(p, container=container,
+                                                runas=runas)]
         else:
             paths = [p for p in paths if self.path_exists(p)]
 
@@ -2198,7 +2204,7 @@ class Plugin():
             if container:
                 ocmd = cmd
                 container_cmd = (ocmd, container)
-                cmd = self.fmt_container_cmd(container, cmd)
+                cmd = self.fmt_container_cmd(container, cmd, runas=runas)
                 if not cmd:
                     self._log_debug(f"Skipping command '{ocmd}' as the "
                                     f"requested container '{container}' does "
@@ -2547,7 +2553,8 @@ class Plugin():
             self.manifest.commands.append(manifest_cmd)
             if container_cmd:
                 self._add_container_cmd_to_manifest(manifest_cmd.copy(),
-                                                    container_cmd)
+                                                    container_cmd,
+                                                    suggest_filename)
         return result
 
     def collect_cmd_output(self, cmd, suggest_filename=None,
@@ -2696,8 +2703,8 @@ class Plugin():
                 self._log_info(f"Cannot run cmd '{cmd}' in container "
                                f"{container}: no runtime detected on host.")
                 return _default
-            if self.container_exists(container):
-                cmd = self.fmt_container_cmd(container, cmd, quotecmd)
+            if self.container_exists(container) or runas is not None:
+                cmd = self.fmt_container_cmd(container, cmd, quotecmd, runas)
             else:
                 self._log_info(f"Cannot run cmd '{cmd}' in container "
                                f"{container}: no such container is running.")
@@ -2731,7 +2738,7 @@ class Plugin():
             'tags': tags
         })
 
-    def _add_container_cmd_to_manifest(self, manifest, contup):
+    def _add_container_cmd_to_manifest(self, manifest, contup, suggest_fname):
         """Adds a command collection to the manifest for a particular container
         and creates a symlink to that collection from the relevant
         sos_containers/ location
@@ -2752,7 +2759,7 @@ class Plugin():
 
         _cdir = f"sos_containers/{container}/sos_commands/{self.name()}"
         _outloc = f"../../../../{manifest['filepath']}"
-        cmdfn = self._mangle_command(cmd)
+        cmdfn = suggest_fname if suggest_fname else self._mangle_command(cmd)
         conlnk = f"{_cdir}/{cmdfn}"
 
         # If check_path return None, it means that the sym link already exits,
@@ -2914,7 +2921,7 @@ class Plugin():
                     cmd = _runtime.get_logs_command(_con[1])
                     self.add_cmd_output(cmd, **kwargs)
 
-    def fmt_container_cmd(self, container, cmd, quotecmd=False):
+    def fmt_container_cmd(self, container, cmd, quotecmd=False, runas=None):
         """Format a command to be executed by the loaded ``ContainerRuntime``
         in a specified container
 
@@ -2927,12 +2934,16 @@ class Plugin():
         :param quotecmd:    Whether the cmd should be quoted.
         :type quotecmd: ``bool``
 
+        :param runas:       What user runs the container. If set, we trust
+                            the container really runs (we dont keep them atm)
+        :type runas: ``str``
+
         :returns: The command to execute so that the specified `cmd` will run
                   within the `container` and not on the host
         :rtype: ``str``
         """
-        if self.container_exists(container):
-            _runtime = self._get_container_runtime()
+        if self.container_exists(container) or \
+           ((_runtime := self._get_container_runtime()) and runas is not None):
             return _runtime.fmt_container_cmd(container, cmd, quotecmd)
         return ''
 
@@ -3171,7 +3182,7 @@ class Plugin():
                            "files from containers. Skipping collections.")
             return
         for contup in self.container_copy_paths:
-            con, path, sizelimit, tailit, tags = contup
+            con, path, sizelimit, tailit, tags, runas = contup
             self._log_info(f"collecting '{path}' from container '{con}'")
 
             arcdest = f"sos_containers/{con}/{path.lstrip('/')}"
@@ -3180,11 +3191,12 @@ class Plugin():
 
             cpcmd = rt.get_copy_command(
                 con, path, dest, sizelimit=sizelimit if tailit else None
-            )
-            cpret = self.exec_cmd(cpcmd, timeout=10)
+            ) if runas is None else rt.fmt_container_cmd(con, f"cat {path}",
+                                                         False)
+            cpret = self.exec_cmd(cpcmd, timeout=10, runas=runas)
 
             if cpret['status'] == 0:
-                if tailit:
+                if tailit or runas is not None:
                     # current runtimes convert files sent to stdout to tar
                     # archives, with no way to control that
                     self.archive.add_string(cpret['output'], arcdest)
@@ -3432,7 +3444,7 @@ class Plugin():
         if verify_cmd:
             self.add_cmd_output(verify_cmd)
 
-    def container_path_exists(self, path, container):
+    def container_path_exists(self, path, container, runas=None):
         """Check if a path exists inside a container before
         collecting a dir listing
 
@@ -3446,7 +3458,8 @@ class Plugin():
         :returns:       True if the path exists in the container, else False
         :rtype:         ``bool``
         """
-        return self.exec_cmd(f"test -e {path}", container=container)
+        return self.exec_cmd(f"test -e {path}", container=container,
+                             runas=runas)
 
     def path_exists(self, path):
         """Helper to call the sos.utilities wrapper that allows the
