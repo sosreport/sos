@@ -3189,6 +3189,11 @@ class Plugin():
                     # archives, with no way to control that
                     self.archive.add_string(cpret['output'], arcdest)
                 self._add_container_file_to_manifest(con, path, arcdest, tags)
+                self.copied_files.append({
+                    'srcpath': path,
+                    'dstpath': arcdest,
+                    'symlink': "no"
+                })
             else:
                 self._log_info(f"error copying '{path}' from container "
                                f"'{con}': {cpret['output']}")
