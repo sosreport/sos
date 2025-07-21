@@ -263,7 +263,10 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         time.sleep(0.01)
 
     if runas:
-        pwd_user = pwd.getpwnam(runas)
+        try:
+            pwd_user = pwd.getpwnam(runas)
+        except KeyError:  # no such user
+            return {'status': 127, 'output': "", 'truncated': ''}
         env.update({
             'HOME': pwd_user.pw_dir,
             'LOGNAME': runas,
