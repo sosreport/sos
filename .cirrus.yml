@@ -156,6 +156,7 @@ deb_build_task:
             BUILD_NAME: ${UBUNTU_LATEST_NAME}
             VM_FAMILY_NAME: ${UBUNTU_DEB_FAMILY_NAME}
     setup_script: |
+        [[ ${BUILD_NAME} == "${DEBIAN_11_NAME}" ]] && sudo sed -i '/-backports/ s/^/#/' /etc/apt/sources.list
         apt update --allow-releaseinfo-change
         apt -y install devscripts equivs python3-pip
         mk-build-deps
@@ -239,6 +240,7 @@ report_stageone_task:
             DEB_BUILD_NAME: ${BUILD_NAME}
     setup_script: &setup |
         if [ $(command -v apt) ]; then
+            [[ ${BUILD_NAME} == "${DEBIAN_11_NAME}" ]] && sudo sed -i '/-backports/ s/^/#/' /etc/apt/sources.list
             [[ "$(dpkg -l sos)" ]] && apt -y purge sos ubuntu-server
             [[ "$(dpkg -l sosreport)" ]] && apt -y purge sosreport ubuntu-server
             apt update --allow-releaseinfo-change
