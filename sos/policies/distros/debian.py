@@ -16,7 +16,7 @@ class DebianPolicy(LinuxPolicy):
     vendor_urls = [('Community Website', 'https://www.debian.org/')]
     os_release_name = 'Debian'
     os_release_file = '/etc/debian_version'
-    _tmp_dir = "/tmp"
+    _tmp_dir = "/var/tmp"
     name_pattern = 'friendly'
     valid_subclasses = [DebianPlugin]
     PATH = "/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games" \
