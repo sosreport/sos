@@ -726,18 +726,24 @@ class TarFileArchive(FileCacheArchive):
         return f"{self._archive_root}.{self._suffix}"
 
     def _build_archive(self, method):
+        _mode = 'w'
         if method == 'auto':
             method = 'xz' if find_spec('lzma') is not None else 'gzip'
-        _comp_mode = method.strip('ip')
-        self._archive_name = f"{self._archive_name}.{_comp_mode}"
+        if method is not None:
+            _comp_mode = method.strip('ip')
+            self._archive_name = f"{self._archive_name}.{_comp_mode}"
+            self._suffix += f".{_comp_mode}"
+            _mode = f"w:{_comp_mode}"
         # tarfile does not currently have a consistent way to define comnpress
         # level for both xz and gzip ('preset' for xz, 'compresslevel' for gz)
-        if method == 'gzip':
-            kwargs = {'compresslevel': 6}
-        else:
-            kwargs = {'preset': 3}
-        with tarfile.open(self._archive_name, mode=f"w:{_comp_mode}",
-                          **kwargs) as tar:
+        kwargs = {
+            None: {},
+            'gzip': {'compresslevel': 6},
+            'xz':   {'preset': 3}
+        }
+        with tarfile.open(self._archive_name,
+                          mode=_mode,
+                          **kwargs[method]) as tar:
             # Add commonly reviewed files first, so that they can be more
             # easily read from memory without needing to extract
             # the whole archive
@@ -751,7 +757,6 @@ class TarFileArchive(FileCacheArchive):
             # want the names used in the archive to be relative.
             tar.add(self._archive_root, arcname=self._name,
                     filter=self.copy_permissions_filter)
-        self._suffix += f".{_comp_mode}"
         return self.name()
 
 
