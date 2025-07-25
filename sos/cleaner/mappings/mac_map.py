@@ -8,7 +8,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import random
 import re
 
 from sos.cleaner.mappings import SoSMap
@@ -20,8 +19,9 @@ class SoSMacMap(SoSMap):
     MAC addresses added to this map will be broken into two halves, vendor and
     device like how MAC addresses are normally crafted. For the vendor hextets,
     obfuscation will take the form of 53:4f:53, or 'SOS' in hex. The following
-    device hextets will be randomized, for example a MAC address of
-    '60:55:cb:4b:c9:27' may be obfuscated into '53:4f:53:79:ac:29' or similar
+    device hextets will be obfuscated by a series of suffixes starting from
+    zeroes. For example a MAC address of '60:55:cb:4b:c9:27' may be obfuscated
+    into '53:4f:53:00:00:1a' or similar.
 
     This map supports both 48-bit and 64-bit MAC addresses.
 
@@ -49,6 +49,7 @@ class SoSMacMap(SoSMap):
     mac6_template = '53:4f:53:ff:fe:%s:%s:%s'
     mac6_quad_template = '534f:53ff:fe%s:%s%s'
     compile_regexes = False
+    ob_hextets_cnt = 0
 
     def add(self, item):
         item = item.replace('-', ':').lower().strip('=.,').strip()
@@ -59,15 +60,20 @@ class SoSMacMap(SoSMap):
         return super().get(item)
 
     def sanitize_item(self, item):
-        """Randomize the device hextets, and append those to our 'vendor'
+        """Obfuscate the device hextets, and append those to our 'vendor'
         hextet
         """
         hexdigits = "0123456789abdcef"
-        hextets = []
-        for _ in range(0, 3):
-            hextets.append(''.join(random.choice(hexdigits) for x in range(2)))
+        self.ob_hextets_cnt += 1
+        # we need to convert the counter to a triple of double hex-digits
+        hextets = [
+            self.ob_hextets_cnt >> 16,
+            (self.ob_hextets_cnt >> 8) % 256,
+            self.ob_hextets_cnt % 256
+        ]
+        hextets = tuple(f'{hexdigits[i//16]}{hexdigits[i % 16]}'
+                        for i in hextets)
 
-        hextets = tuple(hextets)
         # match 64-bit IPv6 MAC addresses matching MM:MM:MM:FF:FE:SS:SS:SS
         if re.match('(([0-9a-fA-F]{2}:){7}[0-9a-fA-F]{2})', item):
             return self.mac6_template % hextets

@@ -124,13 +124,16 @@ class ExistingArchiveCleanTmpTest(StageTwoReportTest):
     :avocado: tags=stagetwo
     """
 
-    sos_cmd = f'--keywords var,tmp,avocado --disable-parsers \
-        ip,ipv6,mac,username --no-update tests/test_data/{ARCHIVE}.tar.xz'
+    sos_cmd = f'--keywords avocado,ExistingArchiveCleanTmpTest --no-update \
+                --disable-parsers ip,ipv6,mac,username \
+                tests/test_data/{ARCHIVE}.tar.xz'
     sos_component = 'clean'
 
     def test_sys_tmp_not_obfuscated(self):
-        """ Ensure that keywords var, tmp and avocado remains in the final
-        archive path despite they are parts of the --tmp-dir
+        """ Ensure that keywords avocado and ExistingArchiveCleanTmpTest
+        remains in the final archive path despite they are parts of the
+        --tmp-dir (set like
+        /var/tmp/avocado_1m9g7qt1sos_tests.py.ExistingArchiveCleanTmpTest )
         """
         self.assertTrue(
             self.archive.startswith(os.getenv('AVOCADO_TESTS_COMMON_TMPDIR'))
