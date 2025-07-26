@@ -1417,7 +1417,7 @@ this utility or remote systems that it connects to.
                     short_name='manifest.json'
                 )
 
-            arc_name = self.archive.finalize(self.opts.compression_type)
+            arc_name = self.archive.finalize(method=None)
             final_name = os.path.join(self.sys_tmp, os.path.basename(arc_name))
             if do_clean:
                 final_name = cleaner.obfuscate_string(
