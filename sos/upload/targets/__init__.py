@@ -465,7 +465,7 @@ class UploadTarget():
                 self.upload_password or
                 self._upload_password)
 
-    def upload_sftp(self, user=None, password=None):
+    def upload_sftp(self, user=None, password=None, user_dir=None):
         """Attempts to upload the archive to an SFTP location.
 
         Due to the lack of well maintained, secure, and generally widespread
@@ -540,10 +540,13 @@ class UploadTarget():
             raise Exception("Unable to connect via SFTP to "
                             f"{self.get_upload_url_string()}")
 
-        put_cmd = (f'put {self.upload_archive_name} '
-                   f'{self._get_sftp_upload_name()}')
+        # certain implementations require file to be put in the user dir
+        put_cmd = (
+            f"put {self.upload_archive_name} "
+            f"{f'{user_dir}/' if user_dir else ''}"
+            f"{self._get_sftp_upload_name()}"
+        )
         ret.sendline(put_cmd)
-
         put_expects = [
             '100%',
             pexpect.TIMEOUT,
