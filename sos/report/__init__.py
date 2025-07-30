@@ -150,7 +150,6 @@ class SoSReport(SoSComponent):
         'upload_target': None,
         'add_preset': '',
         'del_preset': '',
-        'del_preset': '',
         'treat_certificates': 'obfuscate'
     }
 

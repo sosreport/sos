@@ -146,9 +146,10 @@ def file_is_certificate(fname):
     """
     if fname[-4:] in [".csr", ".pem"]:
         with open(fname, 'r', encoding='utf-8') as f:
-            if re.search(r'-----BEGIN CERTIFICATE-----', f.read()):
+            content = f.read()
+            if re.search(r'-----BEGIN CERTIFICATE-----', content):
                 return "certificate"
-            if re.search(r'-----BEGIN [A-Z]+ PRIVATE KEY-----', f.read()):
+            if re.search(r'-----BEGIN [A-Z]+ PRIVATE KEY-----', content):
                 return "certificatekey"
         return None
     return None
