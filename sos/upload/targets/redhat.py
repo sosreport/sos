@@ -145,7 +145,7 @@ class RHELUploadTarget(UploadTarget):
         return fname
 
     # pylint: disable=too-many-branches
-    def upload_sftp(self, user=None, password=None):
+    def upload_sftp(self, user=None, password=None, user_dir=None):
         """Override the base upload_sftp to allow for setting an on-demand
         generated anonymous login for the RH SFTP server if a username and
         password are not given
@@ -217,7 +217,8 @@ class RHELUploadTarget(UploadTarget):
                     f"{anon.status_code}): {anon.json()}"
                 )
         if _user and _token:
-            return super().upload_sftp(user=_user, password=_token)
+            return super().upload_sftp(user=_user, password=_token,
+                                       user_dir=_user)
         raise Exception("Could not retrieve valid or anonymous credentials")
 
     def check_file_too_big(self, archive):
