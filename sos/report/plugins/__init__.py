@@ -2064,7 +2064,7 @@ class Plugin():
     def add_dir_listing(self, paths, tree=False, recursive=False, chroot=True,
                         env=None, sizelimit=None, pred=None, subdir=None,
                         tags=[], runas=None, container=None,
-                        suggest_filename=None):
+                        suggest_filename=None, extra_opts=None):
         """
         Used as a way to standardize our collections of directory listings,
         either as an output of `ls` or `tree` depending on if the `tree`
@@ -2093,7 +2093,8 @@ class Plugin():
             paths = [p for p in paths if self.path_exists(p)]
 
         if not tree:
-            options = f"alZ{'R' if recursive else ''}"
+            options = (f"alZ{'R' if recursive else ''}"
+                       f"{extra_opts if extra_opts else ''}")
         else:
             options = 'lp'
 
