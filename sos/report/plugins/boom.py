@@ -37,7 +37,8 @@ class Boom(Plugin, RedHatPlugin):
 
         self.add_cmd_output([
             "boom list -VV",
-            "boom profile list -VV"
+            "boom cache list -VV",
+            "boom profile list -VV",
         ])
 
 # vim: set et ts=4 sw=4 :
