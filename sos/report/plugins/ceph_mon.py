@@ -179,6 +179,10 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             [f"ceph tell mon.{mid} mon_status" for mid in self.get_ceph_ids()],
             subdir="json_output",
         )
+        self.add_cmd_output(
+            [f"ceph tell mon.{mid} sessions" for mid in self.get_ceph_ids()],
+            subdir="json_output",
+        )
 
         self.add_cmd_output([f"ceph {cmd}" for cmd in ceph_cmds])
 
