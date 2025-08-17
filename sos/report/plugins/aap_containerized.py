@@ -143,8 +143,8 @@ class AAPContainerized(Plugin, RedHatPlugin):
                 'dumb-init -- /usr/bin/supervisord',
                 'dumb-init -- /usr/bin/launch_awx_web.sh',
                 'dumb-init -- /usr/bin/launch_awx_task.sh',
-                'pulpcore-content --name pulp-content --bind',
                 'dumb-init -- aap-eda-manage',
+                'pulpcore-content --name pulp-content --bind 127.0.0.1',
             ]
 
         ps_output = self.exec_cmd("ps --noheaders -eo args")

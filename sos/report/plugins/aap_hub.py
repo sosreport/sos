@@ -26,7 +26,27 @@ class AAPAutomationHub(Plugin, RedHatPlugin):
             "/var/log/ansible-automation-platform/hub/pulpcore-content.log*",
             "/var/log/nginx/automationhub.access.log*",
             "/var/log/nginx/automationhub.error.log*",
+        ])
 
+        # systemd service status which starts with "pulpcore"
+        result = self.exec_cmd(
+            'systemctl list-units --type=service --no-legend pulpcore*'
+        )
+        if result['status'] == 0:
+            for svc in result['output'].splitlines():
+                pulpcore_svc = svc.split()
+                if not pulpcore_svc:
+                    continue
+                self.add_service_status(pulpcore_svc[0])
+
+        self.add_service_status([
+                "nginx",
+                "redis"
+        ])
+
+        self.add_forbidden_path([
+            "/etc/ansible-automation-platform/redis/server.crt",
+            "/etc/ansible-automation-platform/redis/server.key",
         ])
 
         self.add_dir_listing([
