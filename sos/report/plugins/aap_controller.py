@@ -10,6 +10,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
+from sos.utilities import sos_parse_version
 
 
 class AAPControllerPlugin(Plugin, RedHatPlugin):
@@ -22,7 +23,6 @@ class AAPControllerPlugin(Plugin, RedHatPlugin):
                 'automation-controller-ui',
                 'automation-controller')
     commands = ('awx-manage',)
-    services = ('automation-controller',)
 
     def setup(self):
         self.add_copy_spec([
@@ -44,7 +44,8 @@ class AAPControllerPlugin(Plugin, RedHatPlugin):
         ])
 
         self.add_cmd_output([
-            "awx-manage --version",
+            "automation-controller-service status",
+            "awx-manage showmigrations",
             "awx-manage list_instances",
             "awx-manage run_dispatcher --status",
             "awx-manage run_callback_receiver --status",
@@ -58,6 +59,17 @@ class AAPControllerPlugin(Plugin, RedHatPlugin):
             "/var/lib/awx/venv/ansible/bin/pip freeze -l",
             "umask -p",
         ])
+
+        # run_wsbroadcast is replaced with run_wsrelay in AAP 2.4 and above
+        awx_version = self.collect_cmd_output('awx-manage --version')
+        if awx_version['status'] == 0:
+            if (
+                sos_parse_version(awx_version['output']) >
+                sos_parse_version('4.4.99')
+            ):
+                self.add_cmd_output("awx-manage run_wsrelay --status")
+            else:
+                self.add_cmd_output("awx-manage run_wsbroadcast --status")
 
         self.add_dir_listing([
             '/var/lib/awx',
@@ -86,6 +98,5 @@ class AAPControllerPlugin(Plugin, RedHatPlugin):
         jreg = r"(BROADCAST_WEBSOCKET_SECRET\s*=\s*)\"(.+)\""
         repl = r"\1********"
         self.do_path_regex_sub("/etc/tower/conf.d/channels.py", jreg, repl)
-
 
 # vim: set et ts=4 sw=4 :
