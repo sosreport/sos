@@ -70,9 +70,17 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
             # collect user-status
             self.add_cmd_output(f'loginctl user-status {user}')
             # collect the user's related commands
-            self.add_cmd_output([
-                f'machinectl -q shell {user}@ /usr/bin/{cmd}'
-                for cmd in user_subcmds
-            ], foreground=True)
+            # Build commands based on systemd-container package availability
+            for cmd in user_subcmds:
+                if self.is_installed('systemd-container'):
+                    user_cmd = f'machinectl -q shell {user}@ /usr/bin/{cmd}'
+                    filename = f'{user}_machinectl_{cmd}'
+                else:
+                    user_cmd = f'su - {user} -c "/usr/bin/{cmd}"'
+                    filename = f'{user}_su_{cmd}'
+                # Collect command output
+                self.add_cmd_output(user_cmd,
+                                    suggest_filename=filename,
+                                    foreground=True)
 
 # vim: set et ts=4 sw=4 :
