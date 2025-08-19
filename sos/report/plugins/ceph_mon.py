@@ -175,10 +175,11 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_cmd_output("ceph osd tree --format json-pretty",
                             subdir="json_output",
                             tags="ceph_osd_tree")
-        self.add_cmd_output(
-            [f"ceph tell mon.{mid} mon_status" for mid in self.get_ceph_ids()],
-            subdir="json_output",
-        )
+        for mid in self.get_ceph_ids():
+            self.add_cmd_output([
+                f"ceph tell mon.{mid} mon_status",
+                f"ceph tell mon.{mid} sessions",
+            ], subdir="json_output")
 
         self.add_cmd_output([f"ceph {cmd}" for cmd in ceph_cmds])
 
