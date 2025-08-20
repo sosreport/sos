@@ -1405,16 +1405,13 @@ this utility or remote systems that it connects to.
             if do_clean:
                 _dir = os.path.join(self.tmpdir, self.archive._name)
                 cleaner.obfuscate_file(
-                    os.path.join(_dir, 'sos_logs', 'sos.log'),
-                    short_name='sos.log'
+                        os.path.join(_dir, 'sos_logs', 'sos.log')
                 )
                 cleaner.obfuscate_file(
-                    os.path.join(_dir, 'sos_logs', 'ui.log'),
-                    short_name='ui.log'
+                    os.path.join(_dir, 'sos_logs', 'ui.log')
                 )
                 cleaner.obfuscate_file(
-                    os.path.join(_dir, 'sos_reports', 'manifest.json'),
-                    short_name='manifest.json'
+                    os.path.join(_dir, 'sos_reports', 'manifest.json')
                 )
 
             arc_name = self.archive.finalize(method=None)
