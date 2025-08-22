@@ -1,4 +1,5 @@
 # Copyright (c) 2025 Rudnei Bertol Jr <rudnei@redhat.com>
+# Copyright (c) 2025 Nagoor Shaik <nshaik@redhat.com>
 
 # This file is part of the sos project: https://github.com/sosreport/sos
 #
@@ -9,6 +10,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
+from sos.utilities import sos_parse_version
 
 
 class AAPEDAControllerPlugin(Plugin, RedHatPlugin):
@@ -40,14 +42,41 @@ class AAPEDAControllerPlugin(Plugin, RedHatPlugin):
             "/etc/ansible-automation-platform/eda/server.key",
         ])
 
-        self.add_cmd_output("aap-eda-manage --version")
+        self.add_cmd_output([
+            "aap-eda-manage --version",
+            "aap-eda-manage showmigrations",
+        ])
+
         self.add_dir_listing([
             "/etc/ansible-automation-platform/",
             "/var/log/ansible-automation-platform/",
         ], recursive=True)
 
-        self.add_cmd_output("su - eda -c 'export'",
-                            suggest_filename="eda_export")
+        self.add_cmd_output("su - eda -c 'env'",
+                            suggest_filename="eda_environment")
+
+        pkg_name = 'automation-eda-controller'
+        pkg = self.policy.package_manager.pkg_by_name(f'{pkg_name}')
+        if pkg is not None:
+            eda_pkg_ver = '.'.join(pkg['version'])
+            # EDA version in 2.5 release starts with 1.1.0 version
+            if sos_parse_version(eda_pkg_ver) > sos_parse_version('1.0.99'):
+                self.add_cmd_output([
+                    "automation-eda-controller-service status",
+                    "automation-eda-controller-event-stream-service status",
+                ])
+            else:
+                # systemd service status which starts with "automation-eda"
+                result = self.exec_cmd(
+                    'systemctl list-units --type=service \
+                    --no-legend automation-eda*'
+                )
+                if result['status'] == 0:
+                    for svc in result['output'].splitlines():
+                        eda_svc = svc.split()
+                        if not eda_svc:
+                            continue
+                        self.add_service_status(eda_svc[0])
 
     def postproc(self):
         self.do_path_regex_sub(
