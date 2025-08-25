@@ -64,7 +64,8 @@ class Podman(Plugin, RedHatPlugin, UbuntuPlugin):
             'ps -a',
             'stats --no-stream --all',
             'version',
-            'volume ls'
+            'volume ls',
+            'system df -v',
         ]
 
         self.add_cmd_output([f"podman {s}" for s in subcmds])
