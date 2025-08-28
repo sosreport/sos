@@ -69,4 +69,6 @@ class Block(Plugin, IndependentPlugin):
                     self.add_cmd_output(f'cryptsetup luksDump /dev/{dev}')
                     self.add_cmd_output(f'clevis luks list -d /dev/{dev}')
 
+        self.add_copy_spec("/etc/crypttab")
+
 # vim: set et ts=4 sw=4 :
