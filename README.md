@@ -114,11 +114,6 @@ You can simply run from the git checkout now:
 ```
 $ sudo ./bin/sos report 
 ```
-The command `sosreport` is still available, as a legacy redirector,
-and can be used like this:
-```
-$ sudo ./bin/sosreport 
-```
 
 To see a list of all available plugins and plugin options, run
 ```
