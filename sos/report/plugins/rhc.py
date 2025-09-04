@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, SoSPredicate
 
 
 class Rhc(Plugin, RedHatPlugin):
@@ -30,9 +30,10 @@ class Rhc(Plugin, RedHatPlugin):
             "/var/log/rhc-worker-playbook",
         ])
 
-        self.add_cmd_output([
+        self.add_cmd_output(
             "rhc status",
-        ])
+            pred=SoSPredicate(self, services=["rhsm"])
+        )
 
     def postproc(self):
         # hide workers/foreman_rh_cloud.toml FORWARDER_PASSWORD
