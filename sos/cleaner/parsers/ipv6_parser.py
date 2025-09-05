@@ -27,7 +27,7 @@ class SoSIPv6Parser(SoSCleanerParser):
         # a trailing prefix for the network bits.
         r"(?<![:\\.\\-a-z0-9])((([0-9a-f]{1,4})(:[0-9a-f]{1,4}){7})|"
         r"(([0-9a-f]{1,4}(:[0-9a-f]{0,4}){0,5}))([^.])::(([0-9a-f]{1,4}"
-        r"(:[0-9a-f]{1,4}){0,5})?))(/\d{1,3})?(?![:\\a-z0-9])"
+        r"(:[0-9a-f]{1,4}){0,5})?)(/\d{1,3})?)(?![:\\a-z0-9])"
     ]
     parser_skip_files = [
         'etc/dnsmasq.conf.*',
