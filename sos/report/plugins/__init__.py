@@ -532,6 +532,7 @@ class Plugin():
     kernel_mods = ()
     services = ()
     containers = ()
+    runtime = None
     architectures = None
     archive = None
     profiles = ()
@@ -2808,7 +2809,7 @@ class Plugin():
         :returns: ``True`` if `name` exists, else ``False``
         :rtype: ``bool``
         """
-        _runtime = self._get_container_runtime(runtime)
+        _runtime = self._get_container_runtime(runtime or self.runtime)
         if _runtime is not None:
             return (_runtime.container_exists(name) or
                     _runtime.get_container_by_name(name) is not None)
