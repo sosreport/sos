@@ -18,6 +18,7 @@ class OpenshiftOVN(Plugin, RedHatPlugin):
     plugin_name = "openshift_ovn"
     containers = ('ovnkube-master', 'ovnkube-node', 'ovn-ipsec',
                   'ovnkube-controller')
+    runtime = 'crio'
     profiles = ('openshift',)
 
     def setup(self):
