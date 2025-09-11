@@ -106,14 +106,14 @@ rpm_build_task:
             PROJECT: ${CENTOS_PROJECT}
             BUILD_NAME: ${CENTOS_9_NAME}
             VM_FAMILY_NAME: ${CENTOS_9_FAMILY_NAME}
-        - env: &fedora
-            PROJECT: ${FEDORA_PROJECT}
-            BUILD_NAME: ${FEDORA_NAME}
-            VM_FAMILY_NAME: ${FEDORA_FAMILY_NAME}
-        - env: &fedoraprior
-            PROJECT: ${FEDORA_PROJECT}
-            BUILD_NAME: ${FEDORA_PRIOR_NAME}
-            VM_FAMILY_NAME: ${FEDORA_PRIOR_FAMILY_NAME}
+#        - env: &fedora
+#            PROJECT: ${FEDORA_PROJECT}
+#            BUILD_NAME: ${FEDORA_NAME}
+#            VM_FAMILY_NAME: ${FEDORA_FAMILY_NAME}
+#        - env: &fedoraprior
+#            PROJECT: ${FEDORA_PROJECT}
+#            BUILD_NAME: ${FEDORA_PRIOR_NAME}
+#            VM_FAMILY_NAME: ${FEDORA_PRIOR_FAMILY_NAME}
     setup_script: |
         dnf clean all
         dnf -y install rpm-build rpmdevtools gettext python3-devel python3-pexpect python3-pyyaml
@@ -207,8 +207,8 @@ report_stageone_task:
     gce_instance: *standardvm
     matrix:
         - env: *centos9
-        - env: *fedora
-        - env: *fedoraprior
+#        - env: *fedora
+#        - env: *fedoraprior
         - env: &ubuntu
             PKG: "snap"
             PROJECT: ${UBUNTU_PROJECT}
@@ -311,7 +311,7 @@ report_stagetwo_task:
     gce_instance: *standardvm
     matrix:
         - env: *centos9
-        - env: *fedora
+#        - env: *fedora
         - env: *ubuntu
         - env: *ubuntu-latest-snap
         - env: *ubuntu-latest-deb
