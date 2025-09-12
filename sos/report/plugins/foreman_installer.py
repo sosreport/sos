@@ -57,7 +57,7 @@ class ForemanInstaller(Plugin, DebianPlugin, UbuntuPlugin):
         # also hide passwords in yet different formats
         self.do_path_regex_sub(
             install_logs,
-            r"((\.|_|-)password(=\'|=|\", \"))(\w*)",
+            r"((\.|_|-)password((?P<quot>\", )|)(=\'|=|\"))(.*)(?(quot)\"|$)",
             r"\1********")
         self.do_path_regex_sub(
             "/var/log/foreman-installer/foreman-proxy*",
