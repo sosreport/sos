@@ -170,9 +170,6 @@ class SoSComponent():
         else:
             tmpdir = os.getenv('TMPDIR', None) or self.policy.get_tmp_dir(None)
 
-        if os.getenv('HOST', None) and os.getenv('container', None):
-            tmpdir = os.path.join(os.getenv('HOST'), tmpdir.lstrip('/'))
-
         # no standard library method exists for this, so call out to stat to
         # avoid bringing in a dependency on psutil
         self.tmpfstype = shell_out(

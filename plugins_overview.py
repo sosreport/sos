@@ -55,7 +55,10 @@ def add_all_items(method, dest, plugfd, wrapopen=r'\(', wrapclose=r'\)'):
                         # dirty hack to remove spaces and "Plugin"
                         if "Plugin" not in it:
                             continue
-                        it = it.strip(' ()')[0:-6]
+                        if "=" in it:
+                            it = re.sub(r"Plugin.*", "Plugin", it)
+                        plug_col_len = 9 if "PluginOpt" in it else 6
+                        it = it.strip(' ()')[:-plug_col_len]
                         if len(it):
                             dest.append(it)
         # list of specs separated by comma ..
@@ -94,7 +97,8 @@ for plugfile in sorted(os.listdir(PLUGDIR)):
         pfd_content = pfd.read().replace('\n', '')
         add_all_items(
             "from sos.report.plugins import ", plugs_data[plugname]['distros'],
-            pfd_content, wrapopen='', wrapclose='(class|from|import)'
+            pfd_content, wrapopen='',
+            wrapclose=r'(class|from|import|#|\))'
         )
         add_all_items("profiles = ", plugs_data[plugname]['profiles'],
                       pfd_content, wrapopen='')
