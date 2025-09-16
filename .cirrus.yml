@@ -351,13 +351,16 @@ report_foreman_task:
     alias: "foreman_integration"
     name: "Integration Test - Foreman ${FOREMAN_VER} - ${BUILD_NAME}"
     depends_on: stageone_report
+    environment:
+      FOREMAN_VER: "3.15"
+      KATELLO_VER: "4.17"
     gce_instance: &bigvm
         <<: *standardvm
-        type: e2-standard-2
+        type: e2-highmem-4
     matrix:
-        - env:
-            <<: *debian-11
-            FOREMAN_VER: "3.7"
+        - env: *centos9
+        - env: *debian-12
+        - env: *ubuntuprior
     setup_script: *setup
     foreman_setup_script: ./tests/test_data/foreman_setup.sh
     main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t foreman tests/product_tests/foreman/
