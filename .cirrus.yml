@@ -6,6 +6,7 @@ env:
     FEDORA_NAME: "fedora-42"
     FEDORA_PRIOR_NAME: "fedora-41"
 
+    DEBIAN_13_NAME: "debian-13"
     DEBIAN_12_NAME: "debian-12"
     DEBIAN_11_NAME: "debian-11"
 
@@ -25,6 +26,7 @@ env:
 
     # Images exist on GCP already
     CENTOS_9_FAMILY_NAME: "centos-stream-9"
+    DEBIAN_13_FAMILY_NAME: "debian-13"
     DEBIAN_12_FAMILY_NAME: "debian-12"
     DEBIAN_11_FAMILY_NAME: "debian-11"
     FEDORA_FAMILY_NAME: "fedora-cloud-42-x86-64"
@@ -151,6 +153,10 @@ deb_build_task:
             PROJECT: ${DEBIAN_PROJECT}
             BUILD_NAME: ${DEBIAN_12_NAME}
             VM_FAMILY_NAME: ${DEBIAN_12_FAMILY_NAME}
+        - env: &debian-13-deb-pkg
+            PROJECT: ${DEBIAN_PROJECT}
+            BUILD_NAME: ${DEBIAN_13_NAME}
+            VM_FAMILY_NAME: ${DEBIAN_13_FAMILY_NAME}
         - env: &ubuntu-latest-deb-pkg
             PROJECT: ${UBUNTU_PROJECT}
             BUILD_NAME: ${UBUNTU_LATEST_NAME}
@@ -230,6 +236,10 @@ report_stageone_task:
             BUILD_NAME: "${UBUNTU_LATEST_NAME} - ${PKG}"
             DEB_BUILD_NAME: ${UBUNTU_LATEST_NAME}
             VM_FAMILY_NAME: ${UBUNTU_LATEST_FAMILY_NAME}
+        - env: &debian-13
+            <<: *debian-13-deb-pkg
+            PKG: "deb"
+            DEB_BUILD_NAME: ${BUILD_NAME}
         - env: &debian-12
             <<: *debian-12-deb-pkg
             PKG: "deb"
@@ -315,7 +325,7 @@ report_stagetwo_task:
         - env: *ubuntu
         - env: *ubuntu-latest-snap
         - env: *ubuntu-latest-deb
-        - env: *debian-12
+        - env: *debian-13
     setup_script: *setup
     install_pexpect_script: |
         if [ $(command -v apt) ]; then
