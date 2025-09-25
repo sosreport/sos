@@ -29,6 +29,40 @@ class CharmedMySQL(Plugin, UbuntuPlugin):
     plugin_name = "charmed_mysql"
     packages = ("charmed-mysql",)
 
+    mysql_queries = [
+        # Get databases user has access to
+        "show databases;",
+
+        # Get unit operations from MySQL to see, for example,
+        # if a unit is stuck on joining the cluster
+        "select * from mysql.juju_units_operations;",
+
+        # Get the cluster group replication status
+        ("select * from performance_schema.replication_group_members "
+            "order by MEMBER_HOST;"),
+
+        # Get connection stats
+        "show global status like \"%conne%\";",
+
+        # Get errors per client and host
+        # Useful for problens like an app disconnectting randomly
+        "select * from performance_schema.host_cache;"
+
+        # Get InnoDB status for any deadlocks, etc.
+        "show ENGINE InnoDB STATUS;",
+    ]
+
+    snap_path_common = "/var/snap/charmed-mysql/common"
+    snap_path_current = "/var/snap/charmed-mysql/current"
+
+    conf_paths = {
+        "MYSQL_CONF": f"{snap_path_current}/etc/mysql",
+        "MYSQL_LOGS": f"{snap_path_common}/var/log/mysql",
+        "MYSQL_ROUTER_CONF": f"{snap_path_current}/etc/mysqlrouter",
+        "MYSQL_ROUTER_LOGS": f"{snap_path_common}/var/log/mysqlrouter",
+        "MYSQL_SHELL_LOGS": f"{snap_path_common}/var/log/mysqlsh",
+    }
+
     option_list = [
         PluginOpt(
             "dbuser", default="mysql", val_type=str,
@@ -45,56 +79,29 @@ class CharmedMySQL(Plugin, UbuntuPlugin):
     ]
 
     def setup(self):
-        # Set default paths for snap
-        snap_path_common = "/var/snap/charmed-mysql/common"
-        snap_path_current = "/var/snap/charmed-mysql/current"
-
-        # Check if deployment is in a Kubernetes cluster
-        k8s_deploy = any("KUBERNETES" in key for key in os.environ)
-
-        # If in a Kubernetes cluster, set the snap paths to "None" as
-        # MySQL configuration does not exist in snap paths
-        if k8s_deploy:
-            snap_path_common = ""
-            snap_path_current = ""
-
-        # Set the configuration paths
-        conf_paths = {
-            "MYSQL_CONF": f"{snap_path_current}/etc/mysql",
-            "MYSQL_LOGS": f"{snap_path_common}/var/log/mysql",
-            "MYSQL_ROUTER_CONF": f"{snap_path_current}/etc/mysqlrouter",
-            "MYSQL_ROUTER_LOGS": f"{snap_path_common}/var/log/mysqlrouter",
-            "MYSQL_SHELL_LOGS": f"{snap_path_common}/var/log/mysqlsh",
-        }
-
         # Ignore private keys
         self.add_forbidden_path([
-            f"{conf_paths['MYSQL_CONF']}/*.pem",
-            f"{conf_paths['MYSQL_CONF']}/*.key",
+            f"{self.conf_paths['MYSQL_CONF']}/*.pem",
+            f"{self.conf_paths['MYSQL_CONF']}/*.key",
         ])
 
         # Include the files we want to get
         self.add_copy_spec([
-            conf_paths["MYSQL_CONF"],
-            conf_paths["MYSQL_LOGS"],
-            conf_paths["MYSQL_ROUTER_CONF"],
-            conf_paths["MYSQL_ROUTER_LOGS"],
-            conf_paths["MYSQL_SHELL_LOGS"],
+            self.conf_paths["MYSQL_CONF"],
+            self.conf_paths["MYSQL_LOGS"],
+            self.conf_paths["MYSQL_ROUTER_CONF"],
+            self.conf_paths["MYSQL_ROUTER_LOGS"],
+            self.conf_paths["MYSQL_SHELL_LOGS"],
         ])
 
-        # Only applicable if not in a Kubernetes cluster
-        # as `snap info` and `journalctl` are not available
-        # in the Kubernetes container
-        if not k8s_deploy:
-            # Get snap logs
-            self.add_journal("snap.charmed-mysql.*")
+        # Get snap logs
+        self.add_journal("snap.charmed-mysql.*")
 
-            # Get snap info
-            self.add_cmd_output("snap info charmed-mysql")
+        # Get snap info
+        self.add_cmd_output("snap info charmed-mysql")
 
         # If dumpdbs is set, then get all databases
         if self.get_option("dumpdbs"):
-
             db_user = self.get_option("dbuser")
             db_pass = self.get_option("dbpass")
 
@@ -116,28 +123,9 @@ class CharmedMySQL(Plugin, UbuntuPlugin):
             mysql_env = {"MYSQL_PWD": db_pass}
             opts = f"-h 127.0.0.1 -u{db_user}"
             sql_cmd = f"mysql {opts} -e"
-            queries = [
-                # Get databases user has access to
-                "'show databases;'",
-
-                # Get unit operations from MySQL to see, for example,
-                # if a unit is stuck on joining the cluster
-                "'select * from mysql.juju_units_operations;'",
-
-                # Get the cluster group replication status
-                ("'select * from performance_schema.replication_group_members "
-                    "order by MEMBER_HOST;'"),
-
-                # Get connection stats
-                "'show global status like \"%conne%\";'",
-
-                # Get errors per client and host
-                # Useful for problens like an app disconnectting randomly
-                "'select * from performance_schema.host_cache;'"
-            ]
 
             self.add_cmd_output(
-                [f"{sql_cmd} {query}" for query in queries],
+                [f"{sql_cmd} '{query}'" for query in self.mysql_queries],
                 env=mysql_env
             )
 
