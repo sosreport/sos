@@ -37,9 +37,11 @@ Depends:
  ${python3:Depends},
 Recommends:
  e2fsprogs,
+ gpg,
  lsof,
  mount,
  python3-boto3,
+ util-linux-extra,
 Description: Set of tools to gather troubleshooting data from a system
  Sos is a set of tools that gathers information about system
  hardware and configuration. The information can then be used for
