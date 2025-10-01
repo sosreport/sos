@@ -80,6 +80,6 @@ class PlugOptsConfigPresetCmdlineTest(StageTwoReportTest):
             "networking.timeout=20",                # cmd beats config&preset
             "crio.timeout=10",                      # cmdline beats preset
             "networking.ethtool-namespaces=False",  # preset setting is honored
-            "networking.namespaces=100",            # preset beats config file
+            "networking.namespaces=200",            # preset beats config file
         ]:
             self.assertSosLogContains(f"effective options now: .*{option}")
