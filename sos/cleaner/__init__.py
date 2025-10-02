@@ -550,7 +550,7 @@ third party.
                 logfile.write(line)
 
         if archive:
-            self.obfuscate_file(log_name, short_name="sos_logs/cleaner.log")
+            self.obfuscate_file(log_name)
             self.archive.add_file(log_name, dest="sos_logs/cleaner.log")
 
     def get_new_checksum(self, archive_path):
@@ -715,6 +715,7 @@ third party.
         for prepper in self.get_preppers():
             for archive in self.report_paths:
                 self._prepare_archive_with_prepper(archive, prepper)
+        self.main_archive.set_parsers(self.parsers)
 
     def obfuscate_report(self, archive):  # pylint: disable=too-many-branches
         """Individually handle each archive or directory we've discovered by
@@ -821,8 +822,8 @@ third party.
             self.ui_log.info("Exception while processing "
                              f"{archive.archive_name}: {err}")
 
-    def obfuscate_file(self, filename, short_name):
-        self.main_archive.obfuscate_filename(filename, short_name)
+    def obfuscate_file(self, filename):
+        self.main_archive.obfuscate_arc_files([filename])
 
     def obfuscate_symlinks(self, archive):
         """Iterate over symlinks in the archive and obfuscate their names.

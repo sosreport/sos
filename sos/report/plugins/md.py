@@ -15,6 +15,7 @@ class Md(Plugin, IndependentPlugin):
 
     plugin_name = 'md'
     profiles = ('storage',)
+    packages = ('mdadm',)
 
     def setup(self):
         self.add_cmd_output("mdadm -D /dev/md*")

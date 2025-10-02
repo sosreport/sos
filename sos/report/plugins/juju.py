@@ -218,6 +218,11 @@ class Juju(Plugin, UbuntuPlugin):
         keys_regex = fr"(^\s*({'|'.join(protect_keys)})\s*:\s*)(.*)"
         sub_regex = r"\1*********"
         self.do_path_regex_sub(agents_path, keys_regex, sub_regex)
+
+        # Redact keys from Nova compute logs
+        self.do_path_regex_sub("/var/log/juju/unit-nova-compute-*.log*",
+                               r"auth\(key=(.*)\)", r"auth(key=******)")
+
         # Redact certificates
         self.do_file_private_sub(agents_path)
         self.do_cmd_private_sub('juju controllers')

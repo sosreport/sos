@@ -25,6 +25,9 @@ class Boom(Plugin, RedHatPlugin):
     )
 
     def setup(self):
+        # Skip collecting cached boot images
+        self.add_forbidden_path("/boot/boom/cache/*.img")
+
         self.add_copy_spec([
             "/boot/boom",
             "/boot/loader/entries",
@@ -34,7 +37,8 @@ class Boom(Plugin, RedHatPlugin):
 
         self.add_cmd_output([
             "boom list -VV",
-            "boom profile list -VV"
+            "boom cache list -VV",
+            "boom profile list -VV",
         ])
 
 # vim: set et ts=4 sw=4 :

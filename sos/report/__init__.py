@@ -1581,13 +1581,10 @@ class SoSReport(SoSComponent):
         # Now, separately clean the log files that cleaner also wrote to
         if do_clean:
             _dir = os.path.join(self.tmpdir, self.archive._name)
-            cleaner.obfuscate_file(os.path.join(_dir, 'sos_logs', 'sos.log'),
-                                   short_name='sos.log')
-            cleaner.obfuscate_file(os.path.join(_dir, 'sos_logs', 'ui.log'),
-                                   short_name='ui.log')
+            cleaner.obfuscate_file(os.path.join(_dir, 'sos_logs', 'sos.log'))
+            cleaner.obfuscate_file(os.path.join(_dir, 'sos_logs', 'ui.log'))
             cleaner.obfuscate_file(
-                os.path.join(_dir, 'sos_reports', 'manifest.json'),
-                short_name='manifest.json'
+                    os.path.join(_dir, 'sos_reports', 'manifest.json')
             )
 
         # Now, just (optionally) pack the report and print work outcome; let

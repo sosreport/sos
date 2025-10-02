@@ -26,6 +26,7 @@ class Block(Plugin, IndependentPlugin):
         })
 
         self.add_dir_listing('/dev', tags=['ls_dev'], recursive=True)
+        self.add_dir_listing('/dev/', recursive=True, extra_opts='n')
         self.add_dir_listing('/sys/block', recursive=True)
 
         self.add_cmd_output("blkid -c /dev/null", tags="blkid")
@@ -68,5 +69,7 @@ class Block(Plugin, IndependentPlugin):
                     dev = line.split()[0]
                     self.add_cmd_output(f'cryptsetup luksDump /dev/{dev}')
                     self.add_cmd_output(f'clevis luks list -d /dev/{dev}')
+
+        self.add_copy_spec("/etc/crypttab")
 
 # vim: set et ts=4 sw=4 :

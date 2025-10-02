@@ -1,5 +1,4 @@
 # Copyright (C) 2021 Nadia Pinaeva <npinaeva@redhat.com>
-
 # This file is part of the sos project: https://github.com/sosreport/sos
 #
 # This copyrighted material is made available to anyone wishing to use,
@@ -8,6 +7,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import glob
 from sos.report.plugins import Plugin, RedHatPlugin
 
 
@@ -18,9 +18,11 @@ class OpenshiftOVN(Plugin, RedHatPlugin):
     plugin_name = "openshift_ovn"
     containers = ('ovnkube-master', 'ovnkube-node', 'ovn-ipsec',
                   'ovnkube-controller')
+    runtime = 'crio'
     profiles = ('openshift',)
 
     def setup(self):
+
         all_logs = self.get_option("all_logs")
 
         self.add_copy_spec([
@@ -50,21 +52,29 @@ class OpenshiftOVN(Plugin, RedHatPlugin):
             'cluster/status OVN_Northbound',
             'ovn-appctl -t /var/run/ovn/ovnsb_db.ctl ' +
             'cluster/status OVN_Southbound'],
-            container='ovnkube-master')
-        self.add_cmd_output([
-            'ovs-appctl -t /var/run/ovn/ovn-controller.*.ctl ' +
-            'ct-zone-list'],
-            container='ovnkube-node')
-        self.add_cmd_output([
-            'ovs-appctl -t /var/run/ovn/ovn-controller.*.ctl ' +
-            'ct-zone-list'],
-            container='ovnkube-controller')
+            container='ovnkube-master',
+            runtime='crio')
+        # We need to determine the actual file name to send
+        # to the command
+        files = glob.glob("/var/run/ovn/ovn-controller.*.ctl")
+        for file in files:
+            self.add_cmd_output([
+                f"ovs-appctl -t {file} ct-zone-list"],
+                container='ovnkube-node',
+                runtime='crio')
+            self.add_cmd_output([
+                f"ovs-appctl -t {file} ct-zone-list"],
+                container='ovnkube-controller',
+                runtime='crio')
         # Collect ovs ct-zone-list directly on host for interconnect setup.
-        self.add_cmd_output([
-            'ovs-appctl -t /var/run/ovn-ic/ovn-controller.*.ctl ' +
-            'ct-zone-list'])
+        files = glob.glob("/var/run/ovn-ic/ovn-controller.*.ctl")
+        for file in files:
+            self.add_cmd_output([
+                f"ovs-appctl -t {file} ct-zone-list"],
+                runtime='crio')
         self.add_cmd_output([
             'ovs-appctl -t ovs-monitor-ipsec tunnels/show',
             'ipsec status',
             'certutil -L -d sql:/etc/ipsec.d'],
-            container='ovn-ipsec')
+            container='ovn-ipsec',
+            runtime='crio')
