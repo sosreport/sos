@@ -220,7 +220,7 @@ class Juju(Plugin, UbuntuPlugin):
         self.do_path_regex_sub(agents_path, keys_regex, sub_regex)
 
         # Redact keys from Nova compute logs
-        self.do_path_regex_sub("/var/log/juju/unit-nova-compute-*.log*",
+        self.do_path_regex_sub("/var/log/juju/unit-nova-compute-(.*).log*",
                                r"auth\(key=(.*)\)", r"auth(key=******)")
 
         # Redact certificates
