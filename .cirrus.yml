@@ -12,8 +12,8 @@ env:
 
     UBUNTU_DEVEL_NAME: "ubuntu-25.10"
     UBUNTU_LATEST_NAME: "ubuntu-25.04"
-    UBUNTU_NAME: "ubuntu-24.04"
-    UBUNTU_PRIOR_NAME: "ubuntu-22.04"
+    UBUNTU_2404_NAME: "ubuntu-24.04"
+    UBUNTU_2204_NAME: "ubuntu-22.04"
 
     CENTOS_9_NAME: "centos-stream-9"
 
@@ -32,12 +32,12 @@ env:
     FEDORA_FAMILY_NAME: "fedora-cloud-42-x86-64"
     FEDORA_PRIOR_FAMILY_NAME: "fedora-cloud-41-x86-64"
 
+    UBUNTU_DEVEL_FAMILY_NAME: "ubuntu-2510-amd64"
     UBUNTU_DEB_FAMILY_NAME: "ubuntu-minimal-2504-amd64"
     UBUNTU_LATEST_FAMILY_NAME: "ubuntu-2504-amd64"
-    UBUNTU_FAMILY_NAME: "ubuntu-2404-lts-amd64"
-    UBUNTU_PRIOR_FAMILY_NAME: "ubuntu-2204-lts"
     UBUNTU_SNAP_FAMILY_NAME: "ubuntu-2404-lts-amd64"
-    UBUNTU_DEVEL_FAMILY_NAME: "ubuntu-2510-amd64"
+    UBUNTU_2404_FAMILY_NAME: "ubuntu-2404-lts-amd64"
+    UBUNTU_2204_FAMILY_NAME: "ubuntu-2204-lts"
 
     # Curl-command prefix for downloading task artifacts, simply add the
     # the url-encoded task name, artifact name, and path as a suffix.
@@ -215,16 +215,16 @@ report_stageone_task:
         - env: *centos9
 #        - env: *fedora
 #        - env: *fedoraprior
-        - env: &ubuntu
+        - env: &ubuntu-2404
             PKG: "snap"
             PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: "${UBUNTU_NAME} - ${PKG}"
-            VM_FAMILY_NAME: ${UBUNTU_FAMILY_NAME}
-        - env: &ubuntuprior
+            BUILD_NAME: "${UBUNTU_2404_NAME} - ${PKG}"
+            VM_FAMILY_NAME: ${UBUNTU_2404_FAMILY_NAME}
+        - env: &ubuntu-2204
             PKG: "snap"
             PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: "${UBUNTU_PRIOR_NAME} - ${PKG}"
-            VM_FAMILY_NAME: ${UBUNTU_PRIOR_FAMILY_NAME}
+            BUILD_NAME: "${UBUNTU_2204_NAME} - ${PKG}"
+            VM_FAMILY_NAME: ${UBUNTU_2204_FAMILY_NAME}
         - env: &ubuntu-latest-snap
             PKG: "snap"
             PROJECT: ${UBUNTU_PROJECT}
@@ -322,7 +322,7 @@ report_stagetwo_task:
     matrix:
         - env: *centos9
 #        - env: *fedora
-        - env: *ubuntu
+        - env: *ubuntu-2404
         - env: *ubuntu-latest-snap
         - env: *ubuntu-latest-deb
         - env: *debian-13
@@ -370,7 +370,7 @@ report_foreman_task:
     matrix:
         - env: *centos9
         - env: *debian-12
-        - env: *ubuntuprior
+        - env: *ubuntu-2204
     setup_script: *setup
     foreman_setup_script: ./tests/test_data/foreman_setup.sh
     main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t foreman tests/product_tests/foreman/
