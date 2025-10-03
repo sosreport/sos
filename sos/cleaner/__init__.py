@@ -34,7 +34,8 @@ from sos.cleaner.archives.sos import (SoSReportArchive, SoSReportDirectory,
                                       SoSCollectorDirectory)
 from sos.cleaner.archives.generic import DataDirArchive, TarballArchive
 from sos.cleaner.archives.insights import InsightsArchive
-from sos.utilities import (get_human_readable, import_module, ImporterHelper)
+from sos.utilities import (get_human_readable, import_module,
+                           ImporterHelper, is_executable)
 
 
 # an auxiliary method to kick off child processes over its instances
@@ -96,7 +97,8 @@ class SoSCleaner(SoSComponent):
         'no_update': False,
         'keep_binary_files': False,
         'target': '',
-        'usernames': []
+        'usernames': [],
+        'treat_certificates': 'obfuscate'
     }
 
     def __init__(self, parser=None, args=None, cmdline=None, in_place=False,
@@ -300,6 +302,15 @@ third party.
         clean_grp.add_argument('--usernames', dest='usernames', default=[],
                                action='extend',
                                help='List of usernames to obfuscate')
+        clean_grp.add_argument('--treat-certificates', default='obfuscate',
+                               choices=['obfuscate', 'keep', 'remove'],
+                               dest='treat_certificates',
+                               help=(
+                                   'How to treat certificate files '
+                                   '[.csr .crt .pem]. Defaults to "obfuscate" '
+                                   'after convert the file to text. '
+                                   '"Key" certificate files are always '
+                                   'removed.'))
 
     def set_target_path(self, path):
         """For use by report and collect to set the TARGET option appropriately
@@ -320,12 +331,14 @@ third party.
             for archive in self.archive_types:
                 if archive.type_name == check_type:
                     _arc = archive(self.opts.target, self.tmpdir,
-                                   self.opts.keep_binary_files)
+                                   self.opts.keep_binary_files,
+                                   self.opts.treat_certificates)
         else:
             for arc in self.archive_types:
                 if arc.check_is_type(self.opts.target):
                     _arc = arc(self.opts.target, self.tmpdir,
-                               self.opts.keep_binary_files)
+                               self.opts.keep_binary_files,
+                               self.opts.treat_certificates)
                     break
         if not _arc:
             return
@@ -577,6 +590,30 @@ third party.
                     "WARNING: binary files that potentially contain sensitive "
                     "information will NOT be removed from the final archive\n"
                 )
+            if (self.opts.treat_certificates == "obfuscate"
+                    and not is_executable("openssl")):
+                self.opts.treat_certificates = "remove"
+                self.ui_log.warning(
+                    "WARNING: No `openssl` command available. Replacing "
+                    "`--treat-certificates` from `obfuscate` to `remove`."
+                )
+            if self.opts.treat_certificates == "obfuscate":
+                self.ui_log.warning(
+                    "WARNING: certificate files that potentially contain "
+                    "sensitive information will be CONVERTED to text and "
+                    "OBFUSCATED in the final archive.\n"
+                )
+            elif self.opts.treat_certificates == "keep":
+                self.ui_log.warning(
+                    "WARNING: certificate files that potentially contain "
+                    "sensitive information will be KEPT in the final "
+                    "archive as is.\n"
+                )
+            elif self.opts.treat_certificates == "remove":
+                self.ui_log.warning(
+                    "WARNING: certificate files that potentially contain "
+                    "sensitive information will be REMOVED in the final "
+                    "archive.\n")
             for report_path in self.report_paths:
                 self.ui_log.info(f"Obfuscating {report_path.archive_path}")
                 self.obfuscate_report(report_path)

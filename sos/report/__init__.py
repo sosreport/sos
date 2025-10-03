@@ -149,7 +149,8 @@ class SoSReport(SoSComponent):
         'upload_s3_object_prefix': None,
         'upload_target': None,
         'add_preset': '',
-        'del_preset': ''
+        'del_preset': '',
+        'treat_certificates': 'obfuscate'
     }
 
     def __init__(self, parser, args, cmdline):
@@ -396,6 +397,15 @@ class SoSReport(SoSComponent):
         cleaner_grp.add_argument('--usernames', dest='usernames', default=[],
                                  action='extend',
                                  help='List of usernames to obfuscate')
+        cleaner_grp.add_argument('--treat-certificates', default='obfuscate',
+                                 choices=['obfuscate', 'keep', 'remove'],
+                                 dest='treat_certificates',
+                                 help=(
+                                    'How to treat the certificate files '
+                                    '[.csr .crt .pem]. Defaults to "obfuscate"'
+                                    ' after convert the file to text. '
+                                    ' "Key" certificate files are always '
+                                    'removed.'))
 
     @classmethod
     def display_help(cls, section):
