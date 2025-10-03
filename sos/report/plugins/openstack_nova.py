@@ -152,12 +152,11 @@ class OpenStackNova(Plugin):
 
     def postproc(self):
         protect_keys = [
-            "ldap_dns_password", "neutron_admin_password", "rabbit_password",
-            "qpid_password", "powervm_mgr_passwd", "virtual_power_host_pass",
-            "xenapi_connection_password", "password", "host_password",
-            "vnc_password", "admin_password", "connection_password",
-            "memcache_secret_key", "s3_secret_key",
-            "metadata_proxy_shared_secret", "fixed_key", "rbd_secret_uuid"
+            ".*_key",
+            ".*_pass(wd|word)?",
+            "password",
+            "metadata_proxy_shared_secret",
+            "rbd_secret_uuid",
         ]
         connection_keys = ["connection", "sql_connection", "transport_url"]
 

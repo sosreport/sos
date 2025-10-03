@@ -117,9 +117,10 @@ class OpenStackHeat(Plugin):
 
     def postproc(self):
         protect_keys = [
-            "admin_password", "memcache_secret_key", "password",
-            "qpid_password", "rabbit_password", "stack_domain_admin_password",
-            "transport_url", "auth_encryption_key",
+            ".*_key",
+            ".*_pass(wd|word)?",
+            "password",
+            "transport_url",
         ]
         connection_keys = ["connection"]
 

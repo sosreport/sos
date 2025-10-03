@@ -45,9 +45,10 @@ class OpenStackTrove(Plugin):
 
     def postproc(self):
         protect_keys = [
-            "default_password_length", "notifier_queue_password",
-            "rabbit_password", "replication_password", "admin_password",
-            "dns_passkey", "transport_url", "memcache_secret_key"
+            ".*_(password|key)",
+            "default_password_length",
+            "dns_passkey",
+            "transport_url",
         ]
         connection_keys = ["connection"]
 
