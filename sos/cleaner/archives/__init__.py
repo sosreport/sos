@@ -17,7 +17,8 @@ import tempfile
 import re
 
 from concurrent.futures import ProcessPoolExecutor
-from sos.utilities import file_is_binary
+from sos.utilities import (file_is_binary, sos_get_command_output,
+                           file_is_certificate)
 
 
 # python older than 3.8 will hit a pickling error when we go to spawn a new
@@ -63,7 +64,8 @@ class SoSObfuscationArchive():
     is_nested = False
     prep_files = {}
 
-    def __init__(self, archive_path, tmpdir, keep_binary_files):
+    def __init__(self, archive_path, tmpdir, keep_binary_files,
+                 treat_certificates):
         self.archive_path = archive_path
         self.final_archive_path = self.archive_path
         self.tmpdir = tmpdir
@@ -76,6 +78,7 @@ class SoSObfuscationArchive():
         self._load_self()
         self.archive_root = ''
         self.keep_binary_files = keep_binary_files
+        self.treat_certificates = treat_certificates
         self.parsers = ()
         self.log_info(
             f"Loaded {self.archive_path} as type {self.description}"
@@ -173,6 +176,19 @@ class SoSObfuscationArchive():
                     # don't run the obfuscation on the link, but on the actual
                     # file at some other point.
                     continue
+                is_certificate = file_is_certificate(filename)
+                if is_certificate:
+                    if is_certificate == "certificatekey":
+                        # Always remove certificate Key files
+                        self.remove_file(short_name)
+                        continue
+                    if self.treat_certificates == "keep":
+                        continue
+                    if self.treat_certificates == "remove":
+                        self.remove_file(short_name)
+                        continue
+                    if self.treat_certificates == "obfuscate":
+                        self.certificate_to_text(filename)
                 _parsers = [
                     _p for _p in self.parsers if not
                     any(
@@ -288,6 +304,16 @@ class SoSObfuscationArchive():
             return tarfile.is_tarfile(self.archive_path)
         except Exception:
             return False
+
+    def certificate_to_text(self, fname):
+        """Convert a certificate to text. This is used when cleaner encounters
+        a certificate file and the option 'treat_certificates' is 'obfuscate'.
+        """
+        self.log_info(f"Converting certificate file '{fname}' to text")
+        sos_get_command_output(
+            f"openssl storeutl -noout -text -certs {str(fname)}",
+            to_file=f"{fname}.text")
+        os.remove(fname)
 
     def remove_file(self, fname):
         """Remove a file from the archive. This is used when cleaner encounters
