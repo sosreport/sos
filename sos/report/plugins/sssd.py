@@ -51,7 +51,8 @@ class Sssd(Plugin):
         domain = self.collect_cmd_output("sssctl domain-list", pred=sssd_pred)
         if domain['status'] == 0:
             for domain_name in domain['output'].splitlines():
-                self.add_cmd_output("sssctl domain-status -o " + domain_name)
+                self.add_cmd_output(f"sssctl domain-status {domain_name}")
+                self.add_cmd_output(f"sssctl access-report {domain_name}")
 
     def postproc(self):
         regexp = r"((\s*ldap_default_authtok\s*=)(.*))"
