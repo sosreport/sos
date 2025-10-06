@@ -28,7 +28,7 @@ def str_to_bool(val):
 
 class SoSOptions():
 
-    def _merge_opt(self, opt, src, is_default):
+    def _merge_opt(self, opt, src, is_default, prefer_new):
         def _unset(val):
             return (val == "" or val is None)
 
@@ -39,9 +39,11 @@ class SoSOptions():
             # - we replace unset option by a real value
             # - new default is set, or
             # - non-sequential variable keeps its default value
+            # pylint: disable=too-many-boolean-expressions
             if (_unset(oldvalue) and not _unset(newvalue)) or \
                is_default or \
-               ((opt not in self._nondefault) and (not _is_seq(newvalue))):
+               ((opt not in self._nondefault) and (not _is_seq(newvalue))) or \
+               prefer_new:
                 # Overwrite atomic values
                 setattr(self, opt, newvalue)
                 if is_default:
@@ -52,11 +54,11 @@ class SoSOptions():
                 # Concatenate sequence types
                 setattr(self, opt, newvalue + oldvalue)
 
-    def _merge_opts(self, src, is_default):
+    def _merge_opts(self, src, is_default, prefer_new):
         if not isinstance(src, dict):
             src = vars(src)
         for arg in self.arg_names:
-            self._merge_opt(arg, src, is_default)
+            self._merge_opt(arg, src, is_default, prefer_new)
 
     def __str(self, quote=False, sep=" ", prefix="", suffix=""):
         """Format a SoSOptions object as a human or machine readable string.
@@ -124,7 +126,7 @@ class SoSOptions():
             :returntype: SoSOptions
         """
         opts = SoSOptions(**vars(args), arg_defaults=arg_defaults)
-        opts._merge_opts(args, True)
+        opts._merge_opts(args, True, False)
         return opts
 
     @classmethod
@@ -233,7 +235,7 @@ class SoSOptions():
                 if not key.split('.')[0] in self.skip_plugins:
                     self.plugopts.append(key + '=' + val)
 
-    def merge(self, src, skip_default=True):
+    def merge(self, src, skip_default=True, prefer_new=False):
         """Merge another set of ``SoSOptions`` into this object.
 
             Merge two ``SoSOptions`` objects by setting unset or default
@@ -241,12 +243,13 @@ class SoSOptions():
 
             :param src: the ``SoSOptions`` object to copy from
             :param is_default: ``True`` if new default values are to be set.
+            :param prefer_new: ``False`` if new default is not preferred.
         """
         for arg in self.arg_names:
             if not hasattr(src, arg):
                 continue
             if getattr(src, arg) is not None or not skip_default:
-                self._merge_opt(arg, src, False)
+                self._merge_opt(arg, src, False, prefer_new=prefer_new)
 
     def dict(self, preset_filter=True):
         """Return this ``SoSOptions`` option values as a dictionary of
