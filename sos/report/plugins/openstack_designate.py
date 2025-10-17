@@ -85,9 +85,11 @@ class OpenStackDesignate(Plugin):
 
     def postproc(self):
         protect_keys = [
-            "password", "connection", "transport_url", "admin_password",
-            "ssl_key_password", "ssl_client_key_password",
-            "memcache_secret_key"
+            ".*_key",
+            ".*_pass(wd|word)?",
+            "password",
+            "connection",
+            "transport_url",
         ]
         regexp = fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)"
 

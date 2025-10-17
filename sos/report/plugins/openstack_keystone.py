@@ -98,9 +98,9 @@ class OpenStackKeystone(Plugin):
 
     def postproc(self):
         protect_keys = [
-            "password", "qpid_password", "rabbit_password", "ssl_key_password",
-            "ldap_dns_password", "neutron_admin_password", "host_password",
-            "admin_password", "admin_token", "ca_password", "transport_url",
+            "(.*_)?password",
+            "admin_token",
+            "transport_url",
             "OIDCClientSecret",
         ]
         connection_keys = ["connection"]

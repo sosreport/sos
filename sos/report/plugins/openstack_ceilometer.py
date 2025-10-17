@@ -52,12 +52,15 @@ class OpenStackCeilometer(Plugin):
 
     def postproc(self):
         protect_keys = [
-            "admin_password", "connection_password", "host_password",
-            "memcache_secret_key", "os_password", "password", "qpid_password",
-            "rabbit_password", "readonly_user_password", "secret_key",
-            "ssl_key_password", "telemetry_secret", "metering_secret"
+            ".*_key",
+            ".*_pass(wd|word)?",
+            ".*_secret",
+            "password",
         ]
-        connection_keys = ["connection", "backend_url", "transport_url"]
+        connection_keys = [
+            ".*_urls?",
+            "connection",
+        ]
 
         join_con_keys = "|".join(connection_keys)
 

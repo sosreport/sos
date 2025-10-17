@@ -75,9 +75,8 @@ class OpenStackAodh(Plugin):
 
     def postproc(self):
         protect_keys = [
-            "admin_password", "connection_password", "host_password",
-            "os_password", "password", "qpid_password", "rabbit_password",
-            "memcache_secret_key"
+            ".*_key",
+            "(.*_)?password",
         ]
         connection_keys = ["connection", "backend_url", "transport_url"]
 

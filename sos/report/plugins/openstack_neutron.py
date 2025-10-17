@@ -123,14 +123,9 @@ class OpenStackNeutron(Plugin):
 
     def postproc(self):
         protect_keys = [
-            "rabbit_password", "qpid_password", "nova_admin_password",
-            "xenapi_connection_password", "password", "server_auth",
-            "admin_password", "metadata_proxy_shared_secret", "eapi_password",
-            "crd_password", "primary_l3_host_password", "serverauth",
-            "ucsm_password", "ha_vrrp_auth_password", "ssl_key_password",
-            "nsx_password", "vcenter_password", "edge_appliance_password",
-            "tenant_admin_password", "apic_password", "transport_url",
-            "memcache_secret_key"
+            "(.*_)?(key|password|secret)",
+            "server_?auth",
+            "transport_url",
         ]
         connection_keys = ["connection"]
 

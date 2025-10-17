@@ -55,10 +55,9 @@ class OpenStackSwift(Plugin):
 
     def postproc(self):
         protect_keys = [
-            "ldap_dns_password", "neutron_admin_password", "rabbit_password",
-            "qpid_password", "powervm_mgr_passwd", "virtual_power_host_pass",
-            "xenapi_connection_password", "password", "host_password",
-            "vnc_password", "admin_password", "transport_url"
+            ".*_pass(wd|word)?",
+            "password",
+            "transport_url",
         ]
         connection_keys = ["connection", "sql_connection"]
 
