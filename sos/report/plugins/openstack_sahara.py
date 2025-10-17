@@ -46,9 +46,9 @@ class OpenStackSahara(Plugin):
 
     def postproc(self):
         protect_keys = [
-            "admin_password", "memcache_secret_key", "password",
-            "qpid_password", "rabbit_password", "ssl_key_password",
-            "xenapi_connection_password", "transport_url"
+            "(.*_)?password",
+            "memcache_secret_key",
+            "transport_url",
         ]
         connection_keys = ["connection"]
 

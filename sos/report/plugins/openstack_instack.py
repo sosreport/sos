@@ -119,22 +119,9 @@ class OpenStackInstack(Plugin):
         # do_file_sub is case insensitive, so protected_keys can be lowercase
         # only
         protected_keys = [
-            "os_password",
-            "undercloud_admin_password",
-            "undercloud_ceilometer_metering_secret",
-            "undercloud_ceilometer_password",
-            "undercloud_ceilometer_snmpd_password",
-            "undercloud_db_password",
-            "undercloud_glance_password",
-            "undercloud_heat_password",
-            "undercloud_heat_stack_domain_admin_password",
-            "undercloud_horizon_secret_key",
-            "undercloud_ironic_password",
-            "undercloud_neutron_password",
-            "undercloud_nova_password",
-            "undercloud_rabbit_password",
-            "undercloud_swift_password",
-            "undercloud_tuskar_password",
+            ".*_password",
+            ".*_secret",
+            ".*_key",
         ]
         regexp = fr"(({'|'.join(protected_keys)})=)(.*)"
         self.do_file_sub("/home/stack/.instack/install-undercloud.log",
