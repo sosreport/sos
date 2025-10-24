@@ -21,6 +21,12 @@ class AAPEDAControllerPlugin(Plugin, RedHatPlugin):
                 'automation-eda-controller-server')
 
     def setup(self):
+
+        pkg_name = 'automation-eda-controller'
+        pkg = self.policy.package_manager.pkg_by_name(f'{pkg_name}')
+        if pkg is not None:
+            self.eda_pkg_ver = '.'.join(pkg['version'])
+
         if self.get_option("all_logs"):
             self.add_copy_spec([
                 "/etc/ansible-automation-platform/",
@@ -57,31 +63,39 @@ class AAPEDAControllerPlugin(Plugin, RedHatPlugin):
 
         pkg_name = 'automation-eda-controller'
         pkg = self.policy.package_manager.pkg_by_name(f'{pkg_name}')
-        if pkg is not None:
-            eda_pkg_ver = '.'.join(pkg['version'])
-            # EDA version in 2.5 release starts with 1.1.0 version
-            if sos_parse_version(eda_pkg_ver) > sos_parse_version('1.0.99'):
-                self.add_cmd_output([
-                    "automation-eda-controller-service status",
-                    "automation-eda-controller-event-stream-service status",
-                ])
-            else:
-                # systemd service status which starts with "automation-eda"
-                result = self.exec_cmd(
-                    'systemctl list-units --type=service \
-                    --no-legend automation-eda*'
-                )
-                if result['status'] == 0:
-                    for svc in result['output'].splitlines():
-                        eda_svc = svc.split()
-                        if not eda_svc:
-                            continue
-                        self.add_service_status(eda_svc[0])
+
+        # EDA version in 2.5 release starts with 1.1.0 version
+        eda_pkg_ver = getattr(self, 'eda_pkg_ver', '0.0.0')
+        if sos_parse_version(eda_pkg_ver) > sos_parse_version('1.0.99'):
+            self.add_cmd_output([
+                "automation-eda-controller-service status",
+                "automation-eda-controller-event-stream-service status",
+            ])
+        else:
+            # systemd service status which starts with "automation-eda"
+            result = self.exec_cmd(
+                'systemctl list-units --type=service \
+                --no-legend automation-eda*'
+            )
+            if result['status'] == 0:
+                for svc in result['output'].splitlines():
+                    eda_svc = svc.split()
+                    if not eda_svc:
+                        continue
+                    self.add_service_status(eda_svc[0])
 
     def postproc(self):
-        self.do_path_regex_sub(
-            "/etc/ansible-automation-platform/eda/environment",
-            r"(EDA_SECRET_KEY|EDA_DB_PASSWORD)(\s*)(=|:)(\s*)(.*)",
-            r'\1\2\3\4********')
+        # EDA Version in AAP 2.4 uses environment file to store configuration
+        eda_pkg_ver = getattr(self, 'eda_pkg_ver', '0.0.0')
+        if sos_parse_version(eda_pkg_ver) < sos_parse_version('1.0.99'):
+            file_path = "/etc/ansible-automation-platform/eda/environment"
+            regex = r"(EDA_SECRET_KEY|EDA_DB_PASSWORD)(\s*)(=|:)(\s*)(.*)"
+            replacement = r'\1\2\3\4********'
+        # EDA version in AAP 2.5 and above use yaml file for configuration
+        else:
+            file_path = "/etc/ansible-automation-platform/eda/settings.yaml"
+            regex = r"(\s*)(PASSWORD|MQ_USER_PASSWORD|SECRET_KEY)(:\s*)(.*$)"
+            replacement = r'\1\2\3********'
 
+        self.do_path_regex_sub(file_path, regex, replacement)
 # vim: set et ts=4 sw=4 :
