@@ -50,8 +50,6 @@ class AAPControllerPlugin(Plugin, RedHatPlugin):
             "awx-manage run_dispatcher --status",
             "awx-manage run_callback_receiver --status",
             "awx-manage check_license --data",
-            "awx-manage run_wsbroadcast --status",
-            "awx-manage run_wsrelay --status",
             "supervisorctl status",
             "/var/lib/awx/venv/awx/bin/pip freeze",
             "/var/lib/awx/venv/awx/bin/pip freeze -l",
@@ -64,7 +62,7 @@ class AAPControllerPlugin(Plugin, RedHatPlugin):
         awx_version = self.collect_cmd_output('awx-manage --version')
         if awx_version['status'] == 0:
             if (
-                sos_parse_version(awx_version['output']) >
+                sos_parse_version(awx_version['output'].strip()) >
                 sos_parse_version('4.4.99')
             ):
                 self.add_cmd_output("awx-manage run_wsrelay --status")
@@ -80,7 +78,7 @@ class AAPControllerPlugin(Plugin, RedHatPlugin):
 
     def postproc(self):
         # remove database password
-        jreg = r"(\s*\'PASSWORD\'\s*:(\s))(?:\"){1,}(.+)(?:\"){1,}"
+        jreg = r"(\s*'PASSWORD'\s*:\s*)('.*')"
         repl = r"\1********"
         self.do_path_regex_sub("/etc/tower/conf.d/postgres.py", jreg, repl)
 
@@ -98,5 +96,10 @@ class AAPControllerPlugin(Plugin, RedHatPlugin):
         jreg = r"(BROADCAST_WEBSOCKET_SECRET\s*=\s*)\"(.+)\""
         repl = r"\1********"
         self.do_path_regex_sub("/etc/tower/conf.d/channels.py", jreg, repl)
+
+        # remove secret key
+        jreg = r"(\s*'SECRET_KEY'\s*:\s*)(\".*\")"
+        repl = r"\1********"
+        self.do_path_regex_sub("/etc/tower/conf.d/gateway.py", jreg, repl)
 
 # vim: set et ts=4 sw=4 :
