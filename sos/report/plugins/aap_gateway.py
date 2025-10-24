@@ -49,8 +49,8 @@ class AAPGatewayPlugin(Plugin, RedHatPlugin):
 
     def postproc(self):
         # remove database password
-        jreg = r"(DATABASE_PASSWORD)(\s*)(=|:)(\s*)(.*)"
-        repl = r"\1\2\3\4********"
+        jreg = r"(\s*'PASSWORD'\s*:\s*)('.*')"
+        repl = r"\1********"
         self.do_path_regex_sub(
             "/etc/ansible-automation-platform/gateway/settings.py",
             jreg,
