@@ -132,6 +132,29 @@ def convert_bytes(num_bytes):
     return f"{num_bytes}"
 
 
+def file_is_certificate(fname):
+    """Helper to determine if a given file is a certificate or not.
+
+    This is especially helpful for `sos clean`, which cannot obfuscate
+    certificate files content and instead, by default, will keep them as is.
+
+    :param fname:   The full path of the file to check
+    :type fname:    ``str``
+
+    :returns:   The type of the certificate or ``None``
+    :rtype:     ``string`` or ``None``
+    """
+    if fname[-4:] in [".csr", ".crt", ".pem"]:
+        with open(fname, 'r', encoding='utf-8') as f:
+            content = f.read()
+            if re.search(r'-----BEGIN CERTIFICATE-----', content):
+                return "certificate"
+            if re.search(r'-----BEGIN [A-Z]+ PRIVATE KEY-----', content):
+                return "certificatekey"
+        return None
+    return None
+
+
 def file_is_binary(fname):
     """Helper to determine if a given file contains binary content or not.
 

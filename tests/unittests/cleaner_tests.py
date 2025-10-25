@@ -339,7 +339,8 @@ class PrepperTests(unittest.TestCase):
             archive_path='tests/test_data/'
                          'sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz',
             keep_binary_files=[],
-            tmpdir='/tmp'
+            tmpdir='/tmp',
+            treat_certificates='obfuscate'
         )
         self.host_prepper = HostnamePrepper(SoSOptions(domains=[]))
         self.ipv4_prepper = IPPrepper(SoSOptions())
