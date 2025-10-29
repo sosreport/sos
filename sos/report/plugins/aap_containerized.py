@@ -42,9 +42,23 @@ class AAPContainerized(Plugin, RedHatPlugin):
         # Check if username is passed as argument
         username = self.get_option("username")
         if not username:
-            self._log_error("Username is mandatory to collect "
-                            "AAP containerized setup logs")
-            return
+            self._log_warn("AAP username is missing, use '-k "
+                           "aap_containerized.username=<user>' to set it")
+            ps = self.exec_cmd("ps aux")
+            if ps["status"] == 0:
+                podman_users = set()
+                for line in ps["output"].splitlines():
+                    if ("/usr/bin/podman" in line) and \
+                       ("/.local/share/containers/storage/" in line):
+                        user, _ = line.split(maxsplit=1)
+                        podman_users.add(user)
+                if len(podman_users) == 1:
+                    username = podman_users.pop()
+                    self._log_warn(f"AAP username detected as '{username}'")
+                else:
+                    self._log_error("Unable to determine AAP username, "
+                                    "terminating plugin.")
+                    return
 
         # Grab aap installation directory under user's home
         if not self.get_option("directory"):
