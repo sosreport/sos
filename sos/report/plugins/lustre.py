@@ -49,6 +49,9 @@ class Lustre(Plugin, RedHatPlugin):
             ["version", "health_check", "debug"]
         )
 
+        # copy lnet settings if present
+        self.add_copy_spec("/etc/lnet.conf")
+
         # Client Specific
         self.add_cmd_output([
             "lfs df",
