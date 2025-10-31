@@ -114,6 +114,24 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
     files = ('/etc/default/kdump-tools',)
     packages = ('kdump-tools',)
 
+    option_list = [
+        PluginOpt("get-vm-core", default=False, val_type=bool,
+                  desc="collect memory dumps")
+    ]
+
+    def read_kdump_conffile(self):
+        """ Parse /etc/default/kdump-tools """
+        path = "/var/crash"
+
+        kdump = '/etc/default/kdump-tools'
+        with open(kdump, 'r', encoding='UTF-8') as file:
+            for line in file:
+                line = line.strip()
+                if line.startswith("KDUMP_COREDIR"):
+                    path = line.split('=')[1].strip('"')
+
+        return path
+
     def setup(self):
         super().setup()
 
@@ -126,6 +144,24 @@ class DebianKDump(KDump, DebianPlugin, UbuntuPlugin):
         self.add_copy_spec([
             "/etc/default/kdump-tools"
         ])
+
+        try:
+            path = self.read_kdump_conffile()
+        except Exception:  # pylint: disable=broad-except
+            # set default path of coredir
+            path = "/var/crash"
+
+        self.add_dir_listing(path, recursive=True)
+        self.add_copy_spec([
+            f"{path}/kexec_cmd",
+            f"{path}/kdump_lock",
+            f"{path}/*/dmesg*",
+        ])
+        self.add_copy_spec(f"{path}/linux-image-*", sizelimit=2048, maxage=24)
+
+        # collect the latest dump created in the last 24hrs <= 2GB
+        if self.get_option("get-vm-core"):
+            self.add_copy_spec(f"{path}/*/dump*", sizelimit=2048, maxage=24)
 
 
 class CosKDump(KDump, CosPlugin):
