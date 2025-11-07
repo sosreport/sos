@@ -80,6 +80,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
             "dnf list extras",
             "dnf updateinfo info security",
             "dnf updateinfo list --available",
+            "dnf updateinfo list cves",
             "package-cleanup --dupes",
             "package-cleanup --problems",
         ])
