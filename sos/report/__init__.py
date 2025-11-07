@@ -150,7 +150,12 @@ class SoSReport(SoSComponent):
         'upload_target': None,
         'add_preset': '',
         'del_preset': '',
-        'treat_certificates': 'obfuscate'
+        'treat_certificates': 'obfuscate',
+        'proxy_user': None,
+        'proxy_password': None,
+        'proxy_protocol': 'http',
+        'proxy_host': None,
+        'proxy_port': None
     }
 
     def __init__(self, parser, args, cmdline):
@@ -354,6 +359,29 @@ class SoSReport(SoSComponent):
                                 help="Add a new named command line preset")
         preset_grp.add_argument("--del-preset", type=str, action="store",
                                 help="Delete the named command line preset")
+
+        # Group the proxy options together
+        proxy_grp = parser.add_argument_group(
+            'HTTP/HTTPS Proxy Options',
+            'These options control the configuration of a '
+            'proxy server if used for uploads.'
+        )
+        proxy_grp.add_argument('--proxy-user',
+                               default=None,
+                               help='Specify the User for the proxy server')
+        proxy_grp.add_argument('--proxy-pass',
+                               default=None,
+                               help='Specify the Password for the proxy user')
+        proxy_grp.add_argument('--proxy-protocol', default='http',
+                               choices=['http', 'https'],
+                               help=('Specify the protocol for the proxy '
+                                     'server'))
+        proxy_grp.add_argument('--proxy-host',
+                               default=None,
+                               help='Specify the host for the proxy server')
+        proxy_grp.add_argument('--proxy-port',
+                               default=None,
+                               help='Specify the Port for the proxy server')
 
         # Group the cleaner options together
         cleaner_grp = parser.add_argument_group(

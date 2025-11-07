@@ -47,7 +47,12 @@ class SoSUpload(SoSComponent):
         'upload_s3_access_key': None,
         'upload_s3_secret_key': None,
         'upload_s3_object_prefix': None,
-        'upload_target': None
+        'upload_target': None,
+        'proxy_user': None,
+        'proxy_password': None,
+        'proxy_protocol': None,
+        'proxy_host': None,
+        'proxy_port': None
     }
 
     def __init__(self, parser=None, args=None, cmdline=None, in_place=False,
@@ -126,6 +131,28 @@ class SoSUpload(SoSComponent):
                                       "options are:\n"
                                       "redhat, canonical, "
                                       "generic, local"))
+        # Group the proxy options together
+        proxy_grp = parser.add_argument_group(
+            'HTTP/HTTPS Proxy Options',
+            'These options control the configuration of a '
+            'proxy server if used for uploads.'
+        )
+        proxy_grp.add_argument('--proxy-user',
+                               default=None,
+                               help='Specify the User for the proxy server')
+        proxy_grp.add_argument('--proxy-pass',
+                               default=None,
+                               help='Specify the Password for the proxy user')
+        proxy_grp.add_argument('--proxy-protocol', default='http',
+                               choices=['http', 'https'],
+                               help=('Specify the protocol for the proxy '
+                                     'server'))
+        proxy_grp.add_argument('--proxy-host',
+                               default=None,
+                               help='Specify the host for the proxy server')
+        proxy_grp.add_argument('--proxy-port',
+                               default=None,
+                               help='Specify the Port for the proxy server')
 
     @classmethod
     def display_help(cls, section):
