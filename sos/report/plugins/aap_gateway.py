@@ -42,6 +42,7 @@ class AAPGatewayPlugin(Plugin, RedHatPlugin):
             "aap-gateway-manage authenticators",
             "aap-gateway-manage showmigrations",
             "aap-gateway-manage list_services",
+            "aap-gateway-manage feature_flags --list",
             "aap-gateway-manage --version",
         ])
         self.add_dir_listing("/etc/ansible-automation-platform/",
