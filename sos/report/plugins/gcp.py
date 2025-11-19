@@ -6,7 +6,6 @@
 #
 # See the LICENSE file in the source distribution for further information.
 import json
-from http.client import HTTPResponse
 from typing import Any
 from urllib import request
 from urllib.error import URLError
@@ -27,32 +26,24 @@ class GCP(Plugin, IndependentPlugin):
                        "Metadata server.")
     ]
 
-    METADATA_ROOT = "http://metadata.google.internal/computeMetadata/v1/"
+    PRODUCT_PATH = "/sys/devices/virtual/dmi/id/product_name"
+
     METADATA_QUERY = "http://metadata.google.internal/computeMetadata/v1/" \
                      "?recursive=true"
     REDACTED = "[--REDACTED--]"
     metadata = None
 
-    # A line we will be looking for in the dmesg output. If it's there,
-    # that means we're running on a Google Cloud Compute instance.
-    GOOGLE_DMI = "DMI: Google Google Compute Engine/Google " \
-                 "Compute Engine, BIOS Google"
-
     def check_enabled(self):
         """
-        Checks if this plugin should be executed at all. In this case, it
-        will check the `dmesg` command output to see if the system is
-        running on a Google Cloud Compute instance.
+        Checks if this plugin should be executed based on the presence of
+        GCE entry in sysfs.
         """
-        dmesg = self.exec_cmd("dmesg")
-        if dmesg['status'] != 0:
-            return False
-        return self.GOOGLE_DMI in dmesg['output']
+        with open(self.PRODUCT_PATH, encoding='utf-8') as sys_file:
+            return "Google Compute Engine" in sys_file.read()
 
     def setup(self):
         """
         Collect the following info:
-         * Metadata from the Metadata server
          * `gcloud auth list` output
          * Any google services output from journal
         """
@@ -64,7 +55,7 @@ class GCP(Plugin, IndependentPlugin):
         self.add_journal(units="google*", tags=['gcp'])
 
     def collect(self):
-        # Get and store Metadata
+        # Collect Metadata from the server
         with self.collection_file('metadata.json', tags=['gcp']) as mfile:
             try:
                 self.metadata = self.get_metadata()
@@ -78,12 +69,10 @@ class GCP(Plugin, IndependentPlugin):
         Retrieves metadata from the Metadata Server and transforms it into a
         dictionary object.
         """
-        response = self._query_address(self.METADATA_QUERY)
-        response_body = response.read().decode()
+        response_body = self._query_address(self.METADATA_QUERY)
         return json.loads(response_body)
 
-    @staticmethod
-    def _query_address(url: str) -> HTTPResponse:
+    def _query_address(self, url: str) -> str:
         """
         Query the given url address with headers required by Google Metadata
         Server.
@@ -96,7 +85,7 @@ class GCP(Plugin, IndependentPlugin):
                         f"Failed to communicate with Metadata Server "
                         f"(code: {response.code}): " +
                         response.read().decode())
-                return response
+                return response.read().decode()
         except URLError as err:
             raise RuntimeError(
                 "Failed to communicate with Metadata Server: " + str(err)) \
