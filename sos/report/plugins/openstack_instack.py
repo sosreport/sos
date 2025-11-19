@@ -21,13 +21,18 @@ NON_CONTAINERIZED_DEPLOY = [
         '/home/stack/undercloud.conf'
 ]
 CONTAINERIZED_DEPLOY = [
-        '/var/log/heat-launcher/',
+        '/etc/puppet/hieradata/',
+        '/etc/rhosp-release',
+        '/home/stack/*-deploy',
+        '/home/stack/.tripleo/history',
         '/home/stack/ansible.log',
         '/home/stack/config-download/',
         '/home/stack/install-undercloud.log',
+        '/home/stack/overcloud_install.log',
         '/home/stack/undercloud-install-*.tar.bzip2',
-        '/home/stack/.tripleo/history',
+        '/home/stack/undercloud.conf',
         '/var/lib/tripleo-config/',
+        '/var/log/heat-launcher/',
         '/var/log/tripleo-container-image-prepare.log',
 ]
 UNDERCLOUD_CONF_PATH = '/home/stack/undercloud.conf'
@@ -135,6 +140,10 @@ class OpenStackInstack(Plugin):
         self.do_file_sub('/home/stack/.tripleo/history',
                          r'(password=)\w+',
                          r'\1*********')
+
+        self.do_file_sub('/home/stack/overcloud_install.log',
+                         r'(Found key: \\".*password.*\\" value: )(\\".+?\\")',
+                         r'\1\\"*********\\"')
 
 
 class RedHatRDOManager(OpenStackInstack, RedHatPlugin):
