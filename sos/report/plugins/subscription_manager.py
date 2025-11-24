@@ -10,6 +10,7 @@ from configparser import NoOptionError, NoSectionError
 import glob
 from os import remove
 from sos.report.plugins import Plugin, RedHatPlugin
+from sos.utilities import sos_parse_version
 
 
 class SubscriptionManager(Plugin, RedHatPlugin):
@@ -67,13 +68,9 @@ class SubscriptionManager(Plugin, RedHatPlugin):
             "/var/log/rhsm/rhsmcertd.log"])
         self.add_cmd_output("subscription-manager identity",
                             tags="subscription_manager_id")
-        self.add_cmd_output("subscription-manager list --consumed",
-                            tags="subscription_manager_list_consumed")
         self.add_cmd_output("subscription-manager list --installed",
                             tags="subscription_manager_installed")
         self.add_cmd_output([
-            "subscription-manager list --available",
-            "subscription-manager list --all --available",
             "subscription-manager release --show",
             "subscription-manager release --list",
             "syspurpose show",
@@ -81,6 +78,16 @@ class SubscriptionManager(Plugin, RedHatPlugin):
             "subscription-manager status",
             "subscription-manager facts",
         ], cmd_as_tag=True)
+        # Deprecated options in RHEL 10, that throw errors when run
+        smpkg = self.policy.package_manager.pkg_by_name('subscription-manager')
+        if smpkg is not None:
+            sm_version = '.'.join(smpkg['version'])
+            if sos_parse_version(sm_version) < sos_parse_version('1.30.3-1'):
+                self.add_cmd_output([
+                                "subscription-manager list --available",
+                                "subscription-manager list --all --available",
+                                "subscription-manager list --consumed",
+                ], cmd_as_tag=True)
         self.add_cmd_output("rhsm-debug system --sos --no-archive "
                             "--no-subscriptions --destination "
                             f"{self.get_cmd_output_path()}")
