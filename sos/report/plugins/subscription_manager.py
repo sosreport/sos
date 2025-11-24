@@ -67,13 +67,9 @@ class SubscriptionManager(Plugin, RedHatPlugin):
             "/var/log/rhsm/rhsmcertd.log"])
         self.add_cmd_output("subscription-manager identity",
                             tags="subscription_manager_id")
-        self.add_cmd_output("subscription-manager list --consumed",
-                            tags="subscription_manager_list_consumed")
         self.add_cmd_output("subscription-manager list --installed",
                             tags="subscription_manager_installed")
         self.add_cmd_output([
-            "subscription-manager list --available",
-            "subscription-manager list --all --available",
             "subscription-manager release --show",
             "subscription-manager release --list",
             "syspurpose show",
@@ -81,6 +77,13 @@ class SubscriptionManager(Plugin, RedHatPlugin):
             "subscription-manager status",
             "subscription-manager facts",
         ], cmd_as_tag=True)
+        # Deprecated options in RHEL 10, that throw errors when run
+        if self.policy.dist_version() < 10:
+            self.add_cmd_output([
+                            "subscription-manager list --available",
+                            "subscription-manager list --all --available",
+                            "subscription-manager list --consumed",
+            ], cmd_as_tag=True)
         self.add_cmd_output("rhsm-debug system --sos --no-archive "
                             "--no-subscriptions --destination "
                             f"{self.get_cmd_output_path()}")
