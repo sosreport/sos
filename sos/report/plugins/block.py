@@ -41,6 +41,7 @@ class Block(Plugin, IndependentPlugin):
 
         # legacy location for non-/run distributions
         self.add_copy_spec([
+            "/dev/disk/by-dname/",
             "/etc/blkid.tab",
             "/run/blkid/blkid.tab",
             "/proc/partitions",
