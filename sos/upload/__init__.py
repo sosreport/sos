@@ -204,6 +204,15 @@ this utility.
             self.upload_name = self.upload_target.name()
         self.ui_log.info(
                     f"Upload target set to {self.upload_name}")
+        if self.opts.upload_directory is None and \
+                self.upload_name == 'Generic Upload':
+            msg = ("No upload directory provided. The generic upload "
+                   "will fail without a defined upload directory. "
+                   "Please try the upload again, specifying either "
+                   "the --upload-directory parameter or an "
+                   "--upload-target.  If you are an OS distribution "
+                   "consider adding this in your distribution's policy.")
+            raise Exception(msg)
 
     def load_upload_targets(self):
         """Loads all upload targets supported by the local installation
