@@ -125,18 +125,48 @@ class AAPContainerized(Plugin, RedHatPlugin):
                     subdir="podman_inspect_logs"
             )
 
-        if "automation-controller-task" in aap_containers:
-            container = "automation-controller-task"
-            podman_commands = [
-                (f"su - {username} -c 'podman exec -it {container} bash -c"
-                 " \"awx-manage check_license --data\"'",
-                 "awx-manage_check_license_--data"),
-                (f"su - {username} -c 'podman exec -it {container} bash -c"
-                 " \"awx-manage list_instances\"'",
-                 "awx-manage_list_instances"),
-            ]
-            for command, filename in podman_commands:
-                self.add_cmd_output(command, suggest_filename=filename)
+        # command outputs from various containers
+        # the su command is needed because mimicking it via runas leads to
+        # stuck command execution
+        pod_cmds = {
+            "automation-controller-task": [
+                "awx-manage check_license --data",
+                "awx-manage list_instances",
+            ],
+            "automation-gateway": [
+                "automation-gateway-service status",
+                "aap-gateway-manage print_settings",
+                "aap-gateway-manage authenticators",
+                "aap-gateway-manage showmigrations",
+                "aap-gateway-manage list_services",
+                "aap-gateway-manage feature_flags --list",
+                "aap-gateway-manage --version",
+            ],
+            "automation-controller-web": [
+                "awx-manage showmigrations",
+                "awx-manage list_instances",
+                "awx-manage run_dispatcher --status",
+                "awx-manage run_callback_receiver --status",
+                "awx-manage check_license --data",
+                "awx-manage run_wsrelay --status",
+            ],
+            "automation-eda-api": [
+                "aap-eda-manage --version",
+                "aap-eda-manage showmigrations",
+            ],
+            "receptor": [
+                "receptorctl status",
+                "receptorclt work list",
+            ],
+        }
+        for pod, cmds in pod_cmds.items():
+            if pod in aap_containers:
+                for cmd in cmds:
+                    fname = self._mangle_command(cmd)
+                    self.add_cmd_output(f"su - {username} -c 'podman exec -it"
+                                        f"  {pod} bash -c \"{cmd}\"'",
+                                        suggest_filename=fname,
+                                        subdir=pod)
 
     # Function to fetch podman container names
     def _get_aap_container_names(self, username):
@@ -168,3 +198,20 @@ class AAPContainerized(Plugin, RedHatPlugin):
                 if process in ps_output['output']:
                     return True
         return False
+
+    def postproc(self):
+        # Mask PASSWORD from print_settings command
+        jreg = r'((["\']?PASSWORD["\']?\s*[:=]\s*)[rb]?["\'])(.*?)(["\'])'
+        self.do_cmd_output_sub(
+            "aap-gateway-manage print_settings",
+            jreg,
+            r'\1**********\4')
+
+        # Mask SECRET_KEY from print_settings command
+        jreg = r'((SECRET_KEY\s*=\s*)([rb]?["\']))(.*?)(["\'])'
+        self.do_cmd_output_sub(
+            "aap-gateway-manage print_settings",
+            jreg,
+            r'\1**********\5')
+
+# vim: set et ts=4 sw=4 :
