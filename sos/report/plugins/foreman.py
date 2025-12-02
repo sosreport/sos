@@ -240,6 +240,16 @@ class Foreman(Plugin):
             'LIMIT 100'
         )
 
+        smartcmd = (
+            "SELECT sp.id, sp.name, sp.url, sp.download_policy, "
+            "STRING_AGG(f.name, ', ') AS features "
+            "FROM smart_proxies AS sp "
+            "INNER JOIN smart_proxy_features AS spf "
+            "ON sp.id = spf.smart_proxy_id "
+            "INNER JOIN features AS f ON spf.feature_id = f.id "
+            "GROUP BY sp.id"
+        )
+
         # Populate this dict with DB queries that should be saved directly as
         # postgres formats them. The key will be the filename in the foreman
         # plugin directory, with the value being the DB query to run
@@ -255,8 +265,7 @@ class Foreman(Plugin):
             'audits_table_count': 'select count(*) from audits',
             'logs_table_count': 'select count(*) from logs',
             'fact_names_prefixes': factnamescmd,
-            'smart_proxies': 'select name,url,download_policy ' +
-                             'from smart_proxies'
+            'smart_proxies': smartcmd
         }
 
         # Same as above, but tasks should be in CSV output
