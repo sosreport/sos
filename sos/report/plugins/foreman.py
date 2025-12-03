@@ -25,6 +25,7 @@ class Foreman(Plugin):
     packages = ('foreman',)
     apachepkg = None
     dbhost = "localhost"
+    dbport = 5432
     dbpasswd = ""
     env = {"PGPASSWORD": ""}
     option_list = [
@@ -56,6 +57,8 @@ class Foreman(Plugin):
                     continue
                 if production_scope and match(r"\s+host:\s+\S+", line):
                     self.dbhost = line.split()[1]
+                if production_scope and match(r"\s+port:\s+\S+", line):
+                    self.dbport = line.split()[1]
                 if production_scope and match(r"\s+password:\s+\S+", line):
                     self.dbpasswd = line.split()[1]
                 # if line starts with a text, it is a different scope
@@ -316,8 +319,8 @@ class Foreman(Plugin):
         if csv:
             query = f"COPY ({query}) TO STDOUT " \
                     "WITH (FORMAT 'csv', DELIMITER ',', HEADER)"
-        _dbcmd = "%s --no-password -h %s -p 5432 -U foreman -d foreman -c %s"
-        return _dbcmd % (binary, self.dbhost, quote(query))
+        _dbcmd = "%s --no-password -h %s -p %s -U foreman -d foreman -c %s"
+        return _dbcmd % (binary, self.dbhost, self.dbport, quote(query))
 
     def postproc(self):
         self.do_path_regex_sub(
