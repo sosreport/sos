@@ -21,6 +21,7 @@ class Candlepin(Plugin, RedHatPlugin):
     packages = ('candlepin',)
 
     dbhost = None
+    dbport = None
     dbpasswd = None
     env = None
 
@@ -31,6 +32,7 @@ class Candlepin(Plugin, RedHatPlugin):
         # and for DB password, search for
         # org.quartz.dataSource.myDS.password=..
         self.dbhost = "localhost"
+        self.dbport = 5432
         self.dbpasswd = ""
         cfg_file = "/etc/candlepin/candlepin.conf"
         try:
@@ -41,10 +43,11 @@ class Candlepin(Plugin, RedHatPlugin):
                 if not line or line[0] == '#':
                     continue
                 if match(r"^\s*org.quartz.dataSource.myDS.URL=\S+", line):
-                    self.dbhost = line.split('=')[1]
-                    # separate hostname from value like
+                    # separate hostname and port from the jdbc url
                     # jdbc:postgresql://localhost:5432/candlepin
-                    self.dbhost = self.dbhost.split('/')[2].split(':')[0]
+                    jdbcurl = line.split('=')[1].split('/')[2].split(':')
+                    self.dbhost = jdbcurl[0]
+                    self.dbport = jdbcurl[1]
                 if match(r"^\s*org.quartz.dataSource.myDS.password=\S+", line):
                     self.dbpasswd = line.split('=')[1]
         except (IOError, IndexError):
@@ -122,9 +125,9 @@ class Candlepin(Plugin, RedHatPlugin):
         a large amount of quoting in sos logs referencing the command being run
         """
         csvformat = "-A -F , -X" if csv else ""
-        _dbcmd = "psql --no-password -h %s -p 5432 -U candlepin \
+        _dbcmd = "psql --no-password -h %s -p %s -U candlepin \
                   -d candlepin %s -c %s"
-        return _dbcmd % (self.dbhost, csvformat, quote(query))
+        return _dbcmd % (self.dbhost, self.dbport, csvformat, quote(query))
 
     def postproc(self):
         reg = r"(((.*)(pass|token|secret)(.*))=)(.*)"
