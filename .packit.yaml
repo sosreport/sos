@@ -20,6 +20,7 @@ jobs:
       - fedora-development-ppc64le
       - fedora-development-s390x
       - centos-stream-9
+      - centos-stream-10
 
 notifications:
   pull_request:
