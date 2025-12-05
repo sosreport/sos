@@ -34,7 +34,9 @@ class Foreman(Plugin):
         PluginOpt('proxyfeatures', default=False,
                   desc='collect features of smart proxies'),
         PluginOpt('puma-gc', default=False,
-                  desc='collect Puma GC stats')
+                  desc='collect Puma GC stats'),
+        PluginOpt('content-views', default=False,
+                  desc='collect detailed content-view output from hammer')
     ]
     pumactl = 'pumactl %s -S /usr/share/foreman/tmp/puma.state'
 
@@ -147,7 +149,25 @@ class Foreman(Plugin):
                     --sasl-mechanism=ANONYMOUS',
             suggest_filename='qpid-stat_-q'
         )
-        self.add_cmd_output("hammer ping", tags="hammer_ping", timeout=120)
+        self.add_cmd_output([
+            'hammer ping',
+            'hammer status',
+        ], cmd_as_tag=True, subdir='hammer', timeout=120)
+
+        orgs = []
+        if (org_ret := self.collect_cmd_output(
+            'hammer organization list',
+            subdir='hammer'
+        ))['status'] == 0:
+            lines = org_ret['output'].splitlines()
+            n_idx = [
+                s.strip().lower() for s in lines[1].split('|')
+            ].index('name')
+            for line in lines[3:-1]:
+                orgs.append(quote(line.split('|')[n_idx].strip()))
+
+        for org in orgs:
+            self._collect_organization_hammer(org)
 
         # Dynflow Sidekiq
         self.add_cmd_output('systemctl list-units dynflow*',
@@ -187,6 +207,44 @@ class Foreman(Plugin):
                             env=self.env)
         self.collect_foreman_db()
         self.collect_proxies()
+
+    def _collect_organization_hammer(self, org):
+        """
+        Collect hammer outputs for an organization
+
+        :param org: The name of the organization within Foreman/Satellite
+        :type org:  ``str``
+        """
+        org_dir = f"hammer/organizations/{org}"
+        org_opt = f"--organization {org}"
+        self.add_cmd_output([
+            f"hammer organization info --name {org}",
+            f"hammer subscription list {org_opt}"
+        ], subdir=org_dir)
+
+        components = [
+            'lifecycle-environment',
+            'location'
+        ]
+        if self.get_option('content-views'):
+            components.append('content-view')
+        for com in components:
+            com_dir = f"{org_dir}/{com}s"
+            if not (entities := self.collect_cmd_output(
+                f"hammer {com} list {org_opt}",
+                subdir=com_dir
+            ))['status'] == 0:
+                continue
+            ents = entities['output'].splitlines()[1:]
+            name_idx = [
+                c.strip().lower() for c in ents[0].split('|')
+            ].index('name')
+            for ent in ents[2:-1]:
+                ent_name = quote(ent.split('|')[name_idx].strip())
+                self.add_cmd_output(
+                    f"hammer {com} info {org_opt} --name {ent_name}",
+                    subdir=com_dir
+                )
 
     def collect_foreman_db(self):
         # pylint: disable=too-many-locals
