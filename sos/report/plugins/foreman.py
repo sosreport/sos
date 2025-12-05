@@ -34,7 +34,9 @@ class Foreman(Plugin):
         PluginOpt('proxyfeatures', default=False,
                   desc='collect features of smart proxies'),
         PluginOpt('puma-gc', default=False,
-                  desc='collect Puma GC stats')
+                  desc='collect Puma GC stats'),
+        PluginOpt('cvfilters', default=False,
+                  desc='collect content view filters definition')
     ]
     pumactl = 'pumactl %s -S /usr/share/foreman/tmp/puma.state'
 
@@ -187,6 +189,8 @@ class Foreman(Plugin):
                             env=self.env)
         self.collect_foreman_db()
         self.collect_proxies()
+        if self.get_option('cvfilters'):
+            self.collect_cv_filters()
 
     def collect_foreman_db(self):
         # pylint: disable=too-many-locals
@@ -316,6 +320,58 @@ class Foreman(Plugin):
                     self.add_cmd_output(_cmd, suggest_filename=proxy[0],
                                         subdir='smart_proxies_features',
                                         timeout=10)
+
+    def collect_cv_filters(self):
+        """ Collect content view filters definition if requested """
+        cv_filters_cmd = (
+            "select f.id, f.name, f.type, f.content_view_id, "
+            "cv.name as content_view_name, f.description "
+            "from katello_content_view_filters as f "
+            "inner join katello_content_views as cv "
+            "on f.content_view_id = cv.id"
+        )
+        cv_pkg_rules_cmd = (
+            "select id, content_view_filter_id, name, min_version, "
+            "max_version from katello_content_view_package_filter_rules"
+        )
+        cv_group_rules_cmd = (
+            "select id, content_view_filter_id, name, uuid "
+            "from katello_content_view_package_group_filter_rules"
+        )
+        cv_errata_rules_cmd = (
+            "select id, content_view_filter_id, errata_id, start_date, "
+            "end_date, types from "
+            "katello_content_view_erratum_filter_rules"
+        )
+        cv_module_rules_cmd = (
+            "select * from "
+            "katello_content_view_module_stream_filter_rules"
+        )
+        cv_docker_rules_cmd = (
+            "select id, content_view_filter_id, name "
+            "from katello_content_view_docker_filter_rules"
+        )
+        cv_deb_rules_cmd = (
+            "select id, content_view_filter_id, name, version, "
+            "min_version, max_version "
+            "from katello_content_view_deb_filter_rules"
+        )
+
+        filter_tables = {
+            'katello_cv_filters': cv_filters_cmd,
+            'katello_cv_package_rules': cv_pkg_rules_cmd,
+            'katello_cv_group_rules': cv_group_rules_cmd,
+            'katello_cv_errata_rules': cv_errata_rules_cmd,
+            'katello_cv_module_rules': cv_module_rules_cmd,
+            'katello_cv_docker_rules': cv_docker_rules_cmd,
+            'katello_cv_deb_rules': cv_deb_rules_cmd
+        }
+
+        for table, query in filter_tables.items():
+            _cmd = self.build_query_cmd(query)
+            self.add_cmd_output(_cmd, suggest_filename=table,
+                                subdir='content_view_filters',
+                                timeout=600, sizelimit=100, env=self.env)
 
     def build_query_cmd(self, query, csv=False, binary="psql"):
         """
