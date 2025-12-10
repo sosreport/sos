@@ -51,6 +51,8 @@ class RedHatInsights(Plugin, RedHatPlugin):
             "insights-client --test-connection --net-debug",
             timeout=30
         )
+        self.add_cmd_output("insights-client --version")
+        self.add_cmd_output("insights-client --status", timeout=30)
 
         self.add_dir_listing(["/etc/rhsm", "/sys/kernel", "/var/lib/sss"],
                              recursive=True)
