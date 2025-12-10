@@ -16,6 +16,7 @@ env:
     UBUNTU_2204_NAME: "ubuntu-22.04"
 
     CENTOS_9_NAME: "centos-stream-9"
+    CENTOS_10_NAME: "centos-stream-10"
 
     CENTOS_PROJECT: "centos-cloud"
     DEBIAN_PROJECT: "debian-cloud"
@@ -26,6 +27,7 @@ env:
 
     # Images exist on GCP already
     CENTOS_9_FAMILY_NAME: "centos-stream-9"
+    CENTOS_10_FAMILY_NAME: "centos-stream-10"
     DEBIAN_13_FAMILY_NAME: "debian-13"
     DEBIAN_12_FAMILY_NAME: "debian-12"
     DEBIAN_11_FAMILY_NAME: "debian-11"
@@ -108,6 +110,10 @@ rpm_build_task:
             PROJECT: ${CENTOS_PROJECT}
             BUILD_NAME: ${CENTOS_9_NAME}
             VM_FAMILY_NAME: ${CENTOS_9_FAMILY_NAME}
+        - env: &centos10
+            PROJECT: ${CENTOS_PROJECT}
+            BUILD_NAME: ${CENTOS_10_NAME}
+            VM_FAMILY_NAME: ${CENTOS_10_FAMILY_NAME}
 #        - env: &fedora
 #            PROJECT: ${FEDORA_PROJECT}
 #            BUILD_NAME: ${FEDORA_NAME}
@@ -118,7 +124,7 @@ rpm_build_task:
 #            VM_FAMILY_NAME: ${FEDORA_PRIOR_FAMILY_NAME}
     setup_script: |
         dnf clean all
-        dnf -y install rpm-build rpmdevtools gettext python3-devel python3-pexpect python3-pyyaml
+        dnf -y install rpm-build rpmdevtools gettext python3-devel python3-pexpect python3-pyyaml python3-setuptools
         dnf -y install python3-wheel || true
     # dnf failures above ignored for distros that do not yet have python3-wheel, e.g. CS 9
     main_script: |
@@ -321,6 +327,7 @@ report_stagetwo_task:
     gce_instance: *standardvm
     matrix:
         - env: *centos9
+        - env: *centos10
 #        - env: *fedora
         - env: *ubuntu-2404
         - env: *ubuntu-latest-snap
