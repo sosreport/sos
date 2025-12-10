@@ -118,7 +118,8 @@ class RHELUploadTarget(UploadTarget):
                          f"{self.get_upload_url_string()}")
         return requests.post(self.get_upload_url(), files=files,
                              headers=self._get_upload_https_auth(),
-                             verify=verify, timeout=TIMEOUT_DEFAULT)
+                             verify=verify, timeout=TIMEOUT_DEFAULT,
+                             proxies=self.get_proxy_list())
 
     def _get_upload_headers(self):
         if self.get_upload_url().startswith(self.RH_API_HOST):
@@ -184,6 +185,7 @@ class RHELUploadTarget(UploadTarget):
 
         url = self.RH_API_HOST + '/support/v2/sftp/token'
         ret = None
+        ftp_user_directory = None
         if self._device_token:
             headers = self._get_upload_https_auth()
             ret = requests.post(url, headers=headers, timeout=10)
@@ -191,6 +193,7 @@ class RHELUploadTarget(UploadTarget):
                 # credentials are valid
                 _user = json.loads(ret.text)['username']
                 _token = json.loads(ret.text)['token']
+                ftp_user_directory = _user
             else:
                 self.ui_log.debug(
                     f"DEBUG: auth attempt failed (status: {ret.status_code}): "
@@ -218,7 +221,7 @@ class RHELUploadTarget(UploadTarget):
                 )
         if _user and _token:
             return super().upload_sftp(user=_user, password=_token,
-                                       user_dir=_user)
+                                       user_dir=ftp_user_directory)
         raise Exception("Could not retrieve valid or anonymous credentials")
 
     def check_file_too_big(self, archive):
