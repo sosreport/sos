@@ -79,6 +79,7 @@ class Systemd(Plugin, IndependentPlugin):
 
         self.add_copy_spec([
             "/etc/systemd",
+            "/lib/systemd/*.conf",
             "/lib/systemd/system",
             "/lib/systemd/user",
             "/etc/vconsole.conf",
