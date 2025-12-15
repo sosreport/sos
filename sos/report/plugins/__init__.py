@@ -2965,8 +2965,8 @@ class Plugin():
                   within the `container` and not on the host
         :rtype: ``str``
         """
-        if self.container_exists(container, runtime) or \
-           ((_runtime := self._get_container_runtime(runtime)) and
+        _runtime = self._get_container_runtime(runtime)
+        if _runtime and (self.container_exists(container, runtime) or
            runas is not None):
             return _runtime.fmt_container_cmd(container, cmd, quotecmd)
         return ''
