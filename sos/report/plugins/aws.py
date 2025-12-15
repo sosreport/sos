@@ -19,12 +19,9 @@ class Aws(Plugin, IndependentPlugin):
     profiles = ('virt',)
 
     def _is_ec2(self):
-        try:
-            with open('/sys/devices/virtual/dmi/id/sys_vendor',
-                      encoding='utf-8') as f:
-                return 'Amazon' in f.read()
-        except FileNotFoundError:
-            return False
+        dmi_files = ("/sys/devices/virtual/dmi/id/sys_vendor",
+                     "/sys/devices/virtual/dmi/id/bios_version")
+        return bool(self.file_grep(r"(Amazon|.*amazon)", *dmi_files))
 
     # Called by sos to determine if the plugin will run
     def check_enabled(self):
