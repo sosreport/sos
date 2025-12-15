@@ -23,7 +23,7 @@ class OpenSearch(Plugin, IndependentPlugin):
             desc="Password for opensearch, to check APIs",
         ),
         PluginOpt(
-            "all-log", default=True, val_type=bool,
+            "all_log", default=True, val_type=bool,
             desc="Export all logs",
         )
     ]
@@ -34,14 +34,10 @@ class OpenSearch(Plugin, IndependentPlugin):
     snap_current_path = "/var/snap/opensearch/current"
     snap_common_path = "/var/snap/opensearch/common"
 
-
     def setup(self):
         self.user, self.password = self.get_credentials()
         if self.check_vm():
             self.export_vm()
-        else:
-            self.export_k8s()
-
 
     def check_vm(self):
         return os.path.exists(self.snap_common_path)
@@ -57,10 +53,6 @@ class OpenSearch(Plugin, IndependentPlugin):
         host, port = self.get_hostname_port(opensearch_config_file)
         base_url = f"https://{host}:{port}"
         self.export_api(base_url)
-
-    def export_k8s(self):
-        #placholder
-        return
 
     def get_hostname_port(self, opensearch_config_file):
         """ Get hostname and port number """
