@@ -103,8 +103,3 @@ class OpenSearch(Plugin, IndependentPlugin):
         self.add_cmd_output(f"{base_cmd} '{base_url}/api/stats?extended=true'", suggest_filename="stats")
         query = "type=dashboard&type=visualization&type=index-pattern&type=search&per_page=1&fields=id"
         self.add_cmd_output(f"{base_cmd} '{base_url}/api/saved_objects/_find?{query}'", suggest_filename="saved_object_count")
-
-
-
-
-# sudo sos report -o charmed_opensearch_dashboard charmed_opensearch_dashboard.pass=5OhVLjyLNd70IfBomZlIeYQxHc9izYmu -k charmed_opensearch_dashboard.all-log=on
