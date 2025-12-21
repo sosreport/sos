@@ -14,6 +14,7 @@
 
 import contextlib
 import os
+import shutil
 import glob
 import re
 import signal
@@ -25,6 +26,7 @@ import errno
 import textwrap
 
 from datetime import datetime
+from pathlib import Path
 
 from sos.utilities import (sos_get_command_output, import_module, grep,
                            fileobj, tail, is_executable, TIMEOUT_DEFAULT,
@@ -3234,6 +3236,27 @@ class Plugin():
                     'dstpath': arcdest,
                     'symlink': "no"
                 })
+                # skip forbidden paths; since we might recursivelly copied
+                # whole directory, we must find the forbidden files in dest
+                # path and delete the unwanted
+                base_dir = dest.removesuffix(f"{path.lstrip('/')}")
+                for relname in [file.relative_to(base_dir).as_posix()
+                                for file in Path(dest).rglob('*')]:
+                    absname = f"/{relname}"
+                    if self._is_forbidden_path(absname):
+                        self._log_debug(f"skipping forbidden path '{absname}'"
+                                        f"from container {con}")
+                        fullname = os.path.join(base_dir, relname)
+                        if os.path.isdir(fullname):
+                            shutil.rmtree(fullname)
+                        else:
+                            os.remove(fullname)
+                    else:
+                        self.copied_files.append({
+                            'srcpath': absname,
+                            'dstpath': f"sos_containers/{con}/{relname}",
+                            'symlink': "no"
+                        })
             else:
                 self._log_info(f"error copying '{path}' from container "
                                f"'{con}': {cpret['output']}")
