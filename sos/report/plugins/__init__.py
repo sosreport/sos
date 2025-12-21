@@ -32,7 +32,7 @@ from sos.utilities import (sos_get_command_output, import_module, grep,
                            listdir, path_join, bold, file_is_binary,
                            recursive_dict_values_by_key)
 
-from sos.archive import P_FILE, P_LINK
+from sos.archive import P_FILE, P_LINK, P_CONTFILE
 
 
 def regex_findall(regex, fname):
@@ -3210,11 +3210,15 @@ class Plugin():
             self._log_info(f"collecting '{path}' from container '{con}'")
 
             arcdest = f"sos_containers/{con}/{path.lstrip('/')}"
-            self.archive.check_path(arcdest, P_FILE)
+            self.archive.check_path(arcdest,
+                                    P_CONTFILE if runas is None else P_FILE)
             dest = self.archive.dest_path(arcdest)
 
+            # the os.path.dirname + rstrip('/') is a trick allowing to copy
+            # both container files and directories into the right directory
             cpcmd = rt.get_copy_command(
-                con, path, dest, sizelimit=sizelimit if tailit else None
+                con, path, os.path.dirname(dest.rstrip(os.path.sep)),
+                sizelimit=sizelimit if tailit else None
             ) if runas is None else rt.fmt_container_cmd(con, f"cat {path}",
                                                          False)
             cpret = self.exec_cmd(cpcmd, timeout=10, runas=runas)
