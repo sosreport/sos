@@ -14,6 +14,7 @@
 
 import contextlib
 import os
+import shutil
 import glob
 import re
 import signal
@@ -25,6 +26,7 @@ import errno
 import textwrap
 
 from datetime import datetime
+from pathlib import Path
 
 from sos.utilities import (sos_get_command_output, import_module, grep,
                            fileobj, tail, is_executable, TIMEOUT_DEFAULT,
@@ -32,7 +34,7 @@ from sos.utilities import (sos_get_command_output, import_module, grep,
                            listdir, path_join, bold, file_is_binary,
                            recursive_dict_values_by_key)
 
-from sos.archive import P_FILE, P_LINK
+from sos.archive import P_FILE, P_LINK, P_CONTFILE
 
 
 def regex_findall(regex, fname):
@@ -3210,11 +3212,15 @@ class Plugin():
             self._log_info(f"collecting '{path}' from container '{con}'")
 
             arcdest = f"sos_containers/{con}/{path.lstrip('/')}"
-            self.archive.check_path(arcdest, P_FILE)
+            self.archive.check_path(arcdest,
+                                    P_CONTFILE if runas is None else P_FILE)
             dest = self.archive.dest_path(arcdest)
 
+            # the os.path.dirname + rstrip('/') is a trick allowing to copy
+            # both container files and directories into the right directory
             cpcmd = rt.get_copy_command(
-                con, path, dest, sizelimit=sizelimit if tailit else None
+                con, path, os.path.dirname(dest.rstrip(os.path.sep)),
+                sizelimit=sizelimit if tailit else None
             ) if runas is None else rt.fmt_container_cmd(con, f"cat {path}",
                                                          False)
             cpret = self.exec_cmd(cpcmd, timeout=10, runas=runas)
@@ -3230,6 +3236,27 @@ class Plugin():
                     'dstpath': arcdest,
                     'symlink': "no"
                 })
+                # skip forbidden paths; since we might recursivelly copied
+                # whole directory, we must find the forbidden files in dest
+                # path and delete the unwanted
+                base_dir = dest.removesuffix(f"{path.lstrip('/')}")
+                for relname in [file.relative_to(base_dir).as_posix()
+                                for file in Path(dest).rglob('*')]:
+                    absname = f"/{relname}"
+                    if self._is_forbidden_path(absname):
+                        self._log_debug(f"skipping forbidden path '{absname}'"
+                                        f"from container {con}")
+                        fullname = os.path.join(base_dir, relname)
+                        if os.path.isdir(fullname):
+                            shutil.rmtree(fullname)
+                        else:
+                            os.remove(fullname)
+                    else:
+                        self.copied_files.append({
+                            'srcpath': absname,
+                            'dstpath': f"sos_containers/{con}/{relname}",
+                            'symlink': "no"
+                        })
             else:
                 self._log_info(f"error copying '{path}' from container "
                                f"'{con}': {cpret['output']}")
