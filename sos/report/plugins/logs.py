@@ -7,6 +7,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 import glob
+import os
+import re
 from sos.report.plugins import Plugin, PluginOpt, IndependentPlugin, CosPlugin
 
 
@@ -18,13 +20,31 @@ class LogsBase(Plugin):
     profiles = ('system', 'hardware', 'storage')
 
     def setup(self):
-        rsyslog = 'etc/rsyslog.conf'
+        rsyslog = '/etc/rsyslog.conf'
         confs = ['/etc/syslog.conf', rsyslog]
         logs = []
 
         if self.path_exists(rsyslog):
             with open(self.path_join(rsyslog), 'r', encoding='UTF-8') as conf:
-                for line in conf.readlines():
+                content = conf.read()
+                for match in re.findall(
+                    pattern=r"(include\((\s*)?file=([\"'`]([^'\"]*)[\"'`]))",
+                    string=content,
+                    flags=re.I | re.M
+                ):
+                    try:
+                        _ent = match[3]
+                        # best-effort to get env var provided files
+                        # this WILL break on anything other than basic echos
+                        # as shown in the rsyslog documentation
+                        if _ent.startswith('echo '):
+                            if envc := os.getenv(_ent.split()[1].strip(' $`')):
+                                confs += glob.glob(envc)
+                        else:
+                            confs += glob.glob(_ent)
+                    except Exception as err:
+                        self._log_debug(f"Error parsing include(): {err}")
+                for line in content.splitlines():
                     if line.startswith('$IncludeConfig'):
                         confs += glob.glob(line.split()[1])
 
