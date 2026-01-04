@@ -95,6 +95,7 @@ class SosNode():
         # cluster primary but do not want a local report as we still need to do
         # package checks in that instance
         self.host = self.determine_host_policy()
+        self._sudo_binary = None
         self.hostname = self._transport.hostname
         if self.local and self.opts.no_local:
             load_facts = False
@@ -156,6 +157,21 @@ class SosNode():
                         _val = ln.split('=')
                         self._env_vars[_val[0]] = _val[1]
         return self._env_vars
+
+    @property
+    def sudo_binary(self):
+        if not self._sudo_binary:
+            _bin = self.opts.sudo_binary.split('/')[-1]
+            # verify the provided binary is at least in our PATH
+            if ret := self.run_command(f"command -v {_bin}"):
+                if not ret['status'] == 0:
+                    err = f"Privilege escalation command not in PATH: {_bin}"
+                    self.log_error(err)
+                    raise Exception(err)
+            if _bin == 'sudo':
+                _bin = 'sudo -S'
+            self._sudo_binary = _bin
+        return self._sudo_binary
 
     def set_node_manifest(self, manifest):
         """Set the manifest section that this node will write to
@@ -285,7 +301,7 @@ class SosNode():
         if self.opts.become_root:
             return f"su -c {quote(cmd)}"
         if self.need_sudo:
-            return f"sudo -S {cmd}"
+            return f"{self.sudo_binary} {cmd}"
         return cmd
 
     def _load_sos_info(self):

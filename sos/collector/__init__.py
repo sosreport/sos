@@ -128,6 +128,7 @@ class SoSCollector(SoSComponent):
         'ssh_key': '',
         'ssh_port': 22,
         'ssh_user': 'root',
+        'sudo_binary': 'sudo',
         'timeout': 600,
         'transport': 'auto',
         'treat_certificates': 'obfuscate',
@@ -436,6 +437,8 @@ class SoSCollector(SoSComponent):
                                  help='Specify a sos preset to use')
         collect_grp.add_argument('--ssh-user',
                                  help='Specify an SSH user. Default root')
+        collect_grp.add_argument('--sudo-binary', default='sudo', type=str,
+                                 help='Privilege escalation binary to use.')
         collect_grp.add_argument('--timeout', type=int, required=False,
                                  help='Timeout for sos report on each node.')
         collect_grp.add_argument('--transport', default='auto', type=str,

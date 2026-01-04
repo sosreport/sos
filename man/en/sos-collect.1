@@ -41,6 +41,7 @@ sos_collect \- Collect sos reports from multiple (cluster) nodes
     [\-\-skip-files FILES]
     [\-s|\-\-sysroot SYSROOT]
     [\-\-ssh\-user SSH_USER]
+    [\-\-sudo\-binary BINARY]
     [\-t|\-\-threads THREADS]
     [\-\-timeout TIMEOUT]
     [\-\-transport TRANSPORT]
@@ -335,6 +336,11 @@ for example \fB/etc/sos/*\fR.
 Specify an SSH user for sos collect to connect to nodes with. Default is root.
 
 sos collect will prompt for a sudo password for non-root users.
+.TP
+\fB\-\-sudo\-binary\fR BINARY
+Specify the binary to use for privilege escalation on remote hosts when connecting
+as a non-root user. Note that this binary MUST be in the connecting user's PATH
+on the remote host.
 .TP
 \fB\-s\fR SYSROOT, \fB\-\-sysroot\fR SYSROOT
 Report option. Specify an alternate root file system path.
