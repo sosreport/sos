@@ -1880,9 +1880,10 @@ class SoSReport(SoSComponent):
             if not self.opts.no_report:
                 self.generate_reports()
             if not self.opts.no_postproc:
+                self.ui_log.info('Starting post-processing of collected data')
                 self.postproc()
             else:
-                self.ui_log.info("Skipping postprocessing of collected data")
+                self.ui_log.info("Skipping post-processing of collected data")
             self.version()
             return self.final_work()
 
