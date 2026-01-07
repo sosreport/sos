@@ -163,8 +163,9 @@ The following table summarizes the effects of different verbosity levels:
 .B \-q, \--quiet
 Only log fatal errors to stderr.
 .TP
-.B \-z, \-\-compression-type {auto|xz|gzip}
-Compression type to use when compression the final archive output
+.B \-z, \-\-compression-type {auto|xz|gzip|none}
+Compression type to use when compressing the final archive output. If the value \fBnone\fP is given
+the tar archive will be written directly with no compression.
 .TP
 .B \--help
 Display usage message.
