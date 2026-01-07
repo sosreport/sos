@@ -23,7 +23,7 @@ class PipeWire(Plugin, IndependentPlugin):
     plugin_name = "pipewire"
     profiles = ('system', 'desktop', 'hardware')
 
-    packages = ('pipewire-bin', 'pipewire')
+    packages = ('pipewire-bin', 'pipewire-utils', 'pipewire')
 
     # PipeWire is scoped to user-session, but `sudo sos report` will cause
     # the commands to run in root context. If the logged in user is not root,
