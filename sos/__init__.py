@@ -148,7 +148,8 @@ class SoS():
 
         global_grp.add_argument('-z', '--compression-type',
                                 dest="compression_type",
-                                choices=['auto', 'gzip', 'xz'],
+                                choices=['auto', 'gzip', 'xz',
+                                         'none'],
                                 help="compression technology to use")
 
         # Group to make tarball encryption (via GPG/password) exclusive
