@@ -161,6 +161,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "osd numa-status",
             "osd perf",
             "osd pool autoscale-status",
+            "osd pool availability-status",
             "osd pool ls detail",
             "osd stat",
             "pg dump",
