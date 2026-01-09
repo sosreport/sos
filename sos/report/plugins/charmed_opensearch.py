@@ -9,7 +9,8 @@
 import re
 import os
 
-from sos.report.plugins import Plugin,PluginOpt, UbuntuPlugin
+from sos.report.plugins import Plugin, PluginOpt, UbuntuPlugin
+
 
 class OpenSearch(Plugin, UbuntuPlugin):
     short_desc = 'Charmed OpenSearch'
@@ -36,7 +37,7 @@ class OpenSearch(Plugin, UbuntuPlugin):
 
     snap_current_path = "/var/snap/opensearch/current"
     snap_common_path = "/var/snap/opensearch/common"
-    user,password = None, None
+    user, password = None, None
 
     def setup(self):
         self.user, self.password = self.get_credentials()
@@ -47,7 +48,8 @@ class OpenSearch(Plugin, UbuntuPlugin):
         return os.path.exists(self.snap_current_path)
 
     def export_vm(self):
-        opensearch_config_directory= f"{self.snap_current_path}{self.etc_path}"
+        opensearch_config_directory = (f"{self.snap_current_path}"
+                                       f"{self.etc_path}")
         # FORBIDDEN
         self.add_forbidden_path([
             f"{opensearch_config_directory}/certificates",
@@ -100,7 +102,8 @@ class OpenSearch(Plugin, UbuntuPlugin):
         )
 
         # API
-        host, port = self.get_hostname_port(f"{self.snap_current_path}{self.config_path}")
+        host, port = self.get_hostname_port(
+            f"{self.snap_current_path}{self.config_path}")
         base_url = f"https://{host}:{port}"
         self.export_api(base_url)
 
@@ -112,7 +115,8 @@ class OpenSearch(Plugin, UbuntuPlugin):
         try:
             with open(opensearch_config_file, encoding='UTF-8') as config:
                 for line in config:
-                    network_host = re.search(r'(^network.publish_host):(.*)', line)
+                    network_host = re.search(r'(^network.publish_host):(.*)',
+                                             line)
                     network_port = re.search(r'(^http.port):(.*)', line)
                     if network_host and len(network_host.groups()) == 2:
                         hostname = network_host.groups()[-1].strip()
@@ -131,18 +135,28 @@ class OpenSearch(Plugin, UbuntuPlugin):
 
     def export_api(self, base_url):
         base_cmd = f"curl -k -u {self.user}:{self.password} -X GET"
-        self.add_cmd_output(f"{base_cmd} '{base_url}/_cluster/settings?pretty'", suggest_filename="settings")
-        self.add_cmd_output(f"{base_cmd} '{base_url}/_cluster/health?pretty'", suggest_filename="health")
-        self.add_cmd_output(f"{base_cmd} '{base_url}/_cluster/stats?pretty'", suggest_filename="stats")
-        self.add_cmd_output(f"{base_cmd} '{base_url}/_cat/nodes?v'", suggest_filename="nodes")
-        self.add_cmd_output(f"{base_cmd} '{base_url}/_cat/indices'", suggest_filename="indices")
-        self.add_cmd_output(f"{base_cmd} '{base_url}/_cat/shards'", suggest_filename="shards")
-        self.add_cmd_output(f"{base_cmd} '{base_url}/_cat/aliases'", suggest_filename="aliases")
+        self.add_cmd_output(
+            f"{base_cmd} '{base_url}/_cluster/settings?pretty'",
+            suggest_filename="settings"
+        )
+        self.add_cmd_output(f"{base_cmd} '{base_url}/_cluster/health?pretty'",
+                            suggest_filename="health")
+        self.add_cmd_output(f"{base_cmd} '{base_url}/_cluster/stats?pretty'",
+                            suggest_filename="stats")
+        self.add_cmd_output(f"{base_cmd} '{base_url}/_cat/nodes?v'",
+                            suggest_filename="nodes")
+        self.add_cmd_output(f"{base_cmd} '{base_url}/_cat/indices'",
+                            suggest_filename="indices")
+        self.add_cmd_output(f"{base_cmd} '{base_url}/_cat/shards'",
+                            suggest_filename="shards")
+        self.add_cmd_output(f"{base_cmd} '{base_url}/_cat/aliases'",
+                            suggest_filename="aliases")
 
     def postproc(self):
         # SCRUB PASSWORDS
         if self.check_vm():
-            opensearch_config_file = f"{self.snap_current_path}{self.config_path}"
+            opensearch_config_file = (f"{self.snap_current_path}"
+                                      f"{self.config_path}")
         else:
             opensearch_config_file = ""
 
