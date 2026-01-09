@@ -9,9 +9,10 @@
 import re
 import os
 
-from sos.report.plugins import Plugin,PluginOpt, UbuntuPlugin
+from sos.report.plugins import Plugin, PluginOpt, UbuntuPlugin
 
-class OpenSearch(Plugin, UbuntuPlugin):
+
+class OpenSearchDashboard(Plugin, UbuntuPlugin):
     short_desc = 'Charmed OpenSearch Dashboard'
     plugin_name = 'charmed_opensearch_dashboard'
     option_list = [
@@ -33,12 +34,12 @@ class OpenSearch(Plugin, UbuntuPlugin):
     etc_path = "/etc/opensearch-dashboards"
     config_path = f"{etc_path}/opensearch_dashboards.yml"
     certificates_path = f"{etc_path}/certificates"
-    node_config_path= f"{etc_path}/node.options"
+    node_config_path = f"{etc_path}/node.options"
 
     snap_current_path = "/var/snap/opensearch-dashboards/current"
     snap_common_path = "/var/snap/opensearch-dashboards/common"
 
-    user,password = None, None
+    user, password = None, None
 
     def setup(self):
         self.user, self.password = self.get_credentials()
@@ -50,7 +51,9 @@ class OpenSearch(Plugin, UbuntuPlugin):
 
     def export_vm(self):
         # CONFIGS
-        opensearch_dashboard_config_file = f"{self.snap_current_path}{self.config_path}"
+        opensearch_dashboard_config_file = \
+            f"{self.snap_current_path}{self.config_path}"
+
         self.add_copy_spec(opensearch_dashboard_config_file)
         self.add_copy_spec(f"{self.snap_current_path}{self.node_config_path}")
 
@@ -61,17 +64,25 @@ class OpenSearch(Plugin, UbuntuPlugin):
             self.add_copy_spec(f"{self.snap_common_path}{self.log_path}/*.log")
 
         # JOURNAL
-        self.add_journal(units="snap.opensearch-dashboards.*", lines=1000, allfields=True)
+        self.add_journal(units="snap.opensearch-dashboards.*", lines=1000,
+                         allfields=True)
 
         # SERVICES
-        self.add_service_status("snap.opensearch-dashboards.exporter-daemon", suggest_filename="service_status_exporter_daemon")
-        self.add_service_status("snap.opensearch-dashboards.opensearch-dashboards-daemon", suggest_filename="service_status_opensearch_dashboards_daemon")
+        self.add_service_status(
+            "snap.opensearch-dashboards.exporter-daemon",
+            suggest_filename="service_status_exporter_daemon"
+        )
+
+        self.add_service_status(
+            "snap.opensearch-dashboards.opensearch-dashboards-daemon",
+            suggest_filename="service_status_opensearch_dashboards_daemon")
         self.add_cmd_output(
             "systemctl cat snap.opensearch-dashboards.exporter-daemon.service",
             suggest_filename="service_cat_dashboard_exporter"
         )
         self.add_cmd_output(
-            "systemctl cat snap.opensearch-dashboards.opensearch-dashboards-daemon.service",
+            "systemctl cat snap.opensearch-dashboards.opensearch-dashboards"
+            "-daemon.service",
             suggest_filename="service_cat_dashboard_opensearch"
         )
 
@@ -132,15 +143,23 @@ class OpenSearch(Plugin, UbuntuPlugin):
 
     def export_api(self, base_url):
         base_cmd = f"curl -s -k -u {self.user}:{self.password} -X GET"
-        self.add_cmd_output(f"{base_cmd} '{base_url}/api/status'", suggest_filename="status")
-        self.add_cmd_output(f"{base_cmd} '{base_url}/api/stats?extended=true'", suggest_filename="stats")
-        query = "type=dashboard&type=visualization&type=index-pattern&type=search&per_page=1&fields=id"
-        self.add_cmd_output(f"{base_cmd} '{base_url}/api/saved_objects/_find?{query}'", suggest_filename="saved_object_count")
+        self.add_cmd_output(f"{base_cmd} '{base_url}/api/status'",
+                            suggest_filename="status")
+
+        self.add_cmd_output(f"{base_cmd} '{base_url}/api/stats?extended=true'",
+                            suggest_filename="stats")
+
+        query = ("type=dashboard&type=visualization&type=index-pattern&type"
+                 "=search&per_page=1&fields=id")
+        self.add_cmd_output(f"{base_cmd} "
+                            f"'{base_url}/api/saved_objects/_find?{query}'",
+                            suggest_filename="saved_object_count")
 
     def postproc(self):
         # SCRUB PASSWORDS
         if self.check_vm():
-            opensearch_dashboard_config_file = f"{self.snap_current_path}{self.config_path}"
+            opensearch_dashboard_config_file = (f"{self.snap_current_path}"
+                                                f"{self.config_path}")
         else:
             opensearch_dashboard_config_file = ""
 
