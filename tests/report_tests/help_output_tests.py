@@ -67,7 +67,7 @@ class ReportListPluginsTest(StageOneOutputTest):
             # Ignore empty lines
             if not plug.strip():
                 continue
-            self.assertRegex(plug, r' ([\S ]){20} ([\S ])*')
+            self.assertRegex(plug, r' ([\S ]){30} ([\S ])*')
         for plug in disabled_plugins:
             if not plug.strip():
                 continue
@@ -79,7 +79,7 @@ class ReportListPluginsTest(StageOneOutputTest):
         for opt in plugin_options:
             if not opt.strip():
                 continue
-            self.assertRegex(opt, r' ([\S ]){35} ([\S ]{15}) ([\S ])*')
+            self.assertRegex(opt, r' ([\S ]){40} ([\S ]{15}) ([\S ])*')
 
 
 class ReportListPresetsTest(StageOneOutputTest):
