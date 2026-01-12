@@ -7,26 +7,21 @@
 # See the LICENSE file in the source distribution for further information.#
 
 import re
-import os
 
 from sos.report.plugins import Plugin, PluginOpt, UbuntuPlugin
 
 
-class OpenSearchDashboard(Plugin, UbuntuPlugin):
-    short_desc = 'Charmed OpenSearch Dashboard'
-    plugin_name = 'charmed_opensearch_dashboard'
+class OpenSearchDashboards(Plugin, UbuntuPlugin):
+    short_desc = "Charmed OpenSearch Dashboards"
+    plugin_name = "charmed_opensearchui"
     option_list = [
         PluginOpt(
             "user", default="admin", val_type=str,
             desc="Username for opensearch, to check APIs"
         ),
         PluginOpt(
-            "pass", default="", val_type=str,
+            "password", default="", val_type=str,
             desc="Password for opensearch, to check APIs",
-        ),
-        PluginOpt(
-            "all_log", default=True, val_type=bool,
-            desc="Export all logs",
         )
     ]
 
@@ -39,29 +34,24 @@ class OpenSearchDashboard(Plugin, UbuntuPlugin):
     snap_current_path = "/var/snap/opensearch-dashboards/current"
     snap_common_path = "/var/snap/opensearch-dashboards/common"
 
-    user, password = None, None
-
     def setup(self):
-        self.user, self.password = self.get_credentials()
-        if self.check_vm():
-            self.export_vm()
+        if not self.check_vm():
+            return
 
-    def check_vm(self):
-        return os.path.exists(self.snap_current_path)
-
-    def export_vm(self):
         # CONFIGS
         opensearch_dashboard_config_file = \
             f"{self.snap_current_path}{self.config_path}"
 
         self.add_copy_spec(opensearch_dashboard_config_file)
-        self.add_copy_spec(f"{self.snap_current_path}{self.node_config_path}")
+        self.add_copy_spec(
+            f"{self.snap_current_path}{self.node_config_path}")
 
         # LOGS
-        if self.get_option("all_log"):
+        if self.get_option("all_logs"):
             self.add_copy_spec(f"{self.snap_common_path}{self.log_path}/*")
         else:
-            self.add_copy_spec(f"{self.snap_common_path}{self.log_path}/*.log")
+            self.add_copy_spec(
+                f"{self.snap_common_path}{self.log_path}/*.log")
 
         # JOURNAL
         self.add_journal(units="snap.opensearch-dashboards.*", lines=1000,
@@ -72,19 +62,16 @@ class OpenSearchDashboard(Plugin, UbuntuPlugin):
             "snap.opensearch-dashboards.exporter-daemon",
             suggest_filename="service_status_exporter_daemon"
         )
-
         self.add_service_status(
             "snap.opensearch-dashboards.opensearch-dashboards-daemon",
-            suggest_filename="service_status_opensearch_dashboards_daemon")
-        self.add_cmd_output(
-            "systemctl cat snap.opensearch-dashboards.exporter-daemon.service",
-            suggest_filename="service_cat_dashboard_exporter"
+            suggest_filename="service_status_opensearch_dashboards_daemon"
         )
-        self.add_cmd_output(
-            "systemctl cat snap.opensearch-dashboards.opensearch-dashboards"
-            "-daemon.service",
-            suggest_filename="service_cat_dashboard_opensearch"
-        )
+        self.add_copy_spec([
+            "/etc/systemd/system/"
+            "snap.opensearch-dashboards.exporter-daemon.service",
+            "/etc/systemd/system/"
+            "snap.opensearch-dashboards.opensearch-dashboards-daemon.service",
+        ])
 
         # SNAP
         self.add_cmd_output(
@@ -93,28 +80,46 @@ class OpenSearchDashboard(Plugin, UbuntuPlugin):
         )
 
         # CERTIFICATES
-        # We don't export certificates, just paths
-        self.add_cmd_output(
-            f"ls -la {self.snap_current_path}{self.certificates_path}",
+        self.add_dir_listing(
+            f"{self.snap_current_path}{self.certificates_path}",
             suggest_filename="certificates_paths"
         )
 
-        # PORTS
-        self.add_cmd_output(
-            "sh -c \"ss -tulpn | awk 'NR==1 || /5601/'\"",
-            suggest_filename="listening_ports"
-        )
-
-        # PROCESS TREE
-        self.add_cmd_output(
-            "sh -c \"ps aux | awk 'NR==1 || /opensearch-dashboards/'\"",
-            suggest_filename="process_tree"
-        )
-
         # API
-        host, port = self.get_hostname_port(opensearch_dashboard_config_file)
+        host, port = self.get_hostname_port(
+            opensearch_dashboard_config_file)
         base_url = f"http://{host}:{port}"
         self.export_api(base_url)
+
+    def collect(self):
+        # PORTS
+        with self.collection_file('listening_ports') as pofile:
+            res = self.exec_cmd("ss -tulpn")
+            if not res['status'] == 0:
+                pofile.write(f"Unable to get ports list: {res['output']}")
+                return
+            lines = res['output'].splitlines()
+            filtered_ports = [
+                line for index, line in enumerate(lines)
+                if index == 0 or "5601" in line
+            ]
+            pofile.writelines('\n'.join(filtered_ports) + '\n')
+
+        # PROCESS TREE
+        with self.collection_file('process_tree') as prfile:
+            res = self.exec_cmd("ps aux")
+            if not res['status'] == 0:
+                prfile.write(f"Unable to get process list: {res['output']}")
+                return
+            lines = res['output'].splitlines()
+            filtered_procs = [
+                line for index, line in enumerate(lines)
+                if index == 0 or "opensearch-dashboards" in line
+            ]
+            prfile.writelines('\n'.join(filtered_procs) + '\n')
+
+    def check_vm(self):
+        return self.path_exists(self.snap_current_path)
 
     def get_hostname_port(self, opensearch_config_file):
         """ Get hostname and port number """
@@ -136,13 +141,11 @@ class OpenSearchDashboard(Plugin, UbuntuPlugin):
             self._log_info(f"Failed to parse {opensearch_config_file}: {err}")
         return hostname, port
 
-    def get_credentials(self):
-        user = self.get_option("user")
-        password = self.get_option("pass")
-        return user, password
-
     def export_api(self, base_url):
-        base_cmd = f"curl -s -k -u {self.user}:{self.password} -X GET"
+        if not (password := self.get_option('password')):
+            return
+        base_cmd = f"curl -s -k -u {self.get_option('user')}:{password} -X GET"
+
         self.add_cmd_output(f"{base_cmd} '{base_url}/api/status'",
                             suggest_filename="status")
 
@@ -160,11 +163,8 @@ class OpenSearchDashboard(Plugin, UbuntuPlugin):
         if self.check_vm():
             opensearch_dashboard_config_file = (f"{self.snap_current_path}"
                                                 f"{self.config_path}")
-        else:
-            opensearch_dashboard_config_file = ""
-
-        self.do_path_regex_sub(
-            f"{opensearch_dashboard_config_file}",
-            r"(\s*opensearch\.password\s*:\s+).*",
-            r'\1"*********"',
-        )
+            self.do_path_regex_sub(
+                f"{opensearch_dashboard_config_file}",
+                r"(\s*opensearch\.password\s*:\s+).*",
+                r'\1"*********"',
+            )
