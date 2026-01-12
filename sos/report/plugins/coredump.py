@@ -49,6 +49,9 @@ class Coredump(Plugin, IndependentPlugin):
 
     option_list = [
         PluginOpt("dumps", default=3, desc="number of dump files to collect"),
+        PluginOpt("save_executable", default=False,
+                  desc="Add the crashed executable file in the sos report, "
+                  "useful when loading cores into debuggers"),
         PluginOpt("executable", default='',
                   desc=("only collect info and dump output for executables "
                         "matching this regex"))
@@ -81,6 +84,14 @@ class Coredump(Plugin, IndependentPlugin):
             res = cinfo['output']
             if cores_collected < self.get_option("dumps"):
                 core = re.search(r"(^\s*Storage:(.*)(\(present\)))", res, re.M)
+                if self.get_option("save_executable"):
+                    if cexe := re.search(r"(^\s*Executable:\s*(/.*))",
+                                         res, re.M):
+                        # a_c_s will ignore redundant specs automatically if
+                        # we're looping over several cores for the same
+                        # crashing executable
+                        self.add_copy_spec(cexe.groups()[-1],
+                                           tailit=False)
                 try:
                     core_path = core.groups()[1].strip()
                     # a_c_s does not return any information for a skipped file,
