@@ -8,7 +8,7 @@
 
 import re
 
-from sos.report.plugins import Plugin, PluginOpt, UbuntuPlugin
+from sos.report.plugins import Plugin, PluginOpt, UbuntuPlugin, SoSPredicate
 
 
 class OpenSearchDashboards(Plugin, UbuntuPlugin):
@@ -94,7 +94,10 @@ class OpenSearchDashboards(Plugin, UbuntuPlugin):
     def collect(self):
         # PORTS
         with self.collection_file('listening_ports') as pofile:
-            res = self.exec_cmd("ss -tulpn")
+            ss_pred = SoSPredicate(self, kmods=['tcp_diag', 'udp_diag',
+                                                'inet_diag'],
+                                   required={'kmods': 'all'})
+            res = self.exec_cmd("ss -tulpn", pred=ss_pred)
             if not res['status'] == 0:
                 pofile.write(f"Unable to get ports list: {res['output']}")
                 return
