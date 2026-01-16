@@ -35,6 +35,7 @@ P_FILE = "file"
 P_LINK = "link"
 P_NODE = "node"
 P_DIR = "dir"
+P_CONTFILE = "contaner file"
 
 
 class Archive:
