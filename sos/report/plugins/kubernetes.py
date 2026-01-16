@@ -348,7 +348,15 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
         super().setup()
 
     def _canonical_kubernetes(self):
-        self.add_journal(units="snap.k8s.*")
+        k8s_units = ['snap.k8s.containerd.service',
+                     'snap.k8s.etcd.service',
+                     'snap.k8s.k8sd.service',
+                     'snap.k8s.kube-apiserver.service',
+                     'snap.k8s.kube-controller-manager.service',
+                     'snap.k8s.kube-proxy.service',
+                     'snap.k8s.kube-scheduler.service',
+                     'snap.k8s.kubelet.service']
+        self.add_journal(units=k8s_units)
 
         k8s_cmd = "k8s"
         k8s_common = "/var/snap/k8s/common"
