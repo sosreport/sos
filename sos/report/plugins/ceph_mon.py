@@ -165,6 +165,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "osd pool ls detail",
             "osd stat",
             "pg dump",
+            "pg dump_stuck",
             "pg stat",
             "status",
             "time-sync-status",
