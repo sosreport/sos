@@ -2,6 +2,8 @@ This is a test file for ipv6 address obfuscation.
 
 This address should be obfuscated
 GOOD_IP=3000:505f:505f:505f:505f:505f:505f:505f
+As well as with trailing ':':
+GOOD_IP=3000:505f:505f:505f:505f:505f:505f:505f:
 
 This address should not get sos stuck
 BAD_IP=505f:505f:505f:505f:505f:505f:505f:505f
