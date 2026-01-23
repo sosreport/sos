@@ -41,6 +41,7 @@ class AAPContainerized(Plugin, RedHatPlugin):
     def setup(self):
         # Check if username is passed as argument
         username = self.get_option("username")
+        self.aap_directory_name = self.get_option("directory")
         if not username:
             self._log_warn("AAP username is missing, use '-k "
                            "aap_containerized.username=<user>' to set it")
@@ -61,16 +62,15 @@ class AAPContainerized(Plugin, RedHatPlugin):
                     return
 
         # Grab aap installation directory under user's home
-        if not self.get_option("directory"):
+        if not self.aap_directory_name:
             user_home_directory = os.path.expanduser(f"~{username}")
-            aap_directory_name = self.path_join(user_home_directory, "aap")
-        else:
-            aap_directory_name = self.get_option("directory")
+            self.aap_directory_name = self.path_join(user_home_directory,
+                                                     "aap")
 
         # Don't collect cert and key files from the installation directory
-        if self.path_exists(aap_directory_name):
+        if self.path_exists(self.aap_directory_name):
             forbidden_paths = [
-                self.path_join(aap_directory_name, path)
+                self.path_join(self.aap_directory_name, path)
                 for path in [
                     "containers",
                     "tls",
@@ -93,10 +93,10 @@ class AAPContainerized(Plugin, RedHatPlugin):
                 ]
             ]
             self.add_forbidden_path(forbidden_paths)
-            self.add_copy_spec(aap_directory_name)
+            self.add_copy_spec(self.aap_directory_name)
         else:
-            self._log_error(f"Directory {aap_directory_name} does not exist "
-                            "or invalid absolute path provided")
+            self._log_error(f"Directory {self.aap_directory_name} does not "
+                            "exist or invalid absolute path provided.")
 
         # Gather output of following podman commands as user
         podman_commands = [
@@ -200,6 +200,24 @@ class AAPContainerized(Plugin, RedHatPlugin):
         return False
 
     def postproc(self):
+        # remove controller email password
+        file_path = f"{self.aap_directory_name}/controller/etc/settings.py"
+        jreg = r"(EMAIL_HOST_PASSWORD\s*=\s*)\'(.+)\'"
+        repl = r"\1********"
+        self.do_path_regex_sub(file_path, jreg, repl)
+
+        # remove gateway database password
+        file_path = f"{self.aap_directory_name}/gateway/etc/settings.py"
+        jreg = r"(\s*'PASSWORD'\s*:\s*)('.*')"
+        repl = r"\1********"
+        self.do_path_regex_sub(file_path, jreg, repl)
+
+        # Mask EDA optional secrets
+        file_path = f"{self.aap_directory_name}/eda/etc/settings.yaml"
+        regex = r"(\s*)(PASSWORD|MQ_USER_PASSWORD|SECRET_KEY)(:\s*)(.*$)"
+        replacement = r'\1\2\3********'
+        self.do_path_regex_sub(file_path, regex, replacement)
+
         # Mask PASSWORD from print_settings command
         jreg = r'((["\']?PASSWORD["\']?\s*[:=]\s*)[rb]?["\'])(.*?)(["\'])'
         self.do_cmd_output_sub(
@@ -213,5 +231,6 @@ class AAPContainerized(Plugin, RedHatPlugin):
             "aap-gateway-manage print_settings",
             jreg,
             r'\1**********\5')
+
 
 # vim: set et ts=4 sw=4 :
