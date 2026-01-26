@@ -38,8 +38,11 @@ class GCP(Plugin, IndependentPlugin):
         Checks if this plugin should be executed based on the presence of
         GCE entry in sysfs.
         """
-        with open(self.PRODUCT_PATH, encoding='utf-8') as sys_file:
-            return "Google Compute Engine" in sys_file.read()
+        try:
+            with open(self.PRODUCT_PATH, encoding='utf-8') as sys_file:
+                return "Google Compute Engine" in sys_file.read()
+        except OSError:
+            return False
 
     def setup(self):
         """
