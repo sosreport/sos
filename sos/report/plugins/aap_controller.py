@@ -83,12 +83,12 @@ class AAPControllerPlugin(Plugin, RedHatPlugin):
         self.do_path_regex_sub("/etc/tower/conf.d/postgres.py", jreg, repl)
 
         # remove email password
-        jreg = r"(EMAIL_HOST_PASSWORD\s*=)\'(.+)\'"
+        jreg = r"(EMAIL_HOST_PASSWORD\s*=\s*)\'(.+)\'"
         repl = r"\1********"
         self.do_path_regex_sub("/etc/tower/settings.py", jreg, repl)
 
         # remove email password (if customized)
-        jreg = r"(EMAIL_HOST_PASSWORD\s*=)\'(.+)\'"
+        jreg = r"(EMAIL_HOST_PASSWORD\s*=\s*)\'(.+)\'"
         repl = r"\1********"
         self.do_path_regex_sub("/etc/tower/conf.d/custom.py", jreg, repl)
 
