@@ -67,6 +67,15 @@ class GCP(Plugin, IndependentPlugin):
             except RuntimeError as err:
                 mfile.write(str(err))
 
+        # Collect zone.txt file from RHUI
+        curl_command = ('curl -v --connect-timeout 10'
+                        'https://rhui.googlecloud.com/zone.txt')
+
+        rhui_package = self.policy.package_manager.all_pkgs_by_name_regex(
+            r'google-rhui-client')
+        if rhui_package:
+            self.collect_cmd_output(curl_command)
+
     def get_metadata(self) -> dict:
         """
         Retrieves metadata from the Metadata Server and transforms it into a
