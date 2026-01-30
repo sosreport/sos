@@ -77,7 +77,23 @@ class Unpackaged(Plugin, RedHatPlugin):
         if not self.test_predicate(cmd=True):
             return
 
-        with self.collection_file('unpackaged') as ufile:
+        # filename = 'unpackaged'  # Replaced with dynamic logic!
+
+        # Get files_command from package manager
+        # Handle MultiPackageManager by accessing primary manager
+        pkg_mgr = self.policy.package_manager
+        pkg_mgr_cmd = getattr(pkg_mgr, 'primary', pkg_mgr).files_command
+
+        if pkg_mgr_cmd:
+            # Sanitize command to filename: 'rpm -qal' -> 'rpm_qal'
+            sanitized_cmd = pkg_mgr_cmd.replace(' ', '_').replace('-', '')
+            # Filename represents grep -v metaphor, not exact command
+            filename = f'path_grep_v_{sanitized_cmd}'
+        else:
+            # Fallback for package managers without a command
+            filename = 'path_grep_v_pkg_files'
+
+        with self.collection_file(filename) as ufile:
             paths = get_env_path_list()
             all_fsystem = []
             all_frpm = set(
