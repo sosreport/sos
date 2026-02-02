@@ -68,11 +68,16 @@ class Pacemaker(Plugin):
         self.add_cmd_output("pcs status --full", tags="pcs_status")
 
     def postproc_crm_shell(self):
-        """ Clear password """
+        """ Clear password and api keys """
         self.do_cmd_output_sub(
             "crm configure show",
             r"passw([^\s=]*)=\S+",
             r"passw\1=********"
+        )
+        self.do_cmd_output_sub(
+            "crm configure show",
+            r"(api[_]?key[^\s=]*)=\S+",
+            r"\1=********"
         )
 
     def postproc_pcs(self):
