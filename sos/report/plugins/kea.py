@@ -21,14 +21,25 @@ class Kea(Plugin, IndependentPlugin):
     short_desc = 'Kea DHCP and DDNS server from ISC'
 
     plugin_name = "kea"
-    packages = ("kea", "kea-common",)
-    services = ('kea-ctrl-agent', 'kea-dhcp-ddns-server',
-                'kea-dhcp4-server', 'kea-dhcp6-server',)
+    packages = ("kea", "kea-common",
+                "isc-kea", "kea-dhcp4-server",
+                "kea-dhcp6-server",)
+    services = ('kea-ctrl-agent', 'kea-dhcp-ddns',
+                'kea-dhcp4', 'kea-dhcp6',)
 
     def setup(self):
+        self.add_forbidden_path("/etc/kea/kea-api-password")
         self.add_copy_spec([
             "/etc/kea/*",
         ])
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/kea/kea*.log*",
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/kea/kea*.log",
+            ])
         self.add_cmd_output([
             "keactrl status",
         ])
