@@ -180,14 +180,13 @@ class PulpCore(Plugin, IndependentPlugin):
         # SECRET_KEY = "eKfeDkTnvss7p5WFqYdGPWxXfHnsbDBx"
         # 'PASSWORD': 'tGrag2DmtLqKLTWTQ6U68f6MAhbqZVQj',
         # AUTH_LDAP_BIND_PASSWORD = 'ouch-a-secret'
-        # the PASSWORD can be also in an one-liner list, so detect its value
-        # in non-greedy manner till first ',' or '}'
-        key_pass_re = r"((?:SECRET_KEY|AUTH_LDAP_BIND_PASSWORD)" \
-                      r"(?:\<.+\>)?(\s*=)?|(password|PASSWORD)" \
-                      r"(\"|'|:)+)\s*(\S*)"
-        repl = r"\1 ********"
-        self.do_path_regex_sub("/etc/pulp/settings.py", key_pass_re, repl)
-        self.do_cmd_output_sub("dynaconf list", key_pass_re, repl)
+        # and also one-liners like
+        # 'SECRET_KEY': 'dontreadit', "PASSWORD": "c0nf1d3nt1al",
+        reg = r"((SECRET_KEY|AUTH_LDAP_BIND_PASSWORD|password|PASSWORD)" \
+              r"(\"|'|:|=|\s)+)([^\s'\"]+)"
+        repl = r"\1********"
+        self.do_path_regex_sub("/etc/pulp/settings.py", reg, repl)
+        self.do_cmd_output_sub("dynaconf list", reg, repl)
 
 
 # vim: set et ts=4 sw=4 :
