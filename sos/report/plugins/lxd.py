@@ -22,6 +22,23 @@ class LXD(Plugin, UbuntuPlugin):
     services = ('snap.lxd.daemon', 'snap.lxd.activate')
 
     def setup(self):
+
+        lxc_cmds = [
+            "lxc image list local:",
+            "lxc list local:",
+            "lxc network list local:",
+            "lxc profile list local:",
+            "lxc storage list local:",
+            "lxc operation list local:",
+            "lxc info local:",
+            "lxc alias list",
+            "lxc remote list",
+            "lxc version local:",
+            "lxc warning list local:",
+            "lxc auth permission list local:",
+            "lxc cluster list local:"
+        ]
+
         if self.is_snap:
 
             lxd_pred = SoSPredicate(self, services=['snap.lxd.daemon'],
@@ -111,16 +128,10 @@ class LXD(Plugin, UbuntuPlugin):
             ])
 
             self.add_cmd_output([
-                "lxc image list",
-                "lxc list",
-                "lxc network list",
-                "lxc profile list",
-                "lxc storage list"
-            ], pred=lxd_pred)
-
-            self.add_cmd_output([
                 "find /var/lib/lxd -maxdepth 2 -type d -ls",
             ], suggest_filename='var-lxd-dirs.txt')
+
+        self.add_cmd_output(lxc_cmds, pred=lxd_pred, snap_cmd=self.is_snap)
 
     def postproc(self):
         self.do_cmd_private_sub('lxd.buginfo')
