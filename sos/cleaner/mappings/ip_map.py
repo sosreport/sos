@@ -57,8 +57,9 @@ class SoSIPMap(SoSMap):
         Here, match the ip address to any of the obfuscated addresses we've
         already created
         """
+        addr_str = str(ipaddr).split('/', maxsplit=1)[0]
         for _ip in self.dataset.values():
-            if str(ipaddr).split('/', maxsplit=1)[0] == _ip.split('/')[0]:
+            if addr_str == _ip.split('/')[0]:
                 return True
         return False
 
