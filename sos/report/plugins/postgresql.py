@@ -107,8 +107,12 @@ class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
     def setup(self):
         super().setup()
 
+        if self.get_option("all_logs"):
+            self.add_copy_spec("/var/log/postgresql/")
+        else:
+            self.add_copy_spec("/var/log/postgresql/*.log")
+
         self.add_copy_spec([
-            "/var/log/postgresql/*.log",
             "/etc/postgresql/*/main/*.conf",
             "/var/lib/postgresql/*/main/PG_VERSION",
             "/var/lib/postgresql/*/main/postmaster.opts"
