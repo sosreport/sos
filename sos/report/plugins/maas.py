@@ -90,6 +90,16 @@ class MAAS(Plugin, UbuntuPlugin):
             'maas status',
         ], snap_cmd=True)
 
+        self.add_cmd_output([
+            'stat /var/snap/maas/common/maas/image-storage/*',
+            'stat /var/snap/maas/common/maas/image-storage/bootloaders/*',
+            'stat /var/snap/maas/current/*.sock*',
+            'stat /var/snap/maas/current/syslog/rsyslog/*.sock',
+            'stat /var/snap/maas/common/proxy/cache/*',
+            'du -sh /var/snap/maas/common/proxy/cache/',
+            'du -sh /var/snap/maas/image-storage/',
+        ])
+
         self.add_forbidden_path([
             "/var/snap/maas/**/*.key",
             "/var/snap/maas/**/*.pem",
@@ -121,6 +131,13 @@ class MAAS(Plugin, UbuntuPlugin):
     def _deb_collect(self):
         self.add_cmd_output([
             "apt-cache policy maas maas-*",
+            'stat /var/lib/maas/image-storage/*',
+            'stat /var/lib/maas/image-storage/bootloaders/*',
+            'stat /var/lib/maas/*.sock*',
+            'stat /var/lib/maas/syslog/rsyslog/*.sock',
+            'stat /var/cache/maas/*',
+            'du -sh /var/cache/maas/',
+            'du -sh /var/lib/maas/image-storage/',
         ])
 
         self.add_forbidden_path([
