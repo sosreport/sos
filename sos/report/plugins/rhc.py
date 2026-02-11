@@ -30,6 +30,15 @@ class Rhc(Plugin, RedHatPlugin):
             "/var/log/rhc-worker-playbook",
         ])
 
+        if self.get_option("all_logs"):
+            self.add_copy_spec([
+                "/var/log/rhc/rhc.log*"
+            ])
+        else:
+            self.add_copy_spec([
+                "/var/log/rhc/rhc.log"
+            ])
+
         self.add_cmd_output(
             "rhc status",
             pred=SoSPredicate(self, services=["rhsm"])
