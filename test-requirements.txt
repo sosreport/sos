@@ -1,1 +1,2 @@
 avocado-framework<104.0
+setuptools<81
