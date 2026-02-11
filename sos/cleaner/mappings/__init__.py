@@ -69,11 +69,17 @@ class SoSMap():
                 return True
         return False
 
+    def insert_to_dataset(self, item, value):
+        self.dataset[item] = value
+
     def add_sanitised_item_to_dataset(self, item):
         try:
-            self.dataset[item] = self.sanitize_item(item)
+            self.insert_to_dataset(item, self.sanitize_item(item))
         except Exception:
-            self.dataset[item] = item
+            # we failed to obfuscate the item as it is not a real IP address
+            # or hostname or similar. Let return the original string and keep
+            # the item->item "mapping" in dataset to save time the next time.
+            self.insert_to_dataset(item, item)
         if self.compile_regexes:
             self.add_regex_item(item)
 

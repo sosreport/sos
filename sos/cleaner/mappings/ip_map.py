@@ -41,6 +41,7 @@ class SoSIPMap(SoSMap):
     ]
 
     _networks = {}
+    obfuscated_ips = set()
     network_first_octet = 100
     skip_network_octets = ['127', '169', '172', '192']
     compile_regexes = False
@@ -50,6 +51,18 @@ class SoSIPMap(SoSMap):
     # (an attempt to prevent confusion)
     _saddr_cnt = 2886795264
 
+    def conf_update(self, config):
+        """Override the base conf_update() so that we can add items into
+        obfuscated_ips.
+        """
+        for value in config.values():
+            self.obfuscated_ips.add(value.split('/', maxsplit=1)[0])
+        super().conf_update(config)
+
+    def insert_to_dataset(self, item, value):
+        self.obfuscated_ips.add(value.split('/', maxsplit=1)[0])
+        self.dataset[item] = value
+
     def ip_in_dataset(self, ipaddr):
         """There are multiple ways in which an ip address could be handed to us
         in a way where we're matching against a previously obfuscated address.
@@ -58,10 +71,7 @@ class SoSIPMap(SoSMap):
         already created
         """
         addr_str = str(ipaddr).split('/', maxsplit=1)[0]
-        for _ip in self.dataset.values():
-            if addr_str == _ip.split('/')[0]:
-                return True
-        return False
+        return addr_str in self.obfuscated_ips
 
     def get(self, item):
         """Ensure that when requesting an obfuscated address, we return a str
@@ -203,5 +213,7 @@ class SoSIPMap(SoSMap):
             pass
 
         if _obf_network:
+            _obf_network_s = str(_obf_network)
             self._networks[network] = _obf_network
-            self.dataset[str(network)] = str(_obf_network)
+            self.dataset[str(network)] = _obf_network_s
+            self.obfuscated_ips.add(_obf_network_s.split('/', maxsplit=1)[0])
