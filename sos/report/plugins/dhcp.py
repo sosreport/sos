@@ -19,8 +19,7 @@ class Dhcp(Plugin):
 
 class RedHatDhcp(Dhcp, RedHatPlugin):
 
-    files = ('/etc/rc.d/init.d/dhcpd',)
-    packages = ('dhcp',)
+    packages = ('dhcp', 'dhcp-server',)
 
     def setup(self):
         super().setup()
