@@ -33,7 +33,9 @@ class Apt(Plugin, DebianPlugin, UbuntuPlugin):
             "apt-config dump",
             "apt-cache stats",
             "apt-cache policy",
-            "apt-mark showhold"
+            "apt-mark showhold",
+            "apt-mark showmanual",
+            "apt-mark showauto",
         ])
         dpkg_result = self.exec_cmd(
             "dpkg-query -W -f='${binary:Package}\t${status}\n'"
