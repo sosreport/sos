@@ -81,6 +81,16 @@ class ForemanInstaller(Plugin, DebianPlugin, UbuntuPlugin):
             fr"({install_logs})",
             r"((\:|\s*)(passw|cred|token|secret|key).*(\:\s|=))(.*)",
             r'\1"********"')
+        # Credentials to register the target server to Red Hat portal
+        self.do_path_regex_sub(
+            "/usr/share/satellite-clone/satellite-clone-vars.yml",
+            r"^(activationkey|org):\s*(.*)",
+            r"\1: ********")
+        # .. and in CLI output
+        self.do_path_regex_sub(
+            "/var/log/satellite-clone/playbook.log",
+            r"(--(?:activationkey|org)(?:=|\s+))(.+)",
+            r"\1********")
 
 
 # Add Red Hat Insights tags for RedHatPlugin only
@@ -95,6 +105,13 @@ class RedHatForemanInstaller(ForemanInstaller, RedHatPlugin):
             '/var/log/foreman-installer/capsule.log':
                 ['capsule_log', 'capsule_installer_log'],
         })
+
+        self.add_copy_spec([
+            "/usr/share/satellite-clone/logs",
+            "/usr/share/satellite-clone/satellite-clone-vars.yml",
+            "/usr/share/satellite-clone/ansible.production.cfg",
+            "/var/log/satellite-clone/playbook.log",
+        ])
 
         super().setup()
 
