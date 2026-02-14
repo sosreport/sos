@@ -143,6 +143,8 @@ class SoSMap():
         if self.ignore_item(item):
             return
         if item not in self._regexes_made:
+            # we do re.I everywhere, so unify the item
+            item = item.lower()
             # save the item in a set to avoid clobbering existing regexes,
             # as searching this set is significantly faster than searching
             # through the actual compiled_regexes list, especially for very
