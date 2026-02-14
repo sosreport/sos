@@ -112,7 +112,7 @@ class SoSCleanerParser():
         count = 0
         for item, reg in self.mapping.compiled_regexes:
             if reg.search(line):
-                line, _count = reg.subn(self.mapping.get(item.lower()), line)
+                line, _count = reg.subn(self.mapping.get(item), line)
                 count += _count
         return line, count
 
@@ -158,8 +158,7 @@ class SoSCleanerParser():
         if self.compile_regexes:
             for item, reg in self.mapping.compiled_regexes:
                 if reg.search(string_data):
-                    string_data = reg.sub(self.mapping.get(item.lower()),
-                                          string_data)
+                    string_data = reg.sub(self.mapping.get(item), string_data)
         else:
             for k, ob in sorted(self.mapping.dataset.items(), reverse=True,
                                 key=lambda x: len(x[0])):
