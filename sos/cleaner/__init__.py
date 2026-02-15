@@ -143,26 +143,41 @@ class SoSCleaner(SoSComponent):
             cleaner_dir,
             self.opts.skip_cleaning_files,
         ]
-        self.parsers = [
-            SoSHostnameParser(*parser_args),
-            SoSIPParser(*parser_args),
-            SoSIPv6Parser(*parser_args),
-            SoSMacParser(*parser_args),
-            SoSKeywordParser(*parser_args),
-            SoSUsernameParser(*parser_args),
+
+        parser_classes = [
+            SoSHostnameParser,
+            SoSIPParser,
+            SoSIPv6Parser,
+            SoSMacParser,
+            SoSKeywordParser,
+            SoSUsernameParser,
+        ]
+        parser_names = [
+            cls.__name__ for cls in parser_classes
         ]
 
         for _parser in self.opts.disable_parsers:
-            for _loaded in self.parsers:
-                _temp = _loaded.name.lower().split('parser', maxsplit=1)[0]
-                _loaded_name = _temp.strip()
-                if _parser.lower().strip() == _loaded_name:
-                    self.log_info(f"Disabling parser: {_loaded_name}")
+            found = False
+            for pname in parser_names:
+                parser_name = pname[3:-6].lower()  # strip "SoS" and "Parser"
+                if _parser.lower().strip() == parser_name:
+                    self.log_info(f"Disabling parser: {parser_name}")
                     self.ui_log.warning(
                         f"Disabling the '{_parser}' parser. Be aware that this"
                         " may leave sensitive plain-text data in the archive."
                     )
-                    self.parsers.remove(_loaded)
+                    parser_names.remove(pname)  # pylint: disable=W4701
+                    found = True
+                    break
+            if not found:
+                self.ui_log.warning(
+                    f"Failing to disable an unknown parser '{_parser}'."
+                )
+
+        self.parsers = [
+            globals()[cls_name](*parser_args)
+            for cls_name in parser_names
+        ]
 
         self.archive_types = [
             SoSReportDirectory,
