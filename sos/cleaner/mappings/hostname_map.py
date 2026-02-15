@@ -50,36 +50,6 @@ class SoSHostnameMap(SoSMap):
     _domains = {}
     hosts = {}
 
-    def load_domains_from_map(self):
-        """Because we use 'intermediary' dicts for host names and domain names
-        in this parser, we need to re-inject entries from the map_file into
-        these dicts and not just the underlying 'dataset' dict
-        """
-        for domain, ob_pair in self.dataset.items():
-            if len(domain.split('.')) == 1:
-                self.hosts[domain.split('.')[0]] = self.dataset[domain]
-            else:
-                if ob_pair.startswith('obfuscateddomain'):
-                    # directly exact domain matches
-                    self._domains[domain] = ob_pair.split('.')[0]
-                    continue
-                # strip the host name and trailing top-level domain so that
-                # we in inject the domain properly for later string matching
-
-                # note: this is artificially complex due to our stance on
-                # preserving TLDs. If in the future the project decides to
-                # obfuscate TLDs as well somehow, then this will all become
-                # much simpler
-                _domain_to_inject = '.'.join(domain.split('.')[1:-1])
-                if not _domain_to_inject:
-                    continue
-                for existing_domain, value in self.dataset.items():
-                    _existing = '.'.join(existing_domain.split('.')[:-1])
-                    if _existing == _domain_to_inject:
-                        _ob_domain = '.'.join(value.split('.')[:-1])
-                        self._domains[_domain_to_inject] = _ob_domain
-        self.set_initial_counts()
-
     def get_regex_result(self, item):
         """Override the base get_regex_result() to provide a regex that, if
         this is an FQDN or a straight domain, will include an underscore
