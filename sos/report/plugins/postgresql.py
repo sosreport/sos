@@ -19,7 +19,7 @@ from sos.report.plugins import (Plugin, UbuntuPlugin, DebianPlugin,
 from sos.utilities import find
 
 
-class PostgreSQL(Plugin):
+class PostgreSQL(Plugin, RedHatPlugin):
 
     short_desc = 'PostgreSQL RDBMS'
 
@@ -76,16 +76,13 @@ class PostgreSQL(Plugin):
                 )
 
     def setup(self):
-        self.do_pg_dump()
-        self.add_cmd_output(f"du -sh {self.get_option('pghome')}")
-
-
-class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
-
-    def setup(self):
-        super().setup()
-
         pghome = self.get_option("pghome")
+
+        self.do_pg_dump()
+        self.add_cmd_output(f"du -sh {pghome}")
+
+        self.add_dir_listing(pghome, recursive=True)
+
         dirs = [pghome]
 
         for _dir in dirs:
@@ -104,6 +101,23 @@ class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
 
 class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
 
+    password_warn_text = " (password visible in process listings)"
+
+    option_list = [
+        PluginOpt('pghome', default='/var/lib/postgresql',
+                  desc='psql server home directory'),
+        PluginOpt('username', default='postgres', val_type=str,
+                  desc='username for pg_dump'),
+        PluginOpt('password', default='', val_type=str,
+                  desc='password for pg_dump' + password_warn_text),
+        PluginOpt('dbname', default='', val_type=str,
+                  desc='database name to dump with pg_dump'),
+        PluginOpt('dbhost', default='', val_type=str,
+                  desc='database hostname/IP address (no unix sockets)'),
+        PluginOpt('dbport', default=5432, val_type=int,
+                  desc='database server listening port')
+    ]
+
     def setup(self):
         super().setup()
 
@@ -114,8 +128,6 @@ class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
 
         self.add_copy_spec([
             "/etc/postgresql/*/main/*.conf",
-            "/var/lib/postgresql/*/main/PG_VERSION",
-            "/var/lib/postgresql/*/main/postmaster.opts"
         ])
 
 
