@@ -469,7 +469,8 @@ class SoSReport(SoSComponent):
         self.devices = {
             'storage': {
                 'block': self._get_block_devs(),
-                'fibre': self._get_fibre_devs()
+                'fibre': self._get_fibre_devs(),
+                'tape': self._get_tape_devs(),
             },
             'network': self._get_network_devs(),
             'namespaced_network': self._get_network_namespace_devices(),
@@ -550,6 +551,25 @@ class SoSReport(SoSComponent):
             return dev_list
         except Exception as err:
             self.soslog.error(f"Could not get block device list: {err}")
+            return []
+
+    def _get_tape_devs(self):
+        """Enumerate a list of tape devices on this system so that plugins
+        can iterate over them
+
+        These devices are used by add_device_cmd() in the Plugin class.
+        """
+        try:
+            devs = []
+            devdirs = [
+                'scsi_tape',
+                'lin_tape'
+            ]
+            for devdir in devdirs:
+                devs.extend(glob.glob(f"/sys/class/{devdir}/*"))
+            return devs
+        except Exception as err:
+            self.soslog.error(f"Could not get tape device list: {err}")
             return []
 
     def _get_namespaces(self):
