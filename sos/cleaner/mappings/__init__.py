@@ -84,26 +84,22 @@ class SoSMap():
             self.add_regex_item(item)
 
     def load_new_entries_from_dir(self, counter):
-        # this is a performance hack; there can be gaps in counter values as
-        # e.g. sanitised item #14 is an IP address (in file) while item #15
-        # is its network (in dataset but not in files). So the next file
-        # number is 16. The diffs should be at most 2, the above is so far
-        # the only type of "underneath dataset growth". But let be
-        # conservative and test next 5 numbers "only".
-        no_files_cnt = 5
-        while no_files_cnt > 0:
-            fname = os.path.join(self.cache_dir, f"{counter}")
-            while os.path.isfile(fname):
-                no_files_cnt = 5
-                with open(fname, 'r', encoding='utf-8') as f:
-                    item = f.read()
-                if not self.dataset.get(item, False):
-                    self.add_sanitised_item_to_dataset(item)
-                counter += 1
-                fname = os.path.join(self.cache_dir, f"{counter}")
-            # no next file, but try a new next ones until no_files_cnt==0
-            no_files_cnt -= 1
-            counter += 1
+        # Since mappers can add arbitrary extra records to dataset for one
+        # sanitize_item(item) call, cache directory can have gaps between
+        # numbers. Gaps of arbitrary length, so to ensure all "higher numbers"
+        # are really processed, we must list whole dir and open all relevant
+        # files.
+        num_files = [
+            f for f in os.listdir(self.cache_dir)
+            if f.isdigit() and int(f) >= counter
+        ]
+        num_files.sort(key=int)
+        for file_name in num_files:
+            fname = os.path.join(self.cache_dir, file_name)
+            with open(fname, 'r', encoding='utf-8') as f:
+                item = f.read()
+            if not self.dataset.get(item, False):
+                self.add_sanitised_item_to_dataset(item)
 
     def add(self, item):
         """Add a particular item to the map, generating an obfuscated pair
