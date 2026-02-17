@@ -92,7 +92,7 @@ class SoSObfuscationArchive():
                 self.log_info(f"Error obfuscating string data: {err}")
         return string_data
 
-    # TODO: merge content to obfuscate_arc_files as that is the only place we
+    # TODO: merge content to obfuscate_arc_file as that is the only place we
     # call obfuscate_filename ?
     def obfuscate_filename(self, short_name, filename):
         _ob_short_name = self.obfuscate_string(short_name.split('/')[-1])
@@ -152,86 +152,83 @@ class SoSObfuscationArchive():
                 self.log_debug(f"failed to parse line: {err}", parser.name)
         return line, count
 
-    def obfuscate_arc_files(self, flist):
-        for filename in flist:
-            self.log_debug(f"    pid={os.getpid()}: obfuscating {filename}")
-            try:
-                rel_name = os.path.relpath(filename, start=self.extracted_path)
-                if self.should_skip_file(rel_name):
-                    continue
-                if (not self.keep_binary_files and
-                        self.should_remove_file(rel_name)):
-                    # We reach this case if the option --keep-binary-files
-                    # was not used, and the file is in a list to be removed
+    def obfuscate_arc_file(self, filename):
+        self.log_debug(f"    pid={os.getpid()}: obfuscating {filename}")
+        try:
+            rel_name = os.path.relpath(filename, start=self.extracted_path)
+            if self.should_skip_file(rel_name):
+                # TODO: add to some/all returns a debug?
+                return
+            if (not self.keep_binary_files and
+                    self.should_remove_file(rel_name)):
+                # We reach this case if the option --keep-binary-files
+                # was not used, and the file is in a list to be removed
+                self.remove_file(rel_name)
+                return
+            if (self.keep_binary_files and
+                    (file_is_binary(filename) or
+                     self.should_remove_file(rel_name))):
+                # We reach this case if the option --keep-binary-files
+                # is used. In this case we want to make sure
+                # the cleaner doesn't try to clean a binary file
+                return
+            if os.path.islink(filename):
+                # don't run the obfuscation on the link, but on the actual
+                # file at some other point.
+                return
+            is_certificate = file_is_certificate(filename)
+            if is_certificate:
+                if is_certificate == "certificatekey":
+                    # Always remove certificate Key files
                     self.remove_file(rel_name)
-                    continue
-                if (self.keep_binary_files and
-                        (file_is_binary(filename) or
-                         self.should_remove_file(rel_name))):
-                    # We reach this case if the option --keep-binary-files
-                    # is used. In this case we want to make sure
-                    # the cleaner doesn't try to clean a binary file
-                    continue
-                if os.path.islink(filename):
-                    # don't run the obfuscation on the link, but on the actual
-                    # file at some other point.
-                    continue
-                is_certificate = file_is_certificate(filename)
-                if is_certificate:
-                    if is_certificate == "certificatekey":
-                        # Always remove certificate Key files
-                        self.remove_file(rel_name)
-                        continue
-                    if self.treat_certificates == "keep":
-                        continue
-                    if self.treat_certificates == "remove":
-                        self.remove_file(rel_name)
-                        continue
-                    if self.treat_certificates == "obfuscate":
-                        # since the original filename is deleted, we must
-                        # update both "filename" and "rel_name"
-                        filename = self.certificate_to_text(filename)
-                        rel_name = os.path.relpath(filename,
-                                                   start=self.extracted_path)
-                _parsers = [
-                    _p for _p in self.parsers if not
-                    any(
-                        _skip.match(rel_name) for _skip in _p.skip_patterns
-                    )
-                ]
-                if not _parsers:
-                    self.log_debug(
-                        f"Skipping obfuscation of {rel_name or filename} "
-                        f"due to matching file skip pattern"
-                    )
-                    continue
-                self.log_debug(f"Obfuscating {rel_name or filename}")
-                subs = 0
-                with tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir) \
-                        as tfile:
-                    with open(filename, 'r', encoding='utf-8',
-                              errors='replace') as fname:
-                        for line in fname:
-                            try:
-                                line, cnt = self.obfuscate_line(line, _parsers)
-                                subs += cnt
-                                tfile.write(line)
-                            except Exception as err:
-                                self.log_debug(f"Unable to obfuscate "
-                                               f"{rel_name}: {err}")
-                    tfile.seek(0)
-                    if subs:
-                        shutil.copyfile(tfile.name, filename)
-                        self.update_sub_count(subs)
+                    return
+                if self.treat_certificates == "keep":
+                    return
+                if self.treat_certificates == "remove":
+                    self.remove_file(rel_name)
+                    return
+                if self.treat_certificates == "obfuscate":
+                    # since the original filename is deleted, we must
+                    # update both "filename" and "rel_name"
+                    filename = self.certificate_to_text(filename)
+                    rel_name = os.path.relpath(filename,
+                                               start=self.extracted_path)
+            _parsers = [
+                _p for _p in self.parsers if not
+                any(
+                    _skip.match(rel_name) for _skip in _p.skip_patterns
+                )
+            ]
+            if not _parsers:
+                self.log_debug(
+                    f"Skipping obfuscation of {rel_name or filename} "
+                    f"due to matching file skip pattern"
+                )
+                return
+            self.log_debug(f"Obfuscating {rel_name or filename}")
+            subs = 0
+            with tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir) \
+                    as tfile:
+                with open(filename, 'r', encoding='utf-8',
+                          errors='replace') as fname:
+                    for line in fname:
+                        try:
+                            line, cnt = self.obfuscate_line(line, _parsers)
+                            subs += cnt
+                            tfile.write(line)
+                        except Exception as err:
+                            self.log_debug(f"Unable to obfuscate "
+                                           f"{rel_name}: {err}")
+                tfile.seek(0)
+                if subs:
+                    shutil.copyfile(tfile.name, filename)
+                    self.update_sub_count(subs)
 
-                self.obfuscate_filename(rel_name, filename)
+            self.obfuscate_filename(rel_name, filename)
 
-            except Exception as err:
-                self.log_debug(f"    pid={os.getpid()}: caught exception on "
-                               f"obfuscating file {filename}: {err}")
-
-        return (self.files_obfuscated_count, self.total_sub_count,
-                self.removed_file_count)
+        except Exception as err:
+            self.log_debug(f"    pid={os.getpid()}: caught exception on "
+                           f"obfuscating file {filename}: {err}")
 
     @classmethod
     def check_is_type(cls, arc_path):
