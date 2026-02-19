@@ -109,12 +109,25 @@ class SoSCleanerParser():
         :returns:   The obfuscated line and the number of changes made
         :rtype:     ``str``, ``int``
         """
-        count = 0
-        for item, reg in self.mapping.compiled_regexes:
-            if reg.search(line):
-                line, _count = reg.subn(self.mapping.get(item), line)
-                count += _count
-        return line, count
+
+        def _repl(match):
+            # for a given match, find its index, then the dataset's key in
+            # compiled_re_groups, and it's dataset's value.
+            # Theoretically, dataset[compiled_re_groups[match.lastindex]]
+            # should be sufficient to call every time; a few safeguards are
+            # added.
+            gi = match.lastindex
+            if not gi:
+                return match.group(0)  # fallback: return whole string
+            key = self.mapping.compiled_re_groups.get(gi)
+            # imho return self.mapping.dataset[key] is sufficient,
+            # until lowercase breaks the things
+            return self.mapping.dataset.get(
+                    key,
+                    self.mapping.dataset.get(match.group(gi),
+                                             match.group(gi)))
+
+        return self.mapping.compiled_regexes.subn(_repl, line)
 
     def _parse_line(self, line):
         """Check the provided line against the parser regex patterns to try

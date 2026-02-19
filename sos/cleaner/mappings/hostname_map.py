@@ -50,14 +50,22 @@ class SoSHostnameMap(SoSMap):
     _domains = {}
     hosts = {}
 
-    def get_regex_result(self, item):
-        """Override the base get_regex_result() to provide a regex that, if
+    def get_regex_fullword(self, item):
+        # we do match_full_words_only, so always wrap
+        return rf'(?<![a-z0-9_\.]){item}(?![a-z0-9_\.])'
+
+    def get_regex_escape(self, item):
+        """Override the base get_regex_escape() to provide a regex that, if
         this is an FQDN or a straight domain, will include an underscore
         formatted regex as well.
         """
-        if '.' in item:
-            item = item.replace('.', '(\\.|_)')
-        return super().get_regex_result(item)
+        # Build core allowing '.' or '_' at dot positions
+        if "." in item:
+            parts = [re.escape(p) for p in item.split('.')]
+            item = r'(?:\.|_)'.join(parts)
+        else:
+            item = re.escape(item)
+        return item
 
     def set_initial_counts(self):
         """Set the initial counter for host and domain obfuscation numbers

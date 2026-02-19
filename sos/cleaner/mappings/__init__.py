@@ -32,7 +32,9 @@ class SoSMap():
     def __init__(self, workdir):
         self.dataset = {}
         self._regexes_made = set()
-        self.compiled_regexes = []
+        self.compiled_regexes = re.compile('(?!)')  # no match
+        # dict of group ID to compiled regexes keys
+        self.compiled_re_groups = {}
         self.cname = self.__class__.__name__.lower()
         # workdir's default value '/tmp' is used just by avocado tests,
         # otherwise we override it to /etc/sos/cleaner (or map_file dir)
@@ -150,32 +152,25 @@ class SoSMap():
             # through the actual compiled_regexes list, especially for very
             # large collections of entries
             self._regexes_made.add(item)
-            # add the item, Pattern tuple directly to the compiled_regexes list
-            # and then sort the existing list, rather than rebuild the list
-            # from scratch every time we add something like we would do if we
-            # tracked/saved the item and the Pattern() object in a dict or in
-            # the set above
-            self.compiled_regexes.append((item, self.get_regex_result(item)))
-            self.compiled_regexes.sort(key=lambda x: len(x[0]), reverse=True)
+            # generate compiled_regexes as union of all (properly escaped)
+            # keys in self._regexes_made. To simplify group match replacement
+            # in _parse_line_with_compiled_regexes, keep dict of group IDs to
+            # the keys in self.compiled_re_groups.
+            keys = sorted(self._regexes_made, key=len, reverse=True)
+            pattern = "|".join([f'({self.get_regex_escape(k)})' for k in keys])
+            self.compiled_regexes = re.compile(
+                self.get_regex_fullword(pattern),
+                flags=re.I
+            )
+            self.compiled_re_groups = {i + 1: k for i, k in enumerate(keys)}
 
-    def get_regex_result(self, item):
-        """Generate the object/value that is used by the parser when iterating
-        over pre-generated regexes during parse_line(). For most parsers this
-        will simply be a ``re.Pattern()`` object, but for more complex parsers
-        this can be overridden to provide a different object, e.g. a tuple,
-        for that parer's specific iteration needs.
-
-        :param item:    The unobfuscated string to generate the regex for
-        :type item:     ``str``
-
-        :returns:       A compiled regex pattern for the item
-        :rtype:         ``re.Pattern``
-        """
+    def get_regex_fullword(self, item):
         if self.match_full_words_only:
-            item = rf'(?<![a-z0-9]){re.escape(item)}(?=\b|_|-)'
-        else:
-            item = re.escape(item)
-        return re.compile(item, re.I)
+            return rf'(?<![a-z0-9]){item}(?=\b|_|-)'
+        return item
+
+    def get_regex_escape(self, item):
+        return rf'{re.escape(item)}'
 
     def sanitize_item(self, item):
         """Perform the obfuscation relevant to the item being added to the map.
