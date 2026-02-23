@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import re
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.ipv6_map import SoSIPv6Map
 
@@ -17,7 +18,7 @@ class SoSIPv6Parser(SoSCleanerParser):
 
     name = 'IPv6 Parser'
     map_file_key = 'ipv6_map'
-    regex_patterns = [
+    regex_pattern = re.compile(
         # Attention: note that this is a single long regex, not several entries
         # This is initially based off of two regexes from the Java library
         # for validating an IPv6 string. However, this is modified to begin and
@@ -28,7 +29,7 @@ class SoSIPv6Parser(SoSCleanerParser):
         r"(?<![:\\.\\-a-z0-9])((([0-9a-f]{1,4})(:[0-9a-f]{1,4}){7})|"
         r"(([0-9a-f]{1,4}(:[0-9a-f]{0,4}){0,5}))([^.])::(([0-9a-f]{1,4}"
         r"(:[0-9a-f]{1,4}){0,5})?)(\/\d{1,3})?)(?!([a-z0-9]|:[a-z0-9]))"
-    ]
+    )
     parser_skip_files = [
         'etc/dnsmasq.conf.*',
         '.*modinfo.*',
