@@ -90,6 +90,20 @@ NOTE_SIZE = "This preset may increase report size"
 NOTE_TIME = "This preset may increase report run time"
 NOTE_SIZE_TIME = "This preset may increase report size and run time"
 
+RHELAI = "rhelai"
+RHELAI_DESC = "Red Hat Enterprise Linux AI"
+RHELAI_OPTS = SoSOptions(
+                all_logs=True,
+                enable_plugins=[
+                    'instructlab',
+                    'nvidia',
+                    'bootc',
+                    'containers_common'
+                ])
+
+RHELAI_NOTE = ("Collects RHEL AI related data, like Instructlab containers,"
+               "nvidia and bootc plugins.")
+
 RHEL_PRESETS = {
     AAPEDA: PresetDefaults(name=AAPEDA, desc=AAPEDA_DESC, opts=AAPEDA_OPTS,
                            note=AAPEDA_NOTE),
@@ -106,7 +120,9 @@ RHEL_PRESETS = {
                             opts=_opts_verify),
     RH_SATELLITE: PresetDefaults(name=RH_SATELLITE, desc=RH_SATELLITE_DESC,
                                  note=NOTE_TIME, opts=SAT_OPTS),
-    CB: PresetDefaults(name=CB, desc=CB_DESC, note=CB_NOTE, opts=CB_OPTS)
+    CB: PresetDefaults(name=CB, desc=CB_DESC, note=CB_NOTE, opts=CB_OPTS),
+    RHELAI: PresetDefaults(name=RHELAI, desc=RHELAI_DESC, opts=RHELAI_OPTS,
+                           note=RHELAI_NOTE)
 }
 
 
