@@ -596,8 +596,8 @@ third party.
         try:
             msg = (
                 f"Found {len(self.report_paths)} total reports to obfuscate, "
-                f"processing up to {self.opts.jobs} concurrently within one "
-                "archive\n"
+                f"processing up to {self.opts.jobs} concurrently within one\n"
+                "archive.\n"
             )
             self.ui_log.info(msg)
             if self.opts.keep_binary_files:
@@ -615,19 +615,19 @@ third party.
             if self.opts.treat_certificates == "obfuscate":
                 self.ui_log.warning(
                     "WARNING: certificate files that potentially contain "
-                    "sensitive information will be CONVERTED to text and "
+                    "sensitive information will\nbe CONVERTED to text and "
                     "OBFUSCATED in the final archive.\n"
                 )
             elif self.opts.treat_certificates == "keep":
                 self.ui_log.warning(
                     "WARNING: certificate files that potentially contain "
-                    "sensitive information will be KEPT in the final "
+                    "sensitive information will\nbe KEPT in the final "
                     "archive as is.\n"
                 )
             elif self.opts.treat_certificates == "remove":
                 self.ui_log.warning(
                     "WARNING: certificate files that potentially contain "
-                    "sensitive information will be REMOVED in the final "
+                    "sensitive information will\nbe REMOVED in the final "
                     "archive.\n")
             for report_path in self.report_paths:
                 self.ui_log.info(f"Obfuscating {report_path.archive_path}")
