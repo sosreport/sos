@@ -27,8 +27,7 @@ git clone git://github.com/sosreport/sos.git
 
 ## Reporting bugs
 
-Please report bugs via the mailing list or by opening an issue in the [GitHub
-Issue Tracker][5]
+Please report bugs by opening an issue in the [GitHub Issue Tracker][4].
 
 ## Chat
 
@@ -42,11 +41,6 @@ These rooms are bridged, so joining either is sufficient as messages from either
 appear in both.
 
 The Freenode #sos room **is no longer used by this project**.
-
-## Mailing list
-
-The [sos-devel][4] list is the mailing list for any sos-related questions and
-discussion. Patch submissions and reviews are welcome too.
 
 ## Patches and pull requests
 
@@ -79,8 +73,8 @@ All contributions must pass the entire test suite before being accepted.
 
 ## Documentation
 
-User and API [documentation][6] is automatically generated using [Sphinx][7]
-and [Read the Docs][8].
+User and API [documentation][5] is automatically generated using [Sphinx][6]
+and [Read the Docs][7].
 
 To generate HTML documents locally, by default this will build locally into
 `docs/_build`
@@ -93,7 +87,7 @@ tox -e docs
 ### Wiki
 
 For more in-depth information on the project's features and functionality, please
-see [the GitHub wiki][9].
+see [the GitHub wiki][8].
 
 If you are interested in contributing an entirely new plugin, or extending sos to
 support your distribution of choice, please see these wiki pages:
@@ -158,9 +152,8 @@ Ubuntu (14.04 LTS and above) users install via apt:
  [1]: https://github.com/sosreport/sos/wiki/How-to-Write-a-Plugin
  [2]: https://github.com/sosreport/sos/wiki/How-to-Write-a-Policy
  [3]: https://github.com/sosreport/sos/wiki/Plugin-options
- [4]: https://www.redhat.com/mailman/listinfo/sos-devel
- [5]: https://github.com/sosreport/sos/issues?state=open
- [6]: https://sos.readthedocs.org/
- [7]: https://www.sphinx-doc.org/
- [8]: https://www.readthedocs.org/
- [9]: https://github.com/sosreport/sos/wiki
+ [4]: https://github.com/sosreport/sos/issues?state=open
+ [5]: https://sos.readthedocs.org/
+ [6]: https://www.sphinx-doc.org/
+ [7]: https://www.readthedocs.org/
+ [8]: https://github.com/sosreport/sos/wiki
