@@ -103,4 +103,15 @@ class CRIO(Plugin, RedHatPlugin, UbuntuPlugin, CosPlugin):
         if self.signal_process_usr1(r'^/usr/bin/crio$'):
             self.add_copy_spec("/tmp/crio-goroutine-stacks*.log")
 
+    def postproc(self):
+
+        # Scrub proxy details in config file
+        # Example of scrubbing:
+        #
+        #   http_proxy=http://USER:PASSWORD@X.X.X.X:8080
+        # To:
+        #   http_proxy=http://******:******@X.X.X.X:8080
+        #
+        self.do_paths_http_sub("/etc/containers/containers.conf")
+
 # vim: set et ts=4 sw=4 :
