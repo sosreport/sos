@@ -134,6 +134,18 @@ class RedHatDocker(Docker, RedHatPlugin):
             "/etc/containers/"
         ])
 
+    def postproc(self):
+        super().postproc()
+
+        # Scrub proxy details in config file
+        # Example of scrubbing:
+        #
+        #   http_proxy=http://USER:PASSWORD@X.X.X.X:8080
+        # To:
+        #   http_proxy=http://******:******@X.X.X.X:8080
+        #
+        self.do_paths_http_sub("/etc/containers/containers.conf")
+
 
 class UbuntuDocker(Docker, UbuntuPlugin, DebianPlugin):
 
