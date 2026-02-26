@@ -88,7 +88,8 @@ class Foreman(Plugin):
 
         self.add_forbidden_path([
             "/etc/foreman/*key.pem",
-            "/etc/foreman/encryption_key.rb"
+            "/etc/foreman/encryption_key.rb",
+            "/etc/foreman/registry-auth.json",
         ])
 
         _hostname = self.exec_cmd('hostname')['output']
