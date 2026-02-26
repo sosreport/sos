@@ -42,6 +42,9 @@ sos_report \- Collect and package diagnostic and support data
           [--upload-directory dir] [--upload-pass pass]\fR
           [--upload-no-ssl-verify] [--upload-method]\fR
           [--upload-protocol protocol]\fR
+          [--proxy-user user]\fR [--proxy-pass pass]\fR
+          [--proxy-protocol protocol]\fR
+          [--proxy-host host]\fR [--proxy-port port]\fR
           [--experimental]\fR
           [-h|--help]\fR
 
@@ -489,6 +492,39 @@ Valid values for PROTO are: 'auto' (default), 'https', 'ftp', 'sftp'.
 .B \--experimental
 Enable plugins marked as experimental. Experimental plugins may not have
 been tested for this port or may still be under active development.
+
+.TP
+.B \--proxy-protocol PROTOCOL
+Specify the protocol for the proxy server. HTTP and HTTPS are currently supported
+for proxy servers, with a default value of 'http'.
+
+.TP
+.B \--proxy-host HOST
+Specify the host address for the proxy server, if one is to be used. If a proxy host is
+specified, a proxy port must also be specified.
+
+.TP
+.B \--proxy-port PORT
+Specify the port on which the proxy server listens.
+
+.TP
+.B \-\-proxy-user USER
+Specify the user for accessing the proxy server, if one if required.
+
+.TP
+.B \-\-proxy-pass PASS
+Specify the password to use for authentication with the proxy server.
+
+If this option is omitted and a proxy user is entered, you will be prompted for one.
+
+If --batch is used, this prompt will not occur. If a proxy user is specified and a
+proxy password is not, the upload will fail.
+
+Note that this will result in the plaintext string appearing in `ps` output that may
+be collected by sos and be in the archive. If a password must be provided by you
+for uploading via a proxy server, it is strongly recommended to not use --batch and
+enter the proxy password when prompted rather than using this option.
+
 .TP
 .B \--help
 Display usage message.

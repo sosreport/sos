@@ -11,6 +11,8 @@
 import os
 import re
 import logging
+import subprocess
+import sys
 
 from getpass import getpass
 from sos import _sos as _
@@ -27,6 +29,92 @@ try:
     BOTO3_LOADED = True
 except ImportError:
     BOTO3_LOADED = False
+
+
+def check_netcat_syntax(proxy_protocol, proxy_host, proxy_port,
+                        proxy_user, proxy_password, nc_executable='nc'):
+    """
+    Determines the correct authenticated HTTP proxy syntax for the local
+    Netcat/Ncat executable by running test commands. There are (at least)
+    two different versions of the proxy command, so we want to return
+    the correct syntax for the local netcat/ncat executable so the
+    proxy command successfully executes.
+
+    Args:
+        proxy_protocol (str): The protocol (http/https) of the proxy server
+        proxy_host (str): The host of the proxy server
+        proxy_port (str): The port to use for the proxy server
+        proxy_user (str): The user to use to access the proxy server
+        proxy_password (str): The password for authenticating the proxy user
+        nc_executable (str): The name of the netcat command (default is 'nc').
+
+    Returns:
+        tuple: (syntax_string, is_successful_test)
+               - syntax_string: The correct ProxyCommand format
+                                (e.g., 'nc -X connect -x ...')
+               - is_successful_test: Boolean indicating if a successful
+               syntax was found.
+    """
+
+    # Define a generic, non-resolvable target (like 127.0.0.1:1) and dummy
+    # credentials. The goal is to see if the command *parses* the syntax
+    # correctly before it fails to connect.
+    # A successful syntax check will result in an "unreachable" error,
+    # while a syntax failure yields an "invalid option" error (exit code 1).
+    dummy_proxy = "127.0.0.1:1"
+    dummy_auth = "user:pass"
+
+    # --- 1. Ncat/Nmap Syntax Check ---
+    # Command: nc --proxy-type http --proxy 127.0.0.1:1
+    #             --proxy-auth user:pass 127.0.0.1 80
+    ncat_syntax = (f"{nc_executable} --proxy-type http --proxy {dummy_proxy} "
+                   f"--proxy-auth {dummy_auth} %h %p")
+    try:
+        # Check if the command accepts the Ncat-style syntax flags
+        result = subprocess.run(ncat_syntax.split() + ['127.0.0.1', '80'],
+                                capture_output=True, timeout=5, check=False)
+        # Ncat/Nmap's version will usually exit with a code 0 or 1, but its
+        # *output* won't contain "invalid option." A successful parse will
+        # proceed to connect/fail.
+        if b"invalid option" not in result.stderr:
+            # If no syntax error is returned, this is the correct format.
+            return (
+                f"{nc_executable} "
+                f"--proxy-type {proxy_protocol} "
+                f"--proxy {proxy_host}:{proxy_port} "
+                f"--proxy-auth {proxy_user}:{proxy_password} %h %p",
+                True)
+
+    except (FileNotFoundError, subprocess.CalledProcessError,
+            subprocess.TimeoutExpired):
+        pass  # Continue to next check
+
+    # --- 2. GNU/OpenBSD Syntax Check (using -X connect) ---
+    # Command: nc -X connect -x 127.0.0.1:1 -P user:pass 127.0.0.1 80
+    gnu_syntax = (f"{nc_executable} -X connect -x {dummy_proxy} "
+                  f"-P {dummy_auth} %h %p")
+    try:
+        # Check if the command accepts the GNU/OpenBSD-style syntax flags
+        result = subprocess.run(gnu_syntax.split() + ['127.0.0.1', '80'],
+                                capture_output=True, timeout=5, check=False)
+
+        if (b"invalid option" not in result.stderr and
+                b"unknown option" not in result.stderr):
+            # If no syntax error is returned, this is the correct format.
+            return (f"{nc_executable} -X connect -x {proxy_host}:{proxy_port} "
+                    f"-P {proxy_user}:{proxy_password} %h %p",
+                    True)
+
+    except (FileNotFoundError, subprocess.CalledProcessError,
+            subprocess.TimeoutExpired):
+        pass  # Continue to next check
+
+    # --- 3. Fallback (If no standard syntax is found) ---
+    # If the system netcat doesn't support an authenticated proxy,
+    # you might need to use a dedicated tool like 'corkscrew' or 'connect'.
+    return ("Warning: Native authenticated proxy syntax not found for "
+            f"'{nc_executable}'. Consider installing ncat or corkscrew.",
+            False)
 
 
 class UploadTarget():
@@ -72,6 +160,13 @@ class UploadTarget():
     upload_s3_region = None
     upload_s3_object_prefix = None
     upload_target = None
+    proxy_host = None
+    proxy_port = None
+    proxy_user = None
+    proxy_password = None
+    proxy_protocol = 'http'
+    proxy_list = {}
+    use_proxy_server = False
 
     arg_defaults = {
         'upload_file': '',
@@ -92,6 +187,13 @@ class UploadTarget():
         'upload_s3_secret_key': None,
         'upload_s3_object_prefix': None,
         'upload_target': None,
+        'proxy_host': None,
+        'proxy_port': None,
+        'proxy_user': None,
+        'proxy_password': None,
+        'proxy_protocol': 'http',
+        'proxy_list': {},
+        'use_proxy_server': False
     }
 
     def __init__(self, parser=None, args=None, cmdline=None):
@@ -162,6 +264,11 @@ class UploadTarget():
         self.upload_s3_object_prefix = cmdline_opts.upload_s3_object_prefix
         self.upload_s3_secret_key = cmdline_opts.upload_s3_secret_key
 
+        self.proxy_host = cmdline_opts.proxy_host
+        self.proxy_port = cmdline_opts.proxy_port
+        self.proxy_user = cmdline_opts.proxy_user
+        self.proxy_password = cmdline_opts.proxy_password
+
         # set or query for upload credentials; this needs to be done after
         # setting case id, as below methods might rely on detection of it
         if not cmdline_opts.batch and not \
@@ -177,6 +284,9 @@ class UploadTarget():
                 self.prompt_for_upload_s3_access_key()
                 self.prompt_for_upload_s3_secret_key()
             self.ui_log.info('')
+        if self.get_proxy_host():
+            self.generate_proxy_list(use_prompts=(not cmdline_opts.batch and
+                                                  not cmdline_opts.quiet))
 
     def prompt_for_upload_s3_access_key(self):
         """Should be overridden by targets to determine if an access key needs
@@ -497,7 +607,22 @@ class UploadTarget():
 
         # need to strip the protocol prefix here
         sftp_url = self.get_upload_url().replace('sftp://', '')
-        sftp_cmd = f"sftp -oStrictHostKeyChecking=no {user}@{sftp_url}"
+        if self.use_proxy_server:
+            proxy_cmd, success = check_netcat_syntax(
+                self.get_proxy_protocol(),
+                self.get_proxy_host(),
+                self.get_proxy_port(),
+                self.get_proxy_user(),
+                self.get_proxy_password())
+            if success:
+                # Final ProxyCommand to use in your SFTP execution
+                sftp_cmd = (f"sftp -o 'ProxyCommand {proxy_cmd}' "
+                            f"-o StrictHostKeyChecking=no {user}@{sftp_url}")
+            else:
+                raise Exception("Unable to determine the proxy command."
+                                "Please install or upgrade ncat.")
+        else:
+            sftp_cmd = f"sftp -oStrictHostKeyChecking=no {user}@{sftp_url}"
         ret = pexpect.spawn(sftp_cmd, encoding='utf-8')
 
         sftp_expects = [
@@ -589,7 +714,8 @@ class UploadTarget():
         """
         return requests.put(self.get_upload_url(), data=archive,
                             auth=self.get_upload_https_auth(),
-                            verify=verify, timeout=TIMEOUT_DEFAULT)
+                            verify=verify, timeout=TIMEOUT_DEFAULT,
+                            proxies=self.get_proxy_list())
 
     def _get_upload_headers(self):
         """Define any needed headers to be passed with the POST request here
@@ -609,7 +735,8 @@ class UploadTarget():
         }
         return requests.post(self.get_upload_url(), files=files,
                              auth=self.get_upload_https_auth(),
-                             verify=verify, timeout=TIMEOUT_DEFAULT)
+                             verify=verify, timeout=TIMEOUT_DEFAULT,
+                             proxies=self.get_proxy_list())
 
     def upload_https(self):
         """Attempts to upload the archive to an HTTPS location.
@@ -776,5 +903,106 @@ class UploadTarget():
             return True
         except Exception as e:
             raise Exception(f"Failed to upload to S3: {str(e)}") from e
+
+    def get_proxy_protocol(self):
+        return getattr(self.commons['cmdlineopts'], 'proxy_protocol', 'http')
+
+    def get_proxy_host(self):
+        return getattr(self.commons['cmdlineopts'], 'proxy_host', None)
+
+    def get_proxy_port(self):
+        return getattr(self.commons['cmdlineopts'], 'proxy_port', None)
+
+    def get_proxy_user(self):
+        return self.proxy_user
+
+    def get_proxy_password(self):
+        """Helper function to return the proxy password
+
+        :returns: The proxy password to use for upload
+        :rtype: ``str``
+        """
+        return self.proxy_password
+
+    def prompt_for_proxy_user(self):
+        """Should be overridden by targets to determine if a proxy user
+        needs to be provided or not
+        """
+        if not self.get_proxy_user():
+            msg = (f"Please provide a proxy user (if required) for proxy "
+                   f"{self.get_proxy_host()}: ")
+            self.proxy_user = input(_(msg))
+
+    def prompt_for_proxy_password(self):
+        """Should be overridden by targets to determine if a proxy password
+        needs to be provided for upload or not
+        """
+        if not self.get_proxy_password():
+            msg = ("Please provide the proxy password for "
+                   f"{self.get_proxy_user()}: ")
+            self.proxy_password = getpass(msg)
+
+    def get_proxy_list(self):
+        return self.proxy_list
+
+    def generate_proxy_list(self, use_prompts):
+        """Used by distro policies to retrieve  a list (currently a single
+        entry) of proxy servers to use to attempt the file upload. A list
+        is returned because the get, put, post methods require it.
+        """
+        proxy_list = self.get_proxy_list()
+        if not proxy_list:
+            proxy_creds = ""
+            # Batch or Quiet runs should not prompt for user/pass
+            if use_prompts:
+                self.prompt_for_proxy_user()
+                if self.get_proxy_user():
+                    self.prompt_for_proxy_password()
+                if self.get_proxy_user() and \
+                   self.get_proxy_password():
+                    proxy_creds = (f"{self.get_proxy_user()}:"
+                                   f"{self.get_proxy_password()}@")
+                else:
+                    if self.get_proxy_user():
+                        if input("Warning! You have entered a proxy user "
+                                 "without an accompanying password. It is "
+                                 "highly recommended to avoid this usage. Do "
+                                 "you wish to proceed? (y/N)").upper() == "Y":
+                            proxy_creds = f"{self.get_proxy_user()}@"
+                        else:
+                            sys.exit(1)
+                    if self.get_proxy_password():
+                        self.ui_log.info(
+                            "Proxy password entered without proxy user."
+                            " Proxy password will be ignored.")
+            else:
+                if self.get_proxy_user() and \
+                   self.get_proxy_password():
+                    proxy_creds = (f"{self.get_proxy_user()}:"
+                                   f"{self.get_proxy_password()}@")
+                else:
+                    if self.get_proxy_user() or \
+                       self.get_proxy_password():
+                        self.ui_log.error(
+                            "Both proxy user and proxy password must be"
+                            " specified. Proxy server will be ignored."
+                        )
+
+            if self.get_proxy_host() and self.get_proxy_port():
+                proxy = (f"{self.get_proxy_protocol()}://{proxy_creds}"
+                         f"{self.get_proxy_host()}:{self.get_proxy_port()}")
+                proxy_list['http'] = f"{proxy}"
+                proxy = (f"{self.get_proxy_protocol()}://{proxy_creds}"
+                         f"{self.get_proxy_host()}:{self.get_proxy_port()}")
+                proxy_list['https'] = f"{proxy}"
+            else:
+                self.ui_log.error(
+                    "Both proxy host and proxy port must be specified."
+                    " Proxy server will be ignored."
+                )
+                return {}
+            # raise SystemExit
+        self.use_proxy_server = True
+        return proxy_list
 
 # vim: set et ts=4 sw=4 :
