@@ -14,8 +14,8 @@ import logging
 import os
 import shutil
 import fnmatch
+import multiprocessing
 
-from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from pwd import getpwuid
 
@@ -39,8 +39,16 @@ from sos.utilities import (get_human_readable, import_module,
 
 
 # an auxiliary method to kick off child processes over its instances
-def obfuscate_arc_files(arc, flist):
-    return arc.obfuscate_arc_files(flist)
+def _obfuscate_arc_files(arc, input_queue, output_queue):
+    while True:
+        file = input_queue.get()
+        if file is None:  # Sentinel value to stop the process
+            output_queue.put((
+                arc.files_obfuscated_count,
+                arc.total_sub_count,
+                arc.removed_file_count))
+            break
+        arc.obfuscate_arc_file(file)
 
 
 class SoSCleaner(SoSComponent):
@@ -741,6 +749,18 @@ third party.
             :param archive str:      Filepath to the directory or archive
         """
 
+        def _order_files_by_size(file_list, base_path):
+            """ Order files per their sizes, if they are provided relatively
+            to base_path
+            """
+            files_with_sizes = [
+                (f, os.path.getsize(os.path.join(base_path, f)))
+                for f in file_list
+            ]
+            files_sizes_sorted = sorted(files_with_sizes, key=lambda x: x[1],
+                                        reverse=True)
+            return [file for file, _ in files_sizes_sorted]
+
         try:
             arc_md = self.cleaner_md.add_section(archive.archive_name)
             start_time = datetime.now()
@@ -750,39 +770,45 @@ third party.
                 archive.extract()
             archive.report_msg("Beginning obfuscation...")
 
-            file_list = list(archive.get_files())
-            # we can't call simple
-            # executor.map(archive.obfuscate_arc_files,archive.get_files())
-            # because a child process does not carry forward internal changes
-            # (e.g. mappings' datasets) from one call of obfuscate_arc_files
-            # method to another. Each obfuscate_arc_files method starts with
-            # vanilla parent archive, that is initialised *once* at its
-            # beginning via initializer=archive.load_parser_entries
-            # - but not afterwards..
-            #
-            # So we must pass list of all files for each worker at the
-            # beginning. This means less granularity of the child processes
-            # work (one worker can finish much sooner than the other), but
-            # it is the best we can have (or have found)
-            #
-            # At least, the "file_list[i::self.opts.jobs]" means subsequent
-            # files (speculativelly of similar size and content) are
-            # distributed to different processes, which attempts to split the
-            # load evenly. Yet better approach might be reorderig file_list
-            # based on files' sizes.
-
+            # we will spawn multiprocessing.Process instances that will get
+            # individual files to obfuscate via `input_queue`. Once all files
+            # are sent there, `None` items are pushed to the queue as a
+            # sentinel mark. That triggers the child processes to report back
+            # to output_queue some stats, and finish.
             files_obfuscated_count = total_sub_count = removed_file_count = 0
-            archive_list = [archive for i in range(self.opts.jobs)]
-            with ProcessPoolExecutor(
-                    max_workers=self.opts.jobs,
-                    initializer=archive.load_parser_entries) as executor:
-                futures = executor.map(obfuscate_arc_files, archive_list,
-                                       [file_list[i::self.opts.jobs] for i in
-                                        range(self.opts.jobs)])
-                for (foc, tsc, rfc) in futures:
-                    files_obfuscated_count += foc
-                    total_sub_count += tsc
-                    removed_file_count += rfc
+            input_queue = multiprocessing.Queue()
+            output_queue = multiprocessing.Queue()
+
+            # Create and start processes
+            processes = []
+            for _ in range(self.opts.jobs):
+                p = multiprocessing.Process(
+                    target=_obfuscate_arc_files,
+                    args=(archive, input_queue, output_queue)
+                )
+                p.start()
+                processes.append(p)
+            # Distribute items to the input queue, after reordering them by
+            # size. Since files can be both relative and absolute paths,
+            # depending on input tarball or directory, we must pass the
+            # relative base_path to call os.path.getsize properly
+            for file in _order_files_by_size(
+                list(archive.get_files()),
+                os.path.dirname(os.path.abspath(archive.extracted_path))
+            ):
+                input_queue.put(file)
+            # Stop processes by sending a sentinel value
+            for _ in range(self.opts.jobs):
+                input_queue.put(None)
+            # Wait for all processes to finish
+            for p in processes:
+                p.join()
+            # Collect stats from the output queue
+            while not output_queue.empty():
+                (foc, tsc, rfc) = output_queue.get()
+                files_obfuscated_count += foc
+                total_sub_count += tsc
+                removed_file_count += rfc
 
             # As there is no easy way to get dataset dicts from child
             # processes' mappings, we can reload our own parent-process
@@ -838,7 +864,7 @@ third party.
                              f"{archive.archive_name}: {err}")
 
     def obfuscate_file(self, filename):
-        self.main_archive.obfuscate_arc_files([filename])
+        self.main_archive.obfuscate_arc_file(filename)
 
     def obfuscate_symlinks(self, archive):
         """Iterate over symlinks in the archive and obfuscate their names.
