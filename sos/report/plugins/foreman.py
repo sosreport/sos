@@ -97,10 +97,15 @@ class Foreman(Plugin):
         _host_f = self.exec_cmd('hostname -f')['output']
         _host_f = _host_f.strip()
 
+        if not self.get_option("log_size"):
+            limit = 500
+        else:
+            limit = self.get_option("log_size")
+
         self.add_copy_spec([
             "/var/log/foreman/production.log",
             f"/var/log/{self.apachepkg}*/foreman-ssl_*_ssl.log"
-        ], sizelimit=500)
+        ], sizelimit=limit)
 
         # Allow limiting these
         self.add_copy_spec([
