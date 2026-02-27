@@ -184,6 +184,7 @@ class RHELUploadTarget(UploadTarget):
 
         url = self.RH_API_HOST + '/support/v2/sftp/token'
         ret = None
+        ftp_user_directory = None
         if self._device_token:
             headers = self._get_upload_https_auth()
             ret = requests.post(url, headers=headers, timeout=10)
@@ -200,6 +201,7 @@ class RHELUploadTarget(UploadTarget):
                     "Unable to retrieve Red Hat auth token using provided "
                     "credentials. Will try anonymous."
                 )
+            ftp_user_directory = _user
         else:
             adata = {"isAnonymous": True}
             anon = requests.post(url, data=json.dumps(adata), timeout=10)
@@ -218,7 +220,7 @@ class RHELUploadTarget(UploadTarget):
                 )
         if _user and _token:
             return super().upload_sftp(user=_user, password=_token,
-                                       user_dir=_user)
+                                       user_dir=ftp_user_directory)
         raise Exception("Could not retrieve valid or anonymous credentials")
 
     def check_file_too_big(self, archive):
