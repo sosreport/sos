@@ -346,7 +346,8 @@ class OpenVSwitch(Plugin):
             0x06: "OpenFlow15",
         }
 
-        ofp_ver_result = self.collect_cmd_output(f"{self.vctl} -t 5 --version")
+        ofp_ver_result = self.collect_cmd_output(
+            f"{self.ofctl} -t 5 --version")
 
         # List protocols currently in use, if any
         br_info = self.collect_cmd_output(
