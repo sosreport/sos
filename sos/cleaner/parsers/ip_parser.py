@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import re
 from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.mappings.ip_map import SoSIPMap
 
@@ -16,10 +17,10 @@ class SoSIPParser(SoSCleanerParser):
     """Handles parsing for IP addresses"""
 
     name = 'IP Parser'
-    regex_patterns = [
+    regex_pattern = re.compile(
         # IPv4 with or without CIDR
         r'((?<!(-|\.|\d))([0-9]{1,3}\.){3}([0-9]){1,3}(\/([0-9]{1,2}))?)'
-    ]
+    )
     skip_line_patterns = [
         # don't match package versions recorded in journals
         r'.*dnf\[.*\]:'

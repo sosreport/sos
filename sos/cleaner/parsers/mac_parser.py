@@ -16,21 +16,21 @@ from sos.cleaner.mappings.mac_map import SoSMacMap
 
 # aa:bb:cc:fe:ff:dd:ee:ff
 IPV6_REG_8HEX = (
-    r'((?<!([0-9a-fA-F\'\"]:)|::)([^:|-])?([0-9a-fA-F]{2}(:|-)){7}'
-    r'[0-9a-fA-F]{2}(\'|\")?(\/|\,|\-|\.|\s|$))'
+    r'((?<!([0-9a-fA-F\'\"]:)|::)(?:[^:|-])?(?:[0-9a-fA-F]{2}(?:(:|-)){7})'
+    r'[0-9a-fA-F]{2}(?:\'|\")?(?:\/|\,|\-|\.|\s|$))'
 )
 # aabb:ccee:ddee:ffaa
 # - but disallow "substrings"
 #   - but allow fe80: or fe80:: prefix for link-local
 IPV6_REG_4HEX = (
-        r'((?<!(?:([.|^|\b]{5}\w|[.|^|\b]fe80:|fe80::)))'
-        r'(([0-9a-fA-F]{4}:){3}[0-9a-fA-F]{4})(?!\w))|'
-        r'((?<!\w)(([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{4})(?!\w))'
+    r'((?<!(?:([.|^|\b]{5}\w|[.|^|\b]fe80:|fe80::)))'
+    r'(?:([0-9a-fA-F]{4}:){3}[0-9a-fA-F]{4})(?!\w))|'
+    r'(?:(?<!\w)(([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{4})(?!\w))'
 )
 # aa:bb:cc:dd:ee:ff avoiding ipv6 substring matches
 IPV4_REG = (
     r'((?<!([0-9a-fA-F\'\"]:)|::)'
-    r'(([^:\-])?(([0-9a-fA-F]{2}([:\-\_])){5,6}([0-9a-fA-F]{2}))))'
+    r'(?:([^:\-])?(?:([0-9a-fA-F]{2}([:\-\_])){5,6}(?:[0-9a-fA-F]{2}))))'
 )
 
 
@@ -38,11 +38,9 @@ class SoSMacParser(SoSCleanerParser):
     """Handles parsing for MAC addresses"""
 
     name = 'MAC Parser'
-    regex_patterns = [
-        IPV6_REG_8HEX,
-        IPV6_REG_4HEX,
-        IPV4_REG
-    ]
+    regex_pattern = re.compile(
+        rf'(({IPV6_REG_8HEX})|({IPV6_REG_4HEX})|({IPV4_REG}))'
+    )
     obfuscated_patterns = (
         '53:4f:53',
         '534f:53'
@@ -70,15 +68,14 @@ class SoSMacParser(SoSCleanerParser):
 
     def _parse_line(self, line):
         count = 0
-        for pattern in self.regex_patterns:
-            matches = [m[0] for m in re.findall(pattern, line, re.I)]
-            if matches:
-                count += len(matches)
-                for match in matches:
-                    stripped_match = self.reduce_mac_match(match)
-                    if stripped_match.startswith(self.obfuscated_patterns):
-                        # avoid double scrubbing
-                        continue
-                    new_match = self.mapping.get(stripped_match)
-                    line = line.replace(stripped_match, new_match)
+        matches = [m[0] for m in self.regex_pattern.findall(line)]
+        if matches:
+            count += len(matches)
+            for match in matches:
+                stripped_match = self.reduce_mac_match(match)
+                if stripped_match.startswith(self.obfuscated_patterns):
+                    # avoid double scrubbing
+                    continue
+                new_match = self.mapping.get(stripped_match)
+                line = line.replace(stripped_match, new_match)
         return line, count
