@@ -110,10 +110,11 @@ class SoSCleanerParser():
         :rtype:     ``str``, ``int``
         """
         count = 0
-        for item, reg in self.mapping.compiled_regexes:
-            if reg.search(line):
-                line, _count = reg.subn(self.mapping.get(item), line)
-                count += _count
+        if self.mapping.compiled_search.search(line):
+            for item, reg in self.mapping.compiled_regexes:
+                if reg.search(line):
+                    line, _count = reg.subn(self.mapping.get(item), line)
+                    count += _count
         return line, count
 
     def _parse_line(self, line):
