@@ -123,6 +123,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph osd crush class ls",
             "ceph osd crush dump",
             "ceph osd crush rule ls",
+            "ceph osd crush rule dump",
             "ceph osd crush show-tunables",
             "ceph osd crush tree --show-shadow",
             "ceph osd erasure-code-profile ls",
