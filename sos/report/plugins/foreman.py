@@ -325,15 +325,17 @@ class Foreman(Plugin):
     def collect_cv_filters(self):
         """ Collect content view filters definition if requested """
         cv_filters_cmd = (
-            "select f.id, f.name, f.type, f.content_view_id, "
-            "cv.name as content_view_name, f.description "
+            "select f.id, f.name, f.type, f.inclusion, "
+            "f.original_packages, f.original_module_streams, "
+            "f.content_view_id, cv.name as content_view_name, f.description "
             "from katello_content_view_filters as f "
             "inner join katello_content_views as cv "
             "on f.content_view_id = cv.id"
         )
         cv_pkg_rules_cmd = (
-            "select id, content_view_filter_id, name, min_version, "
-            "max_version from katello_content_view_package_filter_rules"
+            "select id, content_view_filter_id, name, version, min_version, "
+            "max_version, architecture "
+            "from katello_content_view_package_filter_rules"
         )
         cv_group_rules_cmd = (
             "select id, content_view_filter_id, name, uuid "
@@ -341,11 +343,11 @@ class Foreman(Plugin):
         )
         cv_errata_rules_cmd = (
             "select id, content_view_filter_id, errata_id, start_date, "
-            "end_date, types from "
+            "end_date, types, date_type, allow_other_types from "
             "katello_content_view_erratum_filter_rules"
         )
         cv_module_rules_cmd = (
-            "select * from "
+            "select id, content_view_filter_id, module_stream_id from "
             "katello_content_view_module_stream_filter_rules"
         )
         cv_docker_rules_cmd = (
@@ -354,7 +356,7 @@ class Foreman(Plugin):
         )
         cv_deb_rules_cmd = (
             "select id, content_view_filter_id, name, version, "
-            "min_version, max_version "
+            "min_version, max_version, architecture "
             "from katello_content_view_deb_filter_rules"
         )
 
