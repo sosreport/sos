@@ -162,6 +162,7 @@ class OVNCentral(Plugin):
             f"{pfx}ovn-sbctl {nolo} lflow-list",
             f"{pfx}ovn-sbctl {nolo} get-ssl",
             f"{pfx}ovn-sbctl {nolo} get-connection",
+            f"{pfx}ovn-sbctl {nolo} --columns=_uuid list MAC_Binding",
         ]
 
         self.add_cmd_output(sbctl_cmds, foreground=True,
