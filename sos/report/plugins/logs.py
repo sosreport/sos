@@ -87,6 +87,8 @@ class LogsBase(Plugin):
         if journal and self.is_service("systemd-journald"):
             self.add_journal(tags=['journal_full', 'journal_all'],
                              priority=100)
+            self.add_journal(logpriority="err", tags=['journal_all_errors'],
+                             priority=100)
             self.add_journal(boot="this", tags='journal_since_boot')
             self.add_journal(boot="last", tags='journal_last_boot')
             if self.get_option("all_logs"):

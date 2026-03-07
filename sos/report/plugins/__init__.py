@@ -3029,7 +3029,7 @@ class Plugin():
     def add_journal(self, units=None, boot=None, since=None, until=None,
                     lines=None, allfields=False, output=None,
                     timeout=None, identifier=None, catalog=None,
-                    sizelimit=None, pred=None, tags=None, priority=10):
+                    sizelimit=None, logpriority=None, pred=None, tags=None, priority=10):
         """Collect journald logs from one of more units.
 
         :param units:   Which journald units to collect
@@ -3067,6 +3067,9 @@ class Plugin():
         :param sizelimit: Limit to the size of output returned in MB.
                           Defaults to the value of --log-size.
         :type sizelimit: ``int``
+
+        :param logpriority: Set the log priority to collect (emerg (0) till debug (7)) 
+        :type logpriority: ``str``
         """
         journal_cmd = "journalctl --no-pager "
         unit_opt = " --unit %s"
@@ -3077,6 +3080,7 @@ class Plugin():
         output_opt = " --output %s"
         identifier_opt = " --identifier %s"
         catalog_opt = " --catalog"
+        logpriority_opt = " --priority %s"
 
         if sizelimit == 0 or self.get_option("all_logs"):
             # allow for specific sizelimit overrides in plugins
@@ -3125,6 +3129,9 @@ class Plugin():
 
         if output:
             journal_cmd += output_opt % output
+
+        if logpriority:
+            journal_cmd += logpriority_opt % logpriority
 
         fname = journal_cmd
         tac = False
