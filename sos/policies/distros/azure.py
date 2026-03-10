@@ -17,7 +17,7 @@ class AzurePolicy(RedHatPolicy):
     vendor_urls = [
         ('Distribution Website', 'https://github.com/microsoft/azurelinux')
     ]
-    os_release_name = 'Microsoft Azure Linux'
+    os_release_name = 'Azure Linux'
     os_release_file = ''
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
