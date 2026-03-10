@@ -78,13 +78,6 @@ class MsSQL(Plugin, RedHatPlugin):
             sqlagent_errorlogfile
         ])
 
-        if not self.get_option('all_logs'):
-            self.add_copy_spec(errorlogfile + '/*')
-            self.add_copy_spec(sqlagent_errorlogfile)
-        else:
-            self.add_copy_spec(errorlogfile + '/*')
-            self.add_copy_spec(sqlagent_errorlogfile)
-
         self.add_journal(units=['mssql-server'])
 
 # vim: set et ts=4 sw=4 :
