@@ -116,6 +116,8 @@ class OpenVSwitch(Plugin):
             f"{self.vctl} -t 5 list bridge",
             # Capture OVS datapath list
             f"{self.vctl} -t 5 list datapath",
+            # Capture BFD status for OVN chassis
+            f"{self.actl} bfd/show",
             # Capture DPDK queue to pmd mapping
             f"{self.actl} dpif-netdev/pmd-rxq-show -secs 5",
             f"{self.actl} dpif-netdev/pmd-rxq-show -secs 30",
