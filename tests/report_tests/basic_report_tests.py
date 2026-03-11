@@ -26,7 +26,7 @@ class NormalSoSReport(StageOneReportTest):
         self.assertOutputNotContains(r'\[archive:.*\]')
 
     def test_postproc_called(self):
-        self.assertSosLogContains('substituting scrpath')
+        self.assertSosLogContains('substituting srcpath')
 
     def test_label_applied_to_archive(self):
         self.assertTrue('thisismylabel' in self.archive)

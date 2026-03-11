@@ -61,8 +61,8 @@ class MsSQL(Plugin, RedHatPlugin):
             self._log_error(f'Could not open conf file {mssql_conf}: {ex}')
             return
 
-        # Collect AD authentication configuratoin
-        keytab_err = ('keytab file is specfieid in mssql_conf'
+        # Collect AD authentication configuration
+        keytab_err = ('keytab file is specified in mssql_conf'
                       f' but not found in {kerberoskeytabfile}')
         if kerberoskeytabfile is not None:
             if self.path_isfile(kerberoskeytabfile):
@@ -71,7 +71,7 @@ class MsSQL(Plugin, RedHatPlugin):
             else:
                 self._log_error(keytab_err)
 
-        # Expecting mssql_conf doesn't includeno sensitive information.
+        # Expecting mssql_conf doesn't include no sensitive information.
         self.add_copy_spec([
             mssql_conf,
             errorlogfile + '/*',
