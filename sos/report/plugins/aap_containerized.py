@@ -76,13 +76,26 @@ class AAPContainerized(Plugin, RedHatPlugin):
                     "tls",
                     "controller/etc/*.cert",
                     "controller/etc/*.key",
+                    "controller/etc/SECRET_KEY",
                     "eda/etc/*.cert",
                     "eda/etc/*.key",
+                    "eda/etc/SECRET_KEY",
                     "gateway/etc/*.cert",
                     "gateway/etc/*.key",
+                    "gateway/etc/SECRET_KEY",
+                    "gatewayproxy/etc/*.cert",
+                    "gatewayproxy/etc/*.key",
                     "hub/etc/*.cert",
                     "hub/etc/*.key",
                     "hub/etc/keys/*.pem",
+                    "hub/etc/keys/*.key",
+                    "lightspeed/etc/*.cert",
+                    "lightspeed/etc/*.key",
+                    "lightspeed/etc/SECRET_KEY",
+                    "ansiblemcp/etc/*.cert",
+                    "ansiblemcp/etc/*.key",
+                    "pcp/etc/*.cert",
+                    "pcp/etc/*.key",
                     "postgresql/*.crt",
                     "postgresql/*.key",
                     "receptor/etc/*.crt",
@@ -142,6 +155,9 @@ class AAPContainerized(Plugin, RedHatPlugin):
                 "aap-gateway-manage feature_flags --list",
                 "aap-gateway-manage --version",
             ],
+            "automation-gateway-proxy": [
+                "envoy --version",
+            ],
             "automation-controller-web": [
                 "awx-manage showmigrations",
                 "awx-manage list_instances",
@@ -154,9 +170,16 @@ class AAPContainerized(Plugin, RedHatPlugin):
                 "aap-eda-manage --version",
                 "aap-eda-manage showmigrations",
             ],
+            "automation-hub-api": [
+                "pulpcore-manager --version",
+                "pulpcore-manager showmigrations",
+            ],
+            "postgresql": [
+                "psql --version",
+                "pg_isready",
+            ],
             "receptor": [
-                "receptorctl status",
-                "receptorclt work list",
+                "receptor --version",
             ],
         }
         for pod, cmds in pod_cmds.items():
@@ -189,6 +212,9 @@ class AAPContainerized(Plugin, RedHatPlugin):
                 'dumb-init -- /usr/bin/launch_awx_task.sh',
                 'dumb-init -- aap-eda-manage',
                 'pulpcore-content --name pulp-content --bind 127.0.0.1',
+                'gunicorn pulpcore.app.wsgi',
+                'receptor --config',
+                'metrics-service run',
             ]
 
         ps_output = self.exec_cmd("ps --noheaders -eo args")
@@ -206,17 +232,46 @@ class AAPContainerized(Plugin, RedHatPlugin):
         repl = r"\1********"
         self.do_path_regex_sub(file_path, jreg, repl)
 
+        # remove controller database password (triple-quoted)
+        file_path = (f"{self.aap_directory_name}"
+                     "/controller/etc/conf.d/postgres.py")
+        jreg = r"(\s*'PASSWORD'\s*:\s*)(\"\"\".*?\"\"\")"
+        repl = r"\1********"
+        self.do_path_regex_sub(file_path, jreg, repl)
+
         # remove gateway database password
         file_path = f"{self.aap_directory_name}/gateway/etc/settings.py"
         jreg = r"(\s*'PASSWORD'\s*:\s*)('.*')"
         repl = r"\1********"
         self.do_path_regex_sub(file_path, jreg, repl)
 
+        # remove hub database password
+        file_path = f"{self.aap_directory_name}/hub/etc/settings.py"
+        jreg = r"(\s*'PASSWORD'\s*:\s*)('.*')"
+        repl = r"\1********"
+        self.do_path_regex_sub(file_path, jreg, repl)
+
+        # remove hub Azure storage key
+        jreg = r"(AZURE_ACCOUNT_KEY\s*=\s*)'(.+)'"
+        repl = r"\1'********'"
+        self.do_path_regex_sub(file_path, jreg, repl)
+
+        # remove hub S3 secret key
+        jreg = r"(AWS_SECRET_ACCESS_KEY\s*=\s*)'(.+)'"
+        repl = r"\1'********'"
+        self.do_path_regex_sub(file_path, jreg, repl)
+
         # Mask EDA optional secrets
         file_path = f"{self.aap_directory_name}/eda/etc/settings.yaml"
         regex = r"(\s*)(PASSWORD|MQ_USER_PASSWORD|SECRET_KEY)(:\s*)(.*$)"
-        replacement = r'\1\2\3********'
-        self.do_path_regex_sub(file_path, regex, replacement)
+        repl = r'\1\2\3********'
+        self.do_path_regex_sub(file_path, regex, repl)
+
+        # Mask redis ACL password hashes
+        file_path = f"{self.aap_directory_name}/redis/redis-users.acl"
+        regex = r"(user\s+\S+\s+on\s+)#\S+"
+        repl = r'\1#********'
+        self.do_path_regex_sub(file_path, regex, repl)
 
         # Mask PASSWORD from print_settings command
         jreg = r'((["\']?PASSWORD["\']?\s*[:=]\s*)[rb]?["\'])(.*?)(["\'])'
