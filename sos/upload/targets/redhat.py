@@ -158,6 +158,7 @@ class RHELUploadTarget(UploadTarget):
                             " for obtaining SFTP auth token.")
         _token = None
         _user = None
+        _user_dir = None
 
         # We may have a device token already if we attempted
         # to upload via http but the upload failed. So
@@ -191,6 +192,7 @@ class RHELUploadTarget(UploadTarget):
                 # credentials are valid
                 _user = json.loads(ret.text)['username']
                 _token = json.loads(ret.text)['token']
+                _user_dir = f"/users/{_user}"
             else:
                 self.ui_log.debug(
                     f"DEBUG: auth attempt failed (status: {ret.status_code}): "
@@ -218,7 +220,7 @@ class RHELUploadTarget(UploadTarget):
                 )
         if _user and _token:
             return super().upload_sftp(user=_user, password=_token,
-                                       user_dir=_user)
+                                       user_dir=_user_dir)
         raise Exception("Could not retrieve valid or anonymous credentials")
 
     def check_file_too_big(self, archive):

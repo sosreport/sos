@@ -540,7 +540,36 @@ class UploadTarget():
             raise Exception("Unable to connect via SFTP to "
                             f"{self.get_upload_url_string()}")
 
+        # user_dir indicates that we need to switch into a specific user
+        # directory. If ChRootDirectory is set, this happens automatically
+        # so check if the PWD contains the user. If it does, we are
+        # already in the user directory so set user_dir to None
+        if user_dir:
+            user_match = False
+            ret.sendline('pwd')
+            pwd_expects = [
+                'sftp>',
+                'Invalid command.',
+                pexpect.TIMEOUT,
+                pexpect.EOF
+            ]
+            pwd_cmd = ret.expect(pwd_expects, timeout=10) == 0
+            if pwd_cmd:
+                #  Extract the path from child.before
+                raw_output = ret.before
+                user_match = re.search(user, raw_output)
+            else:
+                self.ui_log.warning("This server does not support the PWD "
+                                    "command - unable to verify user "
+                                    "directory. Attempting upload without "
+                                    "changing to user directory.")
+                user_dir = None
+
+            if user_match:
+                user_dir = None
+
         # certain implementations require file to be put in the user dir
+        # so we prepend the user directory to the file path
         put_cmd = (
             f"put {self.upload_archive_name} "
             f"{f'{user_dir}/' if user_dir else ''}"
