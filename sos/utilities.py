@@ -171,9 +171,13 @@ def file_is_binary(fname):
         try:
             _ftup = magic.detect_from_filename(fname)
             _mimes = ['text/', 'inode/']
+            # since `magic` (as well as "file" cmd) treats audit logs as
+            # binary files due to 0x1d separator, we need to explicitly mark
+            # audit.log and audit.log.[1-9]* as non-binary
             return (
                 _ftup.encoding == 'binary' and not
-                any(_ftup.mime_type.startswith(_mt) for _mt in _mimes)
+                any(_ftup.mime_type.startswith(_mt) for _mt in _mimes) and not
+                bool(re.search(r'audit\.log(?:\.[1-9]\d*)?$', fname))
             )
         except Exception:
             pass
