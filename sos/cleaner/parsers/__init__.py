@@ -115,6 +115,9 @@ class SoSCleanerParser():
                 if reg.search(line):
                     line, _count = reg.subn(self.mapping.get(item), line)
                     count += _count
+                    # break the cycle if no further search can apply
+                    if not self.mapping.compiled_search.search(line):
+                        break
         return line, count
 
     def _parse_line(self, line):
