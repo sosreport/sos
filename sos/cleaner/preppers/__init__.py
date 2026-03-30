@@ -46,6 +46,8 @@ class SoSPrepper():
 
     name = 'Undefined'
     priority = 100
+    skip_list = []
+    audit_logs_re = None
 
     def __init__(self, options):
         self.regex_items = {

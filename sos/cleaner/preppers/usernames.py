@@ -34,6 +34,8 @@ class UsernamePrepper(SoSPrepper):
         'wtmp'
     ]
 
+    audit_logs_re = r'(?:UID|AUID)=(?:")?(\w+)(?:")?'
+
     def _get_items_for_username(self, archive):
         items = set()
         _files = [
