@@ -28,6 +28,12 @@ class SoSMap():
     compile_regexes = True
     ignore_short_items = False
     match_full_words_only = False
+    # When True, use set-based token lookup instead of compiled_search regex
+    # for the pre-filter in _parse_line_with_compiled_regexes.
+    # Suitable for parsers with simple word items (username, keyword).
+    use_token_lookup = False
+
+    _token_split_re = re.compile(r'[^a-z0-9]+')
 
     def __init__(self, workdir):
         self.initializing = True
@@ -35,6 +41,9 @@ class SoSMap():
         self._regexes_made = set()
         self.compiled_regexes = []
         self.compiled_search = re.compile('(?!)')  # no match
+        self._simple_tokens = set()
+        self._complex_items = []
+        self._regex_dict = {}
         self.cname = self.__class__.__name__.lower()
         # workdir's default value '/tmp' is used just by avocado tests,
         # otherwise we override it to /etc/sos/cleaner (or map_file dir)
@@ -165,9 +174,17 @@ class SoSMap():
             # from scratch every time we add something like we would do if we
             # tracked/saved the item and the Pattern() object in a dict or in
             # the set above
-            self.compiled_regexes.append((item, self.get_regex_result(item)))
+            _reg = self.get_regex_result(item)
+            self.compiled_regexes.append((item, _reg))
             self.compiled_regexes.sort(key=lambda x: len(x[0]), reverse=True)
-            self.generate_compiled_regexes(only_search=True)
+            self._regex_dict[item] = _reg
+            if self.use_token_lookup:
+                if item.isalnum():
+                    self._simple_tokens.add(item)
+                else:
+                    self._complex_items.append(item)
+            else:
+                self.generate_compiled_regexes(only_search=True)
 
     def generate_compiled_regexes(self, only_search=False):
         keys = sorted(self._regexes_made, key=len, reverse=True)
@@ -175,11 +192,50 @@ class SoSMap():
             self.compiled_regexes = [
                 (item, self.get_regex_result(item)) for item in keys
             ]
-        pattern = "|".join([f'{self.get_regex_escape(k)}' for k in keys])
-        self.compiled_search = re.compile(
-            self.get_regex_fullword(pattern),
-            flags=re.I
-        )
+            self._regex_dict = dict(self.compiled_regexes)
+        if self.use_token_lookup:
+            self._simple_tokens = {
+                item for item in self._regexes_made if item.isalnum()
+            }
+            self._complex_items = [
+                item for item in self._regexes_made if not item.isalnum()
+            ]
+        else:
+            pattern = "|".join([f'{self.get_regex_escape(k)}' for k in keys])
+            self.compiled_search = re.compile(
+                self.get_regex_fullword(pattern),
+                flags=re.I
+            )
+
+    def get_matched_items(self, line):
+        """Return (item, regex) pairs for items that match in the line.
+
+        For token-lookup maps, returns only the specific items found via
+        set intersection / substring matching, rather than the full
+        compiled_regexes list.
+
+        For regex-based maps, falls back to returning all compiled_regexes
+        when compiled_search matches (original behavior).
+        """
+        if self.use_token_lookup:
+            line_lower = line.lower()
+            tokens = set(self._token_split_re.split(line_lower))
+            tokens.discard('')
+
+            result = []
+            for item in tokens & self._simple_tokens:
+                result.append((item, self._regex_dict[item]))
+            for item in self._complex_items:
+                if item in line_lower:
+                    result.append((item, self._regex_dict[item]))
+
+            if len(result) > 1:
+                result.sort(key=lambda x: len(x[0]), reverse=True)
+            return result
+        else:
+            if self.compiled_search.search(line):
+                return self.compiled_regexes
+            return []
 
     def get_regex_escape(self, item):
         return rf'{re.escape(item)}'
@@ -195,7 +251,7 @@ class SoSMap():
         over pre-generated regexes during parse_line(). For most parsers this
         will simply be a ``re.Pattern()`` object, but for more complex parsers
         this can be overridden to provide a different object, e.g. a tuple,
-        for that parer's specific iteration needs.
+        for that parser's specific iteration needs.
 
         :param item:    The unobfuscated string to generate the regex for
         :type item:     ``str``

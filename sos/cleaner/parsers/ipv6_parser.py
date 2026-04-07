@@ -18,6 +18,11 @@ class SoSIPv6Parser(SoSCleanerParser):
 
     name = 'IPv6 Parser'
     map_file_key = 'ipv6_map'
+    # Cheap pre-filter: "::" (compressed) or "hex:hex:" (full form).
+    # Every valid IPv6 address contains at least one of these substrings.
+    _quick_check = re.compile(
+        r'::|[0-9a-f]{1,4}:[0-9a-f]{1,4}:', re.I
+    )
     regex_pattern = re.compile(
         # Attention: note that this is a single long regex, not several entries
         # This is initially based off of two regexes from the Java library
@@ -35,6 +40,11 @@ class SoSIPv6Parser(SoSCleanerParser):
         '.*modinfo.*',
     ]
     compile_regexes = False
+
+    def _parse_line(self, line):
+        if not self._quick_check.search(line):
+            return line, 0
+        return super()._parse_line(line)
 
     def __init__(self, config, workdir, skip_cleaning_files=[]):
         self.mapping = SoSIPv6Map(workdir)
