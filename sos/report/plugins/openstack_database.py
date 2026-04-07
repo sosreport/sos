@@ -9,9 +9,9 @@
 # See the LICENSE file in the source distribution for further information.
 
 import re
+import sqlite3
 
-
-from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
+from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt, UbuntuPlugin
 
 
 class OpenStackDatabase(Plugin):
@@ -22,7 +22,9 @@ class OpenStackDatabase(Plugin):
 
     option_list = [
         PluginOpt('dump', default=False, desc='Dump select databases'),
-        PluginOpt('dumpall', default=False, desc='Dump ALL databases')
+        PluginOpt('dumpall', default=False, desc='Dump ALL databases'),
+        PluginOpt("dbpass", default="", val_type=str,
+                  desc="Password for database dump collection"),
     ]
 
     databases = [
@@ -55,10 +57,18 @@ class OpenStackDatabase(Plugin):
 
         if self.get_option('dump') or self.get_option('dumpall'):
             db_dump = self.get_mysql_db_string(container=cname)
-            db_cmd = f"mysqldump --opt {db_dump}"
+            dbpass = self.get_mysql_password()
+            db_cmd = f"mysqldump -p{dbpass} --opt {db_dump}"
+
+            # Pass password via MYSQL_PWD env var if available
+            mysql_env = {"MYSQL_PWD": dbpass} if dbpass else None
 
             self.add_cmd_output(db_cmd, suggest_filename='mysql_dump.sql',
-                                sizelimit=0, container=cname)
+                                sizelimit=0, container=cname, env=mysql_env)
+
+    def get_mysql_password(self):
+        """Return MySQL password from user-provided option (default: empty)."""
+        return self.get_option("dbpass")
 
     def get_mysql_db_string(self, container=None):
         """ Get mysql DB command to be dumped """
@@ -78,6 +88,69 @@ class OpenStackDatabase(Plugin):
 class RedHatOpenStackDatabase(OpenStackDatabase, RedHatPlugin):
 
     packages = ('openstack-selinux', )
+
+
+class UbuntuOpenStackDatabase(OpenStackDatabase, UbuntuPlugin):
+
+    packages = ('mysql-server',)
+
+    def get_mysql_password(self):
+        """
+        Return MySQL password.
+        1. User provided option (--dbpass)
+        2. SQLite (Ubuntu only)
+        3. Default empty (no password)
+        """
+
+        # 1. Try user provided password
+        dbpass = self.get_option("dbpass")
+        if dbpass:
+            return dbpass
+
+        # 2. Try SQLite
+        sqlite_file = self.find_mysql_sqlite_file()
+        if sqlite_file:
+            try:
+                conn = sqlite3.connect(sqlite_file)
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT data FROM kv "
+                    "WHERE key='leadership.settings.mysql.passwd';"
+                )
+                row = cursor.fetchone()
+                if row and row[0]:
+                    return row[0]  # password from SQLite
+            except (sqlite3.Error, OSError) as e:
+                self._log_error(
+                    f"Failed to read MySQL password from SQLite file "
+                    f"{sqlite_file}: {e}"
+                )
+            finally:
+                if 'conn' in locals():
+                    conn.close()
+
+        # 3. Fallback to default: no password
+        return ""
+
+    def find_mysql_sqlite_file(self):
+        """
+        Dynamically locate the Juju SQLite file for MySQL password.
+        Returns the full path if found, else None.
+        """
+        base_path = "/var/lib/juju/agents/"
+        try:
+            for unit_dir in self.listdir(base_path):
+                charm_path = f"{base_path}/{unit_dir}/charm"
+                meta_file = f"{charm_path}/metadata.yaml"
+                if self.path_exists(meta_file):
+                    sqlite_file = f"{charm_path}/.unit-state.db"
+                    if self.path_exists(sqlite_file):
+                        return sqlite_file
+        except OSError as e:
+            self._log_error(
+                f"Failed to locate MySQL SQLite file: {e}"
+            )
+        return None
 
 
 # vim: set et ts=4 sw=4 :
