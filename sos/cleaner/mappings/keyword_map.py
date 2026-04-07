@@ -22,6 +22,7 @@ class SoSKeywordMap(SoSMap):
     """
 
     match_full_words_only = True
+    use_token_lookup = True
     word_count = 0
 
     def sanitize_item(self, item):

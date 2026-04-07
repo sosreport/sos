@@ -22,6 +22,7 @@ class SoSUsernameMap(SoSMap):
 
     ignore_short_items = True
     match_full_words_only = True
+    use_token_lookup = True
     name_count = 0
 
     def sanitize_item(self, item):
