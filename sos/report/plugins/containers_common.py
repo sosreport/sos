@@ -29,6 +29,7 @@ class ContainersCommon(Plugin, RedHatPlugin, UbuntuPlugin):
             '/usr/share/containers/*',
             '/etc/subuid',
             '/etc/subgid',
+            '/var/lib/containers/storage/overlay-layers/layers.json'
         ])
 
         self.add_file_tags({
