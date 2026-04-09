@@ -175,25 +175,25 @@ class SoSMap():
             # tracked/saved the item and the Pattern() object in a dict or in
             # the set above
             _reg = self.get_regex_result(item)
-            self.compiled_regexes.append((item, _reg))
-            self.compiled_regexes.sort(key=lambda x: len(x[0]), reverse=True)
-            self._regex_dict[item] = _reg
             if self.use_token_lookup:
+                self._regex_dict[item] = _reg
                 if item.isalnum():
                     self._simple_tokens.add(item)
                 else:
                     self._complex_items.append(item)
             else:
+                self.compiled_regexes.append((item, _reg))
+                self.compiled_regexes.sort(
+                    key=lambda x: len(x[0]), reverse=True)
                 self.generate_compiled_regexes(only_search=True)
 
     def generate_compiled_regexes(self, only_search=False):
         keys = sorted(self._regexes_made, key=len, reverse=True)
-        if not only_search:
-            self.compiled_regexes = [
-                (item, self.get_regex_result(item)) for item in keys
-            ]
-            self._regex_dict = dict(self.compiled_regexes)
         if self.use_token_lookup:
+            if not only_search:
+                self._regex_dict = {
+                    item: self.get_regex_result(item) for item in keys
+                }
             self._simple_tokens = {
                 item for item in self._regexes_made if item.isalnum()
             }
@@ -201,6 +201,10 @@ class SoSMap():
                 item for item in self._regexes_made if not item.isalnum()
             ]
         else:
+            if not only_search:
+                self.compiled_regexes = [
+                    (item, self.get_regex_result(item)) for item in keys
+                ]
             pattern = "|".join([f'{self.get_regex_escape(k)}' for k in keys])
             self.compiled_search = re.compile(
                 self.get_regex_fullword(pattern),
