@@ -69,12 +69,15 @@ class Grout(Plugin, IndependentPlugin):
         daemon PID.
         """
         res = self.collect_cmd_output("systemctl show -p MainPID grout")
-        for m in re.finditer(r"MainPID=(\d+)", res["output"]):
-            pid = m[0]
-            if pid == "0":
-                continue
-            cmds = [f"nsenter --net -t {pid} {cmd}" for cmd in ip_cmds]
-            self.add_cmd_output(cmds)
+        try:
+            for m in re.finditer(r"MainPID=(\d+)", res["output"]):
+                pid = m[0]
+                if pid == "0":
+                    continue
+                cmds = [f"nsenter --net -t {pid} {cmd}" for cmd in ip_cmds]
+                self.add_cmd_output(cmds)
+        except TypeError as e:
+            self._log_error(f"Issue with finditer: {e}")
 
 
 # vim: set et ts=4 sw=4 :

@@ -1,15 +1,15 @@
-name: Avocado Tests
+name: Avocado
 
 on:
   workflow_call:
     inputs:
-      distro:
+      distro_image:
         required: true
         type: string
       distro_name:
         required: false
         type: string
-      build:
+      builds:
         required: true
         type: string
       test_name:
@@ -34,21 +34,47 @@ on:
 
 jobs:
   test:
-    name: ${{ inputs.stage_name }} Tests (${{ inputs.distro }})
-    runs-on: ${{ inputs.build == 'rpm' && 'ubuntu-latest' || format('ubuntu-{0}', inputs.distro) }}
+    name: ${{ inputs.stage_name }} Tests (${{ inputs.distro_name }}, ${{ matrix.build }})
+    runs-on: ${{ inputs.distro_image == '' && inputs.distro_name || 'ubuntu-latest' }}
     continue-on-error: ${{ inputs.can_fail }}
 
     container:
-      image: ${{ inputs.build == 'rpm' && inputs.distro || null }}
-      options: ${{ inputs.build == 'rpm' && '--privileged --tmpfs /tmp --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro' || '' }}
+      image: ${{ inputs.distro_image != '' && inputs.distro_image || null }}
+      options: ${{ inputs.distro_image != '' && '--user root --privileged --cgroupns=host --tmpfs /tmp --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro' || '' }}
 
     env:
       FOREMAN_VER: ${{ inputs.foreman_ver }}
       KATELLO_VER: ${{ inputs.katello_ver }}
-      DISTRO_NAME: >-
-        ${{ inputs.distro_name == '' && inputs.distro || inputs.distro_name }}
+      DISTRO_NAME: ${{ inputs.distro_name }}
+
+    strategy:
+      matrix:
+        build: ${{ fromJson(inputs.builds) }}
 
     steps:
+      - name: Bootstrap DEB Container based OS
+        if: ${{ contains(inputs.distro_name, 'debian') || ( contains(inputs.distro_name, 'ubuntu') && inputs.distro_image != '' ) }}
+        run: |
+          apt update
+          apt -y install sudo
+
+      - name: Bootstrap RPM based OS
+        if: ${{ matrix.build == 'rpm' }}
+        run: |
+          dnf -y install sudo
+          sed -i 's/^account.*pam_unix.so/account sufficient pam_permit.so/' /etc/pam.d/sudo
+          sed -i 's/^account.*required.*pam_unix.so/account sufficient pam_permit.so/' /etc/pam.d/system-auth
+
+      - name: Setup sudoers on containers
+        if: ${{ inputs.distro_image != '' }}
+        run: |
+          CURRENT_USER=$(whoami)
+          echo "Fixing sudo for user: $CURRENT_USER"
+
+          mkdir -p /etc/sudoers.d
+          echo "${CURRENT_USER} ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/gh-actions
+          chmod 0440 /etc/sudoers.d/gh-actions
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
@@ -56,43 +82,40 @@ jobs:
 
       - name: Install functional test dependencies
         run: |
-          if [[ $(command -v apt) ]]; then
+          if [ $(command -v apt) ]; then
             sudo apt update
             sudo apt -y install tox
+            # Install packages required for testing
+            sudo apt -y install kmod ethtool gnupg2 iproute2 procps curl wget
+            [ $(echo "${{ inputs.distro_name }}" | grep ubuntu) ] && sudo apt -y install ubuntu-advantage-tools
           else
             dnf config-manager --set-enabled crb || true
-            [[ "${{ inputs.distro_name }}" == centos* ]] && dnf -y install epel-release
-            dnf -y install tox sudo
+            [ $( echo "${{ inputs.distro_name }}" | grep centos) ] && dnf -y install epel-release
+            dnf -y install tox
             # Install packages required for testing
-            dnf -y install kmod ethtool gnupg2 iproute hostname procps-ng file systemd dbus
+            dnf -y install kmod ethtool gnupg2 iproute hostname procps-ng file systemd
           fi
+        continue-on-error: true
 
-      - name: Bootstrap RPM based OS
-        if: ${{ inputs.build == 'rpm' }}
+      - name: Enable systemd in containers
+        if: ${{ matrix.build == 'rpm' || ( contains(inputs.distro_name, 'ubuntu') && inputs.distro_image != '' )}}
         run: |
-          CURRENT_USER=$(whoami)
-          echo "Fixing sudo for user: $CURRENT_USER"
-
-          echo "${CURRENT_USER} ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/gh-actions
-          chmod 0440 /etc/sudoers.d/gh-actions
-
-          sed -i 's/^account.*pam_unix.so/account sufficient pam_permit.so/' /etc/pam.d/sudo
-          sed -i 's/^account.*required.*pam_unix.so/account sufficient pam_permit.so/' /etc/pam.d/system-auth
+          /usr/lib/systemd/systemd --user &
 
       - name: Download Distro-Specific DEB
-        if: ${{ inputs.build == 'deb' }}
+        if: ${{ matrix.build == 'deb' }}
         uses: actions/download-artifact@v8
         with:
           name: sos-${{ env.DISTRO_NAME }}.deb
 
       - name: Download Distro-Specific RPM
-        if: ${{ inputs.build == 'rpm' }}
+        if: ${{ matrix.build == 'rpm' }}
         uses: actions/download-artifact@v8
         with:
           name: sos-${{ env.DISTRO_NAME }}.rpm
 
       - name: Download snap
-        if: ${{ inputs.build == 'snap' }}
+        if: ${{ matrix.build == 'snap' }}
         uses: actions/download-artifact@v8
         with:
           name: sos-build.snap
@@ -100,17 +123,37 @@ jobs:
       - name: Install the package
         run: |
           if [ $(command -v apt) ] ; then
-            [[ "$(dpkg -l sos)" ]] && sudo apt -y purge sos ubuntu-server
-            [[ "$(dpkg -l sosreport)" ]] && sudo apt -y purge sosreport ubuntu-server
+            [ "$(dpkg -l sos)" ] && sudo apt -y purge sos ubuntu-server
+            [ "$(dpkg -l sosreport)" ] && sudo apt -y purge sosreport ubuntu-server
           fi
-          if [[ "${{ inputs.build }}" == "deb" ]] ; then
+          if [ "${{ matrix.build }}" == "deb" ] ; then
             sudo apt -y install ./"sos-${{ env.DISTRO_NAME }}.deb"
-          elif [[ "${{ inputs.build }}" == "snap" ]] ; then
+          elif [ "${{ matrix.build }}" == "snap" ] ; then
+            sudo apt -y install snapd
             sudo snap install "sos-build.snap" --classic --dangerous
-          elif [[ "${{ inputs.build }}" == "rpm" ]] ; then
+          elif [ "${{ matrix.build }}" == "rpm" ] ; then
             dnf -y remove sos
             dnf -y install "sos-${{ env.DISTRO_NAME }}.rpm"
           fi
+
+      # This is primarily required for container systems
+      - name: Pre-initialization of foreman test
+        if: ${{ inputs.stage_name == 'foreman' && inputs.distro_image != '' }}
+        run: |
+          if [ $(command -v apt) ] ; then
+            sudo apt -y install facter jq
+          elif [ "${{ matrix.build }}" == "rpm" ] ; then
+            dnf -y install facter jq
+          fi
+          FQDN=$(facter fqdn)
+          SHORT=$(hostname -s)
+
+          ip=$(ip -j -4 a show eth0 | jq -r '.[0].addr_info[0].local')
+
+          cat > /etc/hosts << EOF
+          127.0.0.1    localhost
+          $ip    $FQDN $SHORT
+          EOF
 
       - name: Run Extra script
         if: ${{ inputs.extra_script != '' }}
@@ -128,7 +171,8 @@ jobs:
         run: |
           ls -lh
 
-          mkdir -p ./debug-logs/{var-tmp,root-home}
+          mkdir -p ./debug-logs/var-tmp
+          mkdir -p ./debug-logs/root-home
 
           sudo cp -ra /var/tmp/avocado* ./debug-logs/var-tmp || true
           sudo cp -ra /root/avocado ./debug-logs/root-home || true
