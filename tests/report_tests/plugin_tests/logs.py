@@ -54,7 +54,7 @@ class JournalSizeLimitTest(StageTwoReportTest):
         from systemd import journal  # pylint: disable=import-error
         _reader = journal.Reader()
         _size = _reader.get_usage() / 1024 / 1024
-        if _size > 30:
+        if _size > 40:
             return
         # write 20MB at a time to side-step rate/size limiting on some distros
         # write over 20MB to ensure we will actually size limit inside sos,
