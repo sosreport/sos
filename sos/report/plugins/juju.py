@@ -65,15 +65,15 @@ class Juju(Plugin, UbuntuPlugin):
             "controllers",
             default="",
             val_type=str,
-            desc="Collect Juju state for specified controllers. Uses a \
-            whitespace delimited list.",
+            desc=("Collect Juju state for specified controllers. Uses a "
+                  "whitespace delimited list."),
         ),
         PluginOpt(
             "models",
             default="",
             val_type=str,
-            desc="Collect Juju state for specified models. Uses a whitespace \
-            delimited list.",
+            desc=("Collect Juju state for specified models. Uses a whitespace "
+                  "delimited list."),
         ),
     ]
 
