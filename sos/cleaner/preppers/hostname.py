@@ -24,6 +24,7 @@ class HostnamePrepper(SoSPrepper):
     """
 
     name = 'hostname'
+    audit_logs_re = r'\shostname=(\S+)'
 
     def _get_items_for_hostname(self, archive):
         items = []
