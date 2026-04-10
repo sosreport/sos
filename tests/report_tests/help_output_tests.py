@@ -79,7 +79,7 @@ class ReportListPluginsTest(StageOneOutputTest):
         for opt in plugin_options:
             if not opt.strip():
                 continue
-            self.assertRegex(opt, r' ([\S ]){40} ([\S ]{15}) ([\S ])*')
+            self.assertRegex(opt, r' ([\S ]){40} ([\S ]{22}) ([\S ])*')
 
 
 class ReportListPresetsTest(StageOneOutputTest):

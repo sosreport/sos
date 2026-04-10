@@ -1099,7 +1099,7 @@ class SoSReport(SoSComponent):
                     tmpopt = 0
 
                 self.ui_log.info(f" {f'{opt.plugin}.{opt.name}':<40} "
-                                 f"{tmpopt:<15} {opt.desc}")
+                                 f"{tmpopt:<22} {opt.desc}")
         else:
             self.ui_log.info(_("No plugin options available."))
 
