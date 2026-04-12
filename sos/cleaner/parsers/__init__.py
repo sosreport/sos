@@ -76,8 +76,11 @@ class SoSCleanerParser():
         """
         if not self.compile_regexes:
             return
+        self.mapping.initializing = True
         for obitem in self.mapping.dataset:
             self.mapping.add_regex_item(obitem)
+        self.mapping.initializing = False
+        self.mapping.generate_compiled_regexes()
 
     def parse_line(self, line):
         """This will be called for every line in every file we process, so that
@@ -110,14 +113,16 @@ class SoSCleanerParser():
         :rtype:     ``str``, ``int``
         """
         count = 0
-        if self.mapping.compiled_search.search(line):
-            for item, reg in self.mapping.compiled_regexes:
-                if reg.search(line):
-                    line, _count = reg.subn(self.mapping.get(item), line)
-                    count += _count
-                    # break the cycle if no further search can apply
-                    if not self.mapping.compiled_search.search(line):
-                        break
+        for item, reg in self.mapping.get_matched_items(line):
+            if reg.search(line):
+                line, _count = reg.subn(self.mapping.get(item), line)
+                count += _count
+                # break the cycle if no further search can apply;
+                # token-lookup parsers don't maintain compiled_search so
+                # we rely on get_matched_items() exhausting its results
+                if not self.mapping.use_token_lookup and \
+                        not self.mapping.compiled_search.search(line):
+                    break
         return line, count
 
     def _parse_line(self, line):
@@ -159,7 +164,7 @@ class SoSCleanerParser():
         :rtype: ``str``
         """
         if self.compile_regexes:
-            for item, reg in self.mapping.compiled_regexes:
+            for item, reg in self.mapping.get_matched_items(string_data):
                 if reg.search(string_data):
                     string_data = reg.sub(self.mapping.get(item), string_data)
         else:
