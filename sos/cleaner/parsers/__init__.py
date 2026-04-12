@@ -117,8 +117,11 @@ class SoSCleanerParser():
             if reg.search(line):
                 line, _count = reg.subn(self.mapping.get(item), line)
                 count += _count
-                # break the cycle if no further search can apply
-                if not self.mapping.compiled_search.search(line):
+                # break the cycle if no further search can apply;
+                # token-lookup parsers don't maintain compiled_search so
+                # we rely on get_matched_items() exhausting its results
+                if not self.mapping.use_token_lookup and \
+                        not self.mapping.compiled_search.search(line):
                     break
         return line, count
 
