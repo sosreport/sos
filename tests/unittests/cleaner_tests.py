@@ -326,6 +326,36 @@ class CleanerParserTests(unittest.TestCase):
         _test = self.uname_parser.parse_line(line)[0]
         self.assertEqual(line, _test)
 
+    def test_keyword_parser_all_keywords_obfuscated(self):
+        for kw in ('alpha', 'beta', 'gamma'):
+            self.kw_parser.mapping.add(kw)
+        self.kw_parser.generate_item_regexes()
+        line = 'alpha beta gamma all appear here'
+        result = self.kw_parser.parse_line(line)[0]
+        for kw in ('alpha', 'beta', 'gamma'):
+            self.assertNotIn(kw, result,
+                             f"Keyword '{kw}' was not obfuscated in: {result}")
+
+    def test_keyword_parser_multiple_keywords_consistent(self):
+        for kw in ('alpha', 'beta', 'gamma'):
+            self.kw_parser.mapping.add(kw)
+        self.kw_parser.generate_item_regexes()
+        line = 'alpha beta gamma'
+        first = self.kw_parser.parse_line(line)[0]
+        second = self.kw_parser.parse_line(line)[0]
+        self.assertEqual(first, second,
+                         "Obfuscation was not consistent across calls")
+
+    def test_username_parser_all_usernames_obfuscated(self):
+        for name in ('alice', 'bobsmith', 'charlie'):
+            self.uname_parser.mapping.add(name)
+        line = 'alice bobsmith charlie were all logged in'
+        result = self.uname_parser.parse_line(line)[0]
+        for name in ('alice', 'bobsmith', 'charlie'):
+            self.assertNotIn(name, result,
+                             f"Username '{name}' was not obfuscated in:"
+                             f" {result}")
+
 
 class PrepperTests(unittest.TestCase):
     """
