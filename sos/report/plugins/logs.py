@@ -95,12 +95,13 @@ class LogsBase(Plugin):
                     "/run/log/journal/*"
                 ])
 
+        self.add_cmd_output("rsyslogd -N3 -o /dev/stdout",)
+
     def postproc(self):
-        self.do_path_regex_sub(
-            r"/etc/rsyslog*",
-            r"(ActionLibdbiPassword |pwd=)(.*)",
-            r"\1[********]"
-        )
+        regex = r"(ActionLibdbiPassword |pwd=)(.*)"
+        repl = r"\1[********]"
+        self.do_path_regex_sub(r"/etc/rsyslog*", regex, repl)
+        self.do_cmd_output_sub("rsyslogd", regex, repl)
 
 
 class IndependentLogs(LogsBase, IndependentPlugin):
