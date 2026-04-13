@@ -43,7 +43,7 @@ class RedHatPam(Pam, RedHatPlugin):
 
     def setup(self):
         super().setup()
-        self.add_cmd_output(["authselect current"])
+        self.add_cmd_output(["authselect current", "authselect check"])
 
 
 class DebianPam(Pam, DebianPlugin, UbuntuPlugin):
