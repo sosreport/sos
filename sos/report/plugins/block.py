@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin
+from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
 
 
 class Block(Plugin, IndependentPlugin):
@@ -70,7 +70,15 @@ class Block(Plugin, IndependentPlugin):
                     dev = line.split()[0]
                     self.add_cmd_output(f'cryptsetup luksDump /dev/{dev}')
                     self.add_cmd_output(f'clevis luks list -d /dev/{dev}')
-
+        # cryptsetup status needs the device-mapper
+        # table name for the crypt target
+        luks_map = self.collect_cmd_output("dmsetup table --target crypt",
+                                           pred=SoSPredicate(self,
+                                                             kmods=['dm_mod']))
+        if luks_map['status'] == 0:
+            for line in luks_map['output'].splitlines():
+                dev = line.split(':')[0]
+                self.add_cmd_output(f'cryptsetup status /dev/mapper/{dev}')
         self.add_copy_spec("/etc/crypttab")
 
 # vim: set et ts=4 sw=4 :
