@@ -114,7 +114,7 @@ class SoSCleanerParser():
         """
         count = 0
         for item, reg in self.mapping.get_matched_items(line):
-            if reg.search(line):
+            if self.mapping.use_token_lookup or reg.search(line):
                 line, _count = reg.subn(self.mapping.get(item), line)
                 count += _count
                 # break the cycle if no further search can apply;
@@ -165,7 +165,7 @@ class SoSCleanerParser():
         """
         if self.compile_regexes:
             for item, reg in self.mapping.get_matched_items(string_data):
-                if reg.search(string_data):
+                if self.mapping.use_token_lookup or reg.search(string_data):
                     string_data = reg.sub(self.mapping.get(item), string_data)
         else:
             for k, ob in sorted(self.mapping.dataset.items(), reverse=True,
