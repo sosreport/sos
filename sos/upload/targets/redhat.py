@@ -8,6 +8,7 @@
 # See the LICENSE file in the source distribution for further information.
 import os
 import json
+from pathlib import Path
 from sos.upload.targets import UploadTarget
 from sos.utilities import convert_bytes, TIMEOUT_DEFAULT
 from sos.policies.auth import DeviceAuthorizationClass
@@ -111,7 +112,8 @@ class RHELUploadTarget(UploadTarget):
         # longer than the token timeout
         RHELAuth = DeviceAuthorizationClass(
                 self.client_identifier_url,
-                self.token_endpoint
+                self.token_endpoint,
+                Path.home()
             )
         self._device_token = RHELAuth.get_access_token()
         self.ui_log.info("Device authorized correctly. Uploading file to "
@@ -167,7 +169,8 @@ class RHELUploadTarget(UploadTarget):
             try:
                 RHELAuth = DeviceAuthorizationClass(
                     self.client_identifier_url,
-                    self.token_endpoint
+                    self.token_endpoint,
+                    Path.home()
                 )
             except Exception as e:
                 # We end up here if the user cancels the device

@@ -136,6 +136,16 @@ Secret key for the S3 bucket
 .B \-  --upload-s3-object-prefix PREFIX
 Prefix for the S3 object/key
 
+.SH TOKEN STORAGE
+When using web-based authentication for uploads, \fBsos\fR stores the
+refresh token locally in the file \fI~/.sos-oidc-token.json\fR so that
+subsequent uploads do not require re-authenticating through a browser.
+.PP
+\fBNote:\fR the token is stored in \fBplain text\fR with file permissions
+set to 0600 (owner read/write only).  If these permissions are changed,
+sos will issue a warning.  Users should ensure that the storage location
+and its parent directories have appropriately restrictive permissions.
+
 .SH SEE ALSO
 .BR sos (1)
 .BR sos-report (1)
