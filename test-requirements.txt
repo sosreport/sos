@@ -1,2 +1,2 @@
-avocado-framework<104.0
+avocado-framework<114.0
 setuptools<81
