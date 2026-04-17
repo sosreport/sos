@@ -49,6 +49,7 @@ class Coredump(Plugin, IndependentPlugin):
 
     option_list = [
         PluginOpt("dumps", default=3, desc="number of dump files to collect"),
+        PluginOpt("core_size", default=200, desc="max core dump size in MiB"),
         PluginOpt("save_executable", default=False,
                   desc="Add the crashed executable file in the sos report, "
                   "useful when loading cores into debuggers"),
@@ -85,26 +86,27 @@ class Coredump(Plugin, IndependentPlugin):
             if cores_collected < self.get_option("dumps"):
                 core = re.search(r"(^\s*Storage:(.*)(\(present\)))", res, re.M)
                 if self.get_option("save_executable"):
-                    if cexe := re.search(r"(^\s*Executable:\s*(/.*))",
+                    if cexe := re.search(r"(^(\s*Executable:\s*)(/.*))",
                                          res, re.M):
-                        # a_c_s will ignore redundant specs automatically if
-                        # we're looping over several cores for the same
-                        # crashing executable
-                        self.add_copy_spec(cexe.groups()[-1],
-                                           tailit=False)
+                        self.add_copy_spec(cexe.groups()[-1], sizelimit=0)
+                    else:
+                        self._log_info("Could not find executable path "
+                                       "in coredumpctl output")
                 try:
                     core_path = core.groups()[1].strip()
                     # a_c_s does not return any information for a skipped file,
                     # so stat the size here and if the core is larger than our
                     # limit, move on to the next
-                    # TODO: do not hardcode this. Extend log-size to per-plugin
-                    # TODO: option and link this to that value
-                    if os.stat(core_path).st_size > 209715200:
+                    # TODO: Extend log-size to per-plugin option
+                    # TODO: and link this to that value
+                    computed_max = self.get_option("core_size") * 1024 * 1024
+                    if os.stat(core_path).st_size > computed_max:
                         self._log_info(
-                            f"Skipping core dump file {core_path} due to size"
+                            f"Skipping core dump file {core_path} due to "
+                            f"size exceeding coredump.core_size"
                         )
                         continue
-                    self.add_copy_spec(core_path, tailit=False, sizelimit=200)
+                    self.add_copy_spec(core_path, tailit=False)
                     plugpath = self.path_join(
                         self.commons['cmddir'],
                         self.name(),
