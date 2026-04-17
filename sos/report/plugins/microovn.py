@@ -46,6 +46,7 @@ class MicroOVN(Plugin, UbuntuPlugin):
         )
 
         db_path = "/var/snap/microovn/common/state/database"
+        log_path = "/var/snap/microovn/common/logs"
 
         # Check for inconsistent dqlite db intervals
         self.add_dir_listing(
@@ -54,10 +55,14 @@ class MicroOVN(Plugin, UbuntuPlugin):
         )
 
         self.add_copy_spec([
-                f"{db_path}/info.yaml",
-                f"{db_path}/cluster.yaml",
-                f"{db_path}/../daemon.yaml",
+            f"{db_path}/info.yaml",
+            f"{db_path}/cluster.yaml",
+            f"{db_path}/../daemon.yaml",
+            f"{log_path}/*.log",
         ])
+
+        if self.get_option('all_logs'):
+            self.add_copy_spec(f"{log_path}/*.log.*")
 
         queries = [
             {
