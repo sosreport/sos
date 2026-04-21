@@ -13,11 +13,12 @@ from sos.policies.distros.redhat import RedHatPolicy
 
 
 class AzurePolicy(RedHatPolicy):
-    vendor = "Microsoft"
+    vendor = "Microsoft Azure Linux"
     vendor_urls = [
         ('Distribution Website', 'https://github.com/microsoft/azurelinux')
     ]
     os_release_name = 'Azure Linux'
+    os_release_id = 'azurelinux'
     os_release_file = ''
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
