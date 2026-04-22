@@ -298,7 +298,10 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             'HOME': pwd_user.pw_dir,
             'LOGNAME': runas,
             'PWD': pwd_user.pw_dir,
-            'USER': runas
+            'USER': runas,
+            # XDG_RUNTIME_DIR is required for rootless podman to access
+            # user-specific runtime files and sockets
+            'XDG_RUNTIME_DIR': f"/run/user/{pwd_user.pw_uid}"
         })
 
     cmd_env = os.environ.copy()
