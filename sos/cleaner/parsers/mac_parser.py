@@ -38,6 +38,10 @@ class SoSMacParser(SoSCleanerParser):
     """Handles parsing for MAC addresses"""
 
     name = 'MAC Parser'
+    # Cheap pre-filter: any two hex pairs separated by : - or _
+    # All MAC formats (6-byte, 8-byte, 4-hex-quad) contain this substring.
+    # False positives are fine — the full regex rejects them.
+    _quick_check = re.compile(r'[0-9a-fA-F]{2}[:\-_][0-9a-fA-F]{2}')
     regex_pattern = re.compile(
         rf'(({IPV6_REG_8HEX})|({IPV6_REG_4HEX})|({IPV4_REG}))'
     )
@@ -68,6 +72,8 @@ class SoSMacParser(SoSCleanerParser):
 
     def _parse_line(self, line):
         count = 0
+        if not self._quick_check.search(line):
+            return line, count
         matches = [m[0] for m in self.regex_pattern.findall(line)]
         if matches:
             count += len(matches)
