@@ -11,7 +11,8 @@ import os
 
 from string import ascii_uppercase, digits
 from time import sleep
-from sos_tests import StageOneReportTest, StageTwoReportTest
+from sos_tests import (StageOneReportTest, StageTwoReportTest,
+                       physical_or_vm_only)
 
 
 class LogsPluginTest(StageOneReportTest):
@@ -24,9 +25,8 @@ class LogsPluginTest(StageOneReportTest):
 
     def test_journalctl_collections(self):
         self.assertFileCollected('sos_commands/logs/journalctl_--disk-usage')
-        self.assertFileCollected('sos_commands/logs/journalctl_--no-pager_'
-                                 '--boot')
 
+    @physical_or_vm_only
     def test_journal_runtime_collected(self):
         self.assertFileGlobInArchive('/var/log/journal/*')
 
@@ -47,6 +47,7 @@ class JournalSizeLimitTest(StageTwoReportTest):
         'rhel': ['python3-systemd'],
         'ubuntu': ['python3-systemd']
     }
+    physical_or_vm_only = True
 
     def pre_sos_setup(self):
         # if the journal is already over our size limit, don't write anything

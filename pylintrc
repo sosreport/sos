@@ -3,10 +3,6 @@
 # number of processors available to use.
 jobs=0
 
-# When enabled, pylint would attempt to guess common misconfiguration and emit
-# user-friendly hints instead of false-positive error messages.
-suggestion-mode=yes
-
 [FORMAT]
 # Maximum number of characters on a single line.
 max-line-length=79
