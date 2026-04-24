@@ -1,0 +1,41 @@
+name: Build DEB Package
+
+on:
+  workflow_call:
+    inputs:
+      distro:
+        required: true
+        type: string
+jobs:
+  build:
+    runs-on: "ubuntu-${{ inputs.distro }}"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          path: sos
+
+      - name: Install dependencies
+        working-directory: ./sos
+        run: |
+          sudo apt update
+          sudo apt -y install devscripts equivs
+          sudo apt -y build-dep .
+
+      - name: Create DEB Package
+        working-directory: ./sos
+        run: |
+          dpkg-buildpackage -b -us -uc -rfakeroot -m --build-by="noreply@canonical.com"
+          mv ../*.deb ../sos-${{ inputs.distro }}.deb
+
+      - name: Upload Distro Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: sos-${{ inputs.distro }}.deb
+          path: sos-${{ inputs.distro }}.deb
+          retention-days: 1
+
+      - name: Post-Build Cleanup
+        if: always()
+        run: rm -f *.deb
