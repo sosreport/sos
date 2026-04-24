@@ -1,0 +1,113 @@
+name: Avocado Tests
+
+on:
+  workflow_call:
+    inputs:
+      distro:
+        required: true
+        type: string
+      build:
+        required: true
+        type: string
+      test_name:
+        required: true
+        type: string
+      stage_name:
+        required: true
+        type: string
+      extra_script:
+        required: false
+        type: string
+      foreman_ver:
+        required: false
+        type: string
+      katello_ver:
+        required: false
+        type: string
+
+jobs:
+  test:
+    name: ${{ inputs.stage_name }} Tests (${{ inputs.distro }})
+    runs-on: "ubuntu-${{ inputs.distro }}"
+
+    env:
+      FOREMAN_VER: ${{ inputs.foreman_ver }}
+      KATELLO_VER: ${{ inputs.katello_ver }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          path: sos
+
+      - name: Install functional test dependancies
+        run: |
+          sudo apt update
+          sudo apt -y install tox
+
+      - name: Download Distro-Specific DEB
+        if: ${{ inputs.build == 'deb' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: sos-${{ inputs.distro }}.deb
+
+      - name: Download snap
+        if: ${{ inputs.build == 'snap' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: sos-build.snap
+
+      - name: Install the package
+        run: |
+          # Install the local deb or snap file
+          [[ "$(dpkg -l sos)" ]] && sudo apt -y purge sos ubuntu-server
+          [[ "$(dpkg -l sosreport)" ]] && sudo apt -y purge sosreport ubuntu-server
+          if [[ "${{ inputs.build }}" == "deb" ]] ; then
+            sudo apt -y install ./"sos-${{ inputs.distro }}.deb"
+          elif [[ "${{ inputs.build }}" == "snap" ]] ; then
+            sudo snap install "sos-build.snap" --classic --dangerous
+          fi
+
+      - name: Run Extra script
+        if: ${{ inputs.extra_script != '' }}
+        working-directory: ./sos
+        run: |
+          sudo -E ${{ inputs.extra_script}}
+
+      - name: Run Test Command
+        working-directory: ./sos
+        run: |
+          sudo tox -e ${{ inputs.test_name }}
+
+      - name: Prepare Root Logs for Upload
+        if: failure()
+        run: |
+          # 1. Check what's in the current directory
+          ls -lh
+
+          # 2. Create a temporary directory in the workspace
+          mkdir -p ./debug-logs/{var-tmp,root-home}
+
+          # 3. Use sudo to copy the protected directories
+          sudo cp -ra /var/tmp/avocado* ./debug-logs/var-tmp || true
+          sudo cp -ra /root/avocado ./debug-logs/root-home || true
+
+          # 4. Change ownership so the 'ubuntu' user can read them
+          sudo chown -R $USER:$USER ./debug-logs
+
+      - name: Upload Distro Artifact
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: failure-logs-${{ inputs.distro }}-${{ inputs.stage_name }}
+          path: ./debug-logs/
+          retention-days: 7
+
+      - name: Post-Test Cleanup
+        if: always()
+        run: |
+          # Clean up the downloaded deb and the synced tests repo
+          rm -f *.deb *.snap
+          # Optional: Uninstall the package to leave the runner clean
+          sudo apt-get purge -y sos
+          sudo snap remove sosreport

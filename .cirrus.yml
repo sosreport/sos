@@ -10,11 +10,6 @@ env:
     DEBIAN_12_NAME: "debian-12"
     DEBIAN_11_NAME: "debian-11"
 
-    UBUNTU_DEVEL_NAME: "ubuntu-26.04"
-    UBUNTU_LATEST_NAME: "ubuntu-25.10"
-    UBUNTU_2404_NAME: "ubuntu-24.04"
-    UBUNTU_2204_NAME: "ubuntu-22.04"
-
     CENTOS_9_NAME: "centos-stream-9"
     CENTOS_10_NAME: "centos-stream-10"
 
@@ -22,8 +17,6 @@ env:
     DEBIAN_PROJECT: "debian-cloud"
     FEDORA_PROJECT: "fedora-cloud"
     SOS_PROJECT: "sos-devel-jobs"
-    UBUNTU_PROJECT: "ubuntu-os-cloud"
-    UBUNTU_DEVEL_PROJECT: "ubuntu-os-cloud-devel"
 
     # Images exist on GCP already
     CENTOS_9_FAMILY_NAME: "centos-stream-9"
@@ -33,13 +26,6 @@ env:
     DEBIAN_11_FAMILY_NAME: "debian-11"
     FEDORA_FAMILY_NAME: "fedora-cloud-42-x86-64"
     FEDORA_PRIOR_FAMILY_NAME: "fedora-cloud-41-x86-64"
-
-    UBUNTU_DEVEL_FAMILY_NAME: "ubuntu-2604-lts-amd64"
-    UBUNTU_DEB_FAMILY_NAME: "ubuntu-minimal-2510-amd64"
-    UBUNTU_LATEST_FAMILY_NAME: "ubuntu-2510-amd64"
-    UBUNTU_SNAP_FAMILY_NAME: "ubuntu-2404-lts-amd64"
-    UBUNTU_2404_FAMILY_NAME: "ubuntu-2404-lts-amd64"
-    UBUNTU_2204_FAMILY_NAME: "ubuntu-2204-lts"
 
     # Curl-command prefix for downloading task artifacts, simply add the
     # the url-encoded task name, artifact name, and path as a suffix.
@@ -57,48 +43,9 @@ auto_cancellation: true
 
 gcp_credentials: ENCRYPTED[!77d4c8251094346c41db63cb05eba2ff98eaff04e58c5d0e2a8e2c6f159f7d601b3fe9a2a4fce1666297e371f2fc8752!]
 
-# Run a simple lint on the community cluster
-flake8_task:
-    skip: &man-changes-include "changesIncludeOnly('man/**', 'docs/**', 'po/**')"
-    alias: "flake8_test"
-    name: "Flake8 linting test"
-    container:
-        image: "python:latest"
-    setup_script: &tox-lint-setup |
-        apt update
-        apt -y install tox
-    flake_script: tox -e flake8
-
-pylint_task:
-    skip: *man-changes-include
-    alias: "pylint_test"
-    name: "pylint linting test"
-    container:
-        image: "python:latest"
-    setup_script: *tox-lint-setup
-    pylint_script: tox -e pylint
-
-# Run a check on newer upstream python versions to check for possible
-# breaks/changes in common modules. This is not meant to check any of the actual
-# collections or archive integrity.
-py_break_task:
-    skip: *man-changes-include
-    alias: "py_break"
-    name: "Breakage test python-$PY_VERSION"
-    container:
-        image: "python:${PY_VERSION}"
-    matrix:
-        - env:
-            PY_VERSION: "latest"
-        - env:
-            PY_VERSION: "3.9"
-    # This image has 2 py environments. Install to the one sos uses.
-    setup_script: pip3 install -t /usr/lib/python3/dist-packages -r requirements.txt
-    main_script: ./bin/sos report --batch
-
 # Make sure a user can manually build an rpm from the checkout
 rpm_build_task:
-    skip: *man-changes-include
+    skip: &man-changes-include "changesIncludeOnly('man/**', 'docs/**', 'po/**')"
     alias: "rpm_build"
     name: "rpm Build From Checkout - ${BUILD_NAME}"
     gce_instance: &standardvm
@@ -163,10 +110,6 @@ deb_build_task:
             PROJECT: ${DEBIAN_PROJECT}
             BUILD_NAME: ${DEBIAN_13_NAME}
             VM_FAMILY_NAME: ${DEBIAN_13_FAMILY_NAME}
-        - env: &ubuntu-latest-deb-pkg
-            PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: ${UBUNTU_LATEST_NAME}
-            VM_FAMILY_NAME: ${UBUNTU_DEB_FAMILY_NAME}
     setup_script: |
         [[ ${BUILD_NAME} == "${DEBIAN_11_NAME}" ]] && sudo sed -i '/-backports/ s/^/#/' /etc/apt/sources.list
         apt update --allow-releaseinfo-change
@@ -182,31 +125,6 @@ deb_build_task:
         path: ./sos_${BUILD_NAME}.deb
         type: application/octet-stream
 
-# Make sure a user can manually build a snap from the checkout
-snap_build_task:
-    skip: *man-changes-include
-    alias: "snap_build"
-    name: "snap Build From Checkout"
-    gce_instance:
-        image_project: "${UBUNTU_PROJECT}"
-        image_family: "${UBUNTU_SNAP_FAMILY_NAME}"
-        type: e2-medium
-    setup_script: |
-        apt update
-        apt -y install snapd
-        systemctl start snapd
-        sed -i -e 's/adopt-info.*/version: test/g' -e '/set version/d' snap/snapcraft.yaml
-        snap install snapcraft --classic
-    main_script: |
-        snapcraft --destructive-mode
-    packages_artifacts:
-        path: "*.snap"
-    on_failure:
-        fail_script: |
-            ls -d /root/.cache/snapcraft/log 2> /dev/null | xargs tar cf snap-build-fail-logs.tar
-        log_artifacts:
-            path: "snap-build-fail-logs.tar"
-
 # Run the stage one (no mocking) tests across all distros on GCP
 report_stageone_task:
     skip: *man-changes-include
@@ -214,45 +132,20 @@ report_stageone_task:
     name: "Report Stage One - $BUILD_NAME"
     depends_on:
         - rpm_build
-        - snap_build
         - deb_build
     gce_instance: *standardvm
     matrix:
         - env: *centos9
 #        - env: *fedora
 #        - env: *fedoraprior
-        - env: &ubuntu-2404
-            PKG: "snap"
-            PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: "${UBUNTU_2404_NAME} - ${PKG}"
-            VM_FAMILY_NAME: ${UBUNTU_2404_FAMILY_NAME}
-        - env: &ubuntu-2204
-            PKG: "snap"
-            PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: "${UBUNTU_2204_NAME} - ${PKG}"
-            VM_FAMILY_NAME: ${UBUNTU_2204_FAMILY_NAME}
-        - env: &ubuntu-latest-snap
-            PKG: "snap"
-            PROJECT: ${UBUNTU_PROJECT}
-            BUILD_NAME: "${UBUNTU_LATEST_NAME} - ${PKG}"
-            VM_FAMILY_NAME: ${UBUNTU_LATEST_FAMILY_NAME}
-        - env: &ubuntu-latest-deb
-            <<: *ubuntu-latest-deb-pkg
-            PKG: "deb"
-            BUILD_NAME: "${UBUNTU_LATEST_NAME} - ${PKG}"
-            DEB_BUILD_NAME: ${UBUNTU_LATEST_NAME}
-            VM_FAMILY_NAME: ${UBUNTU_LATEST_FAMILY_NAME}
         - env: &debian-13
             <<: *debian-13-deb-pkg
-            PKG: "deb"
             DEB_BUILD_NAME: ${BUILD_NAME}
         - env: &debian-12
             <<: *debian-12-deb-pkg
-            PKG: "deb"
             DEB_BUILD_NAME: ${BUILD_NAME}
         - env: &debian-11
             <<: *debian-11-deb-pkg
-            PKG: "deb"
             DEB_BUILD_NAME: ${BUILD_NAME}
     setup_script: &setup |
         if [ $(command -v apt) ]; then
@@ -261,19 +154,10 @@ report_stageone_task:
             [[ "$(dpkg -l sosreport)" ]] && apt -y purge sosreport ubuntu-server
             apt update --allow-releaseinfo-change
             apt -y install python3-pip ethtool python3-systemd
-            if [ ${PKG} == "snap" ] ; then
-                apt -y install snapd
-                echo "$ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap"
-                $ARTCURL/snap%20Build%20From%20Checkout/packages/sosreport_test_amd64.snap
-                systemctl start snapd
-                snap install ./sosreport_test_amd64.snap --classic --dangerous
-                snap alias sosreport.sos sos
-            elif [ ${PKG} == "deb" ]; then
-                echo "$ARTCURL/deb%20Build%20From%20Checkout%20-%20${DEB_BUILD_NAME}/packages/sos_${DEB_BUILD_NAME}.deb"
-                $ARTCURL/deb%20Build%20From%20Checkout%20-%20${DEB_BUILD_NAME}/packages/sos_${DEB_BUILD_NAME}.deb
-                apt -y install ./sos_${DEB_BUILD_NAME}.deb
-                sed -i 's/\(127.0.1.1\)/#\1/g' /etc/hosts
-            fi
+            echo "$ARTCURL/deb%20Build%20From%20Checkout%20-%20${DEB_BUILD_NAME}/packages/sos_${DEB_BUILD_NAME}.deb"
+            $ARTCURL/deb%20Build%20From%20Checkout%20-%20${DEB_BUILD_NAME}/packages/sos_${DEB_BUILD_NAME}.deb
+            apt -y install ./sos_${DEB_BUILD_NAME}.deb
+            sed -i 's/\(127.0.1.1\)/#\1/g' /etc/hosts
         fi
         if [ $(command -v dnf) ]; then
             echo "$ARTCURL/rpm%20Build%20From%20Checkout%20-%20${BUILD_NAME}/packages/sos_${BUILD_NAME}.rpm"
@@ -297,26 +181,6 @@ report_stageone_task:
         log_artifacts: &logs
             path: "sos-fail-logs.tar"
 
-report_stageone_daily_task:
-    skip: *man-changes-include
-    alias: "stageone_daily_report"
-    name: "Report Stage One - $BUILD_NAME"
-    allow_failures: true
-    depends_on:
-        - snap_build
-    gce_instance: *standardvm
-    environment: &ubuntudevel
-      PKG: "snap"
-      PROJECT: ${UBUNTU_DEVEL_PROJECT}
-      VM_FAMILY_NAME: ${UBUNTU_DEVEL_FAMILY_NAME}
-      BUILD_NAME: "${UBUNTU_DEVEL_NAME} - ${PKG}"
-    setup_script: *setup
-    unittest_script: *unit_test
-    main_script: *stageone_test
-    on_failure:
-        fail_script: *faillogs
-        log_artifacts: *logs
-
 # IFF the stage one tests all pass, then run stage two for latest distros
 report_stagetwo_task:
     skip: *man-changes-include
@@ -329,9 +193,6 @@ report_stagetwo_task:
         - env: *centos9
         - env: *centos10
 #        - env: *fedora
-        - env: *ubuntu-2404
-        - env: *ubuntu-latest-snap
-        - env: *ubuntu-latest-deb
         - env: *debian-13
     setup_script: *setup
     install_pexpect_script: |
@@ -343,21 +204,6 @@ report_stagetwo_task:
         fi
     main_script: &stagetwo_test |
         PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t stagetwo tests/{cleaner,collect,report,vendor}_tests
-    on_failure:
-        fail_script: *faillogs
-        log_artifacts: *logs
-
-report_stagetwo_daily_task:
-    skip: *man-changes-include
-    alias: "stagetwo_daily_report"
-    name: "Report Stage Two - $BUILD_NAME"
-    allow_failures: true
-    depends_on: stageone_daily_report
-    timeout_in: 45m
-    gce_instance: *standardvm
-    environment: *ubuntudevel
-    setup_script: *setup
-    main_script: *stagetwo_test
     on_failure:
         fail_script: *faillogs
         log_artifacts: *logs
@@ -377,7 +223,6 @@ report_foreman_task:
     matrix:
         - env: *centos9
         - env: *debian-12
-        - env: *ubuntu-2204
     setup_script: *setup
     foreman_setup_script: ./tests/test_data/foreman_setup.sh
     main_script: PYTHONPATH=tests/ avocado run -p TESTLOCAL=true --max-parallel-tasks=1 -t foreman tests/product_tests/foreman/
