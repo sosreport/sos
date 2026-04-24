@@ -7,7 +7,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 
-from sos_tests import StageOneReportTest
+from sos_tests import StageOneReportTest, physical_or_vm_only
 
 
 class CommandPriorityTest(StageOneReportTest):
@@ -19,11 +19,13 @@ class CommandPriorityTest(StageOneReportTest):
 
     sos_cmd = '-o logs,process'
 
+    @physical_or_vm_only
     def test_logs_full_journal_correct_priority(self):
         cmds = self.get_plugin_manifest('logs')['commands']
         fullj = cmds[-1]
         self.assertEqual(fullj['priority'], 100)
 
+    @physical_or_vm_only
     def test_logs_full_journal_run_last(self):
         cmds = self.get_plugin_manifest('logs')['commands']
         cmds.sort(key=lambda x: x['start_time'])

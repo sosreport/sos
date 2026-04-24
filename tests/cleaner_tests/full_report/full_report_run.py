@@ -29,6 +29,7 @@ class FullCleanTest(StageTwoReportTest):
         'rhel': ['python3-systemd'],
         'ubuntu': ['python3-systemd']
     }
+    physical_or_vm_only = True
 
     def pre_sos_setup(self):
         # ensure that case-insensitive matching of FQDNs and shortnames work

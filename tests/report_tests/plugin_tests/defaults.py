@@ -22,6 +22,8 @@ class DefaultCollectionsTest(StageTwoReportTest):
         'debian': 'cups',
     }
 
+    physical_or_vm_only = True
+
     sos_cmd = '-o cups'
 
     def test_service_status_collected(self):

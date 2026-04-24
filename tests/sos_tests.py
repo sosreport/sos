@@ -75,6 +75,20 @@ def debian_only(tst):
     return wrapper
 
 
+def physical_or_vm_only(tst):
+    # pylint: disable=consider-using-with
+    def wrapper(*args, **kwargs):
+        if check_if_container():
+            raise TestSkipError('Not running on Physical or VM environment')
+        tst(*args, *kwargs)
+    return wrapper
+
+
+def check_if_container():
+    return (os.path.exists('/.dockerenv') or
+            'docker' in open('/proc/1/cgroup', encoding='utf-8').read())
+
+
 class BaseSoSTest(Test):
     """Base class for all our test classes to build off of.
 
@@ -92,6 +106,7 @@ class BaseSoSTest(Test):
     redhat_only = False
     ubuntu_only = False
     debian_only = False
+    physical_or_vm_only = False
     end_of_test_case = False
     arch = []
     only_os_versions = []
@@ -294,6 +309,16 @@ class BaseSoSTest(Test):
         raise TestSkipError(f"Unsupported OS version {os_version} "
                             f"(supports: {self.only_os_versions})")
 
+    def check_if_not_container_enablement(self):
+        """
+        Check if the test case is not meant for containers
+
+        Checks to see if the machine running the test is a container, and will
+        only run if it is not a container. Otherwise, raise a TestSkipError.
+        """
+        if self.physical_or_vm_only and check_if_container():
+            raise TestSkipError("Not running on Physical or VM environment")
+
     def setUp(self):
         """Setup the tmpdir and any needed mocking for the test, then execute
         the defined sos command. Ensure that we only run the sos command once
@@ -303,6 +328,7 @@ class BaseSoSTest(Test):
         self.check_distro_for_enablement()
         self.check_arch_for_enablement()
         self.check_os_version_for_enablement()
+        self.check_if_not_container_enablement()
         # check to prevent multiple setUp() runs
         if not os.path.isdir(self.tmpdir):
             # setup our class-shared tmpdir
