@@ -30,7 +30,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
     profiles = ('system', 'packagemanager', 'sysmgmt')
 
     files = ('/etc/dnf/dnf.conf',)
-    packages = ('dnf',)
+    packages = ('dnf', 'dnf5')
 
     option_list = [
         PluginOpt('history-info', default=False,
@@ -51,6 +51,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
                                         tags='dnf_module_info')
 
     def setup(self):
+        has_dnf5 = self.is_installed('dnf5')
 
         self.add_file_tags({
             '/etc/dnf/modules.d/.*.module': 'dnf_modules'
@@ -90,7 +91,10 @@ class DNFPlugin(Plugin, RedHatPlugin):
         self.add_cmd_output('dnf -C repolist',
                             tags=['yum_repolist', 'dnf_repolist'])
 
-        self.add_cmd_output('dnf -C repolist --verbose')
+        if has_dnf5:
+            self.add_cmd_output('dnf repo info')
+        else:
+            self.add_cmd_output('dnf -C repolist --verbose')
 
         self.add_forbidden_path([
             "/etc/pki/entitlement/key.pem",
@@ -103,11 +107,11 @@ class DNFPlugin(Plugin, RedHatPlugin):
             "/etc/pki/entitlement/*.pem"
         ])
 
+        cmd = f"dnf history {'list' if self.is_installed('dnf5') else ''}"
         if not self.get_option("history-info"):
-            self.add_cmd_output("dnf history", tags='dnf_history')
+            self.add_cmd_output(cmd, tags='dnf_history')
         else:
-            history = self.collect_cmd_output("dnf history",
-                                              tags='dnf_history')
+            history = self.collect_cmd_output(cmd, tags='dnf_history')
             transactions = -1
             if history['output']:
                 for line in history['output'].splitlines():
@@ -122,10 +126,11 @@ class DNFPlugin(Plugin, RedHatPlugin):
                                     subdir="history-info",
                                     tags='dnf_history_info')
 
-        # Get list of dnf installed modules and their details.
-        module_cmd = "dnf module list --installed"
-        modules = self.collect_cmd_output(module_cmd)
-        self.get_modules_info(modules['output'])
+        if not has_dnf5:
+            # Get list of dnf installed modules and their details.
+            module_cmd = "dnf module list --installed"
+            modules = self.collect_cmd_output(module_cmd)
+            self.get_modules_info(modules['output'])
 
     def postproc(self):
         # Scrub passwords in repositories and yum/dnf variables
