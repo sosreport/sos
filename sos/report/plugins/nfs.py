@@ -41,6 +41,11 @@ class Nfs(Plugin, IndependentPlugin):
             "mountstats -r",
             "mountstats -x",
             "rpcctl xprt show",
+            "nfsdctl listener",
+            "nfsdctl nlm",
+            "nfsdctl status",
+            "nfsdctl threads",
+            "nfsdctl version",
         ])
 
 
