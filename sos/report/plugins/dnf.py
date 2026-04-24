@@ -30,7 +30,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
     profiles = ('system', 'packagemanager', 'sysmgmt')
 
     files = ('/etc/dnf/dnf.conf',)
-    packages = ('dnf',)
+    packages = ('dnf', 'dnf5')
 
     option_list = [
         PluginOpt('history-info', default=False,
@@ -90,7 +90,10 @@ class DNFPlugin(Plugin, RedHatPlugin):
         self.add_cmd_output('dnf -C repolist',
                             tags=['yum_repolist', 'dnf_repolist'])
 
-        self.add_cmd_output('dnf -C repolist --verbose')
+        if self.is_installed('dnf5'):
+            self.add_cmd_output('dnf5 repo info')
+        else:
+            self.add_cmd_output('dnf -C repolist --verbose')
 
         self.add_forbidden_path([
             "/etc/pki/entitlement/key.pem",
@@ -103,29 +106,36 @@ class DNFPlugin(Plugin, RedHatPlugin):
             "/etc/pki/entitlement/*.pem"
         ])
 
-        if not self.get_option("history-info"):
-            self.add_cmd_output("dnf history", tags='dnf_history')
+        if self.is_installed('dnf5'):
+            self.add_cmd_output('dnf5 history list')
         else:
-            history = self.collect_cmd_output("dnf history",
-                                              tags='dnf_history')
-            transactions = -1
-            if history['output']:
-                for line in history['output'].splitlines():
-                    try:
-                        transactions = int(line.split('|')[0].strip())
-                        break
-                    except ValueError:
-                        # not a valid line to extract transactions from, ignore
-                        pass
-            for tr_id in range(1, min(transactions+1, 50)):
-                self.add_cmd_output(f"dnf history info {tr_id}",
-                                    subdir="history-info",
-                                    tags='dnf_history_info')
+            if not self.get_option("history-info"):
+                self.add_cmd_output("dnf history", tags='dnf_history')
+            else:
+                history = self.collect_cmd_output("dnf history",
+                                                  tags='dnf_history')
+                transactions = -1
+                if history['output']:
+                    for line in history['output'].splitlines():
+                        try:
+                            transactions = int(line.split('|')[0].strip())
+                            break
+                        except ValueError:
+                            # not a valid line to extract transactions from,
+                            # ignore
+                            pass
+                for tr_id in range(1, min(transactions+1, 50)):
+                    self.add_cmd_output(f"dnf history info {tr_id}",
+                                        subdir="history-info",
+                                        tags='dnf_history_info')
 
-        # Get list of dnf installed modules and their details.
-        module_cmd = "dnf module list --installed"
-        modules = self.collect_cmd_output(module_cmd)
-        self.get_modules_info(modules['output'])
+        if self.is_installed('dnf5'):
+            self.add_cmd_output('dnf5 module list')
+        else:
+            # Get list of dnf installed modules and their details.
+            module_cmd = "dnf module list --installed"
+            modules = self.collect_cmd_output(module_cmd)
+            self.get_modules_info(modules['output'])
 
     def postproc(self):
         # Scrub passwords in repositories and yum/dnf variables
