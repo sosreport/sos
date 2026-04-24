@@ -1,0 +1,173 @@
+name: Avocado Tests
+
+on:
+  workflow_call:
+    inputs:
+      distro:
+        required: true
+        type: string
+      distro_name:
+        required: false
+        type: string
+      build:
+        required: true
+        type: string
+      test_name:
+        required: true
+        type: string
+      stage_name:
+        required: true
+        type: string
+      extra_script:
+        required: false
+        type: string
+      can_fail:
+        required: false
+        type: boolean
+        default: false
+      foreman_ver:
+        required: false
+        type: string
+      katello_ver:
+        required: false
+        type: string
+
+jobs:
+  test:
+    name: ${{ inputs.stage_name }} Tests (${{ inputs.distro }})
+    runs-on: ${{ inputs.build == 'rpm' && 'ubuntu-latest' || format('ubuntu-{0}', inputs.distro) }}
+    continue-on-error: ${{ inputs.can_fail }}
+
+    container:
+      image: ${{ inputs.build == 'rpm' && inputs.distro || null }}
+      options: ${{ inputs.build == 'rpm' && '--privileged --tmpfs /tmp --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro' || '' }}
+
+    env:
+      FOREMAN_VER: ${{ inputs.foreman_ver }}
+      KATELLO_VER: ${{ inputs.katello_ver }}
+      DISTRO_NAME: >-
+        ${{ inputs.distro_name == '' && inputs.distro || inputs.distro_name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          path: sos
+
+      - name: Install functional test dependencies
+        run: |
+          if [[ $(command -v apt) ]]; then
+            sudo apt update
+            sudo apt -y install tox
+          else
+            dnf config-manager --set-enabled crb || true
+            [[ "${{ inputs.distro_name }}" == centos* ]] && dnf -y install epel-release
+            dnf -y install tox sudo
+            # Install packages required for testing
+            dnf -y install kmod ethtool gnupg2 iproute hostname procps-ng file systemd
+          fi
+
+      - name: Bootstrap RPM based OS
+        if: ${{ inputs.build == 'rpm' }}
+        run: |
+          # Remove problematic units that fail in containers
+          find /lib/systemd/system/sysinit.target.wants/ -name "systemd-tmpfiles-setup.service" -prune -o -type l -exec rm {} +
+          rm -f /lib/systemd/system/multi-user.target.wants/*
+          rm -f /etc/systemd/system/*.wants/*
+          rm -f /lib/systemd/system/local-fs.target.wants/*
+          rm -f /lib/systemd/system/sockets.target.wants/*udev*
+          rm -f /lib/systemd/system/s ockets.target.wants/*initctl*
+          rm -f /lib/systemd/system/basic.target.wants/*
+
+          mkdir -p /run/systemd/journal
+          mkdir -p /var/log/journal
+          systemd-tmpfiles --create --prefix /run/systemd/journal
+          /usr/lib/systemd/systemd-journald &
+
+          sleep 5
+
+          CURRENT_USER=$(whoami)
+          echo "Fixing sudo for user: $CURRENT_USER"
+
+          echo "${CURRENT_USER} ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/gh-actions
+          chmod 0440 /etc/sudoers.d/gh-actions
+
+          sed -i 's/^account.*pam_unix.so/account sufficient pam_permit.so/' /etc/pam.d/sudo
+          sed -i 's/^account.*required.*pam_unix.so/account sufficient pam_permit.so/' /etc/pam.d/system-auth
+
+      - name: Download Distro-Specific DEB
+        if: ${{ inputs.build == 'deb' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: sos-${{ env.DISTRO_NAME }}.deb
+
+      - name: Download Distro-Specific RPM
+        if: ${{ inputs.build == 'rpm' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: sos-${{ env.DISTRO_NAME }}.rpm
+
+      - name: Download snap
+        if: ${{ inputs.build == 'snap' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: sos-build.snap
+
+      - name: Install the package
+        run: |
+          if [ $(command -v apt) ] ; then
+            [[ "$(dpkg -l sos)" ]] && sudo apt -y purge sos ubuntu-server
+            [[ "$(dpkg -l sosreport)" ]] && sudo apt -y purge sosreport ubuntu-server
+          fi
+          if [[ "${{ inputs.build }}" == "deb" ]] ; then
+            sudo apt -y install ./"sos-${{ env.DISTRO_NAME }}.deb"
+          elif [[ "${{ inputs.build }}" == "snap" ]] ; then
+            sudo snap install "sos-build.snap" --classic --dangerous
+          elif [[ "${{ inputs.build }}" == "rpm" ]] ; then
+            dnf -y install "sos-${{ env.DISTRO_NAME }}.rpm"
+          fi
+
+      - name: Run Extra script
+        if: ${{ inputs.extra_script != '' }}
+        working-directory: ./sos
+        run: |
+          sudo -E ${{ inputs.extra_script }}
+
+      - name: Run Test Command
+        working-directory: ./sos
+        run: |
+          sudo tox -e ${{ inputs.test_name }}
+
+      - name: Prepare Root Logs for Upload
+        if: failure()
+        run: |
+          # 1. Check what's in the current directory
+          ls -lh
+
+          # 2. Create a temporary directory in the workspace
+          mkdir -p ./debug-logs/{var-tmp,root-home}
+
+          # 3. Use sudo to copy the protected directories
+          sudo cp -ra /var/tmp/avocado* ./debug-logs/var-tmp || true
+          sudo cp -ra /root/avocado ./debug-logs/root-home || true
+
+          # 4. Change ownership so the 'ubuntu' user can read them
+          sudo chown -R $USER:$USER ./debug-logs
+
+      - name: Upload Distro Artifact
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: failure-logs-${{ env.DISTRO_NAME }}-${{ inputs.stage_name }}
+          path: ./debug-logs/
+          retention-days: 7
+
+      - name: Post-Test Cleanup
+        if: always()
+        run: |
+          # Clean up the downloaded deb and the synced tests repo
+          rm -f *.deb *.snap *.rpm
+          # Optional: Uninstall the package to leave the runner clean
+          sudo apt-get purge -y sos || true
+          sudo snap remove sosreport || true
+          sudo dnf remove sos || true
