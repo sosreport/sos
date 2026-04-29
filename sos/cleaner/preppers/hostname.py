@@ -50,12 +50,17 @@ class HostnamePrepper(SoSPrepper):
         for line in _hosts.splitlines():
             if line.startswith('#') or 'localhost' in line:
                 continue
+            # strip inline comments before processing
+            line = line.split('#')[0].strip()
+            if not line:
+                continue
             hostln = line.split()[1:]
             for host in hostln:
                 if len(host.split('.')) == 1:
                     self.regex_items['hostname'].add(host)
-                else:
-                    items.append(host)
+                # unconditionally append host to items to avoid
+                # missing short hostnames like 'my-computer'
+                items.append(host)
 
         for domain in self.opts.domains:
             items.append(domain)
