@@ -61,8 +61,8 @@ class SuSEPolicy(LinuxPolicy):
 class OpenSuSEPolicy(SuSEPolicy):
     vendor = "SuSE"
     vendor_urls = [('Community Website', 'https://www.opensuse.org/')]
-    os_release_name = "OpenSuSE"
-    os_release_file = '/etc/SUSE-brand'
+    os_release_name = "openSUSE Leap"
+    os_release_id = "opensuse-leap"
     msg = _("""\
 This command will collect diagnostic and configuration \
 information from this %(os_release_name)s system and installed \
@@ -76,10 +76,31 @@ No changes will be made to system configuration.
 %(vendor_text)s
 """)
 
-    def __init__(self, sysroot=None, init=None, probe_runtime=True,
-                 remote_exec=None):
-        super().__init__(sysroot=sysroot, init=init,
-                         probe_runtime=probe_runtime,
-                         remote_exec=remote_exec)
+    @classmethod
+    def check(cls, remote=''):
+        return LinuxPolicy.check.__func__(cls, remote)
+
+
+class SLESPolicy(SuSEPolicy):
+    vendor = "SUSE"
+    vendor_urls = [('Distribution Website', 'https://www.suse.com/')]
+    os_release_name = "SLES"
+    os_release_id = "sles"
+    msg = _("""\
+This command will collect diagnostic and configuration \
+information from this %(os_release_name)s system and installed \
+applications.
+
+An archive containing the collected information will be \
+generated in %(tmpdir)s and may be provided to a %(vendor)s \
+support representative.
+
+No changes will be made to system configuration.
+%(vendor_text)s
+""")
+
+    @classmethod
+    def check(cls, remote=''):
+        return LinuxPolicy.check.__func__(cls, remote)
 
 # vim: set et ts=4 sw=4 :
