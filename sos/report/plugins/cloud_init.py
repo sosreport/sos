@@ -17,7 +17,8 @@ class CloudInit(Plugin, IndependentPlugin):
 
     plugin_name = 'cloud_init'
     packages = ('cloud-init',)
-    services = ('cloud-init', 'cloud-init-main', 'cloud-init-network')
+    services = ('cloud-init', 'cloud-init-local', 'cloud-init-network',
+                'cloud-init-main', 'cloud-config', 'cloud-final')
 
     def setup(self):
 
