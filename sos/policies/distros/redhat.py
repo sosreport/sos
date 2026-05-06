@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
 import os
 import sys
 import re
@@ -334,6 +335,129 @@ support representative.
         # As of the creation of this policy, RHCOS is only available for
         # RH OCP environments.
         return self.find_preset(RHOCP)
+
+    def _get_node_role(self):
+        """Determine the OCP node role from the machine-config-daemon
+        currentconfig file on the host filesystem.
+
+        Checks in order: the ``machineconfiguration.openshift.io/role``
+        label, the owning MachineConfigPool name from
+        ``ownerReferences``, and finally the rendered config name
+        (format ``rendered-<role>-<hash>``).
+
+        :returns: The node role (e.g. 'master', 'worker') or empty string
+        :rtype: ``str``
+        """
+        config_path = self.join_sysroot(
+            '/etc/machine-config-daemon/currentconfig'
+        )
+        try:
+            with open(config_path, 'r', encoding='utf-8') as cfile:
+                config = json.load(cfile)
+            metadata = config.get('metadata', {})
+            role = metadata.get('labels', {}).get(
+                'machineconfiguration.openshift.io/role', ''
+            )
+            if not role:
+                owners = metadata.get('ownerReferences', [])
+                for ref in owners:
+                    if ref.get('kind') == 'MachineConfigPool':
+                        role = ref.get('name', '')
+                        break
+            if not role:
+                name = metadata.get('name', '')
+                if name.startswith('rendered-'):
+                    parts = name.split('-', 2)
+                    if len(parts) >= 2:
+                        role = parts[1]
+            if role:
+                self.soslog.debug(f"OCP node role detected: {role}")
+            return role
+        except (IOError, ValueError, KeyError) as err:
+            self.soslog.debug(
+                f"Unable to determine OCP node role: {err}"
+            )
+            return ''
+
+    def _get_cluster_name(self):
+        """Determine the OCP cluster name from the node kubeconfig
+        or the node's hostname.
+
+        Tries to extract the cluster name from the API server URL in
+        ``/etc/kubernetes/kubeconfig`` first (format
+        ``https://api-int.<clustername>.<basedomain>:6443`` or
+        ``https://api.<clustername>.<basedomain>:6443``). Falls back
+        to parsing the hostname if the kubeconfig is unavailable.
+
+        :returns: The cluster name or empty string
+        :rtype: ``str``
+        """
+        kubeconfig = self.join_sysroot(
+            '/etc/kubernetes/kubeconfig'
+        )
+        try:
+            with open(kubeconfig, 'r', encoding='utf-8') as kfile:
+                for line in kfile:
+                    match = re.search(
+                        r'server:\s*https://api(?:-int)?\.([^.:]+)\.', line
+                    )
+                    if match:
+                        cluster = match.group(1)
+                        self.soslog.debug(
+                            f"OCP cluster name from kubeconfig: "
+                            f"{cluster}"
+                        )
+                        return cluster
+        except IOError as err:
+            self.soslog.debug(
+                f"Unable to read kubeconfig: {err}"
+            )
+
+        hostname = self.host_name()
+        parts = hostname.split('.')
+        if len(parts) >= 2:
+            self.soslog.debug(
+                f"OCP cluster name from hostname: {parts[1]}"
+            )
+            return parts[1]
+        return ''
+
+    def get_archive_name(self):
+        """Override archive naming to include OCP node role and cluster
+        name when available on RHCOS systems.
+
+        Prepends the detected role and cluster name to the label field
+        and delegates to the parent implementation. This avoids
+        duplicating the archive name formatting logic.
+
+        :returns: A name to be used for the archive
+        :rtype: ``str``
+        """
+        role = self._get_node_role()
+        cluster = self._get_cluster_name()
+
+        if not role and not cluster:
+            return super().get_archive_name()
+
+        ocp_context = ''
+        if role:
+            ocp_context = role
+        if cluster:
+            ocp_context += ('-' + cluster if ocp_context else cluster)
+
+        opts = self.commons['cmdlineopts']
+        original_label = opts.label
+        if original_label:
+            opts.label = f"{ocp_context}-{original_label}"
+        else:
+            opts.label = ocp_context
+
+        try:
+            archive_name = super().get_archive_name()
+        finally:
+            opts.label = original_label
+
+        return archive_name
 
     def create_sos_container(self, image=None, auth=None, force_pull=False):
         _image = image or self.container_image
