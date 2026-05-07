@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import glob
 import os
 from sos.report.plugins import Plugin, UbuntuPlugin, RedHatPlugin
 
@@ -52,19 +53,31 @@ class RedHatAzure(Azure, RedHatPlugin):
     def setup(self):
         super().setup()
 
-        if self.path_isfile('/etc/yum.repos.d/rh-cloud.repo'):
-            curl_cmd = ('curl -s -m 5 -vvv '
-                        'https://rhui-%s.microsoft.com/pulp/repos/%s')
-            self.add_cmd_output([
-                curl_cmd % ('1', 'microsoft-azure-rhel7'),
-                curl_cmd % ('2', 'microsoft-azure-rhel7'),
-                curl_cmd % ('3', 'microsoft-azure-rhel7')
-            ])
+        # RHUI repo files vary by RHEL version and offering:
+        # rh-cloud.repo (RHEL 7), rh-cloud-base.repo, rh-cloud-eus.repo,
+        # rh-cloud-ha.repo, rh-cloud-sap-ha.repo, rh-cloud-arm64.repo, etc.
+        rhui_repos = glob.glob('/etc/yum.repos.d/rh-cloud*.repo')
+        if rhui_repos:
+            # RHUI 1/2/3 are retired; Azure Global now uses RHUI 4
+            # https://learn.microsoft.com/en-us/azure/virtual-machines/
+            # workloads/redhat/redhat-rhui
+            self.add_cmd_output(
+                'curl -s -m 5 -vvv https://rhui4-1.microsoft.com'
+            )
 
-        crt_path = '/etc/pki/rhui/product/content.crt'
-        if self.path_isfile(crt_path):
-            self.add_cmd_output([
-                'openssl x509 -noout -text -in ' + crt_path
-            ])
+            # Collect any hardcoded RHUI entries in /etc/hosts
+            self.add_cmd_output(
+                'grep -i rhui /etc/hosts',
+                suggest_filename='rhui_etc_hosts'
+            )
+
+        # Certificate filenames vary by RHEL version and offering:
+        # content.crt, content-base.crt, content-eus.crt,
+        # content-base-ha.crt, content-base-sap-ha.crt, etc.
+        crt_dir = '/etc/pki/rhui/product'
+        for crt_path in glob.glob(f'{crt_dir}/*.crt'):
+            self.add_cmd_output(
+                f'openssl x509 -noout -text -in {crt_path}'
+            )
 
 # vim: set et ts=4 sw=4 :
