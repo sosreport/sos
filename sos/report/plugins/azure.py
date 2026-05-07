@@ -9,8 +9,16 @@
 # See the LICENSE file in the source distribution for further information.
 
 import glob
+import json
 import os
+from urllib.error import URLError
+from urllib.request import Request, urlopen
+
 from sos.report.plugins import Plugin, UbuntuPlugin, RedHatPlugin
+
+
+IMDS_URL = ("http://169.254.169.254/metadata/instance?"
+            "api-version=2025-04-07&format=json")
 
 
 class Azure(Plugin, UbuntuPlugin):
@@ -41,11 +49,28 @@ class Azure(Plugin, UbuntuPlugin):
             for name in files:
                 self.add_copy_spec(self.path_join(path, name), sizelimit=limit)
 
-        self.add_cmd_output((
-            'curl -s -H Metadata:true --noproxy "*" '
-            '"http://169.254.169.254/metadata/instance/compute?'
-            'api-version=2023-07-01&format=json"'
-        ), suggest_filename='instance_metadata.json')
+    def collect(self):
+        with self.collection_file('instance_metadata.json') as mfile:
+            try:
+                metadata = self._get_imds_metadata()
+                mfile.write(json.dumps(metadata, indent=4))
+            except RuntimeError as err:
+                mfile.write(str(err))
+
+    @staticmethod
+    def _get_imds_metadata():
+        """Retrieve instance metadata from the Azure IMDS endpoint."""
+        try:
+            req = Request(IMDS_URL, headers={'Metadata': 'true'})
+            with urlopen(req, timeout=5) as resp:
+                if resp.status != 200:
+                    raise RuntimeError(
+                        f"IMDS returned HTTP {resp.status}: "
+                        + resp.read().decode())
+                return json.loads(resp.read().decode())
+        except URLError as err:
+            raise RuntimeError(
+                "Failed to query Azure IMDS: " + str(err)) from err
 
 
 class RedHatAzure(Azure, RedHatPlugin):
