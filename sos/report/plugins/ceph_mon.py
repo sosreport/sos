@@ -156,6 +156,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "mon dump",
             "osd blocked-by",
             "osd blocklist ls",
+            "osd crush tree --show-shadow",
             "osd df tree",
             "osd df",
             "osd dump",
