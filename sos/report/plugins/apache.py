@@ -58,7 +58,9 @@ class Apache(Plugin):
             'nova',
             'octavia',
             'placement',
-            'pulp'
+            'pulp',
+            'katello-reverse-proxy',
+            'rhsm-pulpcore',
         ]
         self.add_forbidden_path([
             f"/var/log/{self.apachepkg}*/{sub}*" for sub in subdirs
