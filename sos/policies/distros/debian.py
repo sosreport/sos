@@ -44,6 +44,7 @@ class DebianPolicy(LinuxPolicy):
         self.package_manager = DpkgPackageManager(chroot=self.sysroot,
                                                   remote_exec=remote_exec)
         self.valid_subclasses += [DebianPlugin]
+        self.load_presets()
 
     def _get_pkg_name_for_binary(self, binary):
         # for binary not specified inside {..}, return binary itself
