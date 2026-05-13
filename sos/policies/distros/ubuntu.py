@@ -14,6 +14,8 @@ from sos.policies.package_managers.snap import SnapPackageManager
 from sos.policies.package_managers.dpkg import DpkgPackageManager
 from sos.policies.package_managers import MultiPackageManager
 
+from sos.presets.ubuntu import SUNBEAM, UBUNTU_PRESETS, UBUNTU
+
 
 class UbuntuPolicy(DebianPolicy):
     vendor = "Canonical"
@@ -51,6 +53,12 @@ class UbuntuPolicy(DebianPolicy):
             pass
 
         self.valid_subclasses += [UbuntuPlugin]
+        self.register_presets(UBUNTU_PRESETS)
+
+    def probe_preset(self):
+        if self.pkg_by_name("sunbeam") is not None:
+            return self.find_preset(SUNBEAM)
+        return self.find_preset(UBUNTU)
 
     def dist_version(self):
         """ Returns the version stated in DISTRIB_RELEASE
