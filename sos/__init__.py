@@ -93,6 +93,10 @@ class SoS():
         epilog = "See `sos <component> --help` for more information"
         self.parser = ArgumentParser(usage=usage_string, epilog=epilog)
         self.parser.register('action', 'extend', SosListOption)
+        self.parser.add_argument(
+            '--version', action='version',
+            version=f"sos version {__version__}"
+        )
         # set the component subparsers
         self.subparsers = self.parser.add_subparsers(
             dest='component',
