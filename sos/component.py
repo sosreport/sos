@@ -254,6 +254,8 @@ class SoSComponent():
                     oplugopts = [oopt for oopt in oplugopts
                                  if not oopt.startswith(cstring)]
                 setattr(opts, opt, list(set(val) | set(oplugopts)))
+            elif opt in ('skip_plugins', 'enable_plugins'):
+                setattr(opts, opt, list(set(val) | set(getattr(opts, opt))))
             elif val != opts.arg_defaults[opt]:
                 setattr(opts, opt, val)
 
