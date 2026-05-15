@@ -9,6 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins.openstack_common import mask_openstack_ini_secrets
 
 
 class OpenStackEDPM(Plugin, RedHatPlugin):
@@ -21,21 +22,34 @@ class OpenStackEDPM(Plugin, RedHatPlugin):
     edpm_log_paths = []
 
     def setup(self):
-        # Notes: recursion is max 2 for edpm-config
-        # Those directories are present on all OpenStack nodes
+        # These directories are present on OpenStack EDPM nodes and are
+        # collected recursively.
         self.edpm_log_paths = [
             '/etc/os-net-config/',
             '/var/lib/config-data/',
             '/var/lib/edpm-config/',
+            '/var/lib/openstack/',
         ]
         self.add_copy_spec(self.edpm_log_paths)
+        self.add_forbidden_path([
+            "/var/lib/openstack/**/ssh-privatekey",
+            "/var/lib/openstack/certs",
+            "/var/lib/openstack/certs/**",
+            "/var/lib/openstack/cacerts",
+            "/var/lib/openstack/cacerts/**",
+        ])
 
     def postproc(self):
-        # Ensures we do not leak passwords from the edpm related locations
-        # Other locations don't have sensitive data.
+        # Ensures we do not leak passwords from the EDPM related locations.
         regexp = r'(".*(key|password|pass|secret|database_connection))' \
                  r'([":\s]+)(.*[^"])([",]+)'
         for path in self.edpm_log_paths:
             self.do_path_regex_sub(path, regexp, r'\1\3*********\5')
+
+        mask_openstack_ini_secrets(
+            lambda regex, subst: self.do_path_regex_sub(
+                r"/var/lib/openstack/.*", regex, subst
+            )
+        )
 
 # vim: set et ts=4 sw=4 :
