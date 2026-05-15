@@ -95,6 +95,13 @@ class RedHatForemanInstaller(ForemanInstaller, RedHatPlugin):
                 ['capsule_log', 'capsule_installer_log'],
         })
 
+        self.add_copy_spec([
+            "/usr/share/satellite-clone/logs",
+            "/usr/share/satellite-clone/satellite-clone-vars.yml",
+            "/usr/share/satellite-clone/ansible.production.cfg",
+            "/var/log/satellite-clone/playbook.log",
+        ])
+
         super().setup()
 
 
