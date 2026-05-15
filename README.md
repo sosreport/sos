@@ -148,10 +148,10 @@ Ubuntu (14.04 LTS and above) users install via apt:
 # snap install sosreport --classic
 ```
 
- [0]: https://github.com/sosreport/sos/wiki/Contribution-Guidelines
- [1]: https://github.com/sosreport/sos/wiki/How-to-Write-a-Plugin
- [2]: https://github.com/sosreport/sos/wiki/How-to-Write-a-Policy
- [3]: https://github.com/sosreport/sos/wiki/Plugin-options
+ [0]: https://sos.readthedocs.io/en/main/user_docs/contribution_guidelines.html
+ [1]: https://sos.readthedocs.io/en/main/user_docs/writing_a_plugin.html
+ [2]: https://sos.readthedocs.io/en/main/user_docs/writing_a_policy.html
+ [3]: https://sos.readthedocs.io/en/main/user_docs/plugin_options.html
  [4]: https://github.com/sosreport/sos/issues?state=open
  [5]: https://sos.readthedocs.org/
  [6]: https://www.sphinx-doc.org/
