@@ -264,11 +264,15 @@ def scrub_url_credential(url: str):
 def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                            chroot=None, chdir=None, env=None, foreground=False,
                            binary=False, sizelimit=None, poller=None,
-                           to_file=False, tac=False, runas=None):
+                           to_file=False, tac=False, runas=None, stdin=None):
     # pylint: disable=too-many-locals,too-many-branches
     """Execute a command and return a dictionary of status and output,
     optionally changing root or current working directory before
     executing command.
+
+    :param stdin: If not ``None``, open a pipe to the child's stdin and
+        write this value (``str`` is encoded as UTF-8, ``bytes`` is sent
+        as-is). If ``None``, the child inherits the parent's stdin.
     """
     # Change root or cwd for child only. Exceptions in the prexec_fn
     # closure are caught in the parent (chroot and chdir are bound from
@@ -340,66 +344,79 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             _output = open(to_file, 'wb')
     else:
         _output = PIPE
+    _stdin = PIPE if stdin is not None else None
     try:
-        with Popen(expanded_args, shell=False, stdout=_output,
+        with Popen(expanded_args, shell=False, stdin=_stdin, stdout=_output,
                    stderr=STDOUT if stderr else PIPE,
                    bufsize=-1, env=cmd_env, close_fds=True,
                    preexec_fn=_child_prep_fn) as p:
-
-            if to_file:
-                if sizelimit:
-                    if tac:
-                        _output = tempfile.TemporaryFile(
-                            dir=os.path.dirname(to_file)
-                        )
-                    else:
-                        # pylint: disable=consider-using-with
-                        _output = open(to_file, 'wb')
-                    reader = HeadReader(p.stdout, _output, sizelimit, binary)
-                else:
-                    reader = FakeReader(p, binary)
-            else:
-                reader = TailReader(p.stdout, sizelimit, binary)
-
-            if poller:
-                while reader.running:
-                    _check_poller(p)
-            else:
-                try:
-                    # override timeout=0 to timeout=None, as Popen will treat
-                    # the former as a literal 0-second timeout
-                    p.wait(timeout if timeout else None)
-                except Exception:
-                    p.terminate()
-                    if to_file:
+            stdin_writer = None
+            try:
+                if to_file:
+                    if sizelimit:
                         if tac:
-                            with open(to_file, 'wb') as f_dst:
-                                tac_logs(_output, f_dst, True)
-                    # until we separate timeouts from the `timeout` command
-                    # handle per-cmd timeouts via Plugin status checks
-                    reader.running = False
-                    return {'status': 124, 'output': reader.get_contents(),
-                            'truncated': reader.is_full}
+                            _output = tempfile.TemporaryFile(
+                                dir=os.path.dirname(to_file)
+                            )
+                        else:
+                            # pylint: disable=consider-using-with
+                            _output = open(to_file, 'wb')
+                        reader = HeadReader(p.stdout, _output, sizelimit,
+                                            binary)
+                    else:
+                        reader = FakeReader(p, binary)
+                else:
+                    reader = TailReader(p.stdout, sizelimit, binary)
 
-            # wait for Popen to set the returncode
-            while p.poll() is None:
-                pass
+                if stdin is not None:
+                    stdin_writer = StdinWriter(p.stdin, stdin)
 
-            if to_file and tac:
-                with open(to_file, 'wb') as f_dst:
-                    tac_logs(_output, f_dst,
-                             reader.is_full or p.returncode != 0)
+                if poller:
+                    while reader.running:
+                        _check_poller(p)
+                else:
+                    try:
+                        # override timeout=0 to timeout=None, as Popen will
+                        # treat the former as a literal 0-second timeout
+                        p.wait(timeout if timeout else None)
+                    except Exception:
+                        p.terminate()
+                        if to_file:
+                            if tac:
+                                with open(to_file, 'wb') as f_dst:
+                                    tac_logs(_output, f_dst, True)
+                        # until we separate timeouts from the `timeout` command
+                        # handle per-cmd timeouts via Plugin status checks
+                        reader.running = False
+                        return {'status': 124,
+                                'output': reader.get_contents(),
+                                'truncated': reader.is_full}
 
-            if p.returncode in (126, 127):
-                stdout = b""
-            else:
-                stdout = reader.get_contents()
+                # wait for Popen to set the returncode
+                while p.poll() is None:
+                    pass
 
-            return {
-                'status': p.returncode,
-                'output': stdout,
-                'truncated': reader.is_full
-            }
+                if to_file and tac:
+                    with open(to_file, 'wb') as f_dst:
+                        tac_logs(_output, f_dst,
+                                 reader.is_full or p.returncode != 0)
+
+                if p.returncode in (126, 127):
+                    stdout = b""
+                else:
+                    stdout = reader.get_contents()
+
+                return {
+                    'status': p.returncode,
+                    'output': stdout,
+                    'truncated': reader.is_full
+                }
+            finally:
+                if stdin_writer is not None:
+                    stdin_writer.join()
+                    if stdin_writer.error:
+                        log.warning(f"Passing stdin to command {command} "
+                                    f"raised an error: {stdin_writer.error}")
     except OSError as e:
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': "", 'truncated': ''}
@@ -591,6 +608,45 @@ def recursive_dict_values_by_key(dobj, keys=[]):
         _items.extend(dobj)
 
     return [d for d in _items if d not in _filt]
+
+
+class StdinWriter(threading.Thread):
+    """Write bytes to a Popen child's stdin without blocking the main thread"""
+
+    CHUNK = 64 * 1024
+
+    def __init__(self, stdin_pipe, data):
+        super().__init__(daemon=False)
+        if isinstance(data, str):
+            data = data.encode('utf-8')
+        self._stdin = stdin_pipe
+        self._data = memoryview(data) if data else None
+        self.error = ''
+        self.start()
+
+    def run(self):
+        if self._stdin is None:
+            return
+        try:
+            if self._data:
+                offset = 0
+                total = len(self._data)
+                while offset < total:
+                    chunk = self._data[offset:offset + self.CHUNK]
+                    n = self._stdin.write(chunk)
+                    if n is None:
+                        continue
+                    offset += n
+                self._stdin.flush()
+        except (BrokenPipeError, ValueError) as exc:
+            # pass error to the main thread
+            self.error = exc
+        finally:
+            try:
+                self._stdin.close()
+            except (BrokenPipeError, ValueError) as exc:
+                # pass error to the main thread
+                self.error += exc
 
 
 class FakeReader():
