@@ -2109,7 +2109,7 @@ class Plugin():
                 suggest_filename=suggest_filename
             )
 
-    def add_cmd_output(self, cmds, suggest_filename=None,
+    def add_cmd_output(self, cmds, suggest_filename=None, stdin=None,
                        root_symlink=None, timeout=None, stderr=True,
                        chroot=True, runat=None, env=None, binary=False,
                        sizelimit=None, pred=None, subdir=None,
@@ -2137,6 +2137,9 @@ class Plugin():
 
         :param timeout: Timeout in seconds to allow each `cmd` to run for
         :type timeout: ``int``
+
+        :param stdin: Supply stdin from this parameter
+        :type stdin: ``str``
 
         :param stderr: Should stderr output be collected
         :type stderr: ``bool``
@@ -2221,13 +2224,14 @@ class Plugin():
                     continue
             self._add_cmd_output(cmd=cmd, suggest_filename=suggest_filename,
                                  root_symlink=root_symlink, timeout=timeout,
-                                 stderr=stderr, chroot=chroot, runat=runat,
-                                 env=env, binary=binary, sizelimit=sizelimit,
-                                 pred=pred, subdir=subdir, tags=tags,
-                                 changes=changes, foreground=foreground,
-                                 priority=priority, cmd_as_tag=cmd_as_tag,
-                                 to_file=to_file, container_cmd=container_cmd,
-                                 runas=runas, snap_cmd=snap_cmd)
+                                 stdin=stdin, stderr=stderr, chroot=chroot,
+                                 runat=runat, env=env, binary=binary,
+                                 sizelimit=sizelimit, pred=pred, subdir=subdir,
+                                 tags=tags, changes=changes,
+                                 foreground=foreground, priority=priority,
+                                 cmd_as_tag=cmd_as_tag, to_file=to_file,
+                                 container_cmd=container_cmd, runas=runas,
+                                 snap_cmd=snap_cmd)
 
     def add_cmd_tags(self, tagdict):
         """Retroactively add tags to any commands that have been run by this
@@ -2384,7 +2388,7 @@ class Plugin():
         self._log_debug(f"added string as '{filename}'")
 
     def _collect_cmd_output(self, cmd, suggest_filename=None,
-                            root_symlink=False, timeout=None,
+                            root_symlink=False, timeout=None, stdin=None,
                             stderr=True, chroot=True, runat=None, env=None,
                             binary=False, sizelimit=None, subdir=None,
                             changes=False, foreground=False, tags=[],
@@ -2401,6 +2405,7 @@ class Plugin():
                                         archive
             :param root_symlink:        Create a symlink in the archive root
             :param timeout:             Time in seconds to allow a cmd to run
+            :param stdin:               Supply stdin from this parameter.
             :param stderr:              Write stderr to stdout?
             :param chroot:              Perform chroot before running cmd?
             :param runat:               Run the command from this location,
@@ -2466,7 +2471,7 @@ class Plugin():
         start = time()
 
         result = sos_get_command_output(
-            cmd, timeout=timeout, stderr=stderr, chroot=root,
+            cmd, timeout=timeout, stdin=stdin, stderr=stderr, chroot=root,
             chdir=runat, env=_env, binary=binary, sizelimit=sizelimit,
             poller=self.check_timeout, foreground=foreground,
             to_file=out_file, tac=tac, runas=runas
@@ -2507,7 +2512,8 @@ class Plugin():
                     result = sos_get_command_output(
                         cmd, timeout=timeout, chroot=False, chdir=runat,
                         env=env, binary=binary, sizelimit=sizelimit,
-                        poller=self.check_timeout, to_file=out_file, tac=tac,
+                        stdin=stdin, poller=self.check_timeout,
+                        to_file=out_file, tac=tac,
                     )
                     run_time = time() - start
             self._log_debug(f"could not run '{cmd}': command not found")
@@ -2567,7 +2573,7 @@ class Plugin():
         return result
 
     def collect_cmd_output(self, cmd, suggest_filename=None,
-                           root_symlink=False, timeout=None,
+                           root_symlink=False, timeout=None, stdin=None,
                            stderr=True, chroot=True, runat=None, env=None,
                            binary=False, sizelimit=None, pred=None,
                            changes=False, foreground=False, subdir=None,
@@ -2587,6 +2593,9 @@ class Plugin():
 
         :param timeout:             Time in seconds to allow a cmd to run
         :type timeout: ``int``
+
+        :param stdin:               Supply stdin from this parameter
+        :type stdin: ``str``
 
         :param stderr:              Write stderr to stdout?
         :type stderr: ``bool``
@@ -2637,13 +2646,13 @@ class Plugin():
 
         return self._collect_cmd_output(
             cmd, suggest_filename=suggest_filename, root_symlink=root_symlink,
-            timeout=timeout, stderr=stderr, chroot=chroot, runat=runat,
-            env=env, binary=binary, sizelimit=sizelimit, foreground=foreground,
-            subdir=subdir, tags=tags, runas=runas
+            timeout=timeout, stdin=stdin, stderr=stderr, chroot=chroot,
+            runat=runat, env=env, binary=binary, sizelimit=sizelimit,
+            foreground=foreground, subdir=subdir, tags=tags, runas=runas
         )
 
-    def exec_cmd(self, cmd, timeout=None, stderr=True, chroot=True,
-                 runat=None, env=None, binary=False, pred=None,
+    def exec_cmd(self, cmd, timeout=None, stderr=True, stdin=None, chroot=True,
+                 runat=None, env=None, binary=False, pred=None, sizelimit=None,
                  foreground=False, container=False, quotecmd=False,
                  runas=None, runtime=None):
         """Execute a command right now and return the output and status, but
@@ -2725,7 +2734,8 @@ class Plugin():
 
         return sos_get_command_output(cmd, timeout=timeout, chroot=root,
                                       chdir=runat, binary=binary, env=_env,
-                                      foreground=foreground, stderr=stderr,
+                                      foreground=foreground, stdin=stdin,
+                                      stderr=stderr, sizelimit=sizelimit,
                                       runas=runas)
 
     def _add_container_file_to_manifest(self, container, path, arcpath, tags):

@@ -84,6 +84,17 @@ class ExecutableTest(unittest.TestCase):
         self.assertEqual(result['status'], 0)
         self.assertTrue(result['output'].strip().endswith(TEST_DIR))
 
+    def test_stdin_str(self):
+        result = sos_get_command_output('/bin/cat', stdin='hello\n')
+        self.assertEqual(result['status'], 0)
+        self.assertEqual(result['output'], 'hello\n')
+
+    def test_stdin_bytes(self):
+        result = sos_get_command_output('/bin/cat', stdin=b'alpha',
+                                        binary=True)
+        self.assertEqual(result['status'], 0)
+        self.assertEqual(result['output'], b'alpha')
+
     def test_shell_out(self):
         self.assertEqual("executed\n", shell_out('echo executed'))
 
