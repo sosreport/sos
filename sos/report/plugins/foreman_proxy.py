@@ -18,23 +18,36 @@ class ForemanProxy(Plugin):
 
     plugin_name = 'foreman_proxy'
     profiles = ('sysmgmt',)
-    packages = ('foreman-proxy',)
+    packages = ('foreman-proxy', 'foremanctl', )
+    containers = ('foreman-proxy', )
     apachepkg = None
 
     def setup(self):
+        self.container = (
+            'foreman-proxy'
+            if self.container_exists('foreman-proxy')
+            else None
+        )
+
         self.add_file_tags({
             '/var/log/foreman-proxy/proxy.log': 'foreman_proxy_log',
             '/etc/foreman-proxy/settings.yml': 'foreman_proxy_conf'
+        })
+        self.add_cmd_tags({
+            'journalctl.*foreman-proxy.service': 'foreman_proxy_log'
         })
 
         self.add_forbidden_path([
             "/etc/foreman-proxy/*key.pem"
         ])
 
+        self.add_copy_spec(["/etc/foreman-proxy/"], container=self.container)
+        if self.container:
+            self.add_journal(units="foreman-proxy.service")
+        else:
+            self.add_copy_spec(["/var/log/foreman-proxy/*log*"])
+
         self.add_copy_spec([
-            "/etc/foreman-proxy/",
-            "/etc/smart_proxy_dynflow_core/settings.yml",
-            "/var/log/foreman-proxy/*log*",
             f"/var/log/{self.apachepkg}*/katello-reverse-proxy_error_ssl.log*",
             f"/var/log/{self.apachepkg}*/rhsm-pulpcore-https-*access_ssl.log*",
             f"/var/log/{self.apachepkg}*/rhsm-pulpcore-https-*error_ssl.log*",

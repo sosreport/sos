@@ -11,6 +11,7 @@
 
 from re import match
 from shlex import quote
+from urllib.parse import urlparse
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
                                 UbuntuPlugin, PluginOpt)
 
@@ -22,7 +23,8 @@ class Foreman(Plugin):
     plugin_name = 'foreman'
     plugin_timeout = 1800
     profiles = ('sysmgmt',)
-    packages = ('foreman',)
+    packages = ('foreman', 'foremanctl')
+    containers = ('foreman', )
     apachepkg = None
     dbhost = "localhost"
     dbport = 5432
@@ -41,38 +43,62 @@ class Foreman(Plugin):
     pumactl = 'pumactl %s -S /usr/share/foreman/tmp/puma.state'
 
     def setup(self):
-        # for external DB, search in /etc/foreman/database.yml for:
+        # foremanctl instance has everything in containers; so collect
+        # data from 'foreman' or None container, and psql stuff from
+        # 'postgresql' or None container
+        if self.container_exists('foreman'):
+            self.container = 'foreman'
+            self.dbcontainer = 'postgresql'
+        else:
+            self.container = None
+            self.dbcontainer = None
+
+        # find postgres host, port and foreman's password
+        # check foreman pod env for foremanctl deployments, or search in
+        # /etc/foreman/database.yml for:
         # production:
         # ..
         #   host: some.hostname
-        production_scope = False
-        try:
-            foreman_db = '/etc/foreman/database.yml'
-            with open(foreman_db, 'r', encoding='UTF-8') as dfile:
-                foreman_lines = dfile.read().splitlines()
-            for line in foreman_lines:
-                # skip empty lines and lines with comments
-                if not line or line[0] == '#':
-                    continue
-                if line.startswith("production:"):
-                    production_scope = True
-                    continue
-                if production_scope and match(r"\s+host:\s+\S+", line):
-                    self.dbhost = line.split()[1]
-                if production_scope and match(r"\s+port:\s+\S+", line):
-                    self.dbport = line.split()[1]
-                if production_scope and match(r"\s+password:\s+\S+", line):
-                    self.dbpasswd = line.split()[1]
-                # if line starts with a text, it is a different scope
-                if not line.startswith(" "):
-                    production_scope = False
-        except IOError:
-            # fallback when the cfg file is not accessible
-            pass
-        # strip wrapping ".." or '..' around password
-        if (self.dbpasswd.startswith('"') and self.dbpasswd.endswith('"')) or \
-           (self.dbpasswd.startswith('\'') and self.dbpasswd.endswith('\'')):
-            self.dbpasswd = self.dbpasswd[1:-1]
+        if self.container:
+            dbout = self.exec_cmd("podman exec foreman env")
+            if dbout["status"] == 0:
+                for line in dbout['output'].splitlines():
+                    if line.startswith('DATABASE_URL='):
+                        parsed = urlparse(line.split("=", 1)[1])
+                        self.dbhost = parsed.hostname
+                        self.dbport = parsed.port
+                        self.dbpasswd = parsed.password
+        else:
+            production_scope = False
+            try:
+                with open('foreman_db', 'r', encoding='UTF-8') as dfile:
+                    foreman_lines = dfile.read().splitlines()
+                for line in foreman_lines:
+                    # skip empty lines and lines with comments
+                    if not line or line[0] == '#':
+                        continue
+                    if line.startswith("production:"):
+                        production_scope = True
+                        continue
+                    if production_scope and match(r"\s+host:\s+\S+", line):
+                        self.dbhost = line.split()[1]
+                    if production_scope and match(r"\s+port:\s+\S+", line):
+                        self.dbport = line.split()[1]
+                    if production_scope and match(r"\s+password:\s+\S+", line):
+                        self.dbpasswd = line.split()[1]
+                    # if line starts with a text, it is a different scope
+                    if not line.startswith(" "):
+                        production_scope = False
+            except IOError:
+                # fallback when the cfg file is not accessible
+                pass
+            # strip wrapping ".." or '..' around password
+            if ((self.dbpasswd.startswith('"') and
+                 self.dbpasswd.endswith('"')) or
+                (self.dbpasswd.startswith('\'') and
+                 self.dbpasswd.endswith('\''))):
+                self.dbpasswd = self.dbpasswd[1:-1]
+
         # set the password to os.environ when calling psql commands to prevent
         # printing it in sos logs
         # we can't set os.environ directly now: other plugins can overwrite it
@@ -92,22 +118,27 @@ class Foreman(Plugin):
             "/etc/foreman/registry-auth.json",
         ])
 
-        _hostname = self.exec_cmd('hostname')['output']
-        _hostname = _hostname.strip()
-        _host_f = self.exec_cmd('hostname -f')['output']
-        _host_f = _host_f.strip()
+        # these DNS issues and SELinux cmd are not applicable to foremanctl
+        if not self.container:
+            _hostname = self.exec_cmd('hostname')['output']
+            _hostname = _hostname.strip()
+            _host_f = self.exec_cmd('hostname -f')['output']
+            _host_f = _host_f.strip()
+            self.add_cmd_output([
+                'foreman-selinux-relabel -nv',
+                f'ping -c1 -W1 {_hostname}',
+                f'ping -c1 -W1 {_host_f}',
+                'ping -c1 -W1 localhost'
+            ])
 
-        self.add_copy_spec([
-            "/var/log/foreman/production.log",
-            f"/var/log/{self.apachepkg}*/foreman-ssl_*_ssl.log"
-        ], sizelimit=500)
+        self.add_journal(units="foreman.service", sizelimit=500)
+        self.add_copy_spec(
+            [f"/var/log/{self.apachepkg}*/foreman-ssl_*_ssl.log"],
+            sizelimit=500)
 
         # Allow limiting these
         self.add_copy_spec([
             "/etc/foreman/",
-            "/etc/sysconfig/foreman",
-            "/etc/sysconfig/dynflowd",
-            "/etc/default/foreman",
             "/var/log/foreman/dynflow_executor*log*",
             "/var/log/foreman/dynflow_executor*.output*",
             "/var/log/foreman/apipie_cache*.log*",
@@ -118,6 +149,9 @@ class Foreman(Plugin):
             "/var/log/foreman-selinux-install.log",
             "/var/log/foreman-proxy-certs-generate*",
             "/usr/share/foreman/Gemfile*",
+            "/usr/share/foreman/.ssh/ssh_config",
+        ], container=self.container)
+        self.add_copy_spec([
             f"/var/log/{self.apachepkg}*/foreman*",
             f"/var/log/{self.apachepkg}*/katello-reverse-proxy_error_ssl.log*",
             f"/var/log/{self.apachepkg}*/error_log*",
@@ -126,30 +160,11 @@ class Foreman(Plugin):
             f"/var/log/{self.apachepkg}*/katello-reverse-proxy_access_ssl.log*"
         ])
 
-        self.add_cmd_output([
-            'foreman-selinux-relabel -nv',
-            'passenger-status --show pool',
-            'passenger-status --show requests',
-            'passenger-status --show backtraces',
-            'passenger-memory-stats',
-            f'ping -c1 -W1 {_hostname}',
-            f'ping -c1 -W1 {_host_f}',
-            'ping -c1 -W1 localhost'
-        ])
+        if not self.container:
+            self.add_dir_listing(['/root/ssl-build',
+                                  '/var/lib/foreman/red_hat_inventory'],
+                                 recursive=True)
 
-        self.add_dir_listing([
-            '/root/ssl-build',
-            '/usr/share/foreman/config/hooks',
-            '/var/lib/foreman/red_hat_inventory',
-        ], recursive=True)
-
-        self.add_cmd_output(
-            'qpid-stat -b amqps://localhost:5671 -q \
-                    --ssl-certificate=/etc/pki/katello/qpid_router_client.crt \
-                    --ssl-key=/etc/pki/katello/qpid_router_client.key \
-                    --sasl-mechanism=ANONYMOUS',
-            suggest_filename='qpid-stat_-q'
-        )
         self.add_cmd_output("hammer ping", tags="hammer_ping", timeout=120)
 
         # Dynflow Sidekiq
@@ -159,6 +174,11 @@ class Foreman(Plugin):
                                 suggest_filename='dynflow_sidekiq_status')
         self.add_journal(units="dynflow-sidekiq@*")
 
+        # TODO: how to successfully run (in podman exec foreman)?
+        # pumactl gc-stats -S /usr/share/foreman/tmp/puma.state
+        # pumactl stats -S /usr/share/foreman/tmp/puma.state
+        # /usr/sbin/foreman-puma-status
+        #
         # Puma stats & status, i.e. foreman-puma-stats, then
         # pumactl stats -S /usr/share/foreman/tmp/puma.state
         # and optionally also gc-stats
@@ -187,7 +207,7 @@ class Foreman(Plugin):
             "total_bytes DESC"
         )
         self.add_cmd_output(_cmd, suggest_filename='foreman_db_tables_sizes',
-                            env=self.env)
+                            env=self.env, container=self.dbcontainer)
         self.collect_foreman_db()
         self.collect_proxies()
         if self.get_option('cvfilters'):
@@ -288,19 +308,36 @@ class Foreman(Plugin):
         for table, val in foremandb.items():
             _cmd = self.build_query_cmd(val)
             self.add_cmd_output(_cmd, suggest_filename=table, timeout=600,
-                                sizelimit=100, env=self.env)
+                                sizelimit=100, env=self.env,
+                                container=self.dbcontainer)
 
         # dynflow* tables on dynflow >=1.6.3 are encoded and hence in that
         # case, psql-msgpack-decode wrapper tool from dynflow-utils (any
         # version) must be used instead of plain psql command
+        # the same applies on foremanctl deployments where psql must be run
+        # in 'postgresql' pod and dynflow-expand (core of psql-msgpack-decode)
+        # inside 'foreman' plugin.
+        # See https://github.com/theforeman/foremanctl/issues/498
         dynutils = self.is_installed('dynflow-utils')
         for dyn, val in foremancsv.items():
             binary = "psql"
             if dyn != 'foreman_tasks_tasks' and dynutils:
                 binary = "/usr/libexec/psql-msgpack-decode"
             _cmd = self.build_query_cmd(val, csv=True, binary=binary)
-            self.add_cmd_output(_cmd, suggest_filename=dyn, timeout=600,
-                                sizelimit=100, env=self.env)
+            if dyn != 'foreman_tasks_tasks' and self.container:
+                cmdout = self.exec_cmd(
+                    _cmd, timeout=600, sizelimit=100,
+                    env=self.env, container=self.dbcontainer)
+                self.add_cmd_output(
+                    'podman exec -i foreman /usr/libexec/dynflow-expand',
+                    suggest_filename=dyn,
+                    timeout=600,
+                    stdin=cmdout['output'],
+                )
+            else:
+                self.add_cmd_output(_cmd, suggest_filename=dyn, timeout=600,
+                                    sizelimit=100, env=self.env,
+                                    container=self.dbcontainer)
 
     def collect_proxies(self):
         """ Collect foreman proxies """
@@ -309,7 +346,8 @@ class Foreman(Plugin):
             # store results in smart_proxies_features subdirectory
             _cmd = self.build_query_cmd('select name,url from smart_proxies',
                                         csv=True)
-            proxies = self.exec_cmd(_cmd, env=self.env)
+            proxies = self.exec_cmd(_cmd, env=self.env,
+                                    container=self.dbcontainer)
             if proxies['status'] == 0:
                 # output contains header as the first line, skip it
                 for proxy in proxies['output'].splitlines()[1:]:
@@ -374,7 +412,8 @@ class Foreman(Plugin):
             _cmd = self.build_query_cmd(query)
             self.add_cmd_output(_cmd, suggest_filename=table,
                                 subdir='content_view_filters',
-                                timeout=600, sizelimit=100, env=self.env)
+                                timeout=600, sizelimit=100, env=self.env,
+                                container=self.dbcontainer)
 
     def build_query_cmd(self, query, csv=False, binary="psql"):
         """
@@ -425,7 +464,7 @@ class RedHatForeman(Foreman, RedHatPlugin):
         })
 
         super().setup()
-        self.add_cmd_output('gem list')
+        self.add_cmd_output('gem list', container=self.container)
 
 
 class DebianForeman(Foreman, DebianPlugin, UbuntuPlugin):
