@@ -214,6 +214,8 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
     apachepkg = "httpd"
     nova = False
     packages = ('openstack-selinux',)
+    # Pre-FR5 deployments stored containerized nova config under
+    # /var/lib/openstack/config/nova.
     postproc_dirs = ["/etc/nova/", "/var/lib/openstack/config/nova"]
 
     def setup(self):
