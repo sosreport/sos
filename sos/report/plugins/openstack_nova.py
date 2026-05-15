@@ -16,6 +16,7 @@
 import os
 import re
 from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
+from sos.report.plugins.openstack_common import mask_openstack_ini_secrets
 
 
 class OpenStackNova(Plugin):
@@ -151,25 +152,7 @@ class OpenStackNova(Plugin):
                     regexp, subst)
 
     def postproc(self):
-        protect_keys = [
-            ".*_key",
-            ".*_pass(wd|word)?",
-            "password",
-            "metadata_proxy_shared_secret",
-            "rbd_secret_uuid",
-        ]
-        connection_keys = ["connection", "sql_connection", "transport_url"]
-
-        join_con_keys = "|".join(connection_keys)
-
-        self.apply_regex_sub(
-            fr"(^\s*({'|'.join(protect_keys)})\s*=\s*)(.*)",
-            r"\1*********"
-        )
-        self.apply_regex_sub(
-            fr"(^\s*({join_con_keys})\s*=\s*(.*)://(\w*):)(.*)(@(.*))",
-            r"\1*********\6"
-        )
+        mask_openstack_ini_secrets(self.apply_regex_sub)
 
 
 class DebianNova(OpenStackNova, DebianPlugin, UbuntuPlugin):
@@ -214,6 +197,8 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
     apachepkg = "httpd"
     nova = False
     packages = ('openstack-selinux',)
+    # Pre-FR5 deployments stored containerized nova config under
+    # /var/lib/openstack/config/nova.
     postproc_dirs = ["/etc/nova/", "/var/lib/openstack/config/nova"]
 
     def setup(self):
@@ -224,6 +209,7 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
             "/etc/sudoers.d/nova",
             "/etc/security/limits.d/91-nova.conf",
             "/etc/sysconfig/openstack-nova-novncproxy",
+            # Keep legacy pre-FR5 layout support.
             "/var/lib/openstack/config/nova",
             "/var/lib/openstack/containers/nova*.json"
         ])
@@ -239,6 +225,7 @@ class RedHatNova(OpenStackNova, RedHatPlugin):
                 "/var/log/containers/nova/*.log"
             ])
 
+        # Keep legacy pre-FR5 layout support.
         self.add_forbidden_path([
             "/var/lib/openstack/config/nova/ssh-privatekey"
         ])
