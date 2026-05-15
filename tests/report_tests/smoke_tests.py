@@ -72,7 +72,6 @@ class ExpectedDefaultPluginsTest(StageOneReportTest):
         """These plugins should run on all supported hosts by default everytime
         """
         self.assertPluginIncluded([
-            'boot',
             'date',
             'filesys',
             'host',

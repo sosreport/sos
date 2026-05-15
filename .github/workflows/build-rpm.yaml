@@ -1,0 +1,55 @@
+name: Build RPM Package
+
+on:
+  workflow_call:
+    inputs:
+      distro:
+        required: true
+        type: string
+      build:
+        required: false
+        type: string
+        default: ''
+      distro_name:
+        required: true
+        type: string
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+
+    container:
+      image: ${{ inputs.distro }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        #with:
+        #  path: sos
+
+      - name: Install dependencies
+        run: |
+          dnf clean all
+          dnf -y install rpm-build rpmdevtools gettext python3-devel python3-pexpect python3-pyyaml python3-setuptools
+          dnf -y install python3-wheel || true
+
+      - name: Create RPM
+        #working-directory: ./sos
+        run: |
+          rpmdev-setuptree
+          python3 setup.py sdist
+          mkdir -p /github/home/rpmbuild/SOURCES/
+          cp dist/sos*.tar.gz /github/home/rpmbuild/SOURCES/
+          dnf -y builddep sos.spec
+          rpmbuild -ba sos.spec
+          mv /github/home/rpmbuild/RPMS/noarch/sos-*.rpm sos-${{ inputs.distro_name }}.rpm
+
+      - name: Upload Distro Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: sos-${{ inputs.distro_name }}.rpm
+          path: sos-${{ inputs.distro_name }}.rpm
+          retention-days: 1
+
+      - name: Post-Build Cleanup
+        if: always()
+        run: rm -f *.rpm

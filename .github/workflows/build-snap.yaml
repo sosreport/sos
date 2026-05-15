@@ -1,0 +1,40 @@
+name: Build Snap Package
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Build Snap
+        uses: snapcore/action-build@v1
+        id: build-snap
+
+      # Make sure the snap is installable
+      - name: Install snap
+        run: |
+          mv ${{ steps.build-snap.outputs.snap }} sos-build.snap
+          [[ "$(dpkg -l sos)" ]] && sudo apt -y purge sos ubuntu-server
+          [[ "$(dpkg -l sosreport)" ]] && sudo apt -y purge sosreport ubuntu-server
+          sudo snap install --classic --dangerous sos-build.snap
+          sudo snap alias sosreport.sos sos
+
+      - name: Check snap works
+        run: |
+          sudo sos help
+
+      - name: Upload snap Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: sos-build.snap
+          path: sos-build.snap
+          retention-days: 1
+
+      - name: Post-Build Cleanup
+        if: always()
+        run: rm -f ${{ steps.build-snap.outputs.snap }}

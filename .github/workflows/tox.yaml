@@ -1,0 +1,26 @@
+name: Tox Tests
+
+on:
+  workflow_call:
+    inputs:
+      test_name:
+        required: true
+        type: string
+
+jobs:
+  test:
+    name: ${{ inputs.test_name }} Test
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install test dependancies
+        run: |
+          sudo apt update
+          sudo apt -y install tox
+
+      - name: Run Flake8
+        run: |
+          tox -e ${{ inputs.test_name }}

@@ -1,0 +1,222 @@
+name: Main Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      distros: ${{ steps.set-matrix.outputs.distros }}
+      builds: ${{ steps.set-matrix.outputs.builds }}
+      rpm_matrix: ${{ steps.set-matrix.outputs.rpm_matrix }}
+    steps:
+      - id: set-matrix
+        # Edit this list to add/remove distros for the ENTIRE pipeline
+        run: |
+          echo "distros=[\"22.04\", \"24.04\"]" >> $GITHUB_OUTPUT
+          echo "builds=[\"deb\", \"snap\"]" >> $GITHUB_OUTPUT
+          RPM_JSON='[
+            {"name": "fedora-43", "image": "fedora:43"},
+            {"name": "fedora-44", "image": "fedora:44"},
+            {"name": "centos-9",  "image": "quay.io/centos/centos:stream9"},
+            {"name": "centos-10", "image": "quay.io/centos/centos:stream10"}
+          ]'
+
+          echo "rpm_matrix=$(echo $RPM_JSON | jq -c .)" >> $GITHUB_OUTPUT
+
+  filters:
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+      foreman: ${{ steps.filter.outputs.foreman }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            foreman:
+              - '.github/workflows/**'
+              - '**/__init__.py'
+              - '**/apache.py'
+              - '**/foreman_tests.py'
+              - '**/candlepin.py'
+              - '**/pulp.py'
+              - '**/pulpcore.py'
+              - '**/foreman_setup.sh'
+            docs:
+              - '**'
+              - '!man/**'
+              - '!docs/**'
+              - '!po/**'
+
+  py_tests:
+    needs: filters
+    if: needs.filters.outputs.docs == 'true'
+    strategy:
+      matrix:
+        py_version: [ '3.9', '3.14' ]
+    uses: ./.github/workflows/py-tests.yaml
+    with:
+      py_version: ${{ matrix.py_version }}
+
+  build_deb:
+    needs: [filters, setup]
+    if: needs.filters.outputs.docs == 'true'
+    strategy:
+      matrix:
+        distro: ${{ fromJson(needs.setup.outputs.distros) }}
+    uses: ./.github/workflows/build-deb.yaml
+    with:
+      distro: ${{ matrix.distro }}
+
+  build_rpm:
+    needs: [filters, setup]
+    if: needs.filters.outputs.docs == 'true'
+    strategy:
+      matrix:
+        distro: ${{ fromJson(needs.setup.outputs.rpm_matrix) }}
+        build: [ 'rpm' ]
+    uses: ./.github/workflows/build-rpm.yaml
+    with:
+      distro: ${{ matrix.distro.image }}
+      build: ${{ matrix.build }}
+      distro_name: ${{ matrix.distro.name }}
+
+  build_snap:
+    needs: [filters, setup]
+    if: needs.filters.outputs.docs == 'true'
+    uses: ./.github/workflows/build-snap.yaml
+
+  flake8:
+    needs: filters
+    if: needs.filters.outputs.docs == 'true'
+    uses: ./.github/workflows/tox.yaml
+    with:
+      test_name: flake8
+
+  pylint:
+    needs: filters
+    if: needs.filters.outputs.docs == 'true'
+    uses: ./.github/workflows/tox.yaml
+    with:
+      test_name: pylint
+
+  unit:
+    needs: [filters, setup, build_deb, build_snap]
+    if: needs.filters.outputs.docs == 'true'
+    strategy:
+      matrix:
+        distro: ${{ fromJson(needs.setup.outputs.distros) }}
+        build: ${{ fromJson(needs.setup.outputs.builds) }}
+    uses: ./.github/workflows/avocado.yaml
+    with:
+      distro: ${{ matrix.distro }}
+      build: ${{ matrix.build }}
+      test_name: "unit_tests"
+      stage_name: "Unit"
+
+  unit_rpm:
+    needs: [filters, setup, build_rpm]
+    if: needs.filters.outputs.docs == 'true'
+    strategy:
+      matrix:
+        distros: ${{ fromJson(needs.setup.outputs.rpm_matrix) }}
+        build: [ 'rpm' ]
+    uses: ./.github/workflows/avocado.yaml
+    with:
+      distro: ${{ matrix.distros.image }}
+      distro_name: ${{ matrix.distros.name }}
+      build: ${{ matrix.build }}
+      test_name: "unit_tests"
+      stage_name: "Unit"
+
+  stage_one:
+    needs: [filters, setup, build_deb, build_snap, unit]
+    if: needs.filters.outputs.docs == 'true'
+    strategy:
+      matrix:
+        distro: ${{ fromJson(needs.setup.outputs.distros) }}
+        build: ${{ fromJson(needs.setup.outputs.builds) }}
+    uses: ./.github/workflows/avocado.yaml
+    with:
+      distro: ${{ matrix.distro }}
+      build: ${{ matrix.build }}
+      test_name: "stageone_tests"
+      stage_name: "Stage One"
+      can_fail: true
+    secrets: inherit
+
+  stage_one_rpm:
+    needs: [filters, setup, build_rpm, unit_rpm]
+    if: needs.filters.outputs.docs == 'true'
+    strategy:
+      matrix:
+        distros: ${{ fromJson(needs.setup.outputs.rpm_matrix) }}
+        build: [ 'rpm' ]
+    uses: ./.github/workflows/avocado.yaml
+    with:
+      distro: ${{ matrix.distros.image }}
+      distro_name: ${{ matrix.distros.name }}
+      build: ${{ matrix.build }}
+      test_name: "stageone_tests"
+      stage_name: "Stage One"
+    secrets: inherit
+
+  stage_two:
+    needs: [filters, setup, build_deb, build_snap, stage_one]
+    if: needs.filters.outputs.docs == 'true'
+    strategy:
+      matrix:
+        distro: ${{ fromJson(needs.setup.outputs.distros) }}
+        build: ${{ fromJson(needs.setup.outputs.builds) }}
+    uses: ./.github/workflows/avocado.yaml
+    with:
+      distro: ${{ matrix.distro }}
+      build: ${{ matrix.build }}
+      test_name: "stagetwo_tests"
+      stage_name: "Stage Two"
+    secrets: inherit
+
+  stage_two_rpm:
+    needs: [filters, setup, build_rpm, stage_one_rpm]
+    if: needs.filters.outputs.docs == 'true'
+    strategy:
+      matrix:
+        distros: ${{ fromJson(needs.setup.outputs.rpm_matrix) }}
+        build: [ 'rpm' ]
+    uses: ./.github/workflows/avocado.yaml
+    with:
+      distro: ${{ matrix.distros.image }}
+      distro_name: ${{ matrix.distros.name }}
+      build: ${{ matrix.build }}
+      test_name: "stagetwo_tests"
+      stage_name: "Stage Two"
+    secrets: inherit
+
+  foreman:
+    needs: [filters, setup, build_deb, stage_two]
+    if: needs.filters.outputs.foreman == 'true'
+    strategy:
+      matrix:
+        distro: [ "22.04" ]
+        build: [ "deb" ]
+    uses: ./.github/workflows/avocado.yaml
+    with:
+      distro: ${{ matrix.distro }}
+      build: ${{ matrix.build }}
+      extra_script: ./tests/test_data/foreman_setup.sh
+      test_name: "foreman_tests"
+      stage_name: "Foreman"
+      foreman_ver: "3.15"
+      katello_ver: "4.17"
+    secrets: inherit
