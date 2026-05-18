@@ -366,10 +366,14 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
 
     def postproc(self):
 
+        netplan_secret_keys = (
+            r'password|psk|key|shared|private|public|'
+            r'identity|anonymous-identity|client-key-password'
+        )
         self.do_path_regex_sub(
-            "/etc/netplan",
-            r"(\s+password:).*",
-            r"\1 ******"
+            r"/(etc|lib|run)/netplan/.*",
+            rf"^(\s+(?:{netplan_secret_keys})\s*:\s*).+$",
+            r"\1******"
         )
 
 
