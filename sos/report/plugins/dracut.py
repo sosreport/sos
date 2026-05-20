@@ -8,10 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
-class Dracut(Plugin, RedHatPlugin):
+class Dracut(Plugin, RedHatPlugin, UbuntuPlugin):
 
     short_desc = 'Dracut initramfs generator'
 
@@ -22,12 +22,18 @@ class Dracut(Plugin, RedHatPlugin):
     def setup(self):
         self.add_copy_spec([
             "/etc/dracut.conf",
-            "/etc/dracut.conf.d"
+            "/etc/dracut.conf.d",
+            "/usr/lib/dracut/dracut.conf.d",
+
+            # only generated if system drops into emergency mode during boot
+            "/run/initramfs/rdsosreport.txt",
         ])
 
         self.add_cmd_output([
             "dracut --list-modules",
-            "dracut --print-cmdline"
+            "dracut --print-cmdline",
+            "dracut --version",
+            "lsinitrd",
         ], env={"RPMOSTREE_CLIWRAP_SKIP": "true"})
 
 # vim: set et ts=4 sw=4 :
