@@ -95,7 +95,7 @@ class CephMDS(Plugin, RedHatPlugin, UbuntuPlugin):
 
         # If containerized, run commands in containers
         try:
-            cname = self.get_all_containers_by_regex("ceph-mds*")[0][1]
+            cname = self.get_all_containers_by_regex("^ceph-.*mds[-.].*")[0][1]
         except Exception:  # pylint: disable=broad-except
             cname = None
 
