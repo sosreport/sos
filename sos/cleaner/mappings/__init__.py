@@ -35,7 +35,7 @@ class SoSMap():
 
     _token_split_re = re.compile(r'[^a-z0-9]+')
 
-    def __init__(self, workdir):
+    def __init__(self, workdir, _static_regex=re.compile(r'(?!)')):
         self.initializing = True
         self.dataset = {}
         self._regexes_made = set()
@@ -44,6 +44,7 @@ class SoSMap():
         self._simple_tokens = set()
         self._complex_items = []
         self._regex_dict = {}
+        self._static_regex = _static_regex
         self.cname = self.__class__.__name__.lower()
         # workdir's default value '/tmp' is used just by avocado tests,
         # otherwise we override it to /etc/sos/cleaner (or map_file dir)
@@ -156,7 +157,10 @@ class SoSMap():
         """
         if self.ignore_item(item):
             return
-        if item not in self._regexes_made:
+        # skip items already in the _regexes_made set and items detected by
+        # parser._parse_line via the static regex_pattern
+        if (item not in self._regexes_made and
+                not self._static_regex.fullmatch(item)):
             # we do re.I everywhere, so unify the item
             item = item.lower()
             # save the item in a set to avoid clobbering existing regexes,

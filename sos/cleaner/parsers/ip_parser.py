@@ -47,5 +47,5 @@ class SoSIPParser(SoSCleanerParser):
     compile_regexes = False
 
     def __init__(self, config, workdir, skip_cleaning_files=[]):
-        self.mapping = SoSIPMap(workdir)
+        self.mapping = SoSIPMap(workdir, self.regex_pattern)
         super().__init__(config, skip_cleaning_files)
