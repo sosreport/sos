@@ -207,7 +207,8 @@ class SoSObfuscationArchive():
             self.log_debug(f"Obfuscating {rel_name or filename}")
             subs = 0
             lines = []
-            with open(filename, 'r', encoding='utf-8', errors='replace') as fname:
+            with open(filename, 'r', encoding='utf-8', errors='replace') \
+                    as fname:
                 for line in fname:
                     try:
                         line, cnt = self.obfuscate_line(line, _parsers)
