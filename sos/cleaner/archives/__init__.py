@@ -13,7 +13,6 @@ import os
 import shutil
 import stat
 import tarfile
-import tempfile
 import re
 
 from concurrent.futures import ProcessPoolExecutor
