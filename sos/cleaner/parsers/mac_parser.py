@@ -56,7 +56,7 @@ class SoSMacParser(SoSCleanerParser):
     compile_regexes = False
 
     def __init__(self, config, workdir, skip_cleaning_files=[]):
-        self.mapping = SoSMacMap(workdir)
+        self.mapping = SoSMacMap(workdir, self.regex_pattern)
         super().__init__(config, skip_cleaning_files)
 
     def reduce_mac_match(self, match):
