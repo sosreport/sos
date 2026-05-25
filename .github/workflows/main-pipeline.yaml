@@ -49,7 +49,7 @@ jobs:
           filters: |
             foreman:
               - '.github/workflows/**'
-              - '**/__init__.py'
+              - 'sos/report/**/__init__.py'
               - '**/apache.py'
               - '**/foreman*.py'
               - '**/candlepin.py'
