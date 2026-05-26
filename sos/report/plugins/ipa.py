@@ -106,6 +106,9 @@ class Ipa(Plugin, RedHatPlugin):
                 "/var/log/ipa-custodia.audit.log"
             ])
 
+            # Collect IPA services status
+            self.add_cmd_output("ipactl status")
+
         if self.ca_installed():
             self._log_debug("CA is installed: retrieving PKI logs")
             self.collect_pki_logs(ipa_version)
