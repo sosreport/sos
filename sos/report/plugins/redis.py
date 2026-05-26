@@ -20,26 +20,39 @@ class Redis(Plugin, IndependentPlugin):
     profiles = ('services',)
 
     packages = ('redis',)
+    containers = ('redis',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/redis"
 
     def setup(self):
+        self.container = (
+            'redis'
+            if self.container_exists('redis')
+            else None
+        )
+
         self.add_copy_spec([
             "/etc/redis/redis.conf",
             self.var_puppet_gen + "/etc/redis*",
             self.var_puppet_gen + "/etc/redis/",
             self.var_puppet_gen + "/etc/security/limits.d/"
-        ])
+        ], container=self.container)
 
-        self.add_cmd_output("redis-cli info")
-        if self.get_option("all_logs"):
-            self.add_copy_spec([
-                "/var/log/redis/redis.log*",
-            ])
+        self.add_cmd_output("redis-cli info", container=self.container)
+
+        if self.container:
+            self.add_journal(
+                units=["redis.service"]
+            )
         else:
-            self.add_copy_spec([
-                "/var/log/redis/redis.log",
-            ])
+            if self.get_option("all_logs"):
+                self.add_copy_spec([
+                    "/var/log/redis/redis.log*",
+                ])
+            else:
+                self.add_copy_spec([
+                    "/var/log/redis/redis.log",
+                ])
 
     def postproc(self):
         for path in ["/etc/redis/", self.var_puppet_gen + "/etc/redis"]:
