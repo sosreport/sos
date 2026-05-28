@@ -26,9 +26,12 @@ class SoSIPv6Parser(SoSCleanerParser):
         # is not extracted from a log message such as 'SomeFuncUsed::ADiffFunc'
         # that come components may log with. Further, we optionally try to grab
         # a trailing prefix for the network bits.
-        r"(?<![:\\.\\-a-z0-9])((([0-9a-f]{1,4})(:[0-9a-f]{1,4}){7})|"
-        r"(([0-9a-f]{1,4}(:[0-9a-f]{0,4}){0,5}))([^.])::(([0-9a-f]{1,4}"
-        r"(:[0-9a-f]{1,4}){0,5})?)(\/\d{1,3})?)(?!([a-z0-9]|:[a-z0-9]))"
+        r"(?<![:\\.\\-a-zA-Z0-9])"
+        r"((([0-9a-fA-F]{1,4})(:[0-9a-fA-F]{1,4}){7})|"
+        r"(([0-9a-fA-F]{1,4}(:[0-9a-fA-F]{0,4}){0,5}))"
+        r"([^.])::(([0-9a-fA-F]{1,4}"
+        r"(:[0-9a-fA-F]{1,4}){0,5})?)(\/\d{1,3})?)"
+        r"(?!([a-zA-Z0-9]|:[a-zA-Z0-9]))"
     )
     parser_skip_files = [
         'etc/dnsmasq.conf.*',
