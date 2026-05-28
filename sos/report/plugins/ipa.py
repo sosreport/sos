@@ -173,6 +173,11 @@ class Ipa(Plugin, RedHatPlugin):
             "klist -ket /var/lib/ipa/gssproxy/http.keytab"
         ])
 
+        self.add_cmd_output(
+            "ipa -e in_server=true config-show",
+            suggest_filename="ipa_config_show"
+        )
+
         self.add_dir_listing("/etc/dirsrv/slapd-*/schema/")
 
         getcert_pred = SoSPredicate(self,
