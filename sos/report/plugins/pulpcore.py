@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
 from re import match
 from shlex import quote
 from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
@@ -20,6 +21,7 @@ class PulpCore(Plugin, IndependentPlugin):
     plugin_name = "pulpcore"
     commands = ("pulpcore-manager",)
     files = ("/etc/pulp/settings.py",)
+    containers = ("pulp-api", "pulp-content", "pulp-worker-.*")
     option_list = [
         PluginOpt('task-days', default=7, desc='days of task history')
     ]
@@ -30,7 +32,7 @@ class PulpCore(Plugin, IndependentPlugin):
     dbuser = "pulp"
     dbpasswd = ""
     staticroot = "/var/lib/pulp/assets"
-    uploaddir = "/var/lib/pulp/media/upload"
+    uploaddir = "/var/lib/pulp/tmp"
     env = {"PGPASSWORD": dbpasswd}
     settings_file = "/etc/pulp/settings.py"
 
@@ -82,42 +84,91 @@ class PulpCore(Plugin, IndependentPlugin):
         except IOError:
             # fallback when the cfg file is not accessible
             pass
+
+    def parse_pod_config(self):
+        # get PULP_DATABASES__default__* env variables from a json list
+        def _env_to_dict(env_list):
+            return dict(
+                item.split('=', 1)
+                for item in env_list
+                if isinstance(item, str)
+                and item.startswith("PULP_DATABASES__default__")
+                and '=' in item
+            )
+
+        pod_inspect = self.exec_cmd(
+            f"podman inspect {self.pulp_container} "
+            "--format='{{json .Config.Env}}'"
+        )
+        if pod_inspect['status'] == 0:
+            env_list = json.loads(pod_inspect['output'])
+            env = _env_to_dict(env_list)
+            self.dbname = env.get('PULP_DATABASES__default__NAME', '')
+            self.dbhost = env.get('PULP_DATABASES__default__HOST', '')
+            self.dbuser = env.get('PULP_DATABASES__default__USER', '')
+            self.dbport = env.get('PULP_DATABASES__default__PORT', '')
+        pod_secret = self.exec_cmd(
+            "podman secret inspect --showsecret "
+            "--format '{{.SecretData}}' pulp-db-password")
+        self.dbpasswd = pod_secret['output'].strip()
+
+    def setup(self):
+        self.runas = None
+        self.rhui_container = self.pulp_container = self.psql_container = None
+        rhui_podman_ps = self.exec_cmd("podman ps --filter name=rhui5-rhua",
+                                       runas="rhui")
+        # check for RHUI deployments
+        if rhui_podman_ps['status'] == 0:
+            lines = rhui_podman_ps['output'].splitlines()
+            if len(lines) > 1:  # we know there is a container of given name
+                self.runas = 'rhui'
+                self.rhui_container = 'rhui5-rhua'
+                self.settings_file = '/var/lib/rhui/config/pulp/settings.py'
+        else:  # check for foremanctl deployments
+            pattern = "|".join(f"(?:{p})" for p in self.containers)
+            pulp_containers = self.get_all_containers_by_regex(pattern,
+                                                               get_all=True)
+            if pulp_containers:
+                self.pulp_container = pulp_containers[0][1]
+                self.psql_container = 'postgresql'
+                for cont in self.containers:
+                    # convert python RE to systemd style
+                    self.add_journal(units=[
+                        f"{cont.replace('-.*', '@*')}.service"])
+
+        # get psql config - different for foremanctl / pulp-* container
+        if self.pulp_container:
+            self.parse_pod_config()
+        else:
+            self.parse_settings_config()
         # set the password to os.environ when calling psql commands to prevent
         # printing it in sos logs
         # we can't set os.environ directly now: other plugins can overwrite it
         self.env = {"PGPASSWORD": self.dbpasswd}
 
-    def setup(self):
-        self.runas = self.in_container = None
-        rhui_podman_ps = self.exec_cmd("podman ps --filter name=rhui5-rhua",
-                                       runas="rhui")
-        if rhui_podman_ps['status'] == 0:
-            lines = rhui_podman_ps['output'].splitlines()
-            if len(lines) > 1:  # we know there is a container of given name
-                self.runas = 'rhui'
-                self.in_container = 'rhui5-rhua'
-                self.settings_file = '/var/lib/rhui/config/pulp/settings.py'
-        self.parse_settings_config()
-
         self.add_copy_spec([
             "/etc/pulp/settings.py",
             "/etc/pki/pulp/*"
-        ], runas=self.runas, container=self.in_container)
+        ], runas=self.runas, container=self.rhui_container)
 
         # skip collecting certificate keys
         self.add_forbidden_path("/etc/pki/pulp/**/*.key")
 
         self.add_cmd_output("curl -ks https://localhost/pulp/api/v3/status/",
                             suggest_filename="pulp_status", runas=self.runas,
-                            container=self.in_container)
+                            container=self.rhui_container)
         dynaconf_env = {"LC_ALL": "en_US.UTF-8",
                         "PULP_SETTINGS": "/etc/pulp/settings.py",
                         "DJANGO_SETTINGS_MODULE": "pulpcore.app.settings"}
         self.add_cmd_output("dynaconf list", env=dynaconf_env,
-                            runas=self.runas, container=self.in_container)
+                            runas=self.runas, container=self.rhui_container
+                            or self.pulp_container,
+                            suggest_filename='dynaconf_list')
+
         for _dir in [self.staticroot, self.uploaddir]:
             self.add_dir_listing(_dir, runas=self.runas,
-                                 container=self.in_container)
+                                 container=self.rhui_container
+                                 or self.pulp_container)
 
         task_days = self.get_option('task-days')
         for table in ['core_task', 'core_taskgroup',
@@ -130,14 +181,16 @@ class PulpCore(Plugin, IndependentPlugin):
             col_out = self.exec_cmd(self.build_query_cmd(_query, csv=False),
                                     env=self.env,
                                     runas=self.runas,
-                                    container=self.in_container)
+                                    container=self.rhui_container
+                                    or self.psql_container)
             columns = col_out['output'] if col_out['status'] == 0 else '*'
             _query = (f"select {columns} from {table} where pulp_last_updated"
                       f"> NOW() - interval '{task_days} days' order by"
                       " pulp_last_updated")
             _cmd = self.build_query_cmd(_query, csv=True)
             self.add_cmd_output(_cmd, env=self.env, suggest_filename=table,
-                                runas=self.runas, container=self.in_container)
+                                runas=self.runas, container=self.rhui_container
+                                or self.psql_container)
 
         # collect tables sizes, ordered
         _cmd = self.build_query_cmd(
@@ -158,7 +211,8 @@ class PulpCore(Plugin, IndependentPlugin):
         )
         self.add_cmd_output(_cmd, suggest_filename='pulpcore_db_tables_sizes',
                             env=self.env, runas=self.runas,
-                            container=self.in_container)
+                            container=self.rhui_container or
+                            self.psql_container)
 
     def build_query_cmd(self, query, csv=False):
         """
