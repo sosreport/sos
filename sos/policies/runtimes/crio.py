@@ -66,7 +66,7 @@ class CrioContainerRuntime(ContainerRuntime):
                         images.append((image_name + ":<none>", image["id"]))
         return images
 
-    def fmt_container_cmd(self, container, cmd, quotecmd):
+    def fmt_container_cmd(self, container, cmd, quotecmd, env=None):
         """Format a command to run inside a container using the runtime
 
         :param container: The name or ID of the container in which to run
@@ -86,7 +86,9 @@ class CrioContainerRuntime(ContainerRuntime):
         else:
             quoted_cmd = cmd
         container_id = self.get_container_by_name(container)
-        return (f"{self.run_cmd} {container_id} {quoted_cmd}"
+        env_args = (' '.join(f'-e {k}={v}' for k, v in env.items())
+                    if env else '')
+        return (f"{self.run_cmd} {env_args} {container_id} {quoted_cmd}"
                 if container_id is not None else '')
 
 # vim: set et ts=4 sw=4 :
