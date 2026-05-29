@@ -53,7 +53,8 @@ class Landscape(Plugin, UbuntuPlugin):
             "/etc/landscape/client.conf",
             "/etc/landscape/service.conf",
             "/etc/landscape/service.conf.old",
-            "/var/lib/landscape/landscape-oops/*/OOPS-*"
+            "/var/lib/landscape/landscape-oops/*/OOPS-*",
+            "/var/lib/landscape/client/",
         ])
 
         if not self.get_option("all_logs"):
