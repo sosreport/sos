@@ -28,10 +28,11 @@ class UsernamePrepper(SoSPrepper):
         'stack',
         'reboot',
         'root',
+        'test',
         'timeout:',
         'ubuntu',
         'username',
-        'wtmp'
+        'wtmp',
     ]
 
     def _get_items_for_username(self, archive):
