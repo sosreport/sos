@@ -164,7 +164,7 @@ class ContainerRuntime():
                 return True
         return False
 
-    def fmt_container_cmd(self, container, cmd, quotecmd):
+    def fmt_container_cmd(self, container, cmd, quotecmd, env=None):
         """Format a command to run inside a container using the runtime
 
         :param container: The name or ID of the container in which to run
@@ -183,7 +183,9 @@ class ContainerRuntime():
             quoted_cmd = quote(cmd)
         else:
             quoted_cmd = cmd
-        return f"{self.run_cmd} {container} {quoted_cmd}"
+        env_args = (' '.join(f'-e {k}={v}' for k, v in env.items())
+                    if env else '')
+        return f"{self.run_cmd} {env_args} {container} {quoted_cmd}"
 
     def fmt_registry_credentials(self, username, password):
         """Format a string to pass to the 'run' command of the runtime to

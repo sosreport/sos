@@ -2216,7 +2216,7 @@ class Plugin():
                 ocmd = cmd
                 container_cmd = (ocmd, container)
                 cmd = self.fmt_container_cmd(container, cmd, runtime=runtime,
-                                             runas=runas)
+                                             runas=runas, env=env)
                 if not cmd:
                     self._log_debug(f"Skipping command '{ocmd}' as the "
                                     f"requested container '{container}' does "
@@ -2733,7 +2733,7 @@ class Plugin():
                 return _default
             if self.container_exists(container, runtime) or runas is not None:
                 cmd = self.fmt_container_cmd(container, cmd, quotecmd,
-                                             runtime, runas)
+                                             runtime, runas, env=_env)
             else:
                 self._log_info(f"Cannot run cmd '{cmd}' in container "
                                f"{container}: no such container is running.")
@@ -2958,7 +2958,7 @@ class Plugin():
                     self.add_cmd_output(cmd, **kwargs)
 
     def fmt_container_cmd(self, container, cmd, quotecmd=False, runtime=None,
-                          runas=None):
+                          runas=None, env=None):
         """Format a command to be executed by the loaded ``ContainerRuntime``
         in a specified container
 
@@ -2979,6 +2979,9 @@ class Plugin():
                             the container really runs (we dont keep them atm)
         :type runas: ``str``
 
+        :param env:         OS environment variables to set in the container
+        :type env: ``dict``
+
         :returns: The command to execute so that the specified `cmd` will run
                   within the `container` and not on the host
         :rtype: ``str``
@@ -2986,7 +2989,7 @@ class Plugin():
         _runtime = self._get_container_runtime(runtime)
         if _runtime and (self.container_exists(container, runtime) or
            runas is not None):
-            return _runtime.fmt_container_cmd(container, cmd, quotecmd)
+            return _runtime.fmt_container_cmd(container, cmd, quotecmd, env)
         return ''
 
     def is_module_loaded(self, module_name):
