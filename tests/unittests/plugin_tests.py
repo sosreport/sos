@@ -289,6 +289,44 @@ class PluginTests(unittest.TestCase):
         self.mp._do_copy_path("not_here_tests")
         self.assertEqual(self.mp.archive.m, {})
 
+    def test_copy_relative_symlink_from_symlinked_parent(self):
+        tmpdir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmpdir)
+
+        sysdir = os.path.join(tmpdir, "sys")
+        real_parent = os.path.join(
+            sysdir, "bus", "cpu", "drivers", "processor"
+        )
+        os.makedirs(real_parent)
+
+        target = os.path.join(sysdir, "devices", "system", "cpu", "cpu0")
+        os.makedirs(os.path.dirname(target))
+        with open(target, "w", encoding="utf-8") as target_file:
+            target_file.write("cpu0\n")
+
+        visible_cpu = os.path.join(
+            sysdir, "devices", "system", "cpu", "cpu3"
+        )
+        os.makedirs(visible_cpu)
+        os.symlink("../../../../bus/cpu",
+                   os.path.join(visible_cpu, "subsystem"))
+        os.symlink("../../../../devices/system/cpu/cpu0",
+                   os.path.join(real_parent, "cpu0"))
+
+        visible_link = os.path.join(
+            visible_cpu, "subsystem", "drivers", "processor", "cpu0"
+        )
+        bad_target = os.path.normpath(os.path.join(
+            os.path.dirname(visible_link),
+            "../../../../devices/system/cpu/cpu0"
+        ))
+
+        self.mp.sysroot = "/"
+        self.mp._do_copy_path(visible_link)
+
+        self.assertIn(target, self.mp.archive.m)
+        self.assertNotIn(bad_target, self.mp.archive.m)
+
     def test_copy_dir_forbidden_path(self):
         p = ForbiddenMockPlugin({
             'cmdlineopts': MockOptions(),

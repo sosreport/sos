@@ -1362,7 +1362,12 @@ class Plugin():
     def _copy_symlink(self, srcpath):
         # the target stored in the original symlink
         linkdest = os.readlink(srcpath)
-        dest = os.path.join(os.path.dirname(srcpath), linkdest)
+        srcdir = os.path.dirname(srcpath)
+        realdir = os.path.realpath(srcdir)
+        if os.path.isabs(linkdest):
+            dest = linkdest
+        else:
+            dest = os.path.join(realdir, linkdest)
         # Absolute path to the link target. If SYSROOT != '/' this path
         # is relative to the host root file system.
         absdest = os.path.normpath(dest)
@@ -1375,7 +1380,6 @@ class Plugin():
         if os.path.isabs(linkdest):
             # Canonicalize the link target path to avoid additional levels
             # of symbolic links (that would affect the path nesting level).
-            realdir = os.path.realpath(os.path.dirname(srcpath))
             reldest = os.path.relpath(linkdest, start=realdir)
             # trim leading /sysroot
             if self.use_sysroot():
