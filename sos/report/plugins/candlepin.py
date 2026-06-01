@@ -19,6 +19,7 @@ class Candlepin(Plugin, RedHatPlugin):
 
     plugin_name = 'candlepin'
     packages = ('candlepin',)
+    containers = ('candlepin',)
 
     dbhost = None
     dbport = None
@@ -26,7 +27,14 @@ class Candlepin(Plugin, RedHatPlugin):
     env = None
 
     def setup(self):
-        # for external DB, search in /etc/candlepin/candlepin.conf for:
+        if self.container_exists('candlepin'):
+            self.container = 'candlepin'
+            self.dbcontainer = 'postgresql'
+        else:
+            self.container = None
+            self.dbcontainer = None
+
+        # search in /etc/candlepin/candlepin.conf for:
         # org.quartz.dataSource.myDS.URL=..
         #
         # and for DB password, search for
@@ -34,10 +42,21 @@ class Candlepin(Plugin, RedHatPlugin):
         self.dbhost = "localhost"
         self.dbport = 5432
         self.dbpasswd = ""
-        cfg_file = "/etc/candlepin/candlepin.conf"
+
         try:
-            with open(cfg_file, 'r', encoding='UTF--8') as cfile:
-                candle_lines = cfile.read().splitlines()
+            if self.container:
+                dbout = self.exec_cmd(
+                    "podman exec candlepin cat /etc/candlepin/candlepin.conf"
+                )
+                if dbout["status"] == 0:
+                    candle_lines = dbout['output'].splitlines()
+                else:
+                    return
+            else:
+                cfg_file = "/etc/candlepin/candlepin.conf"
+                with open(cfg_file, 'r', encoding='UTF-8') as cfile:
+                    candle_lines = cfile.read().splitlines()
+
             for line in candle_lines:
                 # skip empty lines and lines with comments
                 if not line or line[0] == '#':
@@ -71,10 +90,23 @@ class Candlepin(Plugin, RedHatPlugin):
             "/var/log/candlepin/candlepin.log"
         ], sizelimit=0)
 
+        if self.container:
+            sizelimit = 0 if self.get_option("all_logs") else 500
+            self.add_journal(units="candlepin.service", sizelimit=sizelimit)
+
+        self.add_copy_spec([
+                "/etc/candlepin/candlepin.conf",
+                "/etc/candlepin/broker.xml",
+        ], container=self.container)
+
+        du_cmd = "du -sh /var/lib/candlepin/*/*"
+        if self.container:
+            du_cmd = f"sh -c '{du_cmd}'"
+        self.add_cmd_output(du_cmd, container=self.container,
+                            suggest_filename='du_-hs_.var.lib.candlepin')
+
         # Allow limiting on logrotated logs
         self.add_copy_spec([
-            "/etc/candlepin/candlepin.conf",
-            "/etc/candlepin/broker.xml",
             "/var/log/candlepin/audit*.log*",
             "/var/log/candlepin/candlepin.log[.-]*",
             "/var/log/candlepin/cpdb*.log*",
@@ -89,7 +121,6 @@ class Candlepin(Plugin, RedHatPlugin):
             "/var/log/tomcat*/manager*log*",
         ])
 
-        self.add_cmd_output("du -sh /var/lib/candlepin/*/*")
         # collect tables sizes, ordered
         _cmd = self.build_query_cmd(
             "SELECT table_name, pg_size_pretty(total_bytes) AS total, "
@@ -107,14 +138,14 @@ class Candlepin(Plugin, RedHatPlugin):
             "total_bytes DESC"
         )
         self.add_cmd_output(_cmd, suggest_filename='candlepin_db_tables_sizes',
-                            env=self.env)
+                            env=self.env, container=self.dbcontainer)
 
         _cmd = self.build_query_cmd("\
             SELECT displayname, content_access_mode \
             FROM cp_owner;")
         self.add_cmd_output(_cmd,
                             suggest_filename='simple_content_access',
-                            env=self.env)
+                            env=self.env, container=self.dbcontainer)
 
     def build_query_cmd(self, query, csv=False):
         """
