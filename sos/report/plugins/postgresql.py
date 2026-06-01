@@ -19,31 +19,17 @@ from sos.report.plugins import (Plugin, UbuntuPlugin, DebianPlugin,
 from sos.utilities import find
 
 
-class PostgreSQL(Plugin, RedHatPlugin):
+class PostgreSQL(Plugin):
 
     short_desc = 'PostgreSQL RDBMS'
 
     plugin_name = "postgresql"
     profiles = ('services',)
 
-    packages = ('postgresql', 'postgresql-common')
+    packages = ('postgresql', 'postgresql-common', 'postgresql-server')
+    services = ('postgresql',)
 
     password_warn_text = " (password visible in process listings)"
-
-    option_list = [
-        PluginOpt('pghome', default='/var/lib/pgsql',
-                  desc='psql server home directory'),
-        PluginOpt('username', default='postgres', val_type=str,
-                  desc='username for pg_dump'),
-        PluginOpt('password', default='', val_type=str,
-                  desc='password for pg_dump' + password_warn_text),
-        PluginOpt('dbname', default='', val_type=str,
-                  desc='database name to dump with pg_dump'),
-        PluginOpt('dbhost', default='', val_type=str,
-                  desc='database hostname/IP address (no unix sockets)'),
-        PluginOpt('dbport', default=5432, val_type=int,
-                  desc='database server listening port')
-    ]
 
     def do_pg_dump(self, filename="pgdump.tar"):
         """ Extract PostgreSQL database into a tar file """
@@ -99,9 +85,25 @@ class PostgreSQL(Plugin, RedHatPlugin):
                 self.add_copy_spec(self.path_join(_dir, "data", file))
 
 
-class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
+class RedHatPostgreSQL(PostgreSQL, RedHatPlugin):
 
-    password_warn_text = " (password visible in process listings)"
+    option_list = [
+        PluginOpt('pghome', default='/var/lib/pgsql',
+                  desc='psql server home directory'),
+        PluginOpt('username', default='postgres', val_type=str,
+                  desc='username for pg_dump'),
+        PluginOpt('password', default='', val_type=str,
+                  desc='password for pg_dump' + PostgreSQL.password_warn_text),
+        PluginOpt('dbname', default='', val_type=str,
+                  desc='database name to dump with pg_dump'),
+        PluginOpt('dbhost', default='', val_type=str,
+                  desc='database hostname/IP address (no unix sockets)'),
+        PluginOpt('dbport', default=5432, val_type=int,
+                  desc='database server listening port')
+    ]
+
+
+class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
 
     option_list = [
         PluginOpt('pghome', default='/var/lib/postgresql',
@@ -109,7 +111,7 @@ class DebianPostgreSQL(PostgreSQL, DebianPlugin, UbuntuPlugin):
         PluginOpt('username', default='postgres', val_type=str,
                   desc='username for pg_dump'),
         PluginOpt('password', default='', val_type=str,
-                  desc='password for pg_dump' + password_warn_text),
+                  desc='password for pg_dump' + PostgreSQL.password_warn_text),
         PluginOpt('dbname', default='', val_type=str,
                   desc='database name to dump with pg_dump'),
         PluginOpt('dbhost', default='', val_type=str,
