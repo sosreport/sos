@@ -6,7 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin
 
 
 class Dhcp(Plugin):
@@ -29,16 +29,38 @@ class RedHatDhcp(Dhcp, RedHatPlugin):
         ])
 
 
-class UbuntuDhcp(Dhcp, UbuntuPlugin):
+class DebianDhcp(Dhcp, DebianPlugin, UbuntuPlugin):
 
     files = ('/etc/init.d/udhcpd',)
-    packages = ('udhcpd',)
+    packages = ('udhcpd', 'isc-dhcp-server', 'dnsmasq')
 
     def setup(self):
         super().setup()
         self.add_copy_spec([
+
+            # udhcpd
             "/etc/default/udhcpd",
-            "/etc/udhcpd.conf"
+            "/etc/udhcpd.conf",
+
+            # ISC DHCP server
+            "/etc/dhcp",
+            "/etc/default/isc-dhcp-server",
+            "/var/lib/dhcp",
+
+            # dnsmasq
+            "/etc/dnsmasq.conf",
+            "/etc/dnsmasq.d",
+            "/etc/default/dnsmasq",
+        ])
+
+        self.add_cmd_output([
+            # ISC DHCP server
+            "systemctl --full status isc-dhcp-server",
+            "dhcp-lease-list",
+
+            # dnsmasq
+            "systemctl --full status dnsmasq",
+            "dnsmasq --test",
         ])
 
 # vim: set et ts=4 sw=4 :
