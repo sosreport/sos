@@ -181,8 +181,9 @@ class SoSCleaner(SoSComponent):
                 if _parser.lower().strip() == parser_name:
                     self.log_info(f"Disabling parser: {parser_name}")
                     self.ui_log.warning(
-                        f"Disabling the '{_parser}' parser. Be aware that this"
-                        " may leave sensitive plain-text data in the archive."
+                        f"Disabling the '{_parser}' parser.\n"
+                        "Be aware that this may leave sensitive plain-text "
+                        "data in the archive."
                     )
                     parser_names.remove(pname)  # pylint: disable=W4701
                     found = True
@@ -492,8 +493,10 @@ third party.
 
         self.ui_log.info(f"\tSize\t{get_human_readable(arcstat.st_size)}")
         self.ui_log.info(f"\tOwner\t{getpwuid(arcstat.st_uid).pw_name}\n")
-        self.ui_log.info("Please send the obfuscated archive to your support "
-                         "representative and keep the mapping file private")
+        self.ui_log.info(
+            "Please send the obfuscated archive to your support\n"
+            "representative and keep the mapping file private."
+        )
 
         self.cleanup()
         return None
@@ -620,33 +623,36 @@ third party.
             self.ui_log.info(msg)
             if self.opts.keep_binary_files:
                 self.ui_log.warning(
-                    "WARNING: binary files that potentially contain sensitive "
-                    "information will NOT be removed from the final archive\n"
+                    "WARNING: binary files that potentially contain "
+                    "sensitive information will NOT be\n"
+                    "removed from the final archive.\n"
                 )
             if (self.opts.treat_certificates == "obfuscate"
                     and not is_executable("openssl")):
                 self.opts.treat_certificates = "remove"
                 self.ui_log.warning(
-                    "WARNING: No `openssl` command available. Replacing "
+                    "WARNING: No `openssl` command available. Replacing\n"
                     "`--treat-certificates` from `obfuscate` to `remove`."
                 )
             if self.opts.treat_certificates == "obfuscate":
                 self.ui_log.warning(
                     "WARNING: certificate files that potentially contain "
-                    "sensitive information will\nbe CONVERTED to text and "
-                    "OBFUSCATED in the final archive.\n"
+                    "sensitive information will\n"
+                    "be CONVERTED to text and OBFUSCATED in the final"
+                    "archive.\n"
                 )
             elif self.opts.treat_certificates == "keep":
                 self.ui_log.warning(
                     "WARNING: certificate files that potentially contain "
-                    "sensitive information will\nbe KEPT in the final "
-                    "archive as is.\n"
+                    "sensitive information will\n"
+                    "be KEPT in the final archive as is.\n"
                 )
             elif self.opts.treat_certificates == "remove":
                 self.ui_log.warning(
                     "WARNING: certificate files that potentially contain "
-                    "sensitive information will\nbe REMOVED in the final "
-                    "archive.\n")
+                    "sensitive information will\n"
+                    "be REMOVED in the final archive.\n"
+                )
             for report_path in self.report_paths:
                 self.ui_log.info(f"Obfuscating {report_path.archive_path}")
                 self.obfuscate_report(report_path)

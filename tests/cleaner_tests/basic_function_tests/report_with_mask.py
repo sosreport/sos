@@ -154,7 +154,8 @@ class KeepBinaryFilesTest(StageTwoReportTest):
     def test_warning_message_shown(self):
         self.assertOutputContains(
             'WARNING: binary files that potentially contain sensitive '
-            'information will NOT be removed from the final archive'
+            'information will NOT be\n'
+            'removed from the final archive.'
         )
 
     def test_binary_is_in_archive(self):
