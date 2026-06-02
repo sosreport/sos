@@ -31,9 +31,10 @@ class ReportDisabledParsersTest(StageOneReportTest):
         self.assertSosLogContains('Disabling parser: ip')
 
     def test_ui_log_message_shown(self):
+        self.assertSosUILogContains("Disabling the 'ip' parser.")
         self.assertSosUILogContains(
-            '.*Be aware that this may leave sensitive plain-text data in '
-            'the archive.'
+            'Be aware that this may leave sensitive plain-text '
+            'data in the archive.'
         )
 
     # make sure that the other parsers remain functional
