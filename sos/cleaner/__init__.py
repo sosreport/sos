@@ -697,6 +697,7 @@ third party.
         :type prepper:  ``SoSPrepper`` subclass
         """
         for _parser in self.parsers:
+            _parser.mapping.initializing = True
             pname = _parser.name.lower().split()[0].strip()
             for _file in prepper.get_parser_file_list(pname, archive):
                 content = archive.get_file_content(_file)
@@ -720,6 +721,8 @@ third party.
 
             for ritem in prepper.regex_items[pname]:
                 _parser.mapping.add_regex_item(ritem)
+            _parser.mapping.initializing = False
+            _parser.mapping.generate_compiled_regexes()
         # we must initialize stuff inside (cloned processes') archive - REALLY?
         archive.set_parsers(self.parsers)
 
