@@ -1,0 +1,10 @@
+{
+    "plugins_preset": {
+        "desc": "test preset for plugin skipping",
+        "args": {
+            "skip_plugins": [
+                "memory"
+            ]
+        }
+    }
+}
