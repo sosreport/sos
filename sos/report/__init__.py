@@ -927,11 +927,13 @@ class SoSReport(SoSComponent):
             opts = {}
             for opt in self.opts.plugopts:
                 try:
-                    opt, val = opt.split("=")
+                    opt, val = opt.split("=", 1)
                 except ValueError:
                     val = True
 
+                opt = opt.strip()
                 if isinstance(val, str):
+                    val = val.strip()
                     arg = val.lower()
                     if arg in ["on", "enable", "enabled", "true", "yes"]:
                         val = True
