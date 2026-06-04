@@ -5,6 +5,7 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
+import logging
 import unittest
 
 try:
@@ -12,8 +13,12 @@ try:
 except ImportError:
     import simplejson as json
 
+from sos.report import SoSReport
+from sos.report.plugins import Plugin, PluginOpt
 from sos.report.reporting import (Report, Section, Command, CopiedFile,
                                   CreatedFile, Alert, PlainTextReport)
+from sos.policies.distros import LinuxPolicy
+from sos.policies.init_systems import InitSystem
 
 
 class ReportTest(unittest.TestCase):
@@ -147,6 +152,73 @@ class TestPlainReport(unittest.TestCase):
             "-  alerts:\n  ! this is an alert"
         ]),
             PlainTextReport(self.report).unicode())
+
+
+class MockOptions:
+    all_logs = False
+    dry_run = False
+    log_size = 25
+    allow_system_changes = False
+    skip_commands = []
+    skip_files = []
+    plugopts = []
+
+
+class MockPlugin(Plugin):
+
+    option_list = [
+        PluginOpt('baz', default=False),
+        PluginOpt('empty', default=None),
+        PluginOpt('test_option', default='foobar', val_type=str)
+    ]
+
+    def __init__(self, commons):
+        super().__init__(commons=commons)
+
+
+class SetTunablesPresetSpacesTest(unittest.TestCase):
+
+    def setUp(self):
+        self.commons = {
+            'sysroot': '/',
+            'policy': LinuxPolicy(init=InitSystem()),
+            'cmdlineopts': MockOptions(),
+            'devices': {}
+        }
+        self.plugin = MockPlugin(self.commons)
+
+        self.report = SoSReport.__new__(SoSReport)
+        self.report.opts = MockOptions()
+        self.report.soslog = logging.getLogger('sos_test_set_tunables')
+        self.report.loaded_plugins = [('mock', self.plugin)]
+
+    def set_tunables(self, plugopts):
+        """Run _set_tunables with the given preset-style plugopts list."""
+        self.report.opts.plugopts = plugopts
+        self.report._set_tunables()
+
+    def test_plugopt_without_spaces_still_parses(self):
+        self.set_tunables(['mock.baz=True'])
+        self.assertIs(self.plugin.options['baz'].value, True)
+
+    def test_plugopt_with_spaces_around_equals(self):
+        self.set_tunables(['mock.baz = True'])
+        self.assertIs(self.plugin.options['baz'].value, True)
+
+    def test_plugopt_with_spaces_disables_option(self):
+        self.set_tunables(['mock.baz = False'])
+        self.assertIs(self.plugin.options['baz'].value, False)
+
+    def test_plugopt_string_value_with_spaces_around_equals(self):
+        self.set_tunables(['mock.test_option = bar'])
+        self.assertEqual(self.plugin.options['test_option'].value,
+                         'bar')
+
+    def test_unknown_plugopt_exits_even_with_spaces(self):
+        # An unknown option name (with surrounding whitespace) should still
+        # be reported as unknown rather than silently mis-stripped.
+        with self.assertRaises(SystemExit):
+            self.set_tunables(['mock.bogus = True'])
 
 
 if __name__ == "__main__":
