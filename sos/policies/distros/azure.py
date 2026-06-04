@@ -15,7 +15,8 @@ from sos.policies.distros.redhat import RedHatPolicy
 class AzurePolicy(RedHatPolicy):
     vendor = "Microsoft Azure Linux"
     vendor_urls = [
-        ('Distribution Website', 'https://github.com/microsoft/azurelinux')
+        ('Distribution Website', 'https://www.aka.ms/azurelinux'),
+        ('Community Website', 'https://github.com/microsoft/azurelinux')
     ]
     os_release_name = 'Azure Linux'
     os_release_id = 'azurelinux'
