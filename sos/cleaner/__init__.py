@@ -11,6 +11,7 @@
 import hashlib
 import json
 import logging
+import re
 import os
 import shutil
 import fnmatch
@@ -747,6 +748,46 @@ third party.
         for prepper in sorted(preps, key=lambda x: x.priority):
             yield prepper(options=self.opts)
 
+    def _prep_load_auditlogs(self):
+        """
+        # Pre-load all audit logs from archives to all applicable preppers.
+        """
+        self.log_debug("Pre-loading audit logs from all archives")
+        parsers_dict = {p.map_file_key.split('_')[0]: p for p in self.parsers}
+        parser_audits_map = []
+        for prepper in self.get_preppers():
+            if prepper.audit_logs_re and prepper.name in parsers_dict.keys():
+                parser_audits_map.append((
+                    prepper.audit_logs_re,
+                    prepper,
+                    parsers_dict[prepper.name]
+                ))
+        for archive in self.report_paths:
+            # archives are not yet extracted so we cant easily iterate over
+            # globbed files. So let assume logrotated files follow just the
+            # most typical scenario: audit.log -> audit.log.1 -> audit.log.2
+            # -> .. . And check just those files till they exist.
+            _file = 'var/log/audit/audit.log'
+            n = 0
+            while True:
+                content = archive.get_file_content(_file)
+                if not content:
+                    break
+                for line in content.splitlines():
+                    try:
+                        for reg, prepper, parser in parser_audits_map:
+                            matches = re.findall(reg, line)
+                            if matches:
+                                for item in matches:
+                                    if item not in prepper.skip_list:
+                                        parser.mapping.add(item)
+                    except Exception as err:
+                        self.log_debug(
+                            f"Failed to prep content from {_file}: {err}"
+                        )
+                n += 1
+                _file = f'var/log/audit/audit.log.{n}'
+
     def preload_all_archives_into_maps(self):
         """Before doing the actual obfuscation, if we have multiple archives
         to obfuscate then we need to preload each of them into the mappings
@@ -757,6 +798,7 @@ third party.
         for prepper in self.get_preppers():
             for archive in self.report_paths:
                 self._prepare_archive_with_prepper(archive, prepper)
+        self._prep_load_auditlogs()
         self.main_archive.set_parsers(self.parsers)
 
     def obfuscate_report(self, archive):  # pylint: disable=too-many-branches
