@@ -227,4 +227,11 @@ class Juju(Plugin, UbuntuPlugin):
         self.do_file_private_sub(agents_path)
         self.do_cmd_private_sub('juju controllers')
 
+        # Redact registration keys in Landscape client logs
+        self.do_path_regex_sub(
+            "/var/log/juju/unit-landscape-client-(.*).log(.*)",
+            r"('registration-key'\s*:\s*)'[^']+'",
+            r"\1*********"
+        )
+
 # vim: set et ts=4 sw=4 :
