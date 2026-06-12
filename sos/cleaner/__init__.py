@@ -41,25 +41,32 @@ from sos.utilities import (get_human_readable, import_module,
 
 # an auxiliary method to kick off child processes over its instances
 def _obfuscate_arc_files(arc, input_queue, output_queue):
-    while True:
-        try:
-            file = input_queue.get()
-        except (EOFError, OSError) as e:
-            print(f"Child process exception when reading input queue: '{e}'")
-            break
-        if file is None:  # Sentinel value to stop the process
+    try:
+        while True:
             try:
-                output_queue.put((
-                    arc.files_obfuscated_count,
-                    arc.total_sub_count,
-                    arc.removed_file_count))
-            except OSError as e:
+                file = input_queue.get()
+            except (EOFError, OSError) as e:
                 print(
-                    f"Child process exception when writing to output queue: "
-                    f"'{e}'"
+                    f"Child process exception when reading input "
+                    f"queue: '{e}'"
                 )
-            break
-        arc.obfuscate_arc_file(file)
+                break
+            if file is None:  # Sentinel value to stop the process
+                try:
+                    output_queue.put((
+                        arc.files_obfuscated_count,
+                        arc.total_sub_count,
+                        arc.removed_file_count))
+                except OSError as e:
+                    print(
+                        f"Child process exception when writing to output "
+                        f"queue: '{e}'"
+                    )
+                break
+            arc.obfuscate_arc_file(file)
+    except KeyboardInterrupt:
+        # catch user's interruption cleanly in the child process
+        pass
 
 
 class SoSCleaner(SoSComponent):
