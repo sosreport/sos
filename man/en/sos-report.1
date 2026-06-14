@@ -32,6 +32,7 @@ sos_report \- Collect and package diagnostic and support data
           [--since YYYYMMDD[HHMMSS]]\fR
           [--skip-commands commands]\fR
           [--skip-files files]\fR
+          [--pack-dir directories]\fR
           [--allow-system-changes]\fR
           [--low-priority]\fR
           [-z|--compression-type method]\fR
@@ -231,6 +232,16 @@ will skip all commands with names that begin with the string "hostname".
 A comma delimited list of files or filepath wildcard matches to skip collection
 of. Values may either be exact filepaths or paths using UNIX shell-style wildcards,
 for example \fB/etc/sos/*\fR.
+.TP
+.B \--pack-dir DIRECTORIES
+A comma delimited list of collected directories to replace with a single tarball
+within the report, for example \fB/proc/fs/\fR. The named directory is packed into
+an uncompressed tarball alongside it (e.g. \fBproc/fs/\fR becomes \fBproc/fs.tar\fR)
+and the original tree is removed; the rest of the report is unchanged. This is
+useful for verbose trees containing very large numbers of small files, where
+extracting the report would otherwise have to recreate every file on disk. The
+tarball is not compressed here since the whole report is compressed when packaged.
+Directories not collected as a directory are skipped. May be repeated.
 .TP
 .B \--allow-system-changes
 Run commands even if they can change the system (e.g. load kernel modules).

@@ -111,6 +111,12 @@ Users should review any archive that keeps binary files in place before sending 
 a third party.
 
 Default: False (remove encountered binary files)
+
+Note that uncompressed tarballs produced by the report \fB\-\-pack-dir\fR option
+(for example \fBproc.tar\fR or \fBsys.tar\fR) are an exception: they are always
+kept in place regardless of this option, so that the collected data they hold is
+not silently dropped from the cleaned archive. Their contents are not obfuscated,
+so the same review caution applies.
 .TP
 .B \-\-archive-type TYPE
 Specify the type of archive that TARGET was generated as.

@@ -602,6 +602,48 @@ class FileCacheArchive(Archive):
             replacements = 0
         return replacements
 
+    def tar_subdirs(self, paths):
+        """Replace one or more collected directories with a single tarball.
+
+        For each host path in ``paths`` that was collected into this archive,
+        the corresponding directory tree under the archive root is packed into
+        a single uncompressed tarball alongside it (e.g. ``proc/fs/`` becomes
+        ``proc/fs.tar``) and the original tree is removed. The rest of the
+        archive is left untouched.
+
+        The tarball is deliberately not compressed here: the final report
+        archive is compressed as a whole, so compressing again would only
+        duplicate that work and cannot shrink already-compressed data. The
+        point is to collapse a directory of many small files into one member,
+        so extracting the top-level archive does not have to recreate every
+        file on disk. This backs the report ``--pack-dir`` option, used
+        for verbose trees such as ``/proc/fs/``.
+
+        :param paths: Iterable of host directory paths to pack in place
+        :returns: A list of the host paths that were successfully packed
+        """
+        packed = []
+        for path in paths:
+            dest = self.dest_path(path.rstrip(os.sep))
+            if not os.path.isdir(dest):
+                self.log_info(f"skipping --pack-dir '{path}': not collected"
+                              " as a directory in the archive")
+                continue
+            tarpath = f"{dest}.tar"
+            try:
+                with tarfile.open(tarpath, mode="w") as tar:
+                    tar.add(dest, arcname=os.path.basename(dest))
+                shutil.rmtree(dest)
+                self.log_info(f"packed collected directory '{path}' into "
+                              f"'{tarpath}'")
+                packed.append(path)
+            except Exception as err:
+                self.log_error(f"Could not pack directory '{path}': {err}")
+                # leave the directory in place on failure
+                if os.path.exists(tarpath):
+                    os.unlink(tarpath)
+        return packed
+
     def finalize(self, method):
         self.log_info(f"finalizing archive '{self._archive_root}' using method"
                       f" '{method}'")

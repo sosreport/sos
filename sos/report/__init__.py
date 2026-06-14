@@ -94,6 +94,7 @@ class SoSReport(SoSComponent):
         'case_id': '',
         'chroot': 'auto',
         'clean': False,
+        'pack_dir': [],
         'container_runtime': 'auto',
         'keep_binary_files': False,
         'desc': '',
@@ -220,6 +221,12 @@ class SoSReport(SoSComponent):
                                 dest="chroot", default='auto',
                                 help="chroot executed commands to SYSROOT "
                                      "[auto, always, never] (default=auto)")
+        report_grp.add_argument("--pack-dir", action="extend",
+                                dest="pack_dir", type=str, default=[],
+                                help="pack these collected directories into a "
+                                     "single tarball within the report "
+                                     "(e.g. /proc/fs/); may be repeated or "
+                                     "comma-separated")
         report_grp.add_argument("--container-runtime", default="auto",
                                 help="Default container runtime to use for "
                                      "collections. 'auto' for policy control.")
@@ -1572,6 +1579,17 @@ class SoSReport(SoSComponent):
                 do_clean = True
             except Exception as err:
                 print(_(f"ERROR: Unable to obfuscate report: {err}"))
+
+        # pack any directories the user asked into a single tarball within the
+        # report. Done after cleaning so obfuscation still applies to the
+        # readable files, and before the manifest is written so the list of
+        # packed tarballs is recorded in it - cleaning an already-built report
+        # relies on that list to know which tarballs to keep. The tarball is
+        # left uncompressed since the whole report is compressed when packaged.
+        if self.opts.pack_dir:
+            packed = self.archive.tar_subdirs(self.opts.pack_dir)
+            if packed:
+                self.report_md.add_list('packed_dirs', packed)
 
         self._add_sos_logs()
         if self.manifest is not None:
