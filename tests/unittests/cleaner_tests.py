@@ -9,6 +9,7 @@
 import unittest
 from ipaddress import ip_interface
 from os.path import join
+from unittest import mock
 
 import sos.policies
 from sos.cleaner.parsers.ip_parser import SoSIPParser
@@ -489,3 +490,55 @@ class PrepperTests(unittest.TestCase):
             [],
             self.ipv4_prepper.get_parser_file_list('foobar', self.archive)
         )
+
+
+class PackedDirTarballTests(unittest.TestCase):
+    """Verify the cleaner only keeps tarballs that the manifest's
+    'packed_dirs' list records as produced by the report '--pack-dir'
+    option, rather than any tarball found in the archive."""
+
+    def setUp(self):
+        self.archive = SoSReportArchive(
+            archive_path='tests/test_data/'
+                         'sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz',
+            keep_binary_files=[],
+            tmpdir='/tmp',
+            treat_certificates='obfuscate'
+        )
+
+    def test_manifest_listed_tarball_is_kept(self):
+        self.archive.packed_dirs = ['proc/fs.tar']
+        self.assertTrue(self.archive.is_packed_dir_tarball('proc/fs.tar'))
+
+    def test_unlisted_tarball_is_not_kept(self):
+        # a tarball collected from the host, e.g. etc/foreman/backup.tar,
+        # is not packed-dir output and must follow normal removal logic
+        self.archive.packed_dirs = ['proc/fs.tar']
+        self.assertFalse(
+            self.archive.is_packed_dir_tarball('etc/foreman/backup.tar'))
+
+    def test_no_packed_dirs_keeps_nothing(self):
+        # archives with no manifest, or one without packed_dirs
+        self.archive.packed_dirs = []
+        self.assertFalse(self.archive.is_packed_dir_tarball('proc/fs.tar'))
+
+    def test_packed_dirs_loaded_from_manifest(self):
+        manifest = (
+            '{"components": {"report": '
+            '{"packed_dirs": ["/proc/fs", "/etc/foreman/"]}}}'
+        )
+        with mock.patch.object(self.archive, 'get_file_content',
+                               return_value=manifest):
+            self.assertEqual(self.archive._load_packed_dirs(),
+                             ['proc/fs.tar', 'etc/foreman.tar'])
+
+    def test_packed_dirs_empty_without_manifest(self):
+        with mock.patch.object(self.archive, 'get_file_content',
+                               return_value=''):
+            self.assertEqual(self.archive._load_packed_dirs(), [])
+
+    def test_packed_dirs_empty_for_premature_manifest(self):
+        # manifests from sos versions predating --pack-dir
+        with mock.patch.object(self.archive, 'get_file_content',
+                               return_value='{"components": {"report": {}}}'):
+            self.assertEqual(self.archive._load_packed_dirs(), [])
