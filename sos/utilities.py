@@ -10,7 +10,7 @@ import os
 import pwd
 import re
 import inspect
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE, STDOUT, SubprocessError
 import logging
 import fnmatch
 import errno
@@ -424,6 +424,10 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         if e.errno == errno.ENOENT:
             return {'status': 127, 'output': "", 'truncated': ''}
         raise e
+    except SubprocessError:
+        # Handle exceptions in preexec_fn (e.g., user switching failures)
+        # Return 126 (command cannot execute)
+        return {'status': 126, 'output': "", 'truncated': ''}
     finally:
         if hasattr(_output, 'close'):
             _output.close()
