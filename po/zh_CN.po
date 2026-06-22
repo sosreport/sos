@@ -31,48 +31,47 @@ msgid "plugin %s does not validate, skipping"
 msgstr "插件 %s 无效，跳过"
 
 #: ../sos/sosreport.py:979
-#, fuzzy
 msgid "does not validate"
-msgstr "插件 %s 无效，跳过"
+msgstr "无效"
 
 #: ../sos/sosreport.py:983
-#, fuzzy, python-format
+#, python-format
 msgid "plugin %s requires root permissions to execute, skipping"
-msgstr "未安装插件 %s，跳过"
+msgstr "插件%s需要root权限执行，跳过"
 
 #: ../sos/sosreport.py:985
 msgid "requires root"
-msgstr ""
+msgstr "需要root"
 
 #: ../sos/sosreport.py:993
 msgid "excluded"
-msgstr ""
+msgstr "排除"
 
 #: ../sos/sosreport.py:997
 msgid "skipped"
-msgstr ""
+msgstr "跳过"
 
 #: ../sos/sosreport.py:1001
 msgid "inactive"
-msgstr ""
+msgstr "不活跃的"
 
 #: ../sos/sosreport.py:1005
 msgid "optional"
-msgstr ""
+msgstr "可选的"
 
 #: ../sos/sosreport.py:1015
 msgid "not specified"
-msgstr ""
+msgstr "未指定"
 
 #: ../sos/sosreport.py:1023
-#, fuzzy, python-format
+#, python-format
 msgid "plugin %s does not install, skipping: %s"
-msgstr "未安装插件 %s，跳过"
+msgstr "未安装插件 %s，跳过: %s"
 
 #: ../sos/sosreport.py:1027
 #, python-format
 msgid "Unknown or inactive profile(s) provided: %s"
-msgstr ""
+msgstr "提供未知或未激活的配置文件 :%s"
 
 #: ../sos/sosreport.py:1120
 msgid "no valid plugins found"
@@ -99,32 +98,28 @@ msgid "No plugin options available."
 msgstr "没有可用的插件选项。"
 
 #: ../sos/sosreport.py:1172
-#, fuzzy
 msgid "no valid profiles found"
-msgstr "未发现可用插件"
+msgstr "没有找到有效的配置文件"
 
 #: ../sos/sosreport.py:1174
-#, fuzzy
 msgid "The following profiles are available:"
-msgstr "以下插件选项可用："
+msgstr "下面是可用的配置文件"
 
 #: ../sos/sosreport.py:1197
 msgid "Press ENTER to continue, or CTRL-C to quit.\n"
 msgstr "按 ENTER 键继续，或者 CTRL-C 组合键退出。\n"
 
 #: ../sos/sosreport.py:1216
-#, fuzzy
 msgid " Setting up archive ..."
-msgstr "为归档加密......"
+msgstr " 设置归档 ..."
 
 #: ../sos/sosreport.py:1250
 msgid " Setting up plugins ..."
-msgstr ""
+msgstr " 设置插件..."
 
 #: ../sos/sosreport.py:1282
-#, fuzzy
 msgid " Running plugins. Please wait ..."
-msgstr "  正在运行插件，请等候 ..."
+msgstr " 正在运行插件。请等候 ..."
 
 #: ../sos/sosreport.py:1490
 msgid "Creating compressed archive..."
@@ -133,22 +128,22 @@ msgstr "生成压缩归档......"
 #: ../sos/sosreport.py:1498
 #, python-format
 msgid " %s while finalizing archive"
-msgstr ""
+msgstr " %s 当完成归档时"
 
 #: ../sos/sosreport.py:1517
 #, python-format
 msgid "Error moving directory: %s"
-msgstr ""
+msgstr "移动目录出错: %s"
 
 #: ../sos/sosreport.py:1540
 #, python-format
 msgid "Error moving archive file: %s"
-msgstr ""
+msgstr "移动归档文件出错: %s"
 
 #: ../sos/sosreport.py:1558
 #, python-format
 msgid "Error moving checksum file: %s"
-msgstr ""
+msgstr "移动校验出错: %s"
 
 #: ../sos/sosreport.py:1574
 msgid "no valid plugins were enabled"
