@@ -23,13 +23,22 @@ class LXD(Plugin, UbuntuPlugin):
 
     def setup(self):
 
+        # Some LXD versions do not support the --all-projects option for
+        # all resource types. Include both variants of the affected
+        # commands so that sosreport can collect the available data across
+        # a wider range of LXD releases.
         lxc_cmds = [
+            "lxc image list local: --all-projects",
+            "lxc list local: --all-projects",
+            "lxc network list local: --all-projects",
+            "lxc profile list local: --all-projects",
+            "lxc operation list local: --all-projects",
             "lxc image list local:",
             "lxc list local:",
             "lxc network list local:",
             "lxc profile list local:",
-            "lxc storage list local:",
             "lxc operation list local:",
+            "lxc storage list local:",
             "lxc info local:",
             "lxc alias list",
             "lxc remote list",
