@@ -54,11 +54,12 @@ class ForemanInstaller(Plugin, DebianPlugin, UbuntuPlugin):
                           r"::(.*(token|secret|key|passw).*)\") value:) "
                           r"(.*)")
         self.do_path_regex_sub(install_logs, logs_debug_reg, r"\1 \2 ********")
-        # also hide passwords in yet different formats
+        # also hide passwords in yet different formats, including CLI arg dumps
         self.do_path_regex_sub(
             install_logs,
-            r"password(\", \"|=|\" value: \"|\": \")(.*?)(\", \".*|\"]]|\"|$)",
-            r"password\1********\3")
+            r"((?:password|consumer-key|consumer-secret|key-secret|secret-key|"
+            r"oauth-key|oauth-secret)(?:\", \"|\": \"|=))([^\"\n]*)(\"|$)",
+            r"\1********\3")
         self.do_path_regex_sub(
             "/var/log/foreman-installer/foreman-proxy*",
             r"(\s*proxy_password\s=) (.*)",
