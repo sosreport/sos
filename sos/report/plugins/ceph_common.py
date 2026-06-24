@@ -17,7 +17,7 @@ class CephCommon(Plugin, RedHatPlugin, UbuntuPlugin):
     plugin_name = 'ceph_common'
     profiles = ('storage', 'virt', 'container', 'ceph')
 
-    containers = ('ceph-(.*-)?(mon|rgw|osd|smb).*',)
+    containers = ('ceph-(.*-)?(mon|rgw|osd|nvmeof|smb).*',)
     ceph_hostname = gethostname()
 
     packages = (
