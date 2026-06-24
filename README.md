@@ -1,4 +1,4 @@
-[![Build Status](https://api.cirrus-ci.com/github/sosreport/sos.svg?branch=main)](https://cirrus-ci.com/github/sosreport/sos)
+[![Main Pipeline](https://github.com/sosreport/sos/actions/workflows/main-pipeline.yaml/badge.svg)](https://github.com/sosreport/sos/actions/workflows/main-pipeline.yaml)
 [![Documentation Status](https://readthedocs.org/projects/sos/badge/?version=main)](https://sos.readthedocs.io/en/main/?badge=main)
 [![](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![sosreport](https://snapcraft.io/sosreport/badge.svg)](https://snapcraft.io/sosreport)

@@ -43,8 +43,9 @@ jobs:
       foreman: ${{ steps.filter.outputs.foreman }}
     steps:
       - uses: actions/checkout@v6
+
       - uses: dorny/paths-filter@v4
-        id: filter
+        id: filter_foreman
         with:
           filters: |
             foreman:
@@ -56,12 +57,18 @@ jobs:
               - '**/pulp.py'
               - '**/pulpcore.py'
               - '**/foreman_setup.sh'
+
+      - uses: dorny/paths-filter@v4
+        id: filter_docs
+        with:
+          predicate-quantifier: 'every'
+          filters: |
             docs:
               - '**'
               - '!man/**'
               - '!docs/**'
               - '!po/**'
-              - '!*.md'
+              - '!**/*.md'
               - '!AUTHORS'
               - '!LICENSE'
 
