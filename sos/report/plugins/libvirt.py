@@ -25,7 +25,8 @@ class Libvirt(Plugin, IndependentPlugin):
             "/etc/libvirt/passwd.db",
             "/etc/libvirt/krb5.tab",
             "/var/lib/libvirt/qemu/*/master-key.aes",
-            "/etc/libvirt/secrets"
+            "/etc/libvirt/secrets",
+            "/run/libvirt/common/system.token",
         ])
 
         self.add_copy_spec([
