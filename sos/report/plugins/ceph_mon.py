@@ -6,6 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
 import re
 
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
@@ -152,8 +153,10 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "fs dump",
             "fs ls",
             "fs status",
+            "fs volume ls",
             "mds stat",
             "mon dump",
+            "nfs cluster ls",
             "osd blocked-by",
             "osd blocklist ls",
             "osd crush tree --show-shadow",
@@ -169,6 +172,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "pg dump",
             "pg dump_stuck",
             "pg stat",
+            "rbd task list",
             "status",
             "time-sync-status",
         ]
@@ -193,6 +197,31 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             subdir="json_output",
             stderr=False
         )
+
+        # Collect NFS exports for each NFS cluster
+        nfs_clusters = self.collect_cmd_output('ceph nfs cluster ls')
+        if nfs_clusters['status'] == 0:
+            for line in nfs_clusters['output'].splitlines():
+                cluster_id = line.strip()
+                if cluster_id:
+                    self.add_cmd_output(
+                        f"ceph nfs export ls {cluster_id}")
+
+        # Collect subvolume info for each CephFS volume
+        fs_volumes = self.collect_cmd_output('ceph fs volume ls'
+                                             ' --format json')
+        if fs_volumes['status'] == 0:
+            try:
+                vols = json.loads(fs_volumes['output'])
+                for vol in vols:
+                    vol_name = vol.get('name', '')
+                    if vol_name:
+                        self.add_cmd_output([
+                            f"ceph fs subvolumegroup ls {vol_name}",
+                            f"ceph fs subvolume ls {vol_name}",
+                        ])
+            except (ValueError, KeyError) as err:
+                self._log_debug(f"Could not parse fs volume list: {err}")
 
     def get_ceph_version(self):
         """ Get the versions of running daemons """
