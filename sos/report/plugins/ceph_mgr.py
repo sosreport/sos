@@ -70,7 +70,18 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
                 "orch ls --export",
                 "orch ps",
                 "orch status --detail",
-                "orch upgrade status"
+                "orch upgrade status",
+                "orch certmgr cert ls",
+                "orch certmgr cert check",
+                "orch hardware status",
+            ])
+
+        # if SMB module is enabled (Tentacle / v20+)
+        smb_module = self.exec_cmd('ceph smb cluster ls')
+        if smb_module['status'] == 0:
+            ceph_mgr_cmds += ([
+                "smb cluster ls",
+                "smb share ls",
             ])
 
         cmds = [
