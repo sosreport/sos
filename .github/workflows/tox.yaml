@@ -1,4 +1,4 @@
-name: Tox Tests
+name: Tox
 
 on:
   workflow_call:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    name: ${{ inputs.test_name }} Test
+    name: ${{ inputs.test_name }}
     runs-on: "ubuntu-latest"
 
     steps:

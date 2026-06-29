@@ -1,10 +1,14 @@
 #!/bin/bash
 
 SUCCESS=0
-EXTRA_OPTS=""
+EXTRA_OPTS="-l DEBUG"
 puppet_ver=8
 
 if grep -iq centos /etc/os-release; then
+    dnf -y install glibc-langpack-en glibc-locale-source
+    localedef -i en_US -f UTF-8 en_US.UTF-8
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
     os_version=$(grep VERSION_ID /etc/os-release | sed 's/VERSION_ID=\"\(.*\)\"/\1/')
     dnf -y install https://yum.puppet.com/puppet${puppet_ver}-release-el-${os_version}.noarch.rpm
     dnf -y install https://yum.theforeman.org/releases/$FOREMAN_VER/el${os_version}/x86_64/foreman-release.rpm
@@ -12,7 +16,7 @@ if grep -iq centos /etc/os-release; then
     dnf -y module enable foreman:el${os_version}
     dnf -y install foreman-installer-katello
     dnf -y install foreman-installer && SUCCESS=1
-    EXTRA_OPTS="--scenario katello"
+    EXTRA_OPTS="$EXTRA_OPTS --scenario katello"
 elif grep -iq debian /etc/os-release; then
     series=$(grep VERSION_CODENAME /etc/os-release | sed s/VERSION_CODENAME=//g)
     apt-get update

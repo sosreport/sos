@@ -3,14 +3,33 @@ name: Build DEB Package
 on:
   workflow_call:
     inputs:
-      distro:
+      distro_image:
+        required: true
+        type: string
+      distro_name:
         required: true
         type: string
 jobs:
   build:
-    runs-on: "ubuntu-${{ inputs.distro }}"
+    runs-on: ${{ inputs.distro_image == '' && inputs.distro_name || 'ubuntu-latest' }}
+
+    container:
+      image: ${{ inputs.distro_image != '' && inputs.distro_image || null }}
+      options: ${{ inputs.distro_image != '' && '--privileged --tmpfs /tmp --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup:ro' || '' }}
 
     steps:
+      - name: Bootstrap Container system
+        if: ${{ inputs.distro_image != '' }}
+        run: |
+          apt update
+          apt -y install sudo
+
+          CURRENT_USER=$(whoami)
+          echo "Fixing sudo for user: $CURRENT_USER"
+
+          echo "${CURRENT_USER} ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/gh-actions
+          chmod 0440 /etc/sudoers.d/gh-actions
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
@@ -25,15 +44,16 @@ jobs:
 
       - name: Create DEB Package
         working-directory: ./sos
+        shell: bash
         run: |
-          dpkg-buildpackage -b -us -uc -rfakeroot -m --build-by="noreply@canonical.com"
-          mv ../*.deb ../sos-${{ inputs.distro }}.deb
+          dpkg-buildpackage -b -us -uc -rfakeroot --build-by="No Reply <noreply@canonical.com>"
+          mv ../*.deb ../sos-${{ inputs.distro_name }}.deb
 
       - name: Upload Distro Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: sos-${{ inputs.distro }}.deb
-          path: sos-${{ inputs.distro }}.deb
+          name: sos-${{ inputs.distro_name }}.deb
+          path: sos-${{ inputs.distro_name }}.deb
           retention-days: 1
 
       - name: Post-Build Cleanup

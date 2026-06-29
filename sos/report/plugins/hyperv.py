@@ -18,11 +18,14 @@ class Hyperv(Plugin, IndependentPlugin):
 
     def setup(self):
 
-        self.add_copy_spec([
-            "/sys/bus/vmbus/drivers/",
-            # copy devices/*/* instead of devices/ to follow link files
-            "/sys/bus/vmbus/devices/*/*"
-        ])
+        try:
+            self.add_copy_spec([
+                "/sys/bus/vmbus/drivers/",
+                # copy devices/*/* instead of devices/ to follow link files
+                "/sys/bus/vmbus/devices/*/*"
+            ])
+        except OSError as e:
+            self._log_error(f"Received OSError accessing files: {e}")
 
         self.add_cmd_output("lsvmbus -vv")
 
