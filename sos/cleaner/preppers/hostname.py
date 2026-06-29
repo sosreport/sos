@@ -8,6 +8,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import glob
+import os
+
 from sos.cleaner.preppers import SoSPrepper
 
 
@@ -25,6 +28,82 @@ class HostnamePrepper(SoSPrepper):
 
     name = 'hostname'
     audit_logs_re = r'\shostname=(\S+)'
+
+    sssd_conf_patterns = [
+        'etc/sssd/sssd.conf*',
+        'etc/sssd/conf.d/*'
+    ]
+
+    sssd_config_keys = {
+        'domains',
+        'krb5_realm',
+        'ad_domain',
+        'ipa_domain',
+        'dns_discovery_domain',
+        'default_domain_suffix',
+        'ad_server',
+        'ipa_server',
+        'krb5_server',
+        'krb5_kpasswd',
+        'krb5_backup_kpasswd',
+        'ldap_uri',
+        'ldap_backup_uri',
+        'dyndns_server'
+    }
+
+    def _get_conf_files(self, archive):
+        paths = set()
+        archive_root = None
+        if getattr(archive, 'is_extracted', False):
+            archive_root = archive.extracted_path
+        elif os.path.isdir(getattr(archive, 'archive_path', '')):
+            archive_root = archive.archive_path
+
+        if archive_root:
+            for pattern in self.sssd_conf_patterns:
+                full_pattern = os.path.join(archive_root, pattern.lstrip('/'))
+                for full_path in glob.glob(full_pattern):
+                    if os.path.isfile(full_path):
+                        paths.add(
+                            os.path.relpath(full_path, start=archive_root)
+                        )
+
+        return paths
+
+    def _get_items_from_sssd_conf(self, archive):
+        items = []
+
+        paths = self._get_conf_files(archive)
+
+        for path in sorted(paths):
+            content = archive.get_file_content(path)
+            if not content:
+                continue
+            for line in content.splitlines():
+                line = line.lstrip()
+
+                # Commented lines may contain sensitive data, so we should
+                # still process them to extract any domains or hostnames
+                # but we need to strip the comment character first.
+                while line.startswith('#') or line.startswith(';'):
+                    line = line[1:].lstrip()
+
+                # Inline comment after directives are not likely to contain
+                # sensitive data and may be unstructured, so we can ignore them
+                line = line.split('#', 1)[0].split(';', 1)[0].strip()
+
+                if not line or line.startswith('[') or '=' not in line:
+                    continue
+                key, value = [x.strip() for x in line.split('=', 1)]
+                key = key.lower()
+                if key in self.sssd_config_keys:
+                    for domain in value.split(','):
+                        domain = domain.strip().strip('"').strip("'")
+                        if domain:
+                            items.append(domain)
+                            if '.' in domain:
+                                self.regex_items['hostname'].add(domain)
+        return items
 
     def _get_items_for_hostname(self, archive):
         items = []
@@ -65,5 +144,7 @@ class HostnamePrepper(SoSPrepper):
 
         for domain in self.opts.domains:
             items.append(domain)
+
+        items.extend(self._get_items_from_sssd_conf(archive))
 
         return items
