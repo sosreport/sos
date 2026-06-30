@@ -31,7 +31,9 @@ class Nvidia(Plugin, IndependentPlugin):
             '-q',
             '-q -d ECC',
             'nvlink -s',
-            'nvlink -e'
+            'nvlink -e',
+            'vgpu',
+            'vgpu -q',
         ]
         ctk_subcmds = [
             'cdi list',
