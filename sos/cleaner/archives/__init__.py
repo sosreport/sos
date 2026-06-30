@@ -14,7 +14,6 @@ import os
 import shutil
 import stat
 import tarfile
-import tempfile
 import re
 
 from concurrent.futures import ProcessPoolExecutor
@@ -219,22 +218,23 @@ class SoSObfuscationArchive():
                 return
             self.log_debug(f"Obfuscating {rel_name or filename}")
             subs = 0
-            with tempfile.NamedTemporaryFile(mode='w', dir=self.tmpdir) \
-                    as tfile:
-                with open(filename, 'r', encoding='utf-8',
-                          errors='replace') as fname:
-                    for line in fname:
-                        try:
-                            line, cnt = self.obfuscate_line(line, _parsers)
-                            subs += cnt
-                            tfile.write(line)
-                        except Exception as err:
-                            self.log_debug(f"Unable to obfuscate "
-                                           f"{rel_name}: {err}")
-                tfile.seek(0)
-                if subs:
-                    shutil.copyfile(tfile.name, filename)
-                    self.update_sub_count(subs)
+            lines = []
+            with open(filename, 'r', encoding='utf-8', errors='replace') \
+                    as fname:
+                for line in fname:
+                    try:
+                        line, cnt = self.obfuscate_line(line, _parsers)
+                        subs += cnt
+                        lines.append(line)
+                    except Exception as err:
+                        self.log_debug(f"Unable to obfuscate "
+                                       f"{rel_name}: {err}")
+                        lines.append(line)
+
+            if subs:
+                with open(filename, 'w', encoding='utf-8') as fname:
+                    fname.writelines(lines)
+                self.update_sub_count(subs)
 
             self.obfuscate_filename(rel_name, filename)
 
