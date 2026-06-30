@@ -97,8 +97,10 @@ class SosNode():
         self.host = self.determine_host_policy()
         self._sudo_binary = None
         self.hostname = self._transport.hostname
+
         if self.local and self.opts.no_local:
             load_facts = False
+
         if self.connected and load_facts:
             if not self.host:
                 self._transport.disconnect()
@@ -127,7 +129,15 @@ class SosNode():
         """Determine the type of remote transport to load for this node, then
         return an instantiated instance of that transport
         """
-        if self.address in ['localhost', '127.0.0.1']:
+        # Don't treat 127.0.0.1 as local if custom SSH port is
+        # specified (e.g., port forwarding to a VM like CRC on
+        # 127.0.0.1:2222)
+        is_localhost = self.address in ['localhost', '127.0.0.1']
+        has_custom_port = (hasattr(self.opts, 'ssh_port') and
+                           self.opts.ssh_port and
+                           self.opts.ssh_port != 22)
+
+        if is_localhost and not has_custom_port:
             self.local = True
             return LocalTransport(self.address, commons)
         if self.opts.transport in TRANSPORTS:
@@ -227,11 +237,11 @@ class SosNode():
                                   f"{self.host.sos_container_name} created")
                     return True
                 self.log_error("Could not start container after create: "
-                               f"{ret['output']}")
+                               f"{self._sanitize_log_msg(ret['output'])}")
                 raise Exception
 
             self.log_error("Could not create container on host: "
-                           f"{res['output']}")
+                           f"{self._sanitize_log_msg(res['output'])}")
             raise Exception
         return False
 
@@ -295,10 +305,15 @@ class SosNode():
         """If we need to provide a sudo or root password to a command, then
         here we prefix the command with the correct bits
         """
-        is_root = self._env_vars.get("USER", os.environ.get("USER")) == 'root'
+        is_root = (self._env_vars.get("USER", os.environ.get("USER")) ==
+                   'root')
         if self.local and is_root:
             return cmd
         if self.opts.become_root:
+            # With --nopasswd-sudo, use sudo instead of su
+            # (su requires root password)
+            if getattr(self.opts, 'nopasswd_sudo', False):
+                return f"{self.sudo_binary} {cmd}"
             return f"su -c {quote(cmd)}"
         if self.need_sudo:
             return f"{self.sudo_binary} {cmd}"
@@ -315,23 +330,89 @@ class SosNode():
                 ver = '.'.join(pkg['version'])
                 if pkg['release']:
                     rel = pkg['release']
+            else:
+                # Fallback: try running sos directly if not in package
+                # manager. This handles cases where sos was manually
+                # installed (e.g., via pip or from source)
+                self.log_debug("sos not found in package manager, "
+                               "trying direct version check")
+                # Try to find sos using which, or fall back to common
+                # locations
+                which_result = self.run_command(
+                    'which sos 2>/dev/null || '
+                    'command -v sos 2>/dev/null',
+                    timeout=5, need_root=False)
+                sos_path = 'sos'  # default to PATH
+                if which_result and which_result.get('status') == 0:
+                    sos_path = which_result['output'].strip()
+
+                cmd_result = self.run_command(f'{sos_path} help',
+                                              timeout=10, need_root=False)
+                # If sos runs at all (even with usage error),
+                # it's installed
+                if cmd_result and (
+                        'Available components' in
+                        cmd_result.get('output', '') or
+                        'sos' in cmd_result.get('output', '')):
+                    ver = 'installed'
+                    self.log_debug(
+                        f"Detected sos via help command at {sos_path}")
+                    self.sos_bin = f'{sos_path} report'
+                    self.sos_info['sos_cmd'] = (
+                        f'{sos_path} report --batch ')
 
         else:
             # use the containerized policy's command
             pkgs = self.run_command(self.host.container_version_command,
                                     use_container=True, need_root=True)
             if pkgs['status'] == 0:
-                _, ver, rel = pkgs['output'].strip().split('-')
+                try:
+                    _, ver, rel = pkgs['output'].strip().split('-')
+                except Exception as err:
+                    self.log_debug(
+                        f"Failed to parse container version output: {err}")
+
+        # Universal fallback: if version still not found, try direct
+        # sos command
+        if not ver:
+            self.log_debug(
+                "Version not detected via package manager or container, "
+                "trying direct sos command")
+            # Try to find sos using which, or fall back to common
+            # locations
+            which_result = self.run_command(
+                'which sos 2>/dev/null || '
+                'command -v sos 2>/dev/null',
+                timeout=5, need_root=False)
+            sos_path = 'sos'  # default to PATH
+            if which_result and which_result.get('status') == 0:
+                sos_path = which_result['output'].strip()
+
+            cmd_result = self.run_command(f'{sos_path} help',
+                                          timeout=10, need_root=False)
+            # If sos runs at all, it's installed
+            if cmd_result and (
+                    'Available components' in
+                    cmd_result.get('output', '') or
+                    'usage: sos' in cmd_result.get('output', '')):
+                ver = 'installed'
+                self.log_debug(
+                    f"Detected sos via help command at {sos_path}")
+                self.sos_bin = f'{sos_path} report'
+                self.sos_info['sos_cmd'] = (
+                    f'{sos_path} report --batch ')
 
         if ver:
             if len(ver.split('.')) == 2:
                 # safeguard against maintenance releases throwing off the
                 # comparison by parse_version
                 ver += '.0'
-            try:
-                ver += f'-{rel.split(".")[0]}'
-            except Exception as err:
-                self.log_debug(f"Unable to fully parse sos release: {err}")
+            # Only append release number if we have it
+            if rel:
+                try:
+                    ver += f'-{rel.split(".")[0]}'
+                except Exception as err:
+                    self.log_debug(f"Unable to fully parse sos release: {err}")
 
         self.sos_info['version'] = ver
 
@@ -647,10 +728,12 @@ class SosNode():
                 )
 
         # handle downstream versions that backported this option
-        if self.check_sos_version('4.3') or self.check_sos_version('4.2-13'):
+        if (self.check_sos_version('4.3') or
+                self.check_sos_version('4.2-13')):
             if self.opts.container_runtime != 'auto':
                 sos_opts.append(
-                    f"--container-runtime={self.opts.container_runtime}"
+                    "--container-runtime="
+                    f"{self.opts.container_runtime}"
                 )
             if self.opts.namespaces:
                 sos_opts.append(
@@ -665,9 +748,26 @@ class SosNode():
 
         self.update_cmd_from_cluster()
 
+        # Determine the actual sos binary path using 'which'
+        # Default to the policy path
+        expected_path = os.path.join(self.host.sos_bin_path,
+                                     self.sos_bin.split()[0])
+        sos_bin_full_path = expected_path
+
+        # Try to find actual sos location with 'which'
+        which_result = self.run_command('which sos 2>/dev/null',
+                                        timeout=5, need_root=False)
+        if (which_result and which_result['status'] == 0 and
+                which_result['output'].strip()):
+            sos_bin_full_path = which_result['output'].strip()
+            # Append 'report' if this is sos 4.0+
+            if self.sos_bin == 'sos report':
+                sos_bin_full_path += ' report'
+            self.log_debug(f"Found sos at {sos_bin_full_path}")
+
         sos_cmd = sos_cmd.replace(
             'sosreport',
-            os.path.join(self.host.sos_bin_path, self.sos_bin)
+            sos_bin_full_path
         )
 
         for opt in self.sos_options:
@@ -768,10 +868,14 @@ class SosNode():
         if rc == 1:
             if 'sudo' in stdout:
                 return 'sudo attempt failed'
+            if 'su: Authentication failure' in stdout:
+                return 'su authentication failed'
         if rc == 127:
             return 'sos report terminated unexpectedly. Check disk space'
         if len(stdout) > 0:
-            return stdout.split('\n')[0:1]
+            # Sanitize stdout to avoid exposing passwords in error messages
+            sanitized = self._sanitize_log_msg(stdout)
+            return sanitized.split('\n')[0:1]
         return f'sos exited with code {rc}'
 
     def execute_sos_command(self):
@@ -823,7 +927,8 @@ class SosNode():
             else:
                 err = self.determine_sos_error(res['status'], res['output'])
                 self.log_debug("Error running sos report. rc = "
-                               f"{res['status']} msg = {res['output']}")
+                               f"{res['status']} msg = "
+                               f"{self._sanitize_log_msg(res['output'])}")
                 raise Exception(err)
             return path
         except CommandTimeoutException:
