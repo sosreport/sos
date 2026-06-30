@@ -22,7 +22,7 @@ class CollectManualTest(StageOneReportTest):
     redhat_only = True
 
     def test_unpackaged_list_collected(self):
-        self.assertFileCollected('sos_commands/unpackaged/unpackaged')
+        self.assertFileCollected('sos_commands/unpackaged/path_grep_v_rpm_qal')
 
     def test_python_hashes_collected(self):
         self.assertFileCollected('sos_commands/python/digests.json')
@@ -33,7 +33,8 @@ class CollectManualTest(StageOneReportTest):
     def test_manifest_collections_correct(self):
         pkgman = self.get_plugin_manifest('unpackaged')
         self.assertTrue(
-            any(c['name'] == 'unpackaged' for c in pkgman['collections'])
+            any(c['name'] == 'path_grep_v_rpm_qal'
+                for c in pkgman['collections'])
         )
         pyman = self.get_plugin_manifest('python')
         self.assertTrue(
