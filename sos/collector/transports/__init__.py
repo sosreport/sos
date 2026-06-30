@@ -330,11 +330,16 @@ class RemoteTransport():
                 raise Exception(msg)
             result.sendline(self.opts.sudo_pw)
         elif index == 3:
-            if not self.opts.root_password:
+            # If --nopasswd-sudo is set, just send empty password
+            # (passwordless sudo)
+            if self.opts.nopasswd_sudo:
+                result.sendline('')
+            elif not self.opts.root_password:
                 msg = "Unable to run command as root: no root password given"
                 self.log_error(msg)
                 raise Exception(msg)
-            result.sendline(self.opts.root_password)
+            else:
+                result.sendline(self.opts.root_password)
 
     def _get_hostname(self):
         """Determine the hostname of the node and set that for future reference

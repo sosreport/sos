@@ -835,15 +835,24 @@ class SoSCollector(SoSComponent):
 
         if self.opts.become_root:
             if not self.opts.ssh_user == 'root':
-                if self.opts.batch:
+                # Allow --batch with --nopasswd-sudo since no password
+                # is needed
+                if self.opts.batch and not self.opts.nopasswd_sudo:
                     msg = ("Cannot become root without obtaining root "
                            "password. Do not use --batch if you need "
                            "to become root remotely.")
                     self.exit(msg, 1)
                 self.log_debug('non-root user asking to become root remotely')
-                msg = (f'User {self.opts.ssh_user} will attempt to become '
-                       'root. Provide root password: ')
-                self.opts.root_password = getpass(prompt=msg)
+                # Only prompt for password if --nopasswd-sudo is not
+                # specified
+                if not self.opts.nopasswd_sudo:
+                    msg = (f'User {self.opts.ssh_user} will attempt to become '
+                           'root. Provide root password: ')
+                    self.opts.root_password = getpass(prompt=msg)
+                else:
+                    # With --nopasswd-sudo, no password needed but
+                    # attribute must exist
+                    self.opts.root_password = None
                 self.commons['need_sudo'] = False
             else:
                 self.log_info('Option to become root but ssh user is root.'

@@ -181,9 +181,12 @@ class ocp(Cluster):
                     timeout=30
                 )
                 if not ret['status'] == 0:
-                    self.log_error(
-                        f"Error deleting temporary project: {ret['output']}"
-                    )
+                    # Don't error if namespace already doesn't exist
+                    if 'NotFound' not in ret.get('output', ''):
+                        self.log_error(
+                            "Error deleting temporary project: "
+                            f"{ret['output']}"
+                        )
                 ret = self.exec_primary_cmd(
                     self.fmt_oc_cmd(
                         f"wait namespace/{self.project} --for=delete "
