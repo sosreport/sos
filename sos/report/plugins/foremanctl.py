@@ -19,6 +19,7 @@ class Foremanctl(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
     plugin_name = 'foremanctl'
     profiles = ('sysmgmt',)
     packages = ('foremanctl', )
+    containers = ('foreman',)
 
     def setup(self):
         self.add_copy_spec([
@@ -29,14 +30,23 @@ class Foremanctl(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
 
         self.add_cmd_output([
             "foremanctl features",
+            "foremanctl health",
         ])
 
         self.add_dir_listing(["/var/lib/foremanctl/"], recursive=True)
 
     def postproc(self):
-        self.do_path_regex_sub("/var/lib/foremanctl/parameters.yaml",
-                               r"(foreman_initial_admin_password:\s*)(.*)",
-                               r"\1********")
+        # Scrub passwords, credentials, tokens, secrets, and keys
+        self.do_path_regex_sub(
+            "/var/lib/foremanctl/parameters.yaml",
+            r"((.*)?(passw|cred|token|secret|key).*(\:\s|=))(.*)",
+            r"\1********")
+
+        # Scrub passwords from foremanctl logs
+        self.do_path_regex_sub(
+            "/var/log/foremanctl/foremanctl.*log*",
+            r"(((passw|cred|token|secret)=)|(password ))(.*)",
+            r"\1********")
 
 
 # vim: set et ts=4 sw=4 :
