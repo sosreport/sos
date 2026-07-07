@@ -19,6 +19,7 @@ class Valkey(Plugin, IndependentPlugin):
     profiles = ('services',)
 
     packages = ('valkey',)
+    containers = ('valkey',)
 
     var_puppet_gen = "/var/lib/config-data/puppet-generated/valkey"
 
