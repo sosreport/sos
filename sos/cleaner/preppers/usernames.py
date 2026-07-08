@@ -21,9 +21,15 @@ class UsernamePrepper(SoSPrepper):
     name = 'username'
 
     skip_list = [
+        'ceilometer',
+        'ceph',
+        'cloud-admin',
         'core',
+        'libvirt',
         'nobody',
         'nfsnobody',
+        'nova',
+        'openvswitch',
         'shutdown',
         'stack',
         'reboot',

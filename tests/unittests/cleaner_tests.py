@@ -26,6 +26,7 @@ from sos.cleaner.mappings.ipv6_map import SoSIPv6Map
 from sos.cleaner.preppers import SoSPrepper
 from sos.cleaner.preppers.hostname import HostnamePrepper
 from sos.cleaner.preppers.ip import IPPrepper
+from sos.cleaner.preppers.usernames import UsernamePrepper
 from sos.cleaner.archives.sos import SoSReportArchive
 from sos.options import SoSOptions
 
@@ -490,6 +491,64 @@ class PrepperTests(unittest.TestCase):
             [],
             self.ipv4_prepper.get_parser_file_list('foobar', self.archive)
         )
+
+    def test_username_prepper_rhoso_skip_list(self):
+        """Verify that RHOSO service usernames are in the skip list and will
+        not be obfuscated."""
+        username_prepper = UsernamePrepper(SoSOptions())
+        rhoso_usernames = [
+            'nova',
+            'ceilometer',
+            'ceph',
+            'libvirt',
+            'openvswitch',
+            'cloud-admin'
+        ]
+        for username in rhoso_usernames:
+            self.assertIn(username, username_prepper.skip_list,
+                          f"RHOSO service username '{username}' should be in "
+                          f"skip_list to prevent obfuscation")
+
+    def test_username_prepper_rhoso_not_collected(self):
+        """Verify that RHOSO service usernames found in mock lastlog output
+        are not included in the items to obfuscate."""
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+
+            def get_file_content(self, path):
+                if 'lastlog' in path or 'last' in path:
+                    return ('nova                     pts/0    10.0.0.1'
+                            '         Mon Jan 01 10:00:00 +0000 2024\n'
+                            'ceilometer               pts/1    10.0.0.2'
+                            '         Mon Jan 01 11:00:00 +0000 2024\n'
+                            'ceph                     pts/2    10.0.0.3'
+                            '         Mon Jan 01 12:00:00 +0000 2024\n'
+                            'libvirt                  pts/3    10.0.0.4'
+                            '         Mon Jan 01 13:00:00 +0000 2024\n'
+                            'openvswitch              pts/4    10.0.0.5'
+                            '         Mon Jan 01 14:00:00 +0000 2024\n'
+                            'cloud-admin              pts/5    10.0.0.6'
+                            '         Mon Jan 01 15:00:00 +0000 2024\n'
+                            'testuser                 pts/6    10.0.0.7'
+                            '         Mon Jan 01 16:00:00 +0000 2024\n')
+                return ''
+
+        username_prepper = UsernamePrepper(SoSOptions(usernames=[]))
+        items = username_prepper.get_items_for_map('username', MockArchive())
+
+        # RHOSO usernames should NOT be in the items list
+        rhoso_usernames = ['nova', 'ceilometer', 'ceph', 'libvirt',
+                           'openvswitch', 'cloud-admin']
+        for username in rhoso_usernames:
+            self.assertNotIn(username, items,
+                             f"RHOSO service username '{username}' should not "
+                             f"be collected for obfuscation")
+
+        # Regular users should still be collected
+        self.assertIn('testuser', items,
+                      "Regular username 'testuser' should be collected for "
+                      "obfuscation")
 
 
 class PackedDirTarballTests(unittest.TestCase):
