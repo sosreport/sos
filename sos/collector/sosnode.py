@@ -227,11 +227,11 @@ class SosNode():
                                   f"{self.host.sos_container_name} created")
                     return True
                 self.log_error("Could not start container after create: "
-                               f"{ret['output']}")
+                               f"{self._sanitize_log_msg(ret['output'])}")
                 raise Exception
 
             self.log_error("Could not create container on host: "
-                           f"{res['output']}")
+                           f"{self._sanitize_log_msg(res['output'])}")
             raise Exception
         return False
 
