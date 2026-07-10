@@ -16,6 +16,8 @@ import fnmatch
 import errno
 import shlex
 import glob
+import shutil
+import sys
 import tempfile
 import threading
 import time
@@ -668,6 +670,35 @@ class StdinWriter(threading.Thread):
             except (BrokenPipeError, ValueError) as exc:
                 # pass error to the main thread
                 self.error += str(exc)
+
+
+class ProgressBar:
+    """Displays a terminal progress bar that overwrites itself in place."""
+
+    def __init__(self, prefix, total, format_fn=None):
+        self.prefix = prefix
+        self.total = total
+        self.format_fn = format_fn or str
+        suffix_width = len(
+            f" {self.format_fn(total)} / {self.format_fn(total)}"
+        )
+        cols = shutil.get_terminal_size(fallback=(80, 24)).columns
+        # Keeping bar width between 5 and 40 based on the size of the terminal
+        # minus the size of prefix, suffix and surounding "[]" brackets
+        self.bar_width = max(5, min(40, cols - len(prefix) - suffix_width - 2))
+
+    def update(self, done):
+        filled = done * self.bar_width // self.total
+        sys.stdout.write(
+            f"\r{self.prefix}[{'=' * filled}{' ' * (self.bar_width - filled)}]"
+            f" {self.format_fn(done)} / {self.format_fn(self.total)}"
+        )
+        sys.stdout.flush()
+
+    def finish(self):
+        self.update(self.total)
+        sys.stdout.write('\n')
+        sys.stdout.flush()
 
 
 class FakeReader():

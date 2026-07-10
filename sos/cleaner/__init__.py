@@ -16,6 +16,7 @@ import os
 import shutil
 import fnmatch
 import multiprocessing
+import time
 
 from datetime import datetime
 from pwd import getpwuid
@@ -36,22 +37,22 @@ from sos.cleaner.archives.sos import (SoSReportArchive, SoSReportDirectory,
 from sos.cleaner.archives.generic import DataDirArchive, TarballArchive
 from sos.cleaner.archives.insights import InsightsArchive
 from sos.utilities import (get_human_readable, import_module,
-                           ImporterHelper, is_executable)
+                           ImporterHelper, is_executable, ProgressBar)
 
 
 # an auxiliary method to kick off child processes over its instances
-def _obfuscate_arc_files(arc, input_queue, output_queue):
+def _obfuscate_arc_files(arc, input_queue, output_queue, bytes_done=None):
     try:
         while True:
             try:
-                file = input_queue.get()
+                item = input_queue.get()
             except (EOFError, OSError) as e:
                 print(
                     f"Child process exception when reading input "
                     f"queue: '{e}'"
                 )
                 break
-            if file is None:  # Sentinel value to stop the process
+            if item is None:  # Sentinel value to stop the process
                 try:
                     output_queue.put((
                         arc.files_obfuscated_count,
@@ -63,7 +64,11 @@ def _obfuscate_arc_files(arc, input_queue, output_queue):
                         f"queue: '{e}'"
                     )
                 break
+            file, size = item
             arc.obfuscate_arc_file(file)
+            if bytes_done is not None:
+                with bytes_done.get_lock():
+                    bytes_done.value += size
     except KeyboardInterrupt:
         # catch user's interruption cleanly in the child process
         pass
@@ -832,15 +837,13 @@ third party.
 
         def _order_files_by_size(file_list, base_path):
             """ Order files per their sizes, if they are provided relatively
-            to base_path
+            to base_path. Returns list of (file, size) tuples, largest first.
             """
             files_with_sizes = [
                 (f, os.path.getsize(os.path.join(base_path, f)))
                 for f in file_list
             ]
-            files_sizes_sorted = sorted(files_with_sizes, key=lambda x: x[1],
-                                        reverse=True)
-            return [file for file, _ in files_sizes_sorted]
+            return sorted(files_with_sizes, key=lambda x: x[1], reverse=True)
 
         try:
             arc_md = self.cleaner_md.add_section(archive.archive_name)
@@ -852,35 +855,49 @@ third party.
             archive.report_msg("Beginning obfuscation...")
 
             # we will spawn multiprocessing.Process instances that will get
-            # individual files to obfuscate via `input_queue`. Once all files
-            # are sent there, `None` items are pushed to the queue as a
-            # sentinel mark. That triggers the child processes to report back
+            # individual (file, size) pairs to obfuscate via `input_queue`.
+            # Once all pairs are sent there, `None` items are pushed to the
+            # queue as a sentinel mark. That triggers the child processes to
+            # report back
             # to output_queue some stats, and finish.
             files_obfuscated_count = total_sub_count = removed_file_count = 0
             input_queue = multiprocessing.Queue()
             output_queue = multiprocessing.Queue()
+            bytes_done = multiprocessing.Value('L', 0)
 
             # Create and start processes
             processes = []
             for _ in range(self.opts.jobs):
                 p = multiprocessing.Process(
                     target=_obfuscate_arc_files,
-                    args=(archive, input_queue, output_queue)
+                    args=(archive, input_queue, output_queue, bytes_done)
                 )
                 p.start()
                 processes.append(p)
-            # Distribute items to the input queue, after reordering them by
-            # size. Since files can be both relative and absolute paths,
+            # Distribute (file, size) pairs to the input queue, after
+            # reordering them by size. Since files can be both relative and
+            # absolute paths,
             # depending on input tarball or directory, we must pass the
             # relative base_path to call os.path.getsize properly
-            for file in _order_files_by_size(
+            ordered_files = _order_files_by_size(
                 list(archive.get_files()),
                 os.path.dirname(os.path.abspath(archive.extracted_path))
-            ):
-                input_queue.put(file)
+            )
+            total_bytes = sum(size for _, size in ordered_files)
+            for item in ordered_files:
+                input_queue.put(item)
             # Stop processes by sending a sentinel value
             for _ in range(self.opts.jobs):
                 input_queue.put(None)
+            # Display progress bar while child processes obfuscate files
+            if not self.opts.quiet and total_bytes > 0:
+                prefix = f"{archive.ui_name + ' :':<50} "
+                progress = ProgressBar(prefix, total_bytes,
+                                       format_fn=get_human_readable)
+                while bytes_done.value < total_bytes:
+                    progress.update(bytes_done.value)
+                    time.sleep(0.5)
+                progress.finish()
             # Wait for all processes to finish
             for p in processes:
                 p.join()
