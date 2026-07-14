@@ -272,8 +272,12 @@ class ObfuscatedIPv6Network():
             _n = self.network_addr.rstrip(':')
             _host = addr.compressed[len(_n):].lstrip(':')
             _ob_host = _generate_address(_host)
-            while _ob_host in self.hosts.values():
-                _ob_host = _generate_address(_host)
+            # When _host is empty, all such addresses map to the obfuscated
+            # network prefix. Regeneration cannot disambiguate them, so do
+            # not retry on collision.
+            if _host:
+                while _ob_host in self.hosts.values():
+                    _ob_host = _generate_address(_host)
             self.add_obfuscated_host_address(addr.compressed, _ob_host)
         return self.hosts[addr.compressed]
 
