@@ -84,3 +84,33 @@ class NetplanScrubTest(StageTwoReportTest):
         # `key-management` is a method name, not a secret - must stay visible
         self.assertFileHasContent(
             '/etc/netplan/99-sos-secrets.yaml', 'key-management')
+
+
+class NetplanCleanDomainTest(StageTwoReportTest):
+    """
+    ensure that netplan DNS search domains and requested hostnames are
+    obfuscated when running with --clean
+
+    :avocado: tags=stagetwo
+    """
+
+    sos_cmd = '-o networking,host --clean'
+
+    files = [
+        ('98-sos-search.yaml', '/etc/netplan/98-sos-search.yaml'),
+    ]
+    ubuntu_only = True
+
+    def test_netplan_search_domain_obfuscated(self):
+        content = self.grep_for_content('sostestdomain.example')
+        self.assertFalse(
+            content,
+            f"netplan search domain not obfuscated, found in: {content}"
+        )
+
+    def test_netplan_requested_hostname_obfuscated(self):
+        content = self.grep_for_content('sostesthostname')
+        self.assertFalse(
+            content,
+            f"netplan requested hostname not obfuscated, found in: {content}"
+        )
