@@ -8,11 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin)
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
-class Ocf(Plugin):
+class Ocf(Plugin, IndependentPlugin):
     """Archive OCF resource agent binaries and libraries.
 
     Collects OCF installation paths used by Pacemaker resource agents,
@@ -34,27 +33,13 @@ class Ocf(Plugin):
     )
 
     def setup(self):
-        specs = []
-        for path in self.ocf_paths:
-            if self.path_exists(path):
-                specs.append(path)
-
-        if not specs:
-            return
-
         self.add_file_tags({
             '/usr/lib/ocf/lib/heartbeat/ocf-binaries': 'ocf_binaries',
             '/usr/lib/ocf/lib/heartbeat/ocf-shellfuncs': 'ocf_shellfuncs',
         })
 
-        self.add_copy_spec(specs)
-        self.add_dir_listing(specs)
-
-    def setup_rpm_inventory(self):
-        self.add_cmd_output(
-            'sh -c "rpm -ql resource-agents resource-agents-base 2>/dev/null '
-            '| grep /ocf"'
-        )
+        self.add_copy_spec(self.ocf_paths)
+        self.add_dir_listing(self.ocf_paths)
 
     def postproc(self):
         # password=secret -> password=********
@@ -74,15 +59,5 @@ class Ocf(Plugin):
             r"(passw([^\s=]*)=)\S+",
             r"\1********"
         )
-
-
-class RedHatOcf(Ocf, RedHatPlugin):
-    def setup(self):
-        self.setup_rpm_inventory()
-        super().setup()
-
-
-class DebianOcf(Ocf, DebianPlugin, UbuntuPlugin):
-    """ Parent class Ocf setup() will be called """
 
 # vim: set et ts=4 sw=4 :
