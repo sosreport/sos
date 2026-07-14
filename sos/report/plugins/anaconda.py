@@ -52,5 +52,6 @@ class Anaconda(Plugin, RedHatPlugin):
             r"\1********"
         )
         self.do_paths_http_sub(self.copypaths)
+        self.do_file_private_sub("/root/anaconda-ks.cfg")
 
 # vim: set et ts=4 sw=4 :
