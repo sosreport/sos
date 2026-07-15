@@ -37,7 +37,9 @@ def extract_archive(archive_path, tmpdir):
 
         # Guard against "Arbitrary file write during tarfile extraction"
         # Checks the extracted files don't stray out of the target directory.
-        for member in archive.getmembers():
+        not_root = os.getuid() != 0
+        members = archive.getmembers()
+        for member in members:
             member_path = os.path.join(path, member.name)
             abs_directory = os.path.abspath(path)
             abs_target = os.path.abspath(member_path)
@@ -45,7 +47,12 @@ def extract_archive(archive_path, tmpdir):
             if prefix != abs_directory:
                 raise Exception(f"Attempted path traversal in tarfle"
                                 f"{prefix} != {abs_directory}")
-            archive.extract(member, path)
+            # Directories collected from the host may lack u+w or u+x
+            # permissions, preventing child members from being created during
+            # extract
+            if not_root and member.isdir():
+                member.mode |= stat.S_IWUSR | stat.S_IXUSR
+        archive.extractall(path, members=members)
         return os.path.join(path, archive.name.split('/')[-1].split('.tar')[0])
 
 
