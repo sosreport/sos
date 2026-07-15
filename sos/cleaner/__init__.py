@@ -646,7 +646,7 @@ third party.
                 self.ui_log.warning(
                     "WARNING: certificate files that potentially contain "
                     "sensitive information will\n"
-                    "be CONVERTED to text and OBFUSCATED in the final"
+                    "be CONVERTED to text and OBFUSCATED in the final "
                     "archive.\n"
                 )
             elif self.opts.treat_certificates == "keep":
