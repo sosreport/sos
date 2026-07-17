@@ -86,14 +86,14 @@ jobs:
             sudo apt update
             sudo apt -y install tox
             # Install packages required for testing
-            sudo apt -y install kmod ethtool gnupg2 iproute2 procps curl wget
+            sudo apt -y install kmod ethtool gnupg2 iproute2 procps curl wget git
             [ $(echo "${{ inputs.distro_name }}" | grep ubuntu) ] && sudo apt -y install ubuntu-advantage-tools
           else
             dnf config-manager --set-enabled crb || true
             [ $( echo "${{ inputs.distro_name }}" | grep centos) ] && dnf -y install epel-release
             dnf -y install tox
             # Install packages required for testing
-            dnf -y install kmod ethtool gnupg2 iproute hostname procps-ng file systemd
+            dnf -y install kmod ethtool gnupg2 iproute hostname procps-ng file systemd git
           fi
         continue-on-error: true
 
