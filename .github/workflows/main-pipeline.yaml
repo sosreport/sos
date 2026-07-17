@@ -71,6 +71,7 @@ jobs:
               - '**/candlepin.py'
               - '**/pulp.py'
               - '**/pulpcore.py'
+              - '**/valkey.py'
               - '**/foreman_setup.sh'
 
       - uses: dorny/paths-filter@v4
