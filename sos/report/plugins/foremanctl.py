@@ -48,7 +48,8 @@ class Foremanctl(Plugin, RedHatPlugin, DebianPlugin, UbuntuPlugin):
             r"((passw|cred|token|secret|key)\w*\s*=\s*)(.*?)(\s|,|\"|'|$)",
             r"\1********\4")
 
-        # Scrub passwords from foremanctl logs - Pattern 2: "password something" format
+        # Scrub passwords from foremanctl logs -
+        # Pattern 2: "password something" format
         self.do_path_regex_sub(
             "/var/log/foremanctl/foremanctl.*log*",
             r"(password\s+)(.*?)(\s|,|\"|$)",
