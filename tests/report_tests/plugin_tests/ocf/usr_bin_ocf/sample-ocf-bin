@@ -1,3 +1,0 @@
-#!/bin/sh
-# Sample OCF helper binary for sos plugin testing
-echo "ocf-test-binary"

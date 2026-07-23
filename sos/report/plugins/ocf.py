@@ -12,25 +12,19 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class Ocf(Plugin, IndependentPlugin):
-    """Archive OCF resource agent binaries and libraries.
+    """Archive OCF resource agent scripts and libraries.
 
-    Collects OCF installation paths used by Pacemaker resource agents,
-    including helper binaries under /usr/bin/ocf and the standard OCF root
-    hierarchy under /usr/lib/ocf (resource agents, shared libraries, and
-    support scripts).
+    Collects the standard OCF root under /usr/lib/ocf used by Pacemaker
+    resource agents, including resource agent scripts under resource.d/
+    and shared libraries/support scripts under lib/heartbeat/.
     """
 
-    short_desc = 'OCF resource agent binaries and libraries'
+    short_desc = 'OCF resource agent scripts and libraries'
 
     plugin_name = 'ocf'
     profiles = ('cluster',)
     packages = ('resource-agents', 'resource-agents-base')
-    files = ('/usr/lib/ocf', '/usr/bin/ocf')
-
-    ocf_paths = (
-        '/usr/bin/ocf',
-        '/usr/lib/ocf',
-    )
+    files = ('/usr/lib/ocf',)
 
     def setup(self):
         self.add_file_tags({
@@ -38,8 +32,7 @@ class Ocf(Plugin, IndependentPlugin):
             '/usr/lib/ocf/lib/heartbeat/ocf-shellfuncs': 'ocf_shellfuncs',
         })
 
-        self.add_copy_spec(self.ocf_paths)
-        self.add_dir_listing(self.ocf_paths)
+        self.add_copy_spec('/usr/lib/ocf')
 
     def postproc(self):
         # password=secret -> password=********
@@ -53,11 +46,6 @@ class Ocf(Plugin, IndependentPlugin):
             r"/usr/lib/ocf/.*",
             r"(api[_]?key[^\s=]*)=\S+",
             r"\1=********"
-        )
-        self.do_path_regex_sub(
-            r"/usr/bin/ocf/.*",
-            r"(passw([^\s=]*)=)\S+",
-            r"\1********"
         )
 
 # vim: set et ts=4 sw=4 :
