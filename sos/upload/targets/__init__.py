@@ -92,6 +92,7 @@ class UploadTarget():
         'upload_s3_secret_key': None,
         'upload_s3_object_prefix': None,
         'upload_target': None,
+        'upload_threads': 4,
     }
 
     def __init__(self, parser=None, args=None, cmdline=None):
