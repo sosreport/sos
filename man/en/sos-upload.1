@@ -19,6 +19,7 @@ sos_upload \- Upload files like previously generated sos reports or logs to a po
           [--upload-s3-access-key key]\fR
           [--upload-s3-secret-key key]\fR
           [--upload-s3-object-prefix prefix]\fR
+          [--upload-threads threads]\fR
 
 .PP
 .SH DESCRIPTION
@@ -114,6 +115,15 @@ and use it for uploads.
 
 .TP
 .B \--upload-s3-endpoint ENDPOINT
+.B \--upload-threads THREADS
+Number of threads to use for multipart uploads (1\-16, default: 4).
+When an archive exceeds a certain size, defined in the targets, it is
+uploaded in parallel chunks using this many threads. Higher values
+speed up the upload but consume more bandwidth and memory, as each
+thread holds a 128 MiB chunk in memory.
+
+.TP
+.B \---upload-s3-endpoint ENDPOINT
 Endpoint to upload to for S3 bucket
 
 .TP

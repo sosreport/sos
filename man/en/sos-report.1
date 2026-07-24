@@ -49,6 +49,7 @@ sos_report \- Collect and package diagnostic and support data
           [--upload-s3-access-key key]\fR
           [--upload-s3-secret-key key]\fR
           [--upload-s3-object-prefix prefix]\fR
+          [--upload-threads threads]\fR
           [--experimental]\fR
           [-h|--help]\fR
 
@@ -520,6 +521,13 @@ Secret key for the S3 bucket
 .TP
 .B \--upload-s3-object-prefix PREFIX
 Prefix for the S3 object/key
+.TP
+.B \--upload-threads THREADS
+Number of threads to use for multipart uploads (1\-16, default: 4).
+When an archive exceeds a certain size, defined in the targets, it is
+uploaded in parallel chunks using this many threads. Higher values
+speed up the upload but consume more bandwidth and memory, as each
+thread holds a 128 MiB chunk in memory.
 .TP
 .B \--experimental
 Enable plugins marked as experimental. Experimental plugins may not have
