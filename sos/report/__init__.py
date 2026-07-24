@@ -149,6 +149,7 @@ class SoSReport(SoSComponent):
         'upload_s3_secret_key': None,
         'upload_s3_object_prefix': None,
         'upload_target': None,
+        'upload_threads': 4,
         'add_preset': '',
         'del_preset': '',
         'treat_certificates': 'obfuscate'
@@ -354,6 +355,18 @@ class SoSReport(SoSComponent):
                                 choices=['auto', 'https', 'ftp', 'sftp',
                                          's3'],
                                 help="Manually specify the upload protocol")
+        report_grp.add_argument("--upload-threads", default=4, type=int,
+                                choices=range(1, 17),
+                                metavar="THREADS",
+                                help=("Number of threads for multipart "
+                                      "uploads. When an archive exceeds "
+                                      "a certain size, defined in the "
+                                      "targets, it is uploaded in "
+                                      "parallel chunks using this many "
+                                      "threads (1-16, default: 4). "
+                                      "Each thread holds a 128 MiB chunk "
+                                      "in memory, e.g. 4 threads use "
+                                      "~512 MiB"))
 
         # Group to make add/del preset exclusive
         preset_grp = report_grp.add_mutually_exclusive_group()
