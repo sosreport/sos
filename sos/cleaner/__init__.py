@@ -251,9 +251,9 @@ class SoSCleaner(SoSComponent):
                             "directory")
         if not os.path.exists(self.opts.map_file):
             if self.opts.map_file != default_map:
-                self.log_error(
-                    f"ERROR: map file {self.opts.map_file} does not exist, "
-                    "will not load any obfuscation matches")
+                self.log_info(
+                    f"Default map file {self.opts.map_file} does not exist, "
+                    "will not\nload any obfuscation mapping.")
         else:
             with open(self.opts.map_file, 'r', encoding='utf-8') as mf:
                 try:
