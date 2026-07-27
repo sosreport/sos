@@ -29,20 +29,24 @@ def import_policy(name):
         return None
 
 
-def load(cache={}, sysroot=None, init=None, probe_runtime=True,
+def load(cache=None, sysroot=None, init=None, probe_runtime=True,
          remote_exec=None, remote_check=''):
+    if cache is None:
+        cache = {}
     if 'policy' in cache:
         return cache.get('policy')
 
     import sos.policies.distros
     helper = ImporterHelper(sos.policies.distros)
+    matches = []
     for module in helper.get_modules():
-        for policy in import_policy(module):
-            if policy.check(remote=remote_check):
-                cache['policy'] = policy(sysroot=sysroot, init=init,
-                                         probe_runtime=probe_runtime,
-                                         remote_exec=remote_exec)
-                break
+        matches.extend([policy for policy in (import_policy(module) or [])
+                        if policy.check(remote=remote_check)])
+    if matches:
+        matches.sort(key=lambda p: len(p.__mro__), reverse=True)
+        cache['policy'] = matches[0](sysroot=sysroot, init=init,
+                                     probe_runtime=probe_runtime,
+                                     remote_exec=remote_exec)
 
     if sys.platform != 'linux':
         raise Exception("SoS is not supported on this platform")
