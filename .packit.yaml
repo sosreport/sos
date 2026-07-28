@@ -12,7 +12,8 @@ srpm_build_deps:
   - gettext
 
 jobs:
-  - job: copr_build
+  - &copr
+    job: copr_build
     trigger: pull_request
     targets:
       - fedora-development-x86_64
@@ -21,6 +22,12 @@ jobs:
       - fedora-development-s390x
       - centos-stream-9
       - centos-stream-10
+
+  - <<: *copr
+    trigger: commit
+    branch: main
+    owner: '@sosreport'
+    project: develop
 
 notifications:
   pull_request:
