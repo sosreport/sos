@@ -281,11 +281,17 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         if chroot and chroot != '/':
             os.chroot(chroot)
         if runas:
-            os.setgid(pwd.getpwnam(runas).pw_gid)
-            os.setuid(pwd.getpwnam(runas).pw_uid)
-            os.chdir(pwd.getpwnam(runas).pw_dir)
+            # re-use pwd_user from the outer scope to avoid redundant lookups
+            os.initgroups(runas, pwd_user.pw_gid)
+            os.setgid(pwd_user.pw_gid)
+            os.setuid(pwd_user.pw_uid)
+
+        # prioritize explicit chdir and failback only if runas is set and
+        # no explicit chdir was provided.
         if chdir:
             os.chdir(chdir)
+        elif runas:
+            os.chdir(pwd_user.pw_dir)
 
     def _check_poller(proc):
         if poller() or proc.poll() == 124:
@@ -298,6 +304,11 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             pwd_user = pwd.getpwnam(runas)
         except KeyError:  # no such user
             return {'status': 127, 'output': "", 'truncated': ''}
+
+        # handle env=None case to prevent AttributeError on None.update()
+        if env is None:
+            env = {}
+
         env.update({
             'HOME': pwd_user.pw_dir,
             'LOGNAME': runas,
@@ -305,7 +316,10 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             'USER': runas,
             # XDG_RUNTIME_DIR is required for rootless podman to access
             # user-specific runtime files and sockets
-            'XDG_RUNTIME_DIR': f"/run/user/{pwd_user.pw_uid}"
+            'XDG_RUNTIME_DIR': f"/run/user/{pwd_user.pw_uid}",
+            # DBUS_SESSION_BUS_ADDRESS is required for rootless podman
+            'DBUS_SESSION_BUS_ADDRESS':
+                f"unix:path=/run/user/{pwd_user.pw_uid}/bus"
         })
 
     cmd_env = os.environ.copy()
