@@ -6,7 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import Plugin, IndependentPlugin, SoSPredicate
+import re
+from sos.report.plugins import (Plugin, IndependentPlugin, SoSPredicate,
+                                PluginOpt)
 from sos.policies.distros.ubuntu import UbuntuPolicy
 
 
@@ -18,6 +20,11 @@ class Processor(Plugin, IndependentPlugin):
     profiles = ('system', 'hardware', 'memory')
     files = ('/proc/cpuinfo',)
     packages = ('cpufreq-utils', 'cpuid')
+    option_list = [
+        PluginOpt('max_cpu_dirs', default=64, val_type=int,
+                  desc='Maximum number of cpu[0-9]+ directories '
+                       'to collect from /sys/devices/system/cpu'),
+    ]
 
     cpu_kmods = []
 
@@ -43,7 +50,39 @@ class Processor(Plugin, IndependentPlugin):
         # copy /sys/devices/system/cpu/cpuX with separately applied sizelimit
         # this is required for systems with tens/hundreds of CPUs where the
         # cumulative directory size exceeds 25MB or even 100MB.
+        # Limit cpu[0-9]* directories to avoid excessive collection.
+        # All non-cpu* directories are always collected.
+        max_cpu_dirs = self.get_option('max_cpu_dirs')
+        if max_cpu_dirs < 0:
+            self._log_info(f"Invalid {max_cpu_dirs=} value provided, "
+                           f"replacing by 0."
+                           )
+            max_cpu_dirs = 0
         cdirs = self.listdir('/sys/devices/system/cpu')
+
+        if len(cdirs) > max_cpu_dirs:
+            # separate cpu from non-cpu, then limit cpu dirs
+            cpu_pattern = re.compile(r'cpu(\d+)')
+            cpu_dirs = []
+            other_dirs = []
+
+            for cdir in cdirs:
+                if cpu_pattern.fullmatch(cdir):
+                    cpu_dirs.append(cdir)
+                else:
+                    other_dirs.append(cdir)
+
+            # Only limit if cpu_dirs specifically exceeds max
+            if len(cpu_dirs) > max_cpu_dirs:
+                self._log_info(
+                    f"Limiting cpu directories from {len(cpu_dirs)} to "
+                    f"{max_cpu_dirs} (use '-k processor.max_cpu_dirs=N' "
+                    f"to change)."
+                )
+                cpu_dirs = sorted(cpu_dirs)[:max_cpu_dirs]
+
+            cdirs = other_dirs + cpu_dirs
+
         self.add_copy_spec([
             self.path_join('/sys/devices/system/cpu', cdir) for cdir in cdirs
         ])
