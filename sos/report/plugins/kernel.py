@@ -123,6 +123,8 @@ class Kernel(Plugin, IndependentPlugin):
             "/etc/sysctl.conf",
             "/etc/sysctl.d",
             "/lib/sysctl.d",
+            "/run/sysctl.d",
+            "/usr/local/lib/sysctl.d",
             "/proc/cmdline",
             "/proc/driver",
             "/proc/sys/kernel/tainted",
