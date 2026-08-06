@@ -29,12 +29,11 @@ def import_policy(name):
         return None
 
 
-def load(cache=None, sysroot=None, init=None, probe_runtime=True,
-         remote_exec=None, remote_check=''):
-    if cache is None:
-        cache = {}
-    if 'policy' in cache:
-        return cache.get('policy')
+def load(sysroot=None, init=None, probe_runtime=True, remote_exec=None,
+         remote_check=''):
+    # deal with Linux distros only
+    if sys.platform != 'linux':
+        raise Exception("SoS is not supported on this platform")
 
     import sos.policies.distros
     helper = ImporterHelper(sos.policies.distros)
@@ -44,17 +43,15 @@ def load(cache=None, sysroot=None, init=None, probe_runtime=True,
                         if policy.check(remote=remote_check)])
     if matches:
         matches.sort(key=lambda p: len(p.__mro__), reverse=True)
-        cache['policy'] = matches[0](sysroot=sysroot, init=init,
-                                     probe_runtime=probe_runtime,
-                                     remote_exec=remote_exec)
+        policy = matches[0](sysroot=sysroot, init=init,
+                            probe_runtime=probe_runtime,
+                            remote_exec=remote_exec)
+    else:
+        policy = sos.policies.distros.GenericLinuxPolicy(
+            sysroot=sysroot, init=init, probe_runtime=probe_runtime,
+            remote_exec=remote_exec)
 
-    if sys.platform != 'linux':
-        raise Exception("SoS is not supported on this platform")
-
-    if 'policy' not in cache:
-        cache['policy'] = sos.policies.distros.GenericLinuxPolicy()
-
-    return cache['policy']
+    return policy
 
 
 class Policy():

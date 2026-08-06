@@ -414,7 +414,7 @@ class SosNode():
             self.log_info(
                 f"using local policy {self.commons['policy'].os_release_name}")
             return self.commons['policy']
-        host = load(cache={}, sysroot=self.opts.sysroot, init=InitSystem(),
+        host = load(sysroot=self.opts.sysroot, init=InitSystem(),
                     probe_runtime=True,
                     remote_exec=self._transport.run_command,
                     remote_check=self.read_file('/etc/os-release'))
