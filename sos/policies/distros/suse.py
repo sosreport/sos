@@ -45,7 +45,7 @@ class SuSEPolicy(LinuxPolicy):
     @classmethod
     def check(cls, remote=''):
         """This method checks to see if we are running on SuSE. It must be
-        overriden by concrete subclasses to return True when running on an
+        overridden by concrete subclasses to return True when running on an
         OpenSuSE, SLES or other Suse distribution and False otherwise."""
         return False
 

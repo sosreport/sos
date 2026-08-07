@@ -130,7 +130,7 @@ class InitSystem():
         """Parses the output returned by the query command to make a
         determination of what the state of the service is
 
-        This should be overriden by anything that subclasses InitSystem
+        This should be overridden by anything that subclasses InitSystem
 
         :param output: The raw output from querying the service with the
                        configured `query_cmd`
