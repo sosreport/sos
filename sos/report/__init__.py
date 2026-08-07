@@ -1016,7 +1016,7 @@ class SoSReport(SoSComponent):
         msg = "\nEstimate-only mode enabled"
         ext_msg = []
         if self.opts.threads > 1:
-            ext_msg += [f"--threads={self.opts.threads} overriden to 1", ]
+            ext_msg += [f"--threads={self.opts.threads} overridden to 1", ]
             self.opts.threads = 1
         if not self.opts.build:
             ext_msg += ["--build enabled", ]
