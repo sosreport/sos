@@ -97,7 +97,6 @@ class Pacemaker(Plugin):
 
             # Pacemaker 1.x default log locations
             "/var/log/pacemaker.log",
-            "/var/log/pacemaker/bundles/*/",
 
             # Common user-specified locations
             "/var/log/cluster/pacemaker.log*",
