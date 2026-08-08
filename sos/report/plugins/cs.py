@@ -70,7 +70,6 @@ class CertificateSystem(Plugin, RedHatPlugin):
                 "/opt/redhat-cs/cert-*/errors",
                 "/opt/redhat-cs/cert-*/config/CS.cfg",
                 "/opt/redhat-cs/cert-*/access",
-                "/opt/redhat-cs/cert-*/errors",
                 "/opt/redhat-cs/cert-*/system",
                 "/opt/redhat-cs/cert-*/transactions",
                 "/opt/redhat-cs/cert-*/debug",
