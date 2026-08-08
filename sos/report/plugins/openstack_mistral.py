@@ -40,7 +40,7 @@ class OpenStackMistral(Plugin, RedHatPlugin):
     containers = ('.*mistral_engine',)
 
     def setup(self):
-        if self.get_option('all_log'):
+        if self.get_option('all_logs'):
             self.add_copy_spec(MISTRAL_DIRECTORIES)
         else:
             self.add_copy_spec(MISTRAL_LOGS)
