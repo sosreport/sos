@@ -32,7 +32,7 @@ class Gfs2(Plugin, IndependentPlugin):
             "gfs_control dump"
         ])
 
-        if self.get_option("gfs2lockdump"):
+        if self.get_option("lockdump"):
             self.add_copy_spec("/sys/kernel/debug/gfs2/*")
 
         tunegfs2_opts = '-l'
