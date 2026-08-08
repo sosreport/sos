@@ -17,7 +17,7 @@ class Ipa(Plugin, RedHatPlugin):
     short_desc = 'Identity, policy, audit'
 
     plugin_name = 'ipa'
-    profiles = ('identity', 'apache')
+    profiles = ('identity', 'webserver')
 
     ipa_server = False
     ipa_client = False
