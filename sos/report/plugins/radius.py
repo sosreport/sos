@@ -50,4 +50,8 @@ class DebianRadius(Radius, DebianPlugin, UbuntuPlugin):
             "/var/log/freeradius"
         ])
 
+    def postproc(self):
+        self.do_path_regex_sub(
+            "/etc/freeradius/.*", r"(\s*password\s*=\s*)\S+", r"\1***")
+
 # vim: set et ts=4 sw=4 :
