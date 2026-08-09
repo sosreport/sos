@@ -661,13 +661,13 @@ class StdinWriter(threading.Thread):
                 self._stdin.flush()
         except (BrokenPipeError, ValueError) as exc:
             # pass error to the main thread
-            self.error = exc
+            self.error = str(exc)
         finally:
             try:
                 self._stdin.close()
             except (BrokenPipeError, ValueError) as exc:
                 # pass error to the main thread
-                self.error += exc
+                self.error += str(exc)
 
 
 class FakeReader():
