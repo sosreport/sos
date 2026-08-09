@@ -15,7 +15,7 @@ class Cron(Plugin, IndependentPlugin):
 
     plugin_name = "cron"
     profiles = ('system',)
-    packages = ('cron', 'anacron', 'chronie')
+    packages = ('cron', 'anacron', 'cronie')
 
     files = ('/etc/crontab',)
 

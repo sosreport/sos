@@ -15,7 +15,7 @@ class Anacron(Plugin, IndependentPlugin):
 
     plugin_name = 'anacron'
     profiles = ('system',)
-    packages = ('anacron', 'chronie-anacron')
+    packages = ('anacron', 'cronie-anacron')
 
     # anacron may be provided by anacron, cronie-anacron etc.
     # just look for the configuration file which is common
