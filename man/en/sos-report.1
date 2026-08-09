@@ -43,6 +43,12 @@ sos_report \- Collect and package diagnostic and support data
           [--upload-directory dir] [--upload-pass pass]\fR
           [--upload-no-ssl-verify] [--upload-method]\fR
           [--upload-protocol protocol]\fR
+          [--upload-s3-endpoint endpoint]\fR
+          [--upload-s3-region region]\fR
+          [--upload-s3-bucket bucket]\fR
+          [--upload-s3-access-key key]\fR
+          [--upload-s3-secret-key key]\fR
+          [--upload-s3-object-prefix prefix]\fR
           [--experimental]\fR
           [-h|--help]\fR
 
@@ -495,7 +501,25 @@ For RHEL systems, setting this option to \fBsftp\fR will skip the initial attemp
 upload to the Red Hat Customer Portal, and only attempt an upload to Red Hat's SFTP server,
 which is typically used as a fallback target.
 
-Valid values for PROTO are: 'auto' (default), 'https', 'ftp', 'sftp'.
+Valid values for PROTO are: 'auto' (default), 'https', 'ftp', 'sftp', 's3'.
+.TP
+.B \--upload-s3-endpoint ENDPOINT
+Endpoint to upload to for S3 bucket
+.TP
+.B \--upload-s3-region REGION
+Region to upload to for S3 bucket
+.TP
+.B \--upload-s3-bucket BUCKET
+Name of the S3 bucket to upload to
+.TP
+.B \--upload-s3-access-key KEY
+Access key for the S3 bucket
+.TP
+.B \--upload-s3-secret-key KEY
+Secret key for the S3 bucket
+.TP
+.B \--upload-s3-object-prefix PREFIX
+Prefix for the S3 object/key
 .TP
 .B \--experimental
 Enable plugins marked as experimental. Experimental plugins may not have
