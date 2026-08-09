@@ -566,7 +566,7 @@ def path_join(path, *p, sysroot=os.sep):
 
 def bold(text):
     """Helper to make text bold in console output, without pulling in
-    dependencies to the project unneccessarily.
+    dependencies to the project unnecessarily.
 
     :param text:    The text to make bold
     :type text:     ``str``
@@ -591,7 +591,7 @@ def recursive_dict_values_by_key(dobj, keys=[]):
     Any elements passed here that are _not_ keys within the dict or any nested
     dicts will also be returned.
 
-    :param dobj:    The 'top-level' dict to intially search by
+    :param dobj:    The 'top-level' dict to initially search by
     :type dobj:     ``dict``
 
     :param keys:    Which keys to compile elements from within ``dobj``. If no

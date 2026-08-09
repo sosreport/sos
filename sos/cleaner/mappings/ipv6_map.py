@@ -252,7 +252,7 @@ class ObfuscatedIPv6Network():
         addresses to match the general format/syntax of the address it is
         replacing. For the moment, it is assumed that being able to maintain a
         quick mental note of "unobfuscated device ff00::1 is obfuscated device
-        53ad::a1b2" is more desireable than "ff00::1 is now obfuscated as
+        53ad::a1b2" is more desirable than "ff00::1 is now obfuscated as
         53ad::1234:abcd:9876:a1b2:".
 
         :param addr:        The unobfuscated IPv6 address

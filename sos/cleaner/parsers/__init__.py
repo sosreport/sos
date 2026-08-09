@@ -16,7 +16,7 @@ import re
 class SoSCleanerParser():
     """Parsers are used to build objects that will take a line as input,
     parse it for a particular pattern (E.G. IP addresses) and then make any
-    necessary subtitutions by referencing the SoSMap() associated with the
+    necessary substitutions by referencing the SoSMap() associated with the
     parser.
 
     Ideally a new parser subclass will only need to set the class level attrs
