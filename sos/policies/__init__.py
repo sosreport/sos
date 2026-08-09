@@ -189,8 +189,8 @@ any third party.
     @classmethod
     def set_forbidden_paths(cls):
         """Use this to *append* policy-specifc forbidden paths that apply to
-        all plugins. Setting this classmethod on an invidual policy will *not*
-        override subclass-specific paths
+        all plugins. Setting this classmethod on an individual policy will
+        *not* override subclass-specific paths
         """
         return [
             '*.egg',
@@ -214,7 +214,7 @@ any third party.
 
     def get_preferred_archive(self):
         """
-        Return the class object of the prefered archive format for this
+        Return the class object of the preferred archive format for this
         platform
         """
         from sos.archive import TarFileArchive
@@ -540,7 +540,7 @@ any third party.
         return None
 
     def probe_preset(self):
-        """Return a ``PresetDefaults`` object matching the runing host.
+        """Return a ``PresetDefaults`` object matching the running host.
 
             Stub method to be implemented by derived policy classes.
 

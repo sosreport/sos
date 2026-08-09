@@ -273,7 +273,7 @@ class UploadTarget():
         :_upload_user:    Default username, if any else None
         :_upload_password: Default password, if any else None
 
-        The following Class Attrs may optionally be overidden by the Target
+        The following Class Attrs may optionally be overridden by the Target
 
         :_upload_directory:     Default FTP server directory, if any
 
@@ -456,7 +456,7 @@ class UploadTarget():
         upload password or one provided by the user
 
         A user provided password, either via option or the 'SOSUPLOADPASSWORD'
-        environment variable will have precendent over any target value
+        environment variable will have precedence over any target value
 
         :returns: The password to use for upload
         :rtype: ``str``

@@ -79,7 +79,7 @@ class SoSPredicate:
 
     A predicate gates the collection of data by an sos plugin. For any
     `add_cmd_output()`, `add_copy_spec()` or `add_journal()` call, the
-    passed predicate will be evaulated and collection will proceed if
+    passed predicate will be evaluated and collection will proceed if
     the result is `True`, and not otherwise.
 
     Predicates may be used to control conditional data collection
@@ -688,7 +688,7 @@ class Plugin():
         determined by either the value provided via the
         plugin.timeout or plugin.cmd-timeout option, the global timeout or
         cmd-timeout options, or the default value set by the plugin or the
-        collection, in that order of precendence.
+        collection, in that order of precedence.
 
         :param optname: The name of the cmdline option being checked, either
                         'plugin_timeout' or 'timeout'
@@ -1346,7 +1346,7 @@ class Plugin():
         :param regexp: A regex to match against the contents of each file
         :type regexp: ``str`` or compiled ``re`` object
 
-        :param subst: The substituion string to be used to replace matches
+        :param subst: The substitution string to be used to replace matches
         :type subst: ``str``
         """
         if not hasattr(pathexp, "match"):
