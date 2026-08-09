@@ -1,5 +1,5 @@
-``sos.utilities`` --- Utilites Interface
-========================================
+``sos.utilities`` --- Utilities Interface
+=========================================
 
 .. automodule:: sos.utilities
     :members:
