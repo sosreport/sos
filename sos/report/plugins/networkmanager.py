@@ -16,6 +16,7 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
     plugin_name = 'networkmanager'
     profiles = ('network', 'hardware', 'system')
     packages = ('NetworkManager', 'network-manager')
+    services = ('NetworkManager',)
 
     def setup(self):
         self.system_connection_files = [
@@ -41,8 +42,6 @@ class NetworkManager(Plugin, RedHatPlugin, UbuntuPlugin):
         self.add_forbidden_path(
             "/var/run/NetworkManager/secret_key"
         )
-
-        self.add_journal(units="NetworkManager")
 
         self.add_cmd_output("NetworkManager --print-config")
 
