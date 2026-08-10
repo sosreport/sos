@@ -8,8 +8,10 @@ sos_clean, sos_mask \- Obfuscate sensitive data from one or more sos reports
     [\-\-skip-cleaning-files|\-\-skip-masking-files]
     [\-\-keywords]
     [\-\-keyword-file]
+    [\-\-usernames]
+    [\-\-treat-certificates]
     [\-\-map-file]
-    [\-\-jobs]
+    [\-j|\-\-jobs]
     [\-\-no-update]
     [\-\-keep-binary-files]
     [\-\-archive-type]
@@ -84,6 +86,18 @@ both standalone words and in substring matches.
 Provide a file that contains a list of keywords that should be obfuscated. Each word must
 be specified on a newline within the file.
 .TP
+.B \-\-usernames USERNAMES
+Provide a comma-delimited list of usernames to obfuscate in addition to those
+discovered by the username parser.
+.TP
+.B \-\-treat-certificates {obfuscate|keep|remove}
+How to treat certificate files (.csr, .crt, .pem) found in the archive.
+\fBobfuscate\fR converts the file to text and then obfuscates it, \fBkeep\fR
+leaves it in place unmodified, and \fBremove\fR deletes it. Files identified as
+private keys are always removed regardless of this setting.
+
+Default: obfuscate
+.TP
 .B \-\-map-file FILE
 Provide a location to a valid mapping file to use as a reference for existing obfuscation pairs.
 If one is found, the contents are loaded before parsing is started. This allows consistency between
@@ -93,7 +107,7 @@ option to reference a map file from a different run (perhaps one that was done o
 
 Default: /etc/sos/cleaner/default_mapping
 .TP
-.B \-\-jobs JOBS
+.B \-j, \-\-jobs JOBS
 The number of concurrent archives to process, if more than one. If this utility is called by
 \fBsos collect\fR then the value of the jobs option for that utility will be used here.
 
