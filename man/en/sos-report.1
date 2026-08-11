@@ -12,6 +12,7 @@ sos_report \- Collect and package diagnostic and support data
           [--no-report] [--config-file conf]\fR
           [--no-postproc]\fR
           [--preset preset] [--add-preset add_preset]\fR
+          [--note note]\fR
           [--del-preset del_preset] [--desc description]\fR
           [--batch] [--build] [--debug] [--dry-run]\fR
           [--estimate-only] [--label label] [--case-id id]\fR
@@ -28,6 +29,7 @@ sos_report \- Collect and package diagnostic and support data
           [--verify]\fR
           [--log-size]\fR
           [--journal-size]\fR
+          [--no-env-vars]\fR
           [--all-logs]\fR
           [--since YYYYMMDD[HHMMSS]]\fR
           [--skip-commands commands]\fR
@@ -36,6 +38,7 @@ sos_report \- Collect and package diagnostic and support data
           [--allow-system-changes]\fR
           [--low-priority]\fR
           [-z|--compression-type method]\fR
+          [--clean|--mask]\fR
           [--encrypt]\fR
           [--encrypt-key KEY]\fR
           [--encrypt-pass PASS]\fR
@@ -158,6 +161,13 @@ Display a list of available presets and what options they carry.
 When using \fB--add-preset\fR use this option to add a description of the preset
 that will be displayed when using \fB--list-presets\fR.
 .TP
+.B \--note NOTE
+When using \fB--add-preset\fR, use this option to add a behaviour note to the preset
+that will be displayed when using \fB--list-presets\fR.
+
+This is useful for documenting specific behaviours, caveats, or use-cases for the preset
+beyond the basic description.
+.TP
 .B \-s, \--sysroot SYSROOT
 Specify an alternate root file system path. Useful for collecting
 reports from containers and images.
@@ -220,6 +230,14 @@ Tell plugins to collect all possible log data ignoring any size limits
 and including logs in non-default locations. This option may significantly
 increase the size of reports.
 .TP
+.B \--no-env-vars
+Do not collect environment variables in the report.
+
+By default, sos report collects environment variables from the system which may contain
+sensitive information. Use this option to exclude environment variable collection for
+privacy or security reasons. Note that this may limit the usefulness of the report for
+debugging environment-related issues.
+.TP
 .B \--since YYYYMMDD[HHMMSS]
 Limits the collection of log archives to those newer than this date. A log
 archive is any file not found in /etc, that has either a numeric or a
@@ -257,6 +275,19 @@ Set sos to execute as a low priority process so that is does not interfere with
 other processes running on the system. Specific distributions may set their own
 constraints, but by default this involves setting process niceness to 19 and, if
 available, setting an idle IO class via ionice.
+.TP
+.B \--clean, \--cleaner, \--mask
+Enable inline obfuscation/cleaning of the generated report.
+
+When this option is used, the report will be processed to obfuscate sensitive information
+such as hostnames, IP addresses, MAC addresses, and user-specified keywords during generation,
+rather than as a separate post-processing step.
+
+Additional cleaning/masking options (such as \fB--domains\fR, \fB--keywords\fR,
+\fB--map-file\fR, \fB--usernames\fR, etc.) control the cleaning behavior. For
+documentation of all cleaning options, see \fBsos-clean(1)\fR.
+
+.TP
 .B \-z, \--compression-type METHOD
 Override the default compression type specified by the active policy.
 .TP
