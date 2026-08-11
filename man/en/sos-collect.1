@@ -7,17 +7,24 @@ sos_collect \- Collect sos reports from multiple (cluster) nodes
     [\-a|\-\-all\-options]
     [\-b|\-\-become]
     [\-\-batch]
+    [\-\-clean|\-\-cleaner|\-\-mask]
+    [\-\-cmd\-timeout TIMEOUT]
     [\-c CLUSTER_OPTIONS]
     [\-\-chroot CHROOT]
     [\-\-case\-id CASE_ID]
     [\-\-cluster\-type CLUSTER_TYPE]
     [\-\-container\-runtime RUNTIME]
     [\-e ENABLE_PLUGINS]
+    [\-i|\-\-ssh\-key SSH_KEY]
+    [\-\-inherit\-config\-file]
     [--encrypt-key KEY]\fR
     [--encrypt-pass PASS]\fR
     [\-\-group GROUP]
     [\-j|\-\-jobs JOBS]
+    [\-l|\-\-list\-options]
+    [\-\-namespaces NAMESPACES]
     [\-\-save\-group GROUP]
+    [\-\-no\-env\-vars]
     [\-\-nopasswd-sudo]
     [\-k PLUGIN_OPTION]
     [\-\-label LABEL]
@@ -26,6 +33,8 @@ sos_collect \- Collect sos reports from multiple (cluster) nodes
     [\-\-nodes NODES]
     [\-\-no\-pkg\-check]
     [\-\-no\-local]
+    [\-\-node\-config\-file FILE]
+    [\-\-plugin\-timeout TIMEOUT]
     [\-\-primary PRIMARY]
     [\-\-image IMAGE]
     [\-\-force-pull-image TOGGLE, --pull TOGGLE]
@@ -43,6 +52,7 @@ sos_collect \- Collect sos reports from multiple (cluster) nodes
     [\-\-ssh\-user SSH_USER]
     [\-\-sudo\-binary BINARY]
     [\-t|\-\-threads THREADS]
+    [\-\-upload]
     [\-\-timeout TIMEOUT]
     [\-\-transport TRANSPORT]
     [\-\-tmp\-dir TMP_DIR]
@@ -77,6 +87,18 @@ Become the root user on the remote node when connecting as a non-root user.
 \fB\-\-batch\fR
 Run in non-interactive mode. This will skip prompts for user input.
 .TP
+\fB\-\-clean\fR, \fB\-\-cleaner\fR, \fB\-\-mask\fR
+Enable inline obfuscation/cleaning of the collected archives.
+
+When this option is used, the final collected archive (containing all node reports)
+will be processed to obfuscate sensitive information such as hostnames, IP addresses,
+MAC addresses, and user-specified keywords.
+
+Additional cleaning/masking options (such as \fB--domains\fR, \fB--keywords\fR,
+\fB--map-file\fR, \fB--usernames\fR, etc.) control the cleaning behavior. For
+documentation of all cleaning options, see \fBsos-clean(1)\fR.
+
+.TP
 \fB\-\-all\-logs\fR
 Report option. Collects all logs regardless of size. 
 
@@ -89,6 +111,17 @@ For example, for the ovirt plugin if you wanted to restrict node enumeration to
 a specific cluster you would use \fB'-c ovirt.cluster=example_cluster'\fR.
 
 Available cluster options can be listed by running \fB'sos collect -l'\fR.
+.TP
+\fB\-\-cmd\-timeout\fR TIMEOUT
+Report option. Specify a timeout limit in seconds for command execution on each node.
+
+This sets the command timeout for all plugins on the remote nodes. A value of 0 means
+no timeout will be set. A value of -1 is used to indicate the default timeout of 300 seconds.
+
+This option sets the command timeout for all plugins. For plugin-specific command timeouts,
+use the 'cmd-timeout' plugin option, e.g. '-k logs.cmd-timeout=600'.
+
+Note that setting a high cmd-timeout may require increasing --plugin-timeout as well.
 .TP
 \fB\-\-chroot\fR CHROOT
 Report option. Set the chroot mode. When \fB\-\-sysroot\fR is used commands default
@@ -183,6 +216,27 @@ with the settings for cluster-type, primary, and the node list as discovered by 
 Note that this means regexes are not directly saved to host groups, but the results of matching against
 those regexes are.
 .TP
+\fB\-\-inherit\-config\-file\fR
+Use the configuration file from the collector host for all nodes when running sos report.
+
+When this option is specified, sos collect will use its own sos.conf (or other
+configuration file if specified via \fB--config-file\fR) and pass it to all nodes
+to use when collecting their individual sos reports. This ensures consistent
+configuration across all nodes in the cluster.
+
+This option is mutually exclusive with \fB--node-config-file\fR.
+.TP
+\fB\-i\fR SSH_KEY, \fB\-\-ssh\-key\fR SSH_KEY
+Specify an SSH private key file to use for authentication when connecting to nodes.
+
+This is useful when SSH key-based authentication is configured but the key is not
+in the default location (~/.ssh/id_rsa), or when you need to use a specific key
+for cluster node authentication.
+
+The key file must be readable by the user running sos collect and must not be
+password-protected (or the ssh-agent must have the key loaded) as sos collect
+does not support interactive passphrase prompts for SSH keys.
+.TP
 \fB\-j\fR JOBS \fB\-\-jobs\fR JOBS
 Specify the number of concurrent node collections that should be run.
 
@@ -191,6 +245,19 @@ will start collecting from the first X number of nodes and then continue to iter
 through the remaining nodes as sos report collection finishes.
 
 Defaults to 4.
+.TP
+\fB\-l\fR, \fB\-\-list\-options\fR
+Display available options for cluster profiles.
+
+This will show the cluster-specific options that can be used with the \fB-c\fR option
+for the detected or specified cluster type. For example, cluster profiles may support
+options to restrict node enumeration or modify collection behavior.
+
+Use with \fB--cluster-type\fR to see options for a specific cluster profile, otherwise
+sos collect will attempt to auto-detect the cluster type.
+
+Example: \fBsos collect --cluster-type=kubernetes --list-options\fR
+
 .TP
 \fB\-\-nopasswd-sudo\fR
 Use this option when connecting as a non-root user that has passwordless sudo
@@ -223,6 +290,23 @@ Setting this value to 0 removes all size limitations, and any files or commands
 collected will be collected in their entirety, which may drastically increase the
 size of the final sos report tarball and the memory usage of sos during collection
 of commands, such as very large journals that may be several GiB in size.
+.TP
+\fB\-\-namespaces\fR NAMESPACES
+Report option. For plugins that iterate collections over namespaces that exist on the system,
+use this option to limit the number of namespaces that will be collected on each node.
+
+Use '0' (default) for no limit - all namespaces will be used for collections.
+
+Note that specific plugins may provide a similar 'namespaces' plugin option which will
+override this option.
+.TP
+\fB\-\-no\-env\-vars\fR
+Report option. Do not collect environment variables in the reports from nodes.
+
+By default, sos report collects environment variables from the system which may contain
+sensitive information. Use this option to exclude environment variable collection on all
+nodes for privacy or security reasons. Note that this may limit the usefulness of the
+reports for debugging environment-related issues.
 .TP
 \fB\-n\fR SKIP_PLUGINS, \fB\-\-skip\-plugins\fR SKIP_PLUGINS
 Report option. Disable (skip) a particular plugin that would otherwise run.
@@ -262,6 +346,17 @@ the type of cluster in use.
 Specify an image to use for the temporary container created for collections on
 containerized host, if you do not want to use the default image specified by the
 host's policy. Note that this should include the registry.
+.TP
+\fB\-\-node\-config\-file\fR FILE
+Path to an existing configuration file on the nodes to use with sos report.
+
+When specified, sos collect will instruct each node to use the configuration file
+at the given path (which must exist on each node) when running sos report. This
+allows nodes to use a pre-deployed configuration file rather than their default
+configuration or the collector's configuration.
+
+The path must be absolute and the file must exist on all nodes being collected from.
+This option is mutually exclusive with \fB--inherit-config-file\fR.
 .TP
 \fB\-\-force-pull-image TOGGLE, \-\-pull TOGGLE\fR
 When collecting an sos report from a containerized host, force the host to always
@@ -317,6 +412,17 @@ are not used.
 If \fB\-\-preset\fR is specified and a given node either does not have that preset
 defined, or has a version of sos prior to 3.6, this option is ignored for that node.
 .TP
+\fB\-\-plugin\-timeout\fR TIMEOUT
+Report option. Specify a timeout in seconds to allow each plugin to run for on each node.
+
+A value of 0 means no timeout will be set. A value of -1 is used to indicate the default
+timeout of 300 seconds.
+
+This option sets the timeout for all plugins. For plugin-specific timeouts, use the
+'timeout' plugin option available to all plugins, e.g. '-k logs.timeout=600'.
+
+The plugin-specific timeout option will override this option.
+.TP
 \fB\-p\fR SSH_PORT, \fB\-\-ssh\-port\fR SSH_PORT
 Specify SSH port for all nodes. Use this if SSH runs on any port other than 22.
 .TP
@@ -331,6 +437,16 @@ will skip all commands with names that begin with the string "hostname".
 A comma delimited list of files or filepath wildcard matches to skip collection
 of. Values may either be exact filepaths or paths using UNIX shell-style wildcards,
 for example \fB/etc/sos/*\fR.
+.TP
+\fB\-\-upload\fR
+Upload the collected archive to a vendor-defined or user-specified location after collection.
+
+Additional upload options (such as \fB--upload-url\fR, \fB--upload-user\fR, \fB--upload-s3-*\fR,
+etc.) control the upload destination and authentication. For documentation of all upload
+options, see \fBsos-upload(1)\fR or also \fBsos-report(1)\fR.
+
+Note: The upload applies to the final collected archive, not to individual node reports.
+
 .TP
 \fB\-\-ssh\-user\fR SSH_USER
 Specify an SSH user for sos collect to connect to nodes with. Default is root.
