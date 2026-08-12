@@ -46,7 +46,6 @@ class AAPContainerized(Plugin, RedHatPlugin):
     ]
 
     def setup(self):
-        self.aap_directory_name = ""
         # Determine which non-root user owns the AAP rootless containers
         username = self._get_username()
         if not username:
@@ -91,14 +90,17 @@ class AAPContainerized(Plugin, RedHatPlugin):
             ]
             self.add_forbidden_path(forbidden_paths)
             self.add_copy_spec(self.aap_directory_name)
+        else:
+            self._log_error(f"Directory {self.aap_directory_name} does not "
+                            f"exist or invalid absolute path provided.")
 
-        _runtime = self._get_container_runtime()
-        if _runtime is not None:
-            self.add_cmd_output(_runtime.info_command(run_debug=True),
+        self._runtime = self._get_container_runtime()
+        if self._runtime is not None:
+            self.add_cmd_output(self._runtime.get_info_command(run_debug=True),
                                 runas=username,
                                 subdir="podman_cmd_outputs",
                                 suggest_filename="podman_info")
-            self.add_cmd_output(_runtime.list_command(get_all=True),
+            self.add_cmd_output(self._runtime.get_list_command(get_all=True),
                                 runas=username,
                                 subdir="podman_cmd_outputs",
                                 suggest_filename="podman_ps")
@@ -187,11 +189,10 @@ class AAPContainerized(Plugin, RedHatPlugin):
     # Collect podman inspect output of a single container owned
     # by rootless user.
     def add_podman_inspect(self, container, username):
-        _runtime = self._get_container_runtime()
-        if _runtime is None:
+        if self._runtime is None:
             return
         self.add_cmd_output(
-            _runtime.inspect_command(container),
+            self._runtime.get_inspect_command(container),
             runas=username,
             suggest_filename=f"{container}_inspect.json",
             subdir="podman_inspect_logs"
@@ -200,11 +201,10 @@ class AAPContainerized(Plugin, RedHatPlugin):
     # Run a command inside a podman container owned by rootless user and
     # store the output under the container's subdirectory.
     def add_podman_exec(self, container, cmd, username):
-        _runtime = self._get_container_runtime()
-        if _runtime is None:
+        if self._runtime is None:
             return
         self.add_cmd_output(
-            _runtime.exec_command(container, cmd),
+            self._runtime.get_exec_command(container, cmd),
             runas=username,
             suggest_filename=self._mangle_command(cmd),
             subdir=f"podman_cmd_outputs/{container}"
@@ -235,10 +235,14 @@ class AAPContainerized(Plugin, RedHatPlugin):
                                "'-k aap_containerized.username=<user>' "
                                "to specify it.")
                 return username
-            self._log_error("Unable to determine AAP username, "
-                            "multiple users running rootless podman detected. "
-                            "Use '-k aap_containerized.username=<user>' "
-                            "to specify it.")
+            if len(podman_users) > 1:
+                self._log_error("Multiple users running rootless podman "
+                                "detected. Use '-k "
+                                "aap_containerized.username=<user>' "
+                                "to specify it.")
+                return None
+        self._log_error("Unable to determine AAP username, terminating "
+                        "plugin.")
         return None
 
     # Resolve the absolute path of AAP containers volume directory.
@@ -246,7 +250,7 @@ class AAPContainerized(Plugin, RedHatPlugin):
         aap_directory_name = self.get_option("directory")
         if not aap_directory_name:
             user_home_directory = os.path.expanduser(f"~{username}")
-            aap_directory_name = os.path.join(user_home_directory, "aap")
+            aap_directory_name = self.path_join(user_home_directory, "aap")
             self._log_warn("Auto-detected AAP directory: "
                            f"'{aap_directory_name}'. If incorrect, "
                            "use '-k aap_containerized.directory=<path>' to "
@@ -256,16 +260,16 @@ class AAPContainerized(Plugin, RedHatPlugin):
     # Check and enable plugin on a AAP Containerized host
     def check_enabled(self):
         aap_processes = [
-                'dumb-init -- /usr/bin/envoy',
-                'dumb-init -- /usr/bin/supervisord',
-                'dumb-init -- /usr/bin/launch_awx_web.sh',
-                'dumb-init -- /usr/bin/launch_awx_task.sh',
-                'dumb-init -- aap-eda-manage',
-                'pulpcore-content --name pulp-content --bind 127.0.0.1',
-                'gunicorn pulpcore.app.wsgi',
-                'receptor --config',
-                'metrics-service run',
-            ]
+            'dumb-init -- /usr/bin/envoy',
+            'dumb-init -- /usr/bin/supervisord',
+            'dumb-init -- /usr/bin/launch_awx_web.sh',
+            'dumb-init -- /usr/bin/launch_awx_task.sh',
+            'dumb-init -- aap-eda-manage',
+            'pulpcore-content --name pulp-content --bind 127.0.0.1',
+            'gunicorn pulpcore.app.wsgi',
+            'receptor --config',
+            'metrics-service run',
+        ]
 
         ps_output = self.exec_cmd("ps --noheaders -eo args")
 
@@ -276,6 +280,11 @@ class AAPContainerized(Plugin, RedHatPlugin):
         return False
 
     def postproc(self):
+        # Nothing will be collected when setup() could not resolve AAP
+        # directory (e.g. missing/invalid username or directory option), so
+        # there is nothing to obfuscate i.e. skip to avoid attribute errors.
+        if not getattr(self, 'aap_directory_name', None):
+            return
         # remove controller email password
         file_path = f"{self.aap_directory_name}/controller/etc/settings.py"
         jreg = r"(EMAIL_HOST_PASSWORD\s*=\s*)\'(.+)\'"
