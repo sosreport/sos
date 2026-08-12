@@ -27,7 +27,8 @@ jobs:
         run: |
           DISTRO_JSON='[
             {"name": "ubuntu-22.04",  "image": "",              "builds": ["deb", "snap"], "stages": "foreman"},
-            {"name": "ubuntu-24.04",  "image": "",              "builds": ["deb", "snap"], "stages": "two"},
+            {"name": "ubuntu-24.04",  "image": "",              "builds": ["deb", "snap"], "stages": ""},
+            {"name": "ubuntu-26.04",  "image": "",              "builds": ["deb", "snap"], "stages": "two"},
             {"name": "ubuntu-latest", "image": "ubuntu:latest", "builds": ["deb"],         "stages": ""},
             {"name": "debian-12",     "image": "debian:12",     "builds": ["deb"],         "stages": ""},
             {"name": "debian-13",     "image": "debian:13",     "builds": ["deb"],         "stages": "two"},
