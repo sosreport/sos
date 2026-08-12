@@ -75,16 +75,22 @@ class ContainerRuntime():
         """
         return True
 
-    def get_containers(self, get_all=False):
+    def get_containers(self, get_all=False, runas=None):
         """Get a list of containers present on the system.
 
         :param get_all: If set, include stopped containers as well
         :type get_all: ``bool``
+
+        :param runas: If set, query the container runtime as this user, which
+                      allows discovering rootless containers owned by a
+                      non-root user
+        :type runas: ``str`` or ``None``
         """
         containers = []
         _cmd = f"{self.binary} ps {'-a' if get_all else ''}"
         if self.active:
-            out = sos_get_command_output(_cmd, chroot=self.policy.sysroot)
+            out = sos_get_command_output(_cmd, chroot=self.policy.sysroot,
+                                         runas=runas)
             if out['status'] == 0:
                 for ent in out['output'].splitlines()[1:]:
                     ent = ent.split()
@@ -212,16 +218,23 @@ class ContainerRuntime():
             return f"--authfile {authfile}"
         return ''
 
-    def get_logs_command(self, container):
+    def get_logs_command(self, container, log_lines=None):
         """Get the command string used to dump container logs from the
         runtime
 
         :param container: The name or ID of the container to get logs for
         :type container: ``str``
 
+        :param log_lines: Limit the log output to the last `log_lines` lines
+                          of the container's logs. If not set, all available
+                          logs are collected
+        :type log_lines: ``int`` or ``None``
+
         :returns: Formatted runtime command to get logs from `container`
         :type: ``str``
         """
+        if log_lines is not None:
+            return f"{self.binary} logs -t --tail {log_lines} {container}"
         return f"{self.binary} logs -t {container}"
 
     def get_copy_command(self, container, path, dest, sizelimit=None):
