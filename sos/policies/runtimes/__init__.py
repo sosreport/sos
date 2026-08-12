@@ -42,6 +42,12 @@ class ContainerRuntime():
     volumes = []
     binary = ''
     active = False
+    # Set to False for runtimes whose `logs` command does not support
+    # limiting the output to the last N lines (e.g. LXD)
+    log_line_limit = True
+    # Set to False for runtimes that cannot be run as a non-root user to
+    # query rootless containers (e.g. CRI-O and LXD daemon-based runtimes)
+    rootless = True
 
     def __init__(self, policy=None):
         self.policy = policy
@@ -88,7 +94,11 @@ class ContainerRuntime():
         """
         containers = []
         _cmd = f"{self.binary} ps {'-a' if get_all else ''}"
-        if self.active:
+        # When querying as a non-root user, the system-level runtime's
+        # active state is irrelevant, the user's rootless runtime may be
+        # active even when the root instance is not. The status check
+        # below handles failures gracefully.
+        if self.active or runas:
             out = sos_get_command_output(_cmd, chroot=self.policy.sysroot,
                                          runas=runas)
             if out['status'] == 0:
@@ -233,7 +243,7 @@ class ContainerRuntime():
         :returns: Formatted runtime command to get logs from `container`
         :type: ``str``
         """
-        if log_lines is not None:
+        if log_lines is not None and self.log_line_limit:
             return f"{self.binary} logs -t --tail {log_lines} {container}"
         return f"{self.binary} logs -t {container}"
 

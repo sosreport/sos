@@ -2847,7 +2847,7 @@ class Plugin():
         :type get_all:  ``bool``
 
         :returns:   All container IDs and names matching ``regex``
-        :rtype:     ``list`` of ``tuples`` as (id, name)
+        :rtype:     ``list`` of ``tuple`` as (id, name)
         """
         _runtime = self._get_container_runtime()
         if _runtime is not None:
@@ -2917,12 +2917,17 @@ class Plugin():
 
         :returns: All container IDs and names found in the user's rootless
                   container runtime
-        :rtype: ``list`` of ``tuples`` as (id, name)
+        :rtype: ``list`` of ``tuple`` as (id, name)
         """
         _runtime = self._get_container_runtime()
-        if _runtime is not None:
-            return _runtime.get_containers(get_all=get_all, runas=user)
-        return []
+        if _runtime is None:
+            return []
+        if not _runtime.rootless:
+            self._log_debug(f"Runtime '{_runtime.name}' does not support "
+                            f"rootless containers; cannot query user "
+                            f"'{user}' container runtime")
+            return []
+        return _runtime.get_containers(get_all=get_all, runas=user)
 
     def get_container_images(self, runtime=None):
         """Return a list of all image names from the Policy's
@@ -2970,7 +2975,9 @@ class Plugin():
         Supports passthru of add_cmd_output() options
 
         :param containers:   The name of the container to retrieve logs from,
-                             may be a single name or a regex
+                             may be a single name or a regex. Regexes are
+                             matched for both system-level and rootless
+                             (``runas``) runtimes.
         :type containers:    ``str`` or ``list`` of strs
 
         :param get_all:     Should non-running containers also be queried?
@@ -2979,50 +2986,79 @@ class Plugin():
 
         :param runas:       When set, collect logs from the rootless container
                             runtime owned by this user instead of the
-                            system-level runtime. Container names are then
-                            treated as *exact* matches, not regexes, against
-                            the user's runtime registry. When not set, the
-                            system-level runtime is queried and `containers`
-                            are matched as regexes.
+                            system-level runtime. Container names are matched
+                            as regexes against the user's runtime registry,
+                            consistent with the system-level runtime behaviour.
         :type runas:        ``str`` or ``None``
 
         :param log_lines:  Limit the log output collected for each container
-                           to the last `log_lines` lines. When not set, all
-                           available logs are collected. Plugins that need to
-                           limit the collected output should define their own
-                           default and pass it in here.
+                           to the last `log_lines` lines. Only honored by
+                           runtimes that support it (see
+                           ``ContainerRuntime.log_line_limit``).
+                           When not set, all available logs are collected.
+                           Plugins that need to limit the collected output
+                           should define their own default and pass it in
+                           here.
         :type log_lines:   ``int`` or ``None``
 
         :param kwargs:      Any kwargs supported by ``add_cmd_output()`` are
                             supported here
         """
         _runtime = self._get_container_runtime()
+        if _runtime is None:
+            self._log_debug(f"No container runtime available to collect "
+                            f"logs for '{containers}'")
+            return
+
         if isinstance(containers, str):
             containers = [containers]
-        for container in containers:
-            if runas:
-                # Rootless containers are owned by the specific user, so query
-                # that user's runtime directly and require an exact name match
-                # rather than a regex
-                _cons = self.get_containers_by_user(runas, get_all=get_all)
-                _cons = [c for c in _cons if c[1] == container]
-                if not _cons:
-                    self._log_debug(f"Container '{container}' not found in "
-                                    f"user '{runas}' container runtime")
-                    continue
-            elif _runtime is not None:
-                _cons = self.get_all_containers_by_regex(container, get_all)
-            else:
-                self._log_debug(f"No container runtime available to collect "
-                                f"logs for '{container}'")
-                continue
-            if _runtime is None:
-                self._log_debug(f"No container runtime available to collect "
-                                f"logs for '{container}'")
-                continue
-            for _con in _cons:
-                cmd = _runtime.get_logs_command(_con[1], log_lines=log_lines)
-                self.add_cmd_output(cmd, runas=runas, **kwargs)
+
+        # For rootless collection, query the user's runtime once, outside the
+        # loop, then filter by regex just like the root path
+        if log_lines is not None and not _runtime.log_line_limit:
+            self._log_debug(
+                f"Runtime '{_runtime.name}' does not support limiting log "
+                "output; collecting full logs"
+            )
+
+        matched_containers = []
+        # For rootless collection, query the user's runtime once, outside the
+        # loop, then filter by regex just like the root path
+        if runas:
+            _user_containers = self.get_containers_by_user(runas,
+                                                           get_all=get_all)
+
+            if _user_containers:
+                # Compile a single combined regex pattern for all target
+                # containers
+                combined_pattern = re.compile(
+                    "|".join(f"(?:{c})" for c in containers)
+                )
+                matched_containers = [
+                    c for c in _user_containers
+                    if combined_pattern.match(c[1])
+                ]
+            if not matched_containers:
+                self._log_debug(
+                    f"No matching containers found for user '{runas}'"
+                )
+                return
+        else:
+            for container in containers:
+                matched_containers.extend(
+                    self.get_all_containers_by_regex(container, get_all)
+                )
+
+        # De-duplicate matching containers by container ID
+        seen = set()
+        unique_containers = [
+            c for c in matched_containers
+            if not (c[0] in seen or seen.add(c[0]))
+        ]
+
+        for _con in unique_containers:
+            cmd = _runtime.get_logs_command(_con[1], log_lines=log_lines)
+            self.add_cmd_output(cmd, runas=runas, **kwargs)
 
     def fmt_container_cmd(self, container, cmd, quotecmd=False, runtime=None,
                           runas=None, env=None):

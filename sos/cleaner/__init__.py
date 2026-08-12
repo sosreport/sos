@@ -444,6 +444,19 @@ third party.
         for parser in self.parsers:
             if parser.name == 'Hostname Parser':
                 parser.mapping.set_initial_counts()
+
+        # Optimize single-archive cleaning: extract once before prepping
+        # instead of using tarfile.extractfile() for each file during prep,
+        # then extracting the full archive again during obfuscation.
+        # Multi-archive (sos-collect) keeps original prep-before-extract
+        # behavior for cross-archive obfuscation consistency.
+        single_tarball = (len(self.report_paths) == 1
+                          and self.report_paths[0].is_tarfile
+                          and not self.nested_archive)
+        if single_tarball:
+            self.log_debug("Single tarball detected, extracting before prep.")
+            self.report_paths[0].extract()
+
         self.preload_all_archives_into_maps()
         self.generate_parser_item_regexes()
         self.obfuscate_report_paths()
