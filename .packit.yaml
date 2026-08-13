@@ -22,6 +22,8 @@ jobs:
       - fedora-development-s390x
       - centos-stream-9
       - centos-stream-10
+      - rhel-9-x86_64
+      - rhel-10-x86_64
 
   - <<: *copr
     trigger: commit
