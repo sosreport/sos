@@ -25,6 +25,7 @@ class OVNCentral(Plugin):
     short_desc = 'OVN Northd'
     plugin_name = "ovn_central"
     profiles = ('network', 'virt')
+    services = ('ovn-northd',)
     containers = ('ovn-dbs-bundle.*', 'ovn_cluster_north_db_server')
     container_name = ""
     ovn_nbdb_socket = ""
@@ -222,8 +223,6 @@ class OVNCentral(Plugin):
 
             if ovs_dbdir:
                 self.add_copy_spec(self.path_join(ovs_dbdir, dbfile))
-
-        self.add_journal(units="ovn-northd")
 
 
 class RedHatOVNCentral(OVNCentral, RedHatPlugin):

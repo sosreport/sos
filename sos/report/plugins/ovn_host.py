@@ -17,6 +17,7 @@ class OVNHost(Plugin):
     short_desc = 'OVN Controller'
     plugin_name = "ovn_host"
     profiles = ('network', 'virt', 'openstack_edpm')
+    services = ('ovn-controller',)
     pidfile = 'ovn-controller.pid'
     pid_paths = [
         '/var/lib/openvswitch/ovn',
@@ -44,8 +45,6 @@ class OVNHost(Plugin):
             f'{self.ovs_cmd_pre}ovs-vsctl list-br',
             f'{self.ovs_cmd_pre}ovs-vsctl list Open_vSwitch',
         ])
-
-        self.add_journal(units="ovn-controller")
 
         # Collect Certificate Validity Dates
         for path in ['/etc/ovn/ovn-chassis.crt', '/etc/ovn/cert_host']:
