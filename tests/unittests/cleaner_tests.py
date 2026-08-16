@@ -723,3 +723,135 @@ class PackedDirTarballTests(unittest.TestCase):
         with mock.patch.object(self.archive, 'get_file_content',
                                return_value='{"components": {"report": {}}}'):
             self.assertEqual(self.archive._load_packed_dirs(), [])
+
+
+class NetplanDomainCleanTests(unittest.TestCase):
+    """
+    Ensure that the domains in the netplan would be cleaned correctly.
+    """
+
+    def test_netplan_search_domains_collected(self):
+        """Search domains and requested hostnames in netplan config must be
+        collected for obfuscation."""
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+            extracted_path = '/tmp/fake'
+
+            def get_files(self):
+                return ['/tmp/fake/etc/netplan/50-cloud-init.yaml']
+
+            def get_file_content(self, path):
+                if path == 'sos_commands/host/hostname_-f':
+                    return 'myhost.example.com'
+                if path == 'etc/hosts':
+                    return ''
+                if path == 'etc/netplan/50-cloud-init.yaml':
+                    return (
+                        'network:\n'
+                        '  version: 2\n'
+                        '  ethernets:\n'
+                        '    eth0:\n'
+                        '      nameservers:\n'
+                        '        search: [corp.example.net,'
+                        ' sub.corp.example.net]\n'
+                        '      dhcp4-overrides:\n'
+                        '        hostname: reqhostname\n'
+                    )
+                return ''
+
+        prepper = HostnamePrepper(SoSOptions(domains=[]))
+        items = prepper.get_items_for_map('hostname', MockArchive())
+        self.assertIn('corp.example.net', items)
+        self.assertIn('sub.corp.example.net', items)
+        self.assertIn('reqhostname', prepper.regex_items['hostname'])
+
+    def test_netplan_malformed_yaml_ignored(self):
+        """Malformed netplan YAML must not raise and must not prevent other
+        items from being collected."""
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+            extracted_path = '/tmp/fake'
+
+            def get_files(self):
+                return ['/tmp/fake/etc/netplan/bad.yaml']
+
+            def get_file_content(self, path):
+                if path == 'sos_commands/host/hostname_-f':
+                    return 'myhost.example.com'
+                if path == 'etc/hosts':
+                    return ''
+                if path == 'etc/netplan/bad.yaml':
+                    return 'network: [unbalanced\n'
+                return ''
+
+        prepper = HostnamePrepper(SoSOptions(domains=[]))
+        items = prepper.get_items_for_map('hostname', MockArchive())
+        self.assertIn('myhost', items)
+
+    def test_netplan_non_netplan_yaml_ignored(self):
+        """YAML files outside of netplan directories must not be mined."""
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+            extracted_path = '/tmp/fake'
+
+            def get_files(self):
+                return ['/tmp/fake/etc/other/app.yaml']
+
+            def get_file_content(self, path):
+                if path == 'sos_commands/host/hostname_-f':
+                    return 'myhost.example.com'
+                if path == 'etc/hosts':
+                    return ''
+                if path == 'etc/other/app.yaml':
+                    return 'network:\n  search: [should.not.match]\n'
+                return ''
+
+        prepper = HostnamePrepper(SoSOptions(domains=[]))
+        items = prepper.get_items_for_map('hostname', MockArchive())
+        self.assertNotIn('should.not.match', items)
+
+    def test_netplan_search_domain_obfuscated_end_to_end(self):
+        """A search domain discovered from netplan must be obfuscated when a
+        line containing it is parsed."""
+        workdir = join(sos.policies.load().get_tmp_dir(None),
+                       'sos_avocado_testing')
+
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+            extracted_path = '/tmp/fake'
+
+            def get_files(self):
+                return ['/tmp/fake/etc/netplan/50-cloud-init.yaml']
+
+            def get_file_content(self, path):
+                if path == 'sos_commands/host/hostname_-f':
+                    return 'myhost.example.com'
+                if path == 'etc/hosts':
+                    return ''
+                if path == 'etc/netplan/50-cloud-init.yaml':
+                    return (
+                        'network:\n'
+                        '  ethernets:\n'
+                        '    eth0:\n'
+                        '      nameservers:\n'
+                        '        search: [corp.example.net]\n'
+                    )
+                return ''
+
+        prepper = HostnamePrepper(SoSOptions(domains=[]))
+        items = prepper.get_items_for_map('hostname', MockArchive())
+        parser = SoSHostnameParser(config={}, workdir=workdir)
+        for item in items:
+            parser.mapping.add(item)
+        for ritem in prepper.regex_items['hostname']:
+            parser.mapping.add_regex_item(ritem)
+        parser.generate_item_regexes()
+
+        line = 'lookup performed against corp.example.net domain'
+        result = parser.parse_line(line)[0]
+        self.assertNotIn('corp.example.net', result,
+                         'netplan search domain not obfuscated')

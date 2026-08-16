@@ -1,0 +1,12 @@
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: false
+      addresses: [10.0.0.2/24]
+      nameservers:
+        addresses: [10.0.0.1]
+        search: [sostestdomain.example, sub.sostestdomain.example]
+      dhcp4-overrides:
+        hostname: sostesthostname
+
