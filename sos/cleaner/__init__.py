@@ -30,6 +30,7 @@ from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
 from sos.cleaner.parsers.keyword_parser import SoSKeywordParser
 from sos.cleaner.parsers.username_parser import SoSUsernameParser
 from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
+from sos.cleaner.parsers.regexp_parser import SoSRegexpParser
 from sos.cleaner.archives.sos import (SoSReportArchive, SoSReportDirectory,
                                       SoSCollectorArchive,
                                       SoSCollectorDirectory)
@@ -122,6 +123,7 @@ class SoSCleaner(SoSComponent):
         'map_file': '/etc/sos/cleaner/default_mapping',
         'no_update': False,
         'keep_binary_files': False,
+        'regexp_file': '/etc/sos/cleaner/regexp_patterns.conf',
         'target': '',
         'usernames': [],
         'treat_certificates': 'obfuscate'
@@ -177,6 +179,7 @@ class SoSCleaner(SoSComponent):
             SoSMacParser,
             SoSKeywordParser,
             SoSUsernameParser,
+            SoSRegexpParser,
         ]
         parser_names = [
             cls.__name__ for cls in parser_classes
@@ -328,6 +331,12 @@ third party.
         clean_grp.add_argument('--keyword-file', default=None,
                                dest='keyword_file',
                                help='Provide a file a keywords to obfuscate')
+        clean_grp.add_argument(
+            '--regexp-file',
+            default='/etc/sos/cleaner/regexp_patterns.conf',
+            dest='regexp_file',
+            help='Provide a file of regular expressions to obfuscate'
+        )
         clean_grp.add_argument('--map-file', dest='map_file',
                                default='/etc/sos/cleaner/default_mapping',
                                help=('Provide a previously generated mapping '
@@ -750,6 +759,8 @@ third party.
                 _parser.mapping.add_regex_item(ritem)
             _parser.mapping.initializing = False
             _parser.mapping.generate_compiled_regexes()
+            # Allow prepper to configure its parser after initialization
+            prepper.set_parser(_parser)
         # we must initialize stuff inside (cloned processes') archive - REALLY?
         archive.set_parsers(self.parsers)
 

@@ -8,6 +8,7 @@ sos_clean, sos_mask \- Obfuscate sensitive data from one or more sos reports
     [\-\-skip-cleaning-files|\-\-skip-masking-files]
     [\-\-keywords]
     [\-\-keyword-file]
+    [\-\-regexp-file]
     [\-\-map-file]
     [\-\-jobs]
     [\-\-no-update]
@@ -62,7 +63,7 @@ the target archive, so only use this option when absolutely necessary or you hav
 trust in the party/parties that may handle the generated report.
 
 Valid values for this option are currently: \fBhostname\fR, \fBip\fR, \fBipv6\fR,
-\fBmac\fR, \fBkeyword\fR, and \fBusername\fR.
+\fBmac\fR, \fBkeyword\fR, \fBusername\fR, and \fBregexp\fR.
 .TP
 .B \-\-skip-cleaning-files, \-\-skip-masking-files FILES
 Provide a comma-delimited list of files inside an archive, that cleaner should skip in cleaning.
@@ -83,6 +84,32 @@ both standalone words and in substring matches.
 .B \-\-keyword-file FILE
 Provide a file that contains a list of keywords that should be obfuscated. Each word must
 be specified on a newline within the file.
+.TP
+.B \-\-regexp-file FILE
+Provide a file containing custom regular expression patterns for obfuscating sensitive data
+that is not covered by the built-in parsers. Each line in the file should follow the format:
+
+    \fBkeyword pattern\fR
+
+Where \fBkeyword\fR is a lowercase alphanumeric identifier (ending with a letter, not a digit)
+and \fBpattern\fR is a Python regular expression containing exactly one capturing group () that
+marks the sensitive data to obfuscate. Use non-capturing groups (?:...) for additional matching
+logic.
+
+Example pattern file entries:
+
+    shorthost host=([^,\s]+)(?:,|$)
+    apikey api(?:_key|key)=([a-zA-Z0-9]+)
+
+The first example matches "host=foobar," and obfuscates "foobar" as "obfuscatedshorthost0".
+The second matches both "api_key=" and "apikey=" and obfuscates the value.
+
+Keywords cannot be reserved names (host, hostname, domain, ip, ipv6, mac, word, keyword,
+user, username) and must not end with digits to avoid ambiguity.
+
+Lines starting with '#' are treated as comments and are ignored.
+
+Default: /etc/sos/cleaner/regexp_patterns.conf
 .TP
 .B \-\-map-file FILE
 Provide a location to a valid mapping file to use as a reference for existing obfuscation pairs.
