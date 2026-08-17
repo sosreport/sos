@@ -61,9 +61,6 @@ class AAPEDAControllerPlugin(Plugin, RedHatPlugin):
         self.add_cmd_output("su - eda -c 'env'",
                             suggest_filename="eda_environment")
 
-        pkg_name = 'automation-eda-controller'
-        pkg = self.policy.package_manager.pkg_by_name(f'{pkg_name}')
-
         # EDA version in 2.5 release starts with 1.1.0 version
         eda_pkg_ver = getattr(self, 'eda_pkg_ver', '0.0.0')
         if sos_parse_version(eda_pkg_ver) > sos_parse_version('1.0.99'):
