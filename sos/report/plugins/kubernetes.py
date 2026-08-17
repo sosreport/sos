@@ -14,7 +14,7 @@ import re
 import json
 import os
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, PluginOpt)
+                                UbuntuPlugin, ArchPlugin, PluginOpt)
 
 
 KUBE_PACKAGES = (
@@ -385,6 +385,16 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
 
         self.do_file_private_sub(
             "/var/snap/k8s/common/var/lib/k8sd/state/truststore/k8s.yaml")
+
+
+class K3s(Kubernetes, ArchPlugin):
+    short_desc = "K3s - Lightweight Kubernetes"
+
+    plugin_name = "k3s"
+
+    packages = ("k3s",)
+    files = ("/etc/rancher/k3s/k3s.yaml",)
+    kube_cmd = "k3s kubectl"
 
 
 # vim: et ts=5 sw=4

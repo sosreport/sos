@@ -7,10 +7,11 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, CosPlugin, PluginOpt)
+                                UbuntuPlugin, CosPlugin, ArchPlugin,
+                                PluginOpt)
 
 
-class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin):
+class Filesys(Plugin, DebianPlugin, UbuntuPlugin, CosPlugin, ArchPlugin):
     """Collects general information about the local filesystem(s) and mount
     points as well as optional information about EXT filesystems. Note that
     information specific filesystems such as XFS or ZFS is not collected by
