@@ -12,30 +12,54 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 class Puppet(Plugin, IndependentPlugin):
 
-    short_desc = 'Puppet service'
+    short_desc = 'Pupppet/Openvox services'
 
     plugin_name = 'puppet'
     profiles = ('services',)
-    packages = ('openvox-agent', 'openvox-server',
+    packages = ('openvox-agent', 'openvox-server', 'openvoxdb',
                 'puppet', 'puppet-agent', 'puppet-common', 'puppet-server',
-                'puppetserver', 'puppetmaster', 'puppet-master')
+                'puppetserver', 'puppetmaster', 'puppet-master', 'puppetdb')
+    services = ('puppet', 'puppetserver', 'puppetdb')
 
     def setup(self):
         _hostname = self.exec_cmd('hostname')['output']
         _hostname = _hostname.strip()
 
         self.add_copy_spec([
+            # Agent
             "/etc/puppet/*.conf",
+            "/etc/puppet/hiera.yaml",
             "/etc/puppet/rack/*",
             "/etc/puppet/manifests/*",
-            "/etc/puppet/ssl/ca/inventory.txt",
-            "/var/log/puppet/*.log*",
             "/etc/puppetlabs/puppet/*.conf",
-            "/etc/puppetlabs/puppetserver/conf.d/*.conf",
-            "/etc/puppetlabs/puppet/rack/*",
-            "/etc/puppetlabs/puppet/manifests/*",
-            "/etc/puppetlabs/puppet/ssl/ca/inventory.txt",
+            "/etc/puppetlabs/puppet/hiera.yaml",
+            "/etc/puppetlabs/puppet/routes.yaml",
+            # Server
+            "/etc/puppetlabs/puppetserver/*.xml",
+            "/etc/puppetlabs/puppetserver/conf.d/*",
+            "/etc/puppetlabs/puppetserver/services.d/*",
+            # Database
+            "/etc/puppetlabs/puppetdb/*.cfg",
+            "/etc/puppetlabs/puppetdb/*.xml",
+            "/etc/puppetlabs/puppetdb/conf.d/*",
+            # Code
+            "/etc/puppetlabs/code/hiera.yaml",
+            "/etc/puppetlabs/r10k/r10k.yaml",
+            # Startup
+            "/etc/sysconfig/puppet*",
+            "/etc/default/pupppet*",
+            # State
+            "/opt/puppetlabs/puppet/cache/state/*.txt",
+            "/opt/puppetlabs/puppet/cache/state/*.lock",
+            "/opt/puppetlabs/puppet/cache/state/*.yaml",
+            "/opt/puppetlabs/puppet/public/last_run_summary.yaml",
+            # Logs
+            "/var/log/puppet/*.log*",
+            "/var/log/puppetlabs/puppet/*.log*",
+            "/var/log/puppetlabs/puppetdb/*.log*",
             "/var/log/puppetlabs/puppetserver/*.log*",
+            # Certs/Inventory
+            "/etc/puppetlabs/puppet/ssl/ca/inventory.txt",
             "/var/lib/puppetlabs/puppet/ssl/ca/inventory.txt",
             "/var/lib/puppet/ssl/ca/inventory.txt",
             "/var/lib/puppet/ssl/certs/ca.pem",
