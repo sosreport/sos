@@ -19,11 +19,15 @@ class CrioContainerRuntime(ContainerRuntime):
 
     name = 'crio'
     binary = 'crictl'
+    rootless = False
 
     def check_can_copy(self):
         return False
 
-    def get_containers(self, get_all=False):
+    def get_containers(self, get_all=False, runas=None):
+        # CRI-O is a daemon-based and does not support rootless
+        # mode (runas), but accepts the parameter for signature parity
+        # with ContainerRuntime.
         """Get a list of containers present on the system.
 
         :param get_all: If set, include stopped containers as well
@@ -40,6 +44,28 @@ class CrioContainerRuntime(ContainerRuntime):
                     containers.append(
                         (container["id"], container["metadata"]["name"]))
         return containers
+
+    def get_logs_command(self, container, log_lines=None):
+        """Get the command string used to dump container logs from the
+        runtime
+        Note that the `crictl logs` uses `-t` as a shorthand for `--tail`, not
+        for timestamps, so it is not included here the way it is for the
+        docker/podman based implementations.
+
+        :param container: The name or ID of the container to get logs for
+        :type container: ``str``
+
+        :param log_lines: Limit the log output to the last `log_lines` lines
+                          of the container's logs. If not set, all available
+                          logs are collected.
+        :type log_lines: ``int`` or ``None``
+
+        :returns: Formatted runtime command to get logs from `container`
+        :rtype: ``str``
+        """
+        if log_lines is not None and self.log_line_limit:
+            return f"{self.binary} logs --tail {log_lines} {container}"
+        return f"{self.binary} logs {container}"
 
     def get_images(self):
         """Get a list of images present on the system
