@@ -18,6 +18,7 @@ class Docker(Plugin, CosPlugin):
     short_desc = 'Docker containers'
     plugin_name = 'docker'
     profiles = ('container',)
+    services = ('docker',)
 
     option_list = [
         PluginOpt('all', default=False,
@@ -39,7 +40,6 @@ class Docker(Plugin, CosPlugin):
             'DOCKER_RUN_PROXY'
         ])
 
-        self.add_journal(units="docker")
         self.add_dir_listing('/etc/docker', recursive=True)
 
         self.set_cmd_predicate(SoSPredicate(self, services=["docker"]))
