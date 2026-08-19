@@ -1684,7 +1684,7 @@ class Plugin():
         :type copyspecs: ``str`` or a ``list`` of strings
 
         :param sizelimit: Limit the total size of collections from `copyspecs`
-                          to this size in MB
+                          to this size in MB. Use 0 for no size limit.
         :type sizelimit: ``int``
 
         :param maxage: Collect files with `mtime` not older than this many
@@ -1953,7 +1953,8 @@ class Plugin():
         :param timeout: Timeout in seconds to allow each `cmd` to run
         :type timeout: ``int``
 
-        :param sizelimit: Maximum amount of output to collect, in MB
+        :param sizelimit: Maximum amount of output to collect, in MB.
+                          Use 0 for no size limit.
         :type sizelimit: ``int``
 
         :param chroot: Should sos chroot the command(s) being run
@@ -2160,7 +2161,8 @@ class Plugin():
         :param binary: Is the command expected to produce binary output
         :type binary: ``bool``
 
-        :param sizelimit: Maximum amount of output in MB to save
+        :param sizelimit: Maximum amount of output in MB to save.
+                          Use 0 for no size limit.
         :type sizelimit: ``int``
 
         :param pred: A predicate to gate if `cmds` should be collected or not
@@ -2416,7 +2418,8 @@ class Plugin():
                                         overriding chroot
             :param env:                 Dict of env vars to set for the cmd
             :param binary:              Is the output in binary?
-            :param sizelimit:           Maximum size in MB of output to save
+            :param sizelimit:           Maximum size in MB of output to save.
+                                        Use 0 for no size limit.
             :param subdir:              Subdir in plugin directory to save to
             :param changes:             Does this cmd potentially make a change
                                         on the system?
