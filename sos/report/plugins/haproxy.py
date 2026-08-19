@@ -25,6 +25,7 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
     profiles = ('webserver',)
 
     packages = ('haproxy',)
+    services = ('haproxy',)
     var_puppet_gen = '/var/lib/config-data/puppet-generated/haproxy'
     files = (var_puppet_gen, )
 
@@ -37,9 +38,6 @@ class HAProxy(Plugin, RedHatPlugin, DebianPlugin):
         self.add_cmd_output("haproxy -f /etc/haproxy/haproxy.cfg -c")
 
         self.add_copy_spec("/var/log/haproxy.log")
-
-        self.add_service_status('haproxy')
-        self.add_journal(units='haproxy')
 
         # collect haproxy overview - curl to IP address taken from haproxy.cfg
         # as 2nd word on line below "haproxy.stats"
