@@ -22,9 +22,6 @@ class FullCleanTest(StageTwoReportTest):
 
     sos_cmd = '--clean'
     sos_timeout = 600
-    # replace with an empty placeholder, make sure that this test case is not
-    # influenced by previous clean runs
-    files = [('default_mapping', '/etc/sos/cleaner/default_mapping')]
     packages = {
         'rhel': ['python3-systemd'],
         'ubuntu': ['python3-systemd']
@@ -32,6 +29,8 @@ class FullCleanTest(StageTwoReportTest):
     physical_or_vm_only = True
 
     def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
+
         # ensure that case-insensitive matching of FQDNs and shortnames work
         from systemd import journal
         from socket import gethostname

@@ -762,6 +762,21 @@ class BaseSoSReportTest(BaseSoSTest):
             raise Exception(f"Manifest for {plugin} not present")
         return self.manifest['components']['report']['plugins'][plugin]
 
+    def setup_isolated_cleaner_cache(self):
+        """Create an isolated mapping file in the test's tmpdir to ensure
+        each test run has its own cleaner_cache directory that doesn't
+        interfere with other test runs or the system's default cache.
+
+        This ensures cleaner_cache will be at {tmpdir}/cleaner_cache/
+        instead of /etc/sos/cleaner/cleaner_cache/
+        """
+        map_file = os.path.join(self.tmpdir, 'test_mapping')
+        # Create empty mapping file
+        with open(map_file, 'w', encoding='utf-8'):
+            pass
+        # Dynamically add --map-file to sos_cmd with the unique tmpdir path
+        self.sos_cmd += f' --map-file {map_file}'
+
 
 class StageOneReportTest(BaseSoSReportTest):
     """This is the test class to subclass for all Stage One (no mocking) tests

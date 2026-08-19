@@ -22,12 +22,11 @@ class IPv6Test(StageTwoReportTest):
     install_plugins = ['ipv6']
     sos_cmd = '--clean -o ipv6'
     sos_timeout = 600
-    # replace default mapping to avoid being influenced by previous runs
     # place mock file with crafted address used by mocked plugin
-    files = [
-        ('default_mapping', '/etc/sos/cleaner/default_mapping'),
-        ('sos-test-ipv6.txt', MOCK_FILE)
-    ]
+    files = [('sos-test-ipv6.txt', MOCK_FILE)]
+
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
 
     def test_valid_ipv6(self):
         self.assertFileCollected(MOCK_FILE)
