@@ -8,7 +8,7 @@
 
 from glob import glob
 from sos.report.plugins import Plugin, IndependentPlugin
-
+import os
 
 class Puppet(Plugin, IndependentPlugin):
 
@@ -24,6 +24,9 @@ class Puppet(Plugin, IndependentPlugin):
     def setup(self):
         _hostname = self.exec_cmd('hostname')['output']
         _hostname = _hostname.strip()
+        self.add_default_cmd_environment({
+            'PATH': os.environ['PATH'] + ':/opt/puppetlabs/bin'
+        })
 
         self.add_copy_spec([
             # Agent
@@ -70,8 +73,15 @@ class Puppet(Plugin, IndependentPlugin):
                            tags="puppet_ssl_cert_ca_pem")
 
         self.add_cmd_output([
+            # Agent
             'facter',
             'puppet --version',
+            'puppet config print --section main',
+            # Server
+            'puppet config print --section server',
+            'puppetserver --version',
+            # Code
+            'puppet module list --tree',
         ])
 
         self.add_dir_listing([
