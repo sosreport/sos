@@ -654,9 +654,8 @@ class RHELUploadTarget(UploadTarget):
 
     # pylint: disable=too-many-branches
     def upload_sftp(self, user=None, password=None, user_dir=None):
-        """Override the base upload_sftp to allow for setting an on-demand
-        generated anonymous login for the RH SFTP server if a username and
-        password are not given
+        """Override the base upload_sftp to allow for checking if a
+        device token already exists and generating if needed.
         """
         if self.RH_SFTP_HOST.split('//')[1] not in self.get_upload_url():
             return super().upload_sftp()
@@ -683,7 +682,7 @@ class RHELUploadTarget(UploadTarget):
                 # authentication in the web interface
                 if "end user denied" in str(e):
                     self.ui_log.info(
-                        "Device token authorization "
+                        "Device token authorization failed or "
                         "has been cancelled by the user."
                     )
             else:
@@ -709,28 +708,17 @@ class RHELUploadTarget(UploadTarget):
                 )
                 self.ui_log.error(
                     "Unable to retrieve Red Hat auth token using provided "
-                    "credentials. Will try anonymous."
+                    "credentials."
                 )
         else:
-            adata = {"isAnonymous": True}
-            anon = requests.post(url, data=json.dumps(adata), timeout=10)
-            if anon.status_code == 200:
-                resp = json.loads(anon.text)
-                _user = resp['username']
-                _token = resp['token']
-                self.ui_log.info(
-                    _(f"User {_user} used for anonymous upload. Please inform "
-                      f"your support engineer so they may retrieve the data.")
-                )
-            else:
-                self.ui_log.debug(
-                    f"DEBUG: anonymous request failed (status: "
-                    f"{anon.status_code}): {anon.json()}"
-                )
+            self.ui_log.debug(
+                f"DEBUG: Authentication failed or cancelled by user. "
+                f"Anonymous upload no longer allowed."
+            )
         if _user and _token:
             return super().upload_sftp(user=_user, password=_token,
                                        user_dir=_user_dir)
-        raise Exception("Could not retrieve valid or anonymous credentials")
+        raise Exception("Could not retrieve valid credentials. Upload cancelled.")
 
     def check_file_too_big(self, archive):
         size = os.path.getsize(archive)
