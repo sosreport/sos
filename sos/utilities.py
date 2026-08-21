@@ -528,6 +528,26 @@ def get_human_readable(size, precision=2):
     return f"{size:.{precision}f}{suffixes[suffixindex]}"
 
 
+def get_directory_size(path):
+    """Return the cumulative size of files under ``path``.
+
+    Directory inode sizes are not included. Permission errors are ignored
+    so a size display cannot fail the calling command.
+    """
+    total_size = 0
+    try:
+        with os.scandir(path) as flist:
+            for _f in flist:
+                if _f.is_file(follow_symlinks=False):
+                    total_size += _f.stat(follow_symlinks=False).st_size
+                elif _f.is_dir(follow_symlinks=False):
+                    total_size += get_directory_size(_f.path)
+    except PermissionError:
+        # ignore these instead of bailing out on size calculation
+        pass
+    return total_size
+
+
 def _os_wrapper(path, sysroot, method, module=os.path):
     if sysroot and sysroot != os.sep:
         if not path.startswith(sysroot):
