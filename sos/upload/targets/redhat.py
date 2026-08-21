@@ -712,13 +712,14 @@ class RHELUploadTarget(UploadTarget):
                 )
         else:
             self.ui_log.debug(
-                f"DEBUG: Authentication failed or cancelled by user. "
-                f"Anonymous upload no longer allowed."
+                "DEBUG: Authentication failed or cancelled by user. "
+                "Anonymous upload no longer allowed."
             )
         if _user and _token:
             return super().upload_sftp(user=_user, password=_token,
                                        user_dir=_user_dir)
-        raise Exception("Could not retrieve valid credentials. Upload cancelled.")
+        raise Exception("Could not retrieve valid credentials. "
+                        "Upload cancelled.")
 
     def check_file_too_big(self, archive):
         size = os.path.getsize(archive)
