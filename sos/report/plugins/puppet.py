@@ -24,6 +24,8 @@ class Puppet(Plugin, IndependentPlugin):
     def setup(self):
         _hostname = self.exec_cmd('hostname')['output']
         _hostname = _hostname.strip()
+        curl = '/opt/puppetlabs/puppet/bin/curl'
+        openssl = '/opt/puppetlabs/puppet/bin/openssl'
         self.add_default_cmd_environment({
             'PATH': os.environ['PATH'] + ':/opt/puppetlabs/bin'
         })
@@ -62,6 +64,8 @@ class Puppet(Plugin, IndependentPlugin):
             "/var/log/puppetlabs/puppetdb/*.log*",
             "/var/log/puppetlabs/puppetserver/*.log*",
             # Certs/Inventory
+            "/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem",
+            "/etc/puppetlabs/puppet/ssl/ca/ca_crt.pem",
             "/etc/puppetlabs/puppet/ssl/ca/inventory.txt",
             "/var/lib/puppetlabs/puppet/ssl/ca/inventory.txt",
             "/var/lib/puppet/ssl/ca/inventory.txt",
@@ -77,11 +81,21 @@ class Puppet(Plugin, IndependentPlugin):
             'facter',
             'puppet --version',
             'puppet config print --section main',
+            '/opt/puppetlabs/puppet/bin/gem list --local',
             # Server
             'puppet config print --section server',
             'puppetserver --version',
+            'puppetserver gem list --local',
             # Code
             'puppet module list --tree',
+            # State
+            curl + ' -k https://localhost:8140/status/v1/services?level=debug',
+            curl + ' http://localhost:8080/pdb/admin/v1/summary-stats',
+            curl + ' http://localhost:8080/status/v1/services?level=debug',
+            # Certs/Inventory
+            openssl + ' x509 -in /etc/puppetlabs/puppet/ssl/ca/ca_crt.pem -noout -dates -subject',
+            openssl + ' x509 -in /etc/puppetlabs/puppet/ssl/certs/ca.pem -noout -dates -subject',
+            openssl + ' crl -in /etc/puppetlabs/puppet/ssl/crl.pem -noout -lastupdate -nextupdate -issuer -crlnumber',
         ])
 
         self.add_dir_listing([
