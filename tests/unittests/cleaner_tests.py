@@ -6,12 +6,16 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
+import tempfile
 import unittest
 from ipaddress import ip_interface
 from os.path import join
 from unittest import mock
 
 import sos.policies
+from sos.cleaner import SoSCleaner
+from sos.utilities import get_directory_size, get_human_readable
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
@@ -723,3 +727,66 @@ class PackedDirTarballTests(unittest.TestCase):
         with mock.patch.object(self.archive, 'get_file_content',
                                return_value='{"components": {"report": {}}}'):
             self.assertEqual(self.archive._load_packed_dirs(), [])
+
+
+class CleanerDisplayResultsTests(unittest.TestCase):
+    """Verify sos clean reports Size for archives and directories.
+
+    Directory output must use the cumulative file size, not
+    os.stat().st_size of the directory inode (often 4KiB).
+    """
+
+    def setUp(self):
+        self.cleaner = mock.Mock()
+        self.cleaner.ui_log = mock.Mock()
+
+    def _info_messages(self):
+        return [call.args[0] for call in
+                self.cleaner.ui_log.info.call_args_list]
+
+    def test_archive_reports_file_size(self):
+        with tempfile.NamedTemporaryFile(delete=False) as tfile:
+            tfile.write(b'x' * 2048)
+            tfile.flush()
+            path = tfile.name
+        try:
+            SoSCleaner.display_cleaner_results(
+                self.cleaner, path, '/tmp/private_map'
+            )
+            msgs = self._info_messages()
+            expected = f"\tSize\t{get_human_readable(os.stat(path).st_size)}"
+            self.assertIn(expected, msgs)
+            self.assertTrue(any('\tOwner\t' in msg for msg in msgs))
+            self.assertTrue(any(path in msg for msg in msgs))
+        finally:
+            os.unlink(path)
+
+    def test_directory_reports_cumulative_size(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with open(os.path.join(tmpdir, 'data'), 'wb') as dfile:
+                dfile.write(b'x' * 8192)
+            nested = os.path.join(tmpdir, 'nested')
+            os.mkdir(nested)
+            with open(os.path.join(nested, 'more'), 'wb') as nfile:
+                nfile.write(b'y' * 1024)
+            SoSCleaner.display_cleaner_results(
+                self.cleaner, tmpdir, '/tmp/private_map'
+            )
+            msgs = self._info_messages()
+            expected_bytes = get_directory_size(tmpdir)
+            expected = f"\tSize\t{get_human_readable(expected_bytes)}"
+            inode_bytes = os.stat(tmpdir).st_size
+            inode_size = f"\tSize\t{get_human_readable(inode_bytes)}"
+            self.assertEqual(expected_bytes, 9216)
+            self.assertIn(expected, msgs)
+            self.assertNotEqual(expected, inode_size)
+            self.assertTrue(any('\tOwner\t' in msg for msg in msgs))
+            self.assertTrue(any(tmpdir in msg for msg in msgs))
+            self.assertTrue(
+                any('private_map' in msg for msg in msgs)
+            )
+
+    def test_directory_size_ignores_permission_errors(self):
+        with mock.patch('sos.utilities.os.scandir',
+                        side_effect=PermissionError):
+            self.assertEqual(get_directory_size('/restricted'), 0)
