@@ -410,6 +410,43 @@ third party.
         self.opts.skip_cleaning_files = [fnmatch.translate(p) for p in
                                          self.opts.skip_cleaning_files]
 
+    def display_cleaner_results(self, final_path, map_path):
+        """Print the location of the obfuscated output.
+
+        Size is reported only for a packed archive. For a directory,
+        os.stat().st_size is filesystem metadata (commonly 4KiB), not
+        the size of the obfuscated data, so omit it. This follows the
+        same archive-vs-directory split as Policy.display_results.
+
+        :param final_path: Path to the obfuscated archive or directory
+        :type final_path: ``str``
+
+        :param map_path: Path to the private mapping file
+        :type map_path: ``str``
+        """
+        arcstat = os.stat(final_path)
+
+        # while these messages won't be included in the log file in the
+        # archive some facilities, such as our avocado test suite, will
+        # sometimes not capture print() output, so leverage the ui_log
+        # to print to console
+        self.ui_log.info(
+            f"A mapping of obfuscated elements is available at\n\t{map_path}"
+        )
+        self.ui_log.info(
+            f"\nThe obfuscated archive is available at\n\t{final_path}\n"
+        )
+
+        if os.path.isfile(final_path):
+            self.ui_log.info(
+                f"\tSize\t{get_human_readable(arcstat.st_size)}"
+            )
+        self.ui_log.info(f"\tOwner\t{getpwuid(arcstat.st_uid).pw_name}\n")
+        self.ui_log.info(
+            "Please send the obfuscated archive to your support\n"
+            "representative and keep the mapping file private."
+        )
+
     def execute(self):
         """SoSCleaner will begin by inspecting the TARGET option to determine
         if it is a directory, archive, or archive of archives.
@@ -500,24 +537,7 @@ third party.
             self.obfuscate_string(arc_path.split('/')[-1])
         )
         shutil.move(arc_path, final_path)
-        arcstat = os.stat(final_path)
-
-        # while these messages won't be included in the log file in the archive
-        # some facilities, such as our avocado test suite, will sometimes not
-        # capture print() output, so leverage the ui_log to print to console
-        self.ui_log.info(
-            f"A mapping of obfuscated elements is available at\n\t{map_path}"
-        )
-        self.ui_log.info(
-            f"\nThe obfuscated archive is available at\n\t{final_path}\n"
-        )
-
-        self.ui_log.info(f"\tSize\t{get_human_readable(arcstat.st_size)}")
-        self.ui_log.info(f"\tOwner\t{getpwuid(arcstat.st_uid).pw_name}\n")
-        self.ui_log.info(
-            "Please send the obfuscated archive to your support\n"
-            "representative and keep the mapping file private."
-        )
+        self.display_cleaner_results(final_path, map_path)
 
         self.cleanup()
         return None
