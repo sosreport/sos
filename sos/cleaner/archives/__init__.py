@@ -25,28 +25,57 @@ from sos.utilities import (file_is_binary, sos_get_command_output,
 # python older than 3.8 will hit a pickling error when we go to spawn a new
 # process for extraction if this method is a part of the SoSObfuscationArchive
 # class. So, the simplest solution is to remove it from the class.
+def _path_is_within(directory, target):
+    """Return True if *target* is directory or a descendant of it."""
+    directory = os.path.abspath(directory)
+    target = os.path.abspath(target)
+    try:
+        return os.path.commonpath([directory, target]) == directory
+    except ValueError:
+        return False
+
+
+def _safer_extract_filter(member, dest_path):
+    """Refuse members that would write or link outside *dest_path*.
+
+    PEP-706 ``data_filter`` is the primary check. Out-of-tree symlinks and
+    absolute links (common in raw sosreports, and the TarSlip primitive)
+    are skipped rather than aborting the whole extraction. ``fully_trusted``
+    is not used: a member-name-only ``abspath``/``commonprefix`` guard does
+    not stop a symlink-to-absolute-path followed by a regular file of the
+    same relative name.
+    """
+    data_filter = getattr(tarfile, 'data_filter', None)
+    if data_filter is not None:
+        try:
+            return data_filter(member, dest_path)
+        except tarfile.FilterError:
+            return None
+
+    dest_path = os.path.abspath(dest_path)
+    member_path = os.path.abspath(os.path.join(dest_path, member.name))
+    if not _path_is_within(dest_path, member_path):
+        return None
+    if member.issym() or member.islnk():
+        if os.path.isabs(member.linkname):
+            link_target = member.linkname
+        else:
+            link_target = os.path.abspath(
+                os.path.join(os.path.dirname(member_path), member.linkname)
+            )
+        if not _path_is_within(dest_path, link_target):
+            return None
+    return member
+
+
 def extract_archive(archive_path, tmpdir):
     with tarfile.open(archive_path) as archive:
         path = os.path.join(tmpdir, 'cleaner')
-        # set extract filter since python 3.12 (see PEP-706 for more)
-        # Because python 3.10 and 3.11 raises false alarms as exceptions
-        # (see #3330 for examples), we can't use data filter but must
-        # fully trust the archive (legacy behaviour)
-        archive.extraction_filter = getattr(tarfile, 'fully_trusted_filter',
-                                            (lambda member, path: member))
+        archive.extraction_filter = _safer_extract_filter
 
-        # Guard against "Arbitrary file write during tarfile extraction"
-        # Checks the extracted files don't stray out of the target directory.
         not_root = os.getuid() != 0
         members = archive.getmembers()
         for member in members:
-            member_path = os.path.join(path, member.name)
-            abs_directory = os.path.abspath(path)
-            abs_target = os.path.abspath(member_path)
-            prefix = os.path.commonprefix([abs_directory, abs_target])
-            if prefix != abs_directory:
-                raise Exception(f"Attempted path traversal in tarfle"
-                                f"{prefix} != {abs_directory}")
             # Directories collected from the host may lack u+w or u+x
             # permissions, preventing child members from being created during
             # extract
