@@ -96,6 +96,9 @@ class LogsBase(Plugin):
                 ])
 
         self.add_cmd_output("rsyslogd -N3 -o /dev/stdout",)
+        self.add_dir_listing(['/var/', '/var/lib/', '/var/lib/rsyslog/'],
+                             extra_opts='d')
+        self.add_dir_listing('/var/lib/rsyslog/')
 
     def postproc(self):
         regex = r"(ActionLibdbiPassword |pwd=)(.*)"
