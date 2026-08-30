@@ -23,7 +23,10 @@ class Dlm(Plugin, IndependentPlugin):
 
     def setup(self):
         self.add_copy_spec([
-            "/etc/sysconfig/dlm"
+            "/etc/sysconfig/dlm",
+            "/sys/kernel/dlm/*/nodir",
+            "/sys/kernel/dlm/*/recover_status",
+            "/sys/kernel/dlm/*/recover_nodeid",
         ])
         self.add_cmd_output([
             "dlm_tool log_plock",
