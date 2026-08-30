@@ -77,8 +77,8 @@ class Landscape(Plugin, UbuntuPlugin):
     def postproc(self):
         self.do_file_sub(
             "/etc/landscape/client.conf",
-            r"registration_password(.*)",
-            r"registration_password[********]"
+            r"(registration_key|registration_password) = (.*)",
+            r"\1 = [********]"
         )
         keys = [
             "password",
