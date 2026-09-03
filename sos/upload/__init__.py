@@ -47,7 +47,8 @@ class SoSUpload(SoSComponent):
         'upload_s3_access_key': None,
         'upload_s3_secret_key': None,
         'upload_s3_object_prefix': None,
-        'upload_target': None
+        'upload_target': None,
+        'upload_threads': 4
     }
 
     def __init__(self, parser=None, args=None, cmdline=None, in_place=False,
@@ -126,6 +127,18 @@ class SoSUpload(SoSComponent):
                                       "options are:\n"
                                       "redhat, canonical, "
                                       "generic, local"))
+        upload_grp.add_argument("--upload-threads", default=4, type=int,
+                                choices=range(1, 17),
+                                metavar="THREADS",
+                                help=("Number of threads for multipart "
+                                      "uploads. When an archive exceeds "
+                                      "a certain size, defined in the "
+                                      "targets, it is uploaded in "
+                                      "parallel chunks using this many "
+                                      "threads (1-16, default: 4). "
+                                      "Each thread holds a 128 MiB chunk "
+                                      "in memory, e.g. 4 threads use "
+                                      "~512 MiB"))
 
     @classmethod
     def display_help(cls, section):
