@@ -135,10 +135,9 @@ class SoSMap():
                 key=int
             )
         for fname in plain_files:
-            with open(os.path.join(self.cache_dir, fname),
-                      'r', encoding='utf-8') as f:
-                item = f.read()
-            if not self.dataset.get(item, False):
+            item = self._read_item_from_cache_file(
+                os.path.join(self.cache_dir, fname))
+            if item and not self.dataset.get(item, False):
                 self.add_sanitised_item_to_dataset(item)
         if plain_files:
             self.cache_counter = int(plain_files[-1])
@@ -169,6 +168,19 @@ class SoSMap():
         if self.compile_regexes:
             self.add_regex_item(item)
 
+    def _read_item_from_cache_file(self, fname):
+        """Read an item from a cache file.
+
+        Default format: plain text file containing only the item itself.
+
+        Override this method in subclasses that use a different cache format.
+
+        :param fname:  Full path to the cache file
+        :returns:      The item to add to the dataset
+        """
+        with open(fname, 'r', encoding='utf-8') as f:
+            return f.read()
+
     def load_new_entries_from_dir(self):
         # Load all new items from the cache_dir. "New" = any numbered file not
         # lower than self.cache_counter.
@@ -198,21 +210,32 @@ class SoSMap():
         pid_numbers.sort(key=int)
         for file_num in pid_numbers:
             fname = os.path.join(self.cache_dir, f"{self.pid}_{file_num}")
-            with open(fname, 'r', encoding='utf-8') as f:
-                item = f.read()
-            if not self.dataset.get(item, False):
+            item = self._read_item_from_cache_file(fname)
+            if item and not self.dataset.get(item, False):
                 self.add_sanitised_item_to_dataset(item)
         if pid_numbers:
             self.pid_counter = int(pid_numbers[-1])
         plain_numbers.sort(key=int)
         for file_num in plain_numbers:
-            with open(os.path.join(self.cache_dir, file_num),
-                      'r', encoding='utf-8') as f:
-                item = f.read()
-            if not self.dataset.get(item, False):
+            fname = os.path.join(self.cache_dir, file_num)
+            item = self._read_item_from_cache_file(fname)
+            if item and not self.dataset.get(item, False):
                 self.add_sanitised_item_to_dataset(item)
         if plain_numbers:
             self.cache_counter = int(plain_numbers[-1])
+
+    def _write_item_to_cache_file(self, item, tmpfile):
+        """Write an item to a cache file.
+
+        Default format: plain text file containing only the item itself.
+
+        Override this method in subclasses that use a different cache format.
+
+        :param item:     The item to write to the cache
+        :param tmpfile:  The NamedTemporaryFile to write to
+        """
+        with open(tmpfile.name, 'w', encoding='utf-8') as f:
+            f.write(item)
 
     def add(self, item):
         """Add a particular item to the map, generating an obfuscated pair
@@ -230,8 +253,7 @@ class SoSMap():
             if not tmpfile:
                 # pylint: disable=consider-using-with
                 tmpfile = tempfile.NamedTemporaryFile(dir=self.cache_dir)
-                with open(tmpfile.name, 'w', encoding='utf-8') as f:
-                    f.write(item)
+                self._write_item_to_cache_file(item, tmpfile)
             try:
                 if self.no_update:
                     self.pid_counter += 1
