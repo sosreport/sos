@@ -16,13 +16,13 @@ This project is hosted at:
 
   * https://github.com/sosreport/sos
 
-For the latest version, to contribute, and for more information, please visit
-the project pages or join the mailing list.
+For the latest version, to contribute, and for more information, please
+visit the project pages or join the mailing list.
 
 To clone the current main (development) branch run:
 
 ```
-git clone git://github.com/sosreport/sos.git
+git clone git@github.com:sosreport/sos.git
 ```
 
 ## Reporting bugs
@@ -37,24 +37,25 @@ Matrix Room: #sosreport:matrix.org
 
 Libera.Chat: #sos
 
-These rooms are bridged, so joining either is sufficient as messages from either will
-appear in both.
+These rooms are bridged, so joining either is sufficient as messages
+from either will appear in both.
 
 The Freenode #sos room **is no longer used by this project**.
 
 ## Patches and pull requests
 
-Patches can be submitted via the mailing list or as GitHub pull requests. If
-using GitHub please make sure your branch applies to the current main branch as a
-'fast forward' merge (i.e. without creating a merge commit). Use the `git
-rebase` command to update your branch to the current main if necessary.
+Patches can be submitted via the mailing list or as GitHub pull
+requests. If using GitHub please make sure your branch applies to the
+current main branch as a 'fast forward' merge (i.e. without creating a
+merge commit). Use the `git rebase` command to update your branch to the
+current main if necessary.
 
-Please refer to the [contributor guidelines][0] for guidance on formatting
-patches and commit messages.
+Please refer to the [contributor guidelines][0] for guidance on
+formatting patches and commit messages.
 
-Before sending a [pull request][0], it is advisable to check your contribution
-against the `flake8` & `pylint` linter, the unit tests, and the stage one avocado
-test suite:
+Before sending a [pull request][0], it is advisable to check your
+contribution against the `flake8` & `pylint` linter, the unit tests, and
+the stage one avocado test suite:
 
 ```
 # from within the git checkout
@@ -66,39 +67,38 @@ $ tox -e unit_tests
 # tox -e stageone_tests
 ```
 
-Note that the avocado test suite will generate and remove several reports over its
-execution, but no changes will be made to your local system.
+Note that the avocado test suite will generate and remove several
+reports over its execution, but no changes will be made to your local
+system.
 
 All contributions must pass the entire test suite before being accepted.
 
 ## Documentation
 
-User and API [documentation][5] is automatically generated using [Sphinx][6]
-and [Read the Docs][7].
+User and API [documentation][5] is automatically generated using
+[Sphinx][6] and [Read the Docs][7].
 
-To generate HTML documents locally, by default this will build locally into
-`docs/_build`
+To generate HTML documents locally, run the following (by default this
+will build into `docs/_build`):
 
 ```
 tox -e docs
 ```
 
+For more in-depth information on the project's features and
+functionality, please see [the documentation][5].
 
-### Wiki
-
-For more in-depth information on the project's features and functionality, please
-see [the GitHub wiki][8].
-
-If you are interested in contributing an entirely new plugin, or extending sos to
-support your distribution of choice, please see these wiki pages:
+If you are interested in contributing an entirely new plugin, or
+extending sos to support your distribution of choice, please see these
+pages:
 
 * [How to write a plugin][1]
 * [How to write a policy][2]
 * [Plugin options][3]
 
-To help get your changes merged quickly with as few revisions as possible
-please refer to the [Contributor Guidelines][0] when submitting patches or
-pull requests.
+To help get your changes merged quickly with as few revisions as
+possible please refer to the [Contributor Guidelines][0] when submitting
+patches or pull requests.
 
 ## Installation
 
@@ -148,12 +148,11 @@ Ubuntu (14.04 LTS and above) users install via apt:
 # snap install sosreport --classic
 ```
 
- [0]: https://github.com/sosreport/sos/wiki/Contribution-Guidelines
- [1]: https://github.com/sosreport/sos/wiki/How-to-Write-a-Plugin
- [2]: https://github.com/sosreport/sos/wiki/How-to-Write-a-Policy
- [3]: https://github.com/sosreport/sos/wiki/Plugin-options
+ [0]: https://sos.readthedocs.io/en/main/user_docs/contribution_guidelines.html
+ [1]: https://sos.readthedocs.io/en/main/user_docs/writing_a_plugin.html
+ [2]: https://sos.readthedocs.io/en/main/user_docs/writing_a_policy.html
+ [3]: https://sos.readthedocs.io/en/main/user_docs/plugin_options.html
  [4]: https://github.com/sosreport/sos/issues?state=open
- [5]: https://sos.readthedocs.org/
+ [5]: https://sos.readthedocs.io/en/main/
  [6]: https://www.sphinx-doc.org/
- [7]: https://www.readthedocs.org/
- [8]: https://github.com/sosreport/sos/wiki
+ [7]: https://readthedocs.org/
