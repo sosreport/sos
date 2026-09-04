@@ -18,6 +18,15 @@ class OpenVSwitch(Plugin):
     short_desc = 'OpenVSwitch networking'
     plugin_name = "openvswitch"
     profiles = ('network', 'virt')
+
+    services = (
+        'openvswitch',
+        'openvswitch-nonetwork',
+        'ovs-vswitchd',
+        'ovsdb-server',
+        'ovs-configuration',
+        'openvswitch-ipsec',
+    )
     actl = "ovs-appctl"
     vctl = "ovs-vsctl"
     ofctl = "ovs-ofctl"
@@ -160,13 +169,6 @@ class OpenVSwitch(Plugin):
         self.add_cmd_output(f"{self.vctl} -t 5 show",
                             tags="ovs_vsctl_show")
 
-        # Gather systemd services logs
-        self.add_journal(units="openvswitch")
-        self.add_journal(units="openvswitch-nonetwork")
-        self.add_journal(units="ovs-vswitchd")
-        self.add_journal(units="ovsdb-server")
-        self.add_journal(units="ovs-configuration")
-        self.add_journal(units="openvswitch-ipsec")
         self.collect_ovs_info()
         self.collect_datapath()
         self.collect_ovs_bridge_info()
