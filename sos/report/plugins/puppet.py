@@ -6,13 +6,14 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
 from glob import glob
 from sos.report.plugins import Plugin, IndependentPlugin
-import os
+
 
 class Puppet(Plugin, IndependentPlugin):
 
-    short_desc = 'Pupppet/Openvox services'
+    short_desc = 'Puppet/Openvox services'
 
     plugin_name = 'puppet'
     profiles = ('services',)
@@ -26,6 +27,10 @@ class Puppet(Plugin, IndependentPlugin):
         _hostname = _hostname.strip()
         curl = '/opt/puppetlabs/puppet/bin/curl'
         openssl = '/opt/puppetlabs/puppet/bin/openssl'
+        x509_opts = '-noout -dates -subject'
+        crl_opts = '-noout -lastupdate -nextupdate -issuer -crlnumber'
+        ssl_dir = '/etc/puppetlabs/puppet/ssl'
+
         self.add_default_cmd_environment({
             'PATH': os.environ['PATH'] + ':/opt/puppetlabs/bin'
         })
@@ -52,7 +57,7 @@ class Puppet(Plugin, IndependentPlugin):
             "/etc/puppetlabs/r10k/r10k.yaml",
             # Startup
             "/etc/sysconfig/puppet*",
-            "/etc/default/pupppet*",
+            "/etc/default/puppet*",
             # State
             "/opt/puppetlabs/puppet/cache/state/*.txt",
             "/opt/puppetlabs/puppet/cache/state/*.lock",
@@ -76,6 +81,7 @@ class Puppet(Plugin, IndependentPlugin):
         self.add_copy_spec("/etc/puppetlabs/puppet/ssl/certs/ca.pem",
                            tags="puppet_ssl_cert_ca_pem")
 
+        self.env = {'PATH': f"{os.environ['PATH']}:/opt/puppetlabs/bin"}
         self.add_cmd_output([
             # Agent
             'facter',
@@ -89,14 +95,14 @@ class Puppet(Plugin, IndependentPlugin):
             # Code
             'puppet module list --tree',
             # State
-            curl + ' -k https://localhost:8140/status/v1/services?level=debug',
-            curl + ' http://localhost:8080/pdb/admin/v1/summary-stats',
-            curl + ' http://localhost:8080/status/v1/services?level=debug',
+            f'{curl} -k https://localhost:8140/status/v1/services?level=debug',
+            f'{curl} http://localhost:8080/pdb/admin/v1/summary-stats',
+            f'{curl} http://localhost:8080/status/v1/services?level=debug',
             # Certs/Inventory
-            openssl + ' x509 -in /etc/puppetlabs/puppet/ssl/ca/ca_crt.pem -noout -dates -subject',
-            openssl + ' x509 -in /etc/puppetlabs/puppet/ssl/certs/ca.pem -noout -dates -subject',
-            openssl + ' crl -in /etc/puppetlabs/puppet/ssl/crl.pem -noout -lastupdate -nextupdate -issuer -crlnumber',
-        ])
+            f'{openssl} x509 -in {ssl_dir}/ca/ca_crt.pem {x509_opts}',
+            f'{openssl} x509 -in {ssl_dir}/certs/ca.pem {x509_opts}',
+            f'{openssl} crl -in {ssl_dir}/crl.pem {crl_opts}',
+        ], env=self.env)
 
         self.add_dir_listing([
             '/etc/puppet/modules',
