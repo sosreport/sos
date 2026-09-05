@@ -76,25 +76,29 @@ class SoSHostnameMap(SoSMap):
             item = re.escape(item)
         return item
 
+    # an obfuscated short name, either standalone or leading an FQDN
+    _host_count_re = re.compile(r'^host(\d+)(?:\.|$)')
+    # an obfuscated domain, always followed by the preserved TLD
+    _domain_count_re = re.compile(r'(?:^|\.)obfuscateddomain(\d+)\.')
+
     def set_initial_counts(self):
         """Set the initial counter for host and domain obfuscation numbers
         based on what is already present in the mapping.
-        """
-        # hostnames/short names
-        try:
-            h = sorted(self.hosts.values(), reverse=True)[0].split('host')[1]
-            self.host_count = int(h) + 1
-        except IndexError:
-            # no hosts loaded yet
-            pass
 
-        # domain names
-        try:
-            d = sorted(self._domains.values(), reverse=True)[0].split('domain')
-            self.domain_count = int(d[1].split('.')[0]) + 1
-        except IndexError:
-            # no domains loaded yet
-            pass
+        The counters are derived from the obfuscated values held in the
+        dataset, and not from self.hosts/self._domains: a mapping loaded
+        from a map file only ever populates the dataset, so both of those
+        dicts are still empty by the time this is called.
+        """
+        for value in self.dataset.values():
+            _host = self._host_count_re.match(value)
+            if _host:
+                self.host_count = max(self.host_count,
+                                      int(_host.group(1)) + 1)
+            _domain = self._domain_count_re.search(value)
+            if _domain:
+                self.domain_count = max(self.domain_count,
+                                        int(_domain.group(1)) + 1)
 
     def domain_name_in_loaded_domains(self, domain):
         """Check if a potential domain is in one of the domains we've loaded
