@@ -301,7 +301,7 @@ class Openshift(Plugin, RedHatPlugin):
     def collect_from_namespace(self, namespace):
         """Run through the collection routines for an individual namespace.
         This collection should include all requested resources that exist
-        within that namesapce
+        within that namespace
 
             :param namespace str:           The name of the namespace
         """

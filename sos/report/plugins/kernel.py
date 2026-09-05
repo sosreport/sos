@@ -23,7 +23,7 @@ class Kernel(Plugin, IndependentPlugin):
     sos collection attempt to appear to 'hang'.
 
     The 'trace' option will enable the collection of the
-    /sys/kernel/debug/tracing/trace file specfically, but will not change the
+    /sys/kernel/debug/tracing/trace file specifically, but will not change the
     behavior stated above otherwise.
     """
 

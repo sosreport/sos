@@ -101,7 +101,7 @@ class InitSystem():
         # This is going to be primarily used in gating if service related
         # commands are going to be run or not. Default to always returning
         # True when an actual init system is not specified by policy so that
-        # we don't inadvertantly restrict sos reports on those systems
+        # we don't inadvertently restrict sos reports on those systems
         return default
 
     def load_all_services(self):

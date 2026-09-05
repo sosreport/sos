@@ -3262,7 +3262,7 @@ class Plugin():
                     'dstpath': arcdest,
                     'symlink': "no"
                 })
-                # skip forbidden paths; since we might recursivelly copied
+                # skip forbidden paths; since we might recursively copied
                 # whole directory, we must find the forbidden files in dest
                 # path and delete the unwanted
                 base_dir = dest.removesuffix(f"{path.lstrip('/')}")
