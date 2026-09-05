@@ -361,7 +361,7 @@ class OpenVSwitch(Plugin):
                 br_protos_ln = line[line.find("[")+1:line.find("]")]
                 br_protos = br_protos_ln.replace('"', '').split(", ")
 
-        # If 'list bridge' yeilded no protocols, use the range of
+        # If 'list bridge' yielded no protocols, use the range of
         # protocols enabled by default on this version of ovs.
         if br_protos == [''] and ofp_ver_result['output']:
             ofp_version_range = ofp_ver_result['output'].splitlines()

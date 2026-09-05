@@ -427,7 +427,7 @@ class BaseSoSReportTest(BaseSoSTest):
     """This is the class to use for building sos report tests with.
 
     An instance of this test is expected to set at minimum a ``sos_cmd`` class
-    attribute that represets the options handed to a specific execution of an
+    attribute that represents the options handed to a specific execution of an
     sos command. This should be anything following ``sos report --batch``.
 
     """

@@ -16,7 +16,7 @@ from sos.cleaner.mappings import SoSMap
 class SoSIPMap(SoSMap):
     """A mapping store for IP addresses
 
-    Each IP address added to this map is chcked for subnet membership. If that
+    Each IP address added to this map is checked for subnet membership. If that
     subnet already exists in the map, then IP addresses are deterministically
     generated sequentially within that subnet. For example, if a given IP is
     matched to subnet 192.168.1.0/24 then 192.168.1 may be obfuscated to

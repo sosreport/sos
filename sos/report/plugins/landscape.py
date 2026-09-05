@@ -38,13 +38,13 @@ class Landscape(Plugin, UbuntuPlugin):
                 "landscape-api get-distributions",
                 "landscape-api get-apt-sources",
                 "landscape-api get-repository-profiles",
-                "landscape-api get activites --limit 100",
+                "landscape-api get activities --limit 100",
             ])
             self.add_cmd_output([
                 "landscape-api --json get-distributions",
                 "landscape-api --json get-apt-sources",
                 "landscape-api --json get-repository-profiles",
-                "landscape-api --json get activites --limit 100",
+                "landscape-api --json get activities --limit 100",
             ])
 
         self.add_copy_spec([
