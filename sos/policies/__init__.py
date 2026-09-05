@@ -380,7 +380,7 @@ any third party.
         )
 
         section.add_text(
-            "When SoS intializes most functions, for example "
+            "When SoS initializes most functions, for example "
             f"{bold('sos report')} and {bold('sos collect')}, one "
             "of the first operations is to determine the correct policy to "
             "load for the local system. Policies will determine the proper "

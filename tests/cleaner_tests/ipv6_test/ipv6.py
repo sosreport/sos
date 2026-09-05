@@ -10,7 +10,7 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class IPv6(Plugin, IndependentPlugin):
-    """Collect arbitrary file containing crafted ipv6 adresses to test ipv6
+    """Collect arbitrary file containing crafted ipv6 addresses to test ipv6
     obfuscation.
     """
 

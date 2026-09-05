@@ -36,7 +36,7 @@ class SoSComponent():
     building out supported options from both globally shared option lists, and
     options supported by that specific subcommand.
 
-    When sos initializes, it will load an unintialized instance of each class
+    When sos initializes, it will load an uninitialized instance of each class
     found within one recursion of the module root directory that subclasses
     SoSComponent.
 

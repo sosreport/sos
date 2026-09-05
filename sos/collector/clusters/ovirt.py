@@ -21,7 +21,7 @@ class ovirt(Cluster):
     This cluster profile is for the oVirt/RHV project which provides for a
     virtualization cluster built ontop of KVM.
 
-    Nodes enumerated will be hypervisors within the envrionment, not virtual
+    Nodes enumerated will be hypervisors within the environment, not virtual
     machines running on those hypervisors. By default, ALL hypervisors within
     the environment are returned. This may be influenced by the 'cluster' and
     'datacenter' cluster options, which will limit enumeration to hypervisors
