@@ -63,7 +63,7 @@ class SoSMacMap(SoSMap):
         """Obfuscate the device hextets, and append those to our 'vendor'
         hextet
         """
-        hexdigits = "0123456789abdcef"
+        hexdigits = "0123456789abcdef"
         self.ob_hextets_cnt += 1
         # we need to convert the counter to a triple of double hex-digits
         hextets = [
