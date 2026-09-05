@@ -679,26 +679,44 @@ class ProgressBar:
         self.prefix = prefix
         self.total = total
         self.format_fn = format_fn or str
+        # cleared once the output stream goes away, so that the rest of the
+        # run does not keep writing to it
+        self.enabled = bool(total)
         suffix_width = len(
             f" {self.format_fn(total)} / {self.format_fn(total)}"
         )
         cols = shutil.get_terminal_size(fallback=(80, 24)).columns
         # Keeping bar width between 5 and 40 based on the size of the terminal
-        # minus the size of prefix, suffix and surounding "[]" brackets
+        # minus the size of prefix, suffix and surrounding "[]" brackets
         self.bar_width = max(5, min(40, cols - len(prefix) - suffix_width - 2))
 
+    def _write(self, text):
+        """Write to stdout, disabling the bar if the stream has gone away.
+
+        sos may be piped to a pager or any other reader that exits before
+        sos does. That must not abort the work sos is reporting progress
+        for, so swallow the error and stop drawing the bar.
+        """
+        if not self.enabled:
+            return
+        try:
+            sys.stdout.write(text)
+            sys.stdout.flush()
+        except (BrokenPipeError, ValueError):
+            self.enabled = False
+
     def update(self, done):
+        if not self.enabled:
+            return
         filled = done * self.bar_width // self.total
-        sys.stdout.write(
+        self._write(
             f"\r{self.prefix}[{'=' * filled}{' ' * (self.bar_width - filled)}]"
             f" {self.format_fn(done)} / {self.format_fn(self.total)}"
         )
-        sys.stdout.flush()
 
     def finish(self):
         self.update(self.total)
-        sys.stdout.write('\n')
-        sys.stdout.flush()
+        self._write('\n')
 
 
 class FakeReader():
