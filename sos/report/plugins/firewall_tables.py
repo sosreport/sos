@@ -14,7 +14,7 @@ class FirewallTables(Plugin, IndependentPlugin):
     and nf_tables (via nft). Note that this plugin does _not_ collect firewalld
     information, which is handled by a separate plugin.
 
-    Collections from this plugin are largely gated byt the presence of relevant
+    Collections from this plugin are largely gated by the presence of relevant
     kernel modules - for example,  the plugin will not collect the nf_tables
     ruleset if both the `nf_tables` and `nfnetlink` kernel modules are not
     currently loaded (unless using the --allow-system-changes option).
@@ -83,7 +83,11 @@ class FirewallTables(Plugin, IndependentPlugin):
         except IOError:
             ip_tables_names = default_ip_tables
         for table in ip_tables_names.splitlines():
-            if nft_list['status'] == 0 and table in nft_ip_tables['ip']:
+            # if we could not read the nft ruleset - nft is not installed, or
+            # it failed, or its predicate was not met - fall back to the
+            # tables the kernel says are in use. collect_iptable() is gated on
+            # the matching kernel module either way, so this cannot load one.
+            if nft_list['status'] != 0 or table in nft_ip_tables['ip']:
                 self.collect_iptable(table)
         # collect the same for ip6tables
         try:
@@ -93,7 +97,7 @@ class FirewallTables(Plugin, IndependentPlugin):
         except IOError:
             ip_tables_names = default_ip_tables
         for table in ip_tables_names.splitlines():
-            if nft_list['status'] == 0 and table in nft_ip_tables['ip6']:
+            if nft_list['status'] != 0 or table in nft_ip_tables['ip6']:
                 self.collect_ip6table(table)
 
         # When iptables is called it will load:
