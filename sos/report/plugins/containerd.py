@@ -15,6 +15,7 @@ class Containerd(Plugin, IndependentPlugin):
     plugin_name = 'containerd'
     profiles = ('container',)
     packages = ('containerd', 'containerd.io',)
+    services = ('containerd',)
     option_list = [
         PluginOpt('stackdump', False, desc='collect containerd stack dump(s)')
     ]
@@ -34,9 +35,6 @@ class Containerd(Plugin, IndependentPlugin):
             f'{pre_cmd} image ls',
             f'{pre_cmd} container ls',
         ])
-
-        # collect the containerd logs.
-        self.add_journal(units='containerd')
 
         if self.get_option('stackdump'):
             for pid in self.signal_process_usr1(r'^/usr/bin/containerd$'):

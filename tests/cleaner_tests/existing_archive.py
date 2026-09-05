@@ -129,6 +129,9 @@ class ExistingArchiveCleanTmpTest(StageTwoReportTest):
                 tests/test_data/{ARCHIVE}.tar.xz'
     sos_component = 'clean'
 
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
+
     def test_sys_tmp_not_obfuscated(self):
         """ Ensure that keywords avocado and ExistingArchiveCleanTmpTest
         remains in the final archive path despite they are parts of the

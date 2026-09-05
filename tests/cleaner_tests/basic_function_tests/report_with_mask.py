@@ -95,6 +95,9 @@ class ReportWithUserCustomisations(StageOneReportTest):
                'BOOT_IMAGE,fs.dentry-state --skip-cleaning-files '
                'proc/cmdline,sos_commands/*/sysctl* --no-update')
 
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
+
     # Will the 'tmp' be properly treated in path to working dir without
     # raising an error?
     # To make this test effective, we assume the test runs on a system / with
