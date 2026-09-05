@@ -31,7 +31,7 @@ class SoSIPv6Parser(SoSCleanerParser):
         # is not extracted from a log message such as 'SomeFuncUsed::ADiffFunc'
         # that come components may log with. Further, we optionally try to grab
         # a trailing prefix for the network bits.
-        r"(?<![:\\.\\-a-zA-Z0-9])"
+        r"(?<![:.\-\w])"
         r"((([0-9a-fA-F]{1,4})(:[0-9a-fA-F]{1,4}){7})|"
         r"(([0-9a-fA-F]{1,4}(:[0-9a-fA-F]{0,4}){0,5}))"
         r"([^.])::(([0-9a-fA-F]{1,4}"
