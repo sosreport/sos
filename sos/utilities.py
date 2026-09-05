@@ -743,14 +743,23 @@ class HeadReader(threading.Thread):
         """Reads from the f_src (Popen stdout pipe) until we reach sizelimit.
         once done, close f_src to signal the program that we are done.
         """
-        while self.remaining > 0:
-            buf = self.f_src.read(min(self.remaining, self.COPY_BUFSIZE))
-            if not buf:
-                break
-            self.f_dst.write(buf)
-            self.remaining -= len(buf)
-        self.f_src.close()
-        self.running = False
+        try:
+            while self.remaining > 0:
+                buf = self.f_src.read(min(self.remaining, self.COPY_BUFSIZE))
+                if not buf:
+                    break
+                self.f_dst.write(buf)
+                self.remaining -= len(buf)
+        except (ValueError, IOError):
+            # the pipe closed under us, or the destination could not be
+            # written to; either way the copy is over
+            pass
+        finally:
+            try:
+                self.f_src.close()
+            except (ValueError, IOError):
+                pass
+            self.running = False
 
     def get_contents(self):
         return '' if not self.binary else b''
