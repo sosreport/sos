@@ -43,7 +43,7 @@ class SoSIPMap(SoSMap):
     _networks = {}
     obfuscated_ips = set()
     network_first_octet = 100
-    skip_network_octets = ['127', '169', '172', '192']
+    skip_network_octets = [127, 169, 172, 192]
     compile_regexes = False
     # counter for obfuscating a single IP address; the value stands for
     # 172.17.0.0; we use a private block of IP addresses and ignore
@@ -201,7 +201,7 @@ class SoSIPMap(SoSMap):
         _obf_network = None
 
         if isinstance(network, ipaddress.IPv4Network):
-            if self.network_first_octet in self.skip_network_octets:
+            while self.network_first_octet in self.skip_network_octets:
                 self.network_first_octet += 1
             _obf_address = f"{self.network_first_octet}.0.0.0"
             _obf_mask = network.with_netmask.split('/')[1]
