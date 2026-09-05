@@ -89,7 +89,7 @@ class UbuntuMongodb(MongoDb, DebianPlugin, UbuntuPlugin):
     def setup(self):
         if get_juju_info := self.path_exists('/var/lib/juju/db'):
             self.db_folder = "/var/lib/juju/db"
-        elif get_juju_info := self.path_exists('/var/snap/juju-db/curent/db'):
+        elif get_juju_info := self.path_exists('/var/snap/juju-db/current/db'):
             self.db_folder = "/var/snap/juju-db/current/db"
 
         super().setup()
