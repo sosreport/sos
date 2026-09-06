@@ -60,8 +60,21 @@ class SoSHostnameMap(SoSMap):
         return super().get_regex_result(item)
 
     def get_regex_fullword(self, item):
-        # we do match_full_words_only, so always wrap
-        return rf'(?<![a-z0-9])(?:{item})(?![a-z0-9])'
+        """Override to use negative lookahead instead of positive lookahead,
+        while respecting strict_tokenisation for the lookbehind."""
+        item = rf'(?:{item})'
+
+        if self.strict_tokenisation:
+            # Enhanced word boundary: also split on escape sequences
+            # Reuse strict lookbehind from base class _apply_word_boundaries
+            lookbehind = (r'(?:(?<=%[0-9a-fA-F]{2})|(?<=#[0-9]{3})|'
+                          r'(?<=[\[0-9;][0-9]m)|(?<![a-z0-9]))')
+            # Use negative lookahead (hostname-specific) to ensure we don't
+            # match partial hostnames, stricter than base class
+            lookahead = r'(?![a-z0-9])'
+            return rf'{lookbehind}{item}{lookahead}'
+        # Original hostname behavior: negative lookahead on both sides
+        return rf'(?<![a-z0-9]){item}(?![a-z0-9])'
 
     def get_regex_escape(self, item):
         """Override the base get_regex_escape() to provide a regex that, if
