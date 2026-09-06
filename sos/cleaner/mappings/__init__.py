@@ -28,14 +28,30 @@ class SoSMap():
     compile_regexes = True
     ignore_short_items = False
     match_full_words_only = False
+    # When True, also treat special escape sequences as word boundaries:
+    # %XX (percent+2hexdigits), #[0-9]{3} (hash+3decimal), B(;\d+)+m (ANSI seq)
+    strict_tokenisation = False
     # When True, use set-based token lookup instead of compiled_search regex
     # for the pre-filter in _parse_line_with_compiled_regexes.
     # Suitable for parsers with simple word items (username, keyword).
     use_token_lookup = False
 
     _token_split_re = re.compile(r'[^a-z0-9]+')
+    # Strict version treats complete escape sequences as delimiters
+    # Matches: non-alphanumeric OR escape sequences (URI, octal, ANSI)
+    # ANSI: real \x1B[params m OR corrupted b;N;Nm (lowercase; input is
+    # .lower()'d before split)
+    _token_split_re_strict = re.compile(
+        r'%[0-9a-fA-F]{2}|#[0-9]{3}'
+        r'|\x1B\[(?:\d+;)*\d+m'
+        r'|(?<![a-z0-9])b(?:;[0-9]+)+m|[^a-z0-9]+'
+    )
 
-    def __init__(self, workdir, _static_regex=re.compile(r'(?!)')):
+    def __init__(self, workdir, _static_regex=re.compile(r'(?!)'),
+                 strict_tokenisation=False):
+        # Set strict_tokenisation as instance attribute BEFORE any logic that
+        # uses it (e.g., token splitter selection below)
+        self.strict_tokenisation = strict_tokenisation
         self.initializing = True
         self.dataset = {}
         self._regexes_made = set()
@@ -45,6 +61,23 @@ class SoSMap():
         self._complex_items = []
         self._regex_dict = {}
         self._static_regex = _static_regex
+        # Select token splitter based on strict_tokenisation setting.
+        # NOTE: Token lookup parsers always use basic splitting, regardless of
+        # strict_tokenisation setting. This avoids false positives from escape
+        # sequences that may appear mid-word (e.g., "admin%1Bistrator" which
+        # could be "administrator" corrupted, not "admin" as a separate word).
+        # Strict word boundaries are still enforced via regex matching for
+        # correctly delimited words like "%1Badmin%20" or "#033admin".
+        if self.use_token_lookup:
+            # Token lookup: always use basic splitting (conservative)
+            self._token_splitter = self._token_split_re
+        else:
+            # Regex-only parsers: apply strict splitting if enabled
+            self._token_splitter = (
+                self._token_split_re_strict
+                if self.strict_tokenisation
+                else self._token_split_re
+            )
         self.cname = self.__class__.__name__.lower()
         # workdir's default value '/tmp' is used just by avocado tests,
         # otherwise we override it to /etc/sos/cleaner (or map_file dir)
@@ -227,7 +260,7 @@ class SoSMap():
         """
         if self.use_token_lookup:
             line_lower = line.lower()
-            tokens = set(self._token_split_re.split(line_lower))
+            tokens = set(self._token_splitter.split(line_lower))
             tokens.discard('')
 
             result = []
@@ -247,11 +280,42 @@ class SoSMap():
     def get_regex_escape(self, item):
         return rf'{re.escape(item)}'
 
+    def _apply_word_boundaries(self, item):
+        """Apply word boundary patterns based on match_full_words_only and
+        strict_tokenisation settings.
+
+        :param item:    The regex pattern to wrap with word boundaries
+        :type item:     ``str``
+
+        :returns:       The pattern with appropriate word boundaries applied
+        :rtype:         ``str``
+        """
+        if not self.match_full_words_only:
+            return item
+
+        if self.strict_tokenisation:
+            # Enhanced word boundary: also split on escape sequences
+            # %XX (e.g., %1B), #NNN (e.g., #033), ANSI endings ([\[0-9;][0-9]m)
+            # Lookbehind: preceded by escape seq endings OR not by alphanumeric
+            # Using character classes for fixed-width lookbehinds
+            #
+            # ANSI lookbehind: 3-char (?<=[\[0-9;][0-9]m) avoids false hits on
+            # non-ANSI suffixes like "v2m" (v not in [\[0-9;]).  Python regex
+            # lookbehinds are fixed-width; the full ANSI pattern is
+            # unusable here;
+            # [\[0-9;] matches '[' (real ANSI) or ';'/digit (corrupted ANSI).
+            lookbehind = (r'(?:(?<=%[0-9a-fA-F]{2})|(?<=#[0-9]{3})|'
+                          r'(?<=[\[0-9;][0-9]m)|(?<![a-z0-9]))')
+            # Lookahead: followed by word boundary, _, -, or escape sequences
+            # ANSI lookahead: matches both real and corrupted ANSI sequences
+            lookahead = (r'(?=\b|_|-|%[0-9a-fA-F]{2}|#[0-9]{3}|'
+                         r'B(?:;[0-9]+)+m)')
+            return rf'{lookbehind}{item}{lookahead}'
+        return rf'(?<![a-z0-9]){item}(?=\b|_|-)'
+
     def get_regex_fullword(self, item):
         item = rf'(?:{item})'
-        if self.match_full_words_only:
-            return rf'(?<![a-z0-9]){item}(?=\b|_|-)'
-        return item
+        return self._apply_word_boundaries(item)
 
     def get_regex_result(self, item):
         """Generate the object/value that is used by the parser when iterating
@@ -266,10 +330,7 @@ class SoSMap():
         :returns:       A compiled regex pattern for the item
         :rtype:         ``re.Pattern``
         """
-        if self.match_full_words_only:
-            item = rf'(?<![a-z0-9]){re.escape(item)}(?=\b|_|-)'
-        else:
-            item = re.escape(item)
+        item = self._apply_word_boundaries(re.escape(item))
         return re.compile(item, re.I)
 
     def sanitize_item(self, item):
