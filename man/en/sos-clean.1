@@ -13,6 +13,7 @@ sos_clean, sos_mask \- Obfuscate sensitive data from one or more sos reports
     [\-\-no-update]
     [\-\-keep-binary-files]
     [\-\-archive-type]
+    [\-\-strict-tokenisation]
 
 .SH DESCRIPTION
 \fBsos clean\fR or \fBsos mask\fR is an sos subcommand used to obfuscate sensitive information from
@@ -142,6 +143,28 @@ on the system from a previous execution.
 
     \fBdata-dir\fR      A plain directory on the filesystem.
     \fBtarball\fR       A generic tar archive not associated with any known tool
+.TP
+.B \-\-strict-tokenisation
+Enforce more strict tokenisation during the obfuscation process. By default,
+tokenisation is performed using non-alphanumeric characters as delimiters. This
+option extends tokenisation to also split on the following escape sequences:
+
+.RS
+.IP \(bu 3
+URI percent-encoded characters: \fB%XX\fR where XX are two hexadecimal digits
+(e.g., %20 for space, %1B for escape)
+.IP \(bu 3
+Decimal escape sequences: \fB#NNN\fR where NNN are three decimal digits (e.g.,
+#009 for TAB, #010 for newline, as used by rsyslog/journald)
+.IP \(bu 3
+ANSI terminal escape sequences: \fB\]x1B[N;Nm\fR or corrupted format\fBB;N;Nm\fR
+where N are numbers (e.g., B;1;32m for green text).
+.RE
+
+This may be useful for obfuscating sensitive data that appears in encoded or
+escaped forms within log files and other system data.
+
+Default: False
 
 .SH SEE ALSO
 .BR sos (1)

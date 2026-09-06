@@ -49,7 +49,8 @@ class SoSCleanerParser():
     map_file_key = 'unset'
     compile_regexes = True
 
-    def __init__(self, config={}, skip_cleaning_files=[]):
+    def __init__(self, config={}, skip_cleaning_files=[],
+                 strict_tokenisation=False):  # pylint: disable=unused-argument
         if self.map_file_key in config:
             self.mapping.conf_update(config[self.map_file_key])
         self.skip_cleaning_files = skip_cleaning_files
