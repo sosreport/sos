@@ -17,6 +17,7 @@ import codecs
 import errno
 import stat
 import re
+from shlex import quote
 from datetime import datetime
 from threading import Lock
 
@@ -681,22 +682,24 @@ class FileCacheArchive(Archive):
         """
         arc_name = archive.replace("sosreport-", "secured-sosreport-")
         arc_name += ".gpg"
-        enc_cmd = f"gpg --batch -o {arc_name} "
-        env = None
+        enc_cmd = f"gpg --batch -o {quote(arc_name)} "
+        stdin = None
         if self.enc_opts["key"]:
             # need to assume a trusted key here to be able to encrypt the
             # archive non-interactively
-            enc_cmd += f"--trust-model always -e -r {self.enc_opts['key']} "
-            enc_cmd += archive
+            enc_cmd += ("--trust-model always -e -r "
+                        f"{quote(self.enc_opts['key'])} ")
+            enc_cmd += quote(archive)
         if self.enc_opts["password"]:
-            # prevent change of gpg options using a long password, but also
-            # prevent the addition of quote characters to the passphrase
-            passwd = self.enc_opts['password'].replace('\'"', '')
-            env = {"sos_gpg": passwd}
+            # hand the passphrase to gpg on its stdin: it must not go
+            # through a shell, where word splitting and globbing would
+            # rewrite it, nor through the environment, where it would be
+            # readable by other processes of the same user
             enc_cmd += "-c --passphrase-fd 0 "
-            enc_cmd = f"/bin/bash -c \"echo $sos_gpg | {enc_cmd}\""
-            enc_cmd += archive
-        r = sos_get_command_output(enc_cmd, timeout=0, env=env, stderr=True)
+            enc_cmd += quote(archive)
+            stdin = f"{self.enc_opts['password']}\n"
+        r = sos_get_command_output(enc_cmd, timeout=0, stdin=stdin,
+                                   stderr=True)
         if r["status"] == 0:
             return arc_name
         if r["status"] == 2:
