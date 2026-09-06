@@ -100,7 +100,7 @@ class ocp(Cluster):
         return self._oc_cmd
 
     def fmt_oc_cmd(self, cmd):
-        """Format the oc command to optionall include the kubeconfig file if
+        """Format the oc command to optionally include the kubeconfig file if
         one is specified
         """
         return f"{self.oc_cmd} {cmd}"
@@ -346,7 +346,7 @@ class ocp(Cluster):
                 _oc_cmd = '/host/bin/oc'
                 # when run from a container, the oc command does not inherit
                 # the default config, so if it's present then pass it here to
-                # detect a funcitonal oc command. This is sidestepped in sos
+                # detect a functional oc command. This is sidestepped in sos
                 # report by being able to chroot the `oc` execution which we
                 # cannot do remotely
                 if node.file_exists('/root/.kube/config', need_root=True):

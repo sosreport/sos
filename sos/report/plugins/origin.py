@@ -16,7 +16,7 @@ from sos.report.plugins import Plugin, RedHatPlugin
 
 # Some clarification on naming:
 # OpenShift Origin is the upstream project for OpenShift Enterprise,
-# OpenShift Container Platflorm, and Atomic Platform.
+# OpenShift Container Platform, and Atomic Platform.
 #
 # However, the name "OpenShift Origin" refers to two different code bases:
 #  * Origin M5 and later (https://github.com/openshift/origin)

@@ -10,7 +10,7 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class Xfs(Plugin, IndependentPlugin):
-    """This plugin collects information on mounted XFS filessystems on the
+    """This plugin collects information on mounted XFS filesystems on the
     local system.
 
     Users should expect `xfs_info` and `xfs_admin` collections by this plugin

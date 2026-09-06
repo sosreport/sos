@@ -60,7 +60,7 @@ class Lvm2(Plugin, IndependentPlugin):
                 self.add_cmd_output(cmds, subdir="metadata")
 
     def setup(self):
-        # When running LVM2 comamnds:
+        # When running LVM2 commands:
         # - use nolocking if supported, else locking_type 0 (no locks)
         #   from lvm.conf: Turn locking off by setting to 0 (dangerous:
         #   risks metadata corruption if LVM2 commands get run

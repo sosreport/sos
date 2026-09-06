@@ -14,7 +14,7 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 class Helm(Plugin, IndependentPlugin):
     """The Helm plugin collects information about the currently installed
-    Helm charts, plugins, and repositories used in delpoyments
+    Helm charts, plugins, and repositories used in deployments
     """
 
     short_desc = 'The k8s templating and deployment manager'

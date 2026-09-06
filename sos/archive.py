@@ -35,7 +35,7 @@ P_FILE = "file"
 P_LINK = "link"
 P_NODE = "node"
 P_DIR = "dir"
-P_CONTFILE = "contaner file"
+P_CONTFILE = "container file"
 
 
 class Archive:
@@ -359,7 +359,7 @@ class FileCacheArchive(Archive):
             if not dest:
                 return
 
-            # Handle adding a file from either a string respresenting
+            # Handle adding a file from either a string representing
             # a path, or a File object open for reading.
             if not getattr(src, "read", None):
                 # path case
@@ -391,7 +391,7 @@ class FileCacheArchive(Archive):
             src = dest
 
             # add_string() is a special case: it must always take precedence
-            # over any exixting content in the archive, since it is used by
+            # over any existing content in the archive, since it is used by
             # the Plugin postprocessing hooks to perform regex substitution
             # on file content.
             dest = self.check_path(dest, P_FILE, force=True)
@@ -779,7 +779,7 @@ class TarFileArchive(FileCacheArchive):
             self._archive_name = f"{self._archive_name}.{_comp_mode}"
             self._suffix += f".{_comp_mode}"
             _mode = f"w:{_comp_mode}"
-        # tarfile does not currently have a consistent way to define comnpress
+        # tarfile does not currently have a consistent way to define compress
         # level for both xz and gzip ('preset' for xz, 'compresslevel' for gz)
         kwargs = {
             None: {},

@@ -788,7 +788,7 @@ third party.
                     parsers_dict[prepper.name]
                 ))
         for archive in self.report_paths:
-            # archives are not yet extracted so we cant easily iterate over
+            # archives are not yet extracted so we can't easily iterate over
             # globbed files. So let assume logrotated files follow just the
             # most typical scenario: audit.log -> audit.log.1 -> audit.log.2
             # -> .. . And check just those files till they exist.
