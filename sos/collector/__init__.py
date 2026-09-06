@@ -148,7 +148,8 @@ class SoSCollector(SoSComponent):
         'upload_s3_access_key': None,
         'upload_s3_secret_key': None,
         'upload_s3_object_prefix': None,
-        'upload_target': None
+        'upload_target': None,
+        'strict_tokenisation': False
     }
 
     def __init__(self, parser, parsed_args, cmdline_args):
@@ -535,6 +536,14 @@ class SoSCollector(SoSComponent):
                                     ' after convert the file to text. '
                                     '"Key" certificate files are always '
                                     'removed.'))
+        cleaner_grp.add_argument('--strict-tokenisation', default=False,
+                                 action='store_true',
+                                 dest='strict_tokenisation',
+                                 help=(
+                                    'Enforce more strict tokenisation that '
+                                    'also respects URI encoding, terminal '
+                                    'escape characters, and rsyslog special '
+                                    'characters.'))
 
     @classmethod
     def display_help(cls, section):
