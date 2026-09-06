@@ -910,6 +910,7 @@ third party.
                         f"Failed to receive obfuscation stats from child; "
                         f"statistics might be incomplete. Error: '{e}'"
                     )
+                    break
                 files_obfuscated_count += foc
                 total_sub_count += tsc
                 removed_file_count += rfc
