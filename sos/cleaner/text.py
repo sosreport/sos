@@ -17,6 +17,7 @@ from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.text_secrets import SecretRedactor
+from sos.cleaner.text_identity import TextEmailParser, TextUsernameParser
 
 
 class CleanTextError(Exception):
@@ -66,8 +67,11 @@ class SoSCleanText(SoSComponent):
     def add_parser_options(cls, parser):
         parser.usage = 'sos clean-text [FILE|-] [options]'
         parser.description = (
-            'Write sanitized UTF-8 text to stdout. Hostnames and domains must '
-            'be explicitly seeded; unknown names and usernames are unchanged. '
+            'Write sanitized UTF-8 text to stdout. Hostnames, domains and '
+            'usernames must be explicitly seeded; unknown names are '
+            'unchanged. '
+            'Ordinary emails are pseudonymized automatically; email case '
+            'variants share a replacement. Username seeds are case-sensitive. '
             'Recognized credentials and private keys are irreversibly '
             'redacted before identity and address obfuscation. '
             'Uses a private temporary cache, without loading or updating the '
@@ -81,6 +85,9 @@ class SoSCleanText(SoSComponent):
                                  'obfuscate')
         parser.add_argument('--domains', action='extend', default=[],
                             help='Comma-separated known domains to obfuscate')
+        parser.add_argument('--usernames', action='extend', default=[],
+                            help='Comma-separated exact usernames to '
+                                 'obfuscate; may be repeated')
 
     def execute(self):
         try:
@@ -93,8 +100,7 @@ class SoSCleanText(SoSComponent):
                 workdir = stack.enter_context(tempfile.TemporaryDirectory(
                     prefix='sos-clean-text-', dir=self.opts.tmp_dir or None
                 ))
-                # Keep the same relative ordering as SoSCleaner. Username and
-                # keyword parsers have no identities to match in this mode.
+                # Keep the existing address/hostname parser relative order.
                 parsers = [cls({}, workdir) for cls in (
                     SoSHostnameParser, SoSIPParser, SoSIPv6Parser, SoSMacParser
                 )]
@@ -102,6 +108,11 @@ class SoSCleanText(SoSComponent):
                 for identity in self.opts.hostnames + self.opts.domains:
                     hostname_parser.mapping.add(identity.lower())
                 hostname_parser.generate_item_regexes()
+                parsers[0:0] = [
+                    TextEmailParser(),
+                    TextUsernameParser(workdir,
+                                       getattr(self.opts, 'usernames', []))
+                ]
 
                 if self.opts.target == '-':
                     source = sys.stdin.buffer

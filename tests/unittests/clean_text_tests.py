@@ -417,7 +417,7 @@ class CleanTextSecretTests(unittest.TestCase):
             '550e8400-e29b-41d4-a716-446655440000\n'
             'cat /etc/passwd; pwd; systemctl status sshd.service\n'
             'password-file=/etc/example token_count=3 tokenizer=ok\n'
-            'alice alice@example.test https://example.test/path\n'
+            'alice https://example.test/path\n'
             '-----BEGIN CERTIFICATE-----\nsynthetic-public-body\n'
             '-----END CERTIFICATE-----\n'
         )
@@ -474,3 +474,181 @@ class CleanTextSecretTests(unittest.TestCase):
         self.assertTrue(result.stdout == b'')
         for secret in secrets:
             self.assertFalse(secret.encode() in result.stderr)
+
+
+class CleanTextIdentityTests(unittest.TestCase):
+    """Only synthetic identities; assertions never echo raw input."""
+
+    run_clean_text = CleanTextTests.run_clean_text
+
+    def check_output(self, content, expected, *args):
+        result = self.run_clean_text(content.encode(), '-', *args)
+        self.assertTrue(result.returncode == 0)
+        self.assertTrue(result.stderr == b'')
+        self.assertTrue(result.stdout == expected.encode())
+
+    def test_repeated_email(self):
+        self.check_output(
+            'synthetic.person@example.test\nsynthetic.person@example.test',
+            'user0@obfuscateddomain0.example\n'
+            'user0@obfuscateddomain0.example')
+
+    def test_multiple_emails(self):
+        self.check_output(
+            '<synthetic.one@example.test>, synthetic.two@example.test; '
+            'synthetic+tag@elsewhere.invalid\r\n',
+            '<user0@obfuscateddomain0.example>, '
+            'user1@obfuscateddomain0.example; '
+            'user2@obfuscateddomain1.example\r\n')
+
+    def test_email_case_variants(self):
+        self.check_output(
+            'Synthetic.One@EXAMPLE.TEST synthetic.one@example.test',
+            'user0@obfuscateddomain0.example user0@obfuscateddomain0.example')
+
+    def test_email_assignment_context(self):
+        self.check_output(
+            'email=synthetic.person@example.test '
+            'mailto:synthetic.person@example.test',
+            'email=user0@obfuscateddomain0.example '
+            'mailto:user0@obfuscateddomain0.example')
+
+    def test_username_replacement_collision(self):
+        self.check_output('obfuscateduser0 syntheticuser',
+                          'obfuscateduser1 obfuscateduser2',
+                          '--usernames', 'obfuscateduser0,syntheticuser')
+
+    def test_seeded_and_unknown_username(self):
+        self.check_output('syntheticuser unknownuser syntheticuser\n',
+                          'obfuscateduser0 unknownuser obfuscateduser0\n',
+                          '--usernames', 'syntheticuser')
+
+    def test_repeated_comma_separated_option(self):
+        self.check_output('syntheticone synthetictwo syntheticthree',
+                          'obfuscateduser1 obfuscateduser2 obfuscateduser0',
+                          '--usernames', 'syntheticone,synthetictwo',
+                          '--usernames', 'syntheticthree')
+
+    def test_username_case_and_short_seed(self):
+        self.check_output('xy XY SyntheticUser syntheticuser',
+                          'obfuscateduser0 XY obfuscateduser1 syntheticuser',
+                          '--usernames', 'xy,SyntheticUser')
+
+    def test_evidence_and_username_boundaries(self):
+        content = ('user-2000048158.slice session-c33.scope\n'
+                   'system_u:system_r:sshd_net_t:s0 /etc/passwd shadow-utils\n'
+                   'syntheticuser-extra syntheticuser.name '
+                   'syntheticuser_suffix prefixedsyntheticuser\n')
+        self.check_output(content, content, '--usernames',
+                          'user,session,system,sshd,shadow,syntheticuser')
+
+    def test_exact_seed_in_evidence(self):
+        self.check_output(
+            'user-2000048158.slice system_u:system_r:sshd_net_t:s0',
+            'obfuscateduser0 system_u:system_r:obfuscateduser1:s0',
+            '--usernames', 'user-2000048158.slice,sshd_net_t')
+
+    def test_secret_precedes_identity_parsers(self):
+        self.check_output(
+            'password="syntheticuser synthetic.person@example.test"\n'
+            'token=synthetic.person@example.test\n'
+            'synthetic.person@example.test syntheticuser',
+            'password="[REDACTED_SECRET]"\ntoken=[REDACTED_TOKEN]\n'
+            'user0@obfuscateddomain0.example obfuscateduser0',
+            '--usernames', 'syntheticuser')
+
+    def test_email_does_not_seed_username_or_hostname(self):
+        self.check_output(
+            'syntheticuser@example.test syntheticuser example.test',
+            'user0@obfuscateddomain0.example syntheticuser example.test')
+
+    def test_parser_failure_diagnostics(self):
+        from sos.cleaner.text_identity import (TextEmailParser,
+                                               TextUsernameParser)
+
+        email = 'synthetic.person@example.test'
+        username = 'syntheticuser'
+        for parser_class in (TextEmailParser, TextUsernameParser):
+            with self.subTest(parser=parser_class.name):
+                with tempfile.TemporaryDirectory() as directory:
+                    opts = SimpleNamespace(domains=[], hostnames=[],
+                                           usernames=[username], target='-',
+                                           tmp_dir=directory)
+                    output, stderr = io.BytesIO(), io.StringIO()
+                    with mock.patch('sos.cleaner.text.sys.stdin',
+                                    buffer=io.BytesIO(email.encode())), \
+                            mock.patch('sos.cleaner.text.sys.stdout',
+                                       buffer=output), \
+                            mock.patch('sos.cleaner.text.sys.stderr',
+                                       stderr), \
+                            mock.patch.object(parser_class, 'parse_line',
+                                              side_effect=RuntimeError(
+                                                  email + ' ' + username)):
+                        with self.assertRaises(SystemExit):
+                            SoSCleanText(None, opts, None).execute()
+                    self.assertTrue(output.getvalue() == b'')
+                    self.assertTrue('failed on line 1' in stderr.getvalue())
+                    for raw in (email, 'synthetic.person', 'example.test',
+                                username):
+                        self.assertFalse(raw in stderr.getvalue())
+                    self.assertTrue(os.listdir(directory) == [])
+
+    def test_no_identity_cache_or_stderr_leakage(self):
+        from sos.cleaner.text_identity import TextUsernameParser
+
+        email = 'synthetic.person@example.test'
+        username = 'syntheticuser'
+        raw_values = (email, 'synthetic.person', 'example.test', username)
+        for failure in (False, True):
+            with self.subTest(failure=failure):
+                with tempfile.TemporaryDirectory() as directory:
+                    opts = SimpleNamespace(domains=[], hostnames=[],
+                                           usernames=[username], target='-',
+                                           tmp_dir=directory)
+                    output, stderr = io.BytesIO(), io.StringIO()
+                    source = (email + ' ' + username + '\n').encode()
+                    if failure:
+                        source += b'\xff'
+                    parse_line = TextUsernameParser.parse_line
+                    inspected = []
+
+                    def inspect_cache(parser, line):
+                        result = parse_line(parser, line)
+                        for path in Path(directory).rglob('*'):
+                            if path.is_dir():
+                                # Cache directories sit beneath mode-0700
+                                # staging; no other user can traverse it.
+                                continue
+                            self.assertTrue(stat.S_IMODE(path.stat().st_mode)
+                                            == 0o600)
+                            data = path.read_bytes()
+                            for raw in raw_values:
+                                self.assertFalse(raw.encode() in data)
+                        inspected.append(True)
+                        return result
+
+                    with mock.patch('sos.cleaner.text.sys.stdin',
+                                    buffer=io.BytesIO(source)), \
+                            mock.patch('sos.cleaner.text.sys.stdout',
+                                       buffer=output), \
+                            mock.patch('sos.cleaner.text.sys.stderr',
+                                       stderr), \
+                            mock.patch.object(TextUsernameParser,
+                                              'parse_line', inspect_cache), \
+                            mock.patch('sos.cleaner.SoSCleaner.load_map_file',
+                                       side_effect=AssertionError()), \
+                            mock.patch('sos.cleaner.SoSCleaner.'
+                                       'write_map_for_config',
+                                       side_effect=AssertionError()):
+                        if failure:
+                            with self.assertRaises(SystemExit):
+                                SoSCleanText(None, opts, None).execute()
+                        else:
+                            SoSCleanText(None, opts, None).execute()
+                    self.assertTrue(bool(inspected))
+                    for raw in raw_values:
+                        self.assertFalse(raw in stderr.getvalue())
+                        self.assertFalse(raw.encode() in output.getvalue())
+                    if failure:
+                        self.assertTrue(output.getvalue() == b'')
+                    self.assertTrue(os.listdir(directory) == [])
