@@ -311,6 +311,58 @@ support representative.
         super().__init__(sysroot=sysroot, init=init,
                          probe_runtime=probe_runtime,
                          remote_exec=remote_exec)
+        self._rhel_version = self._get_rhel_version()
+
+    def _get_rhel_version(self):
+        """Detect RHEL major version from RHEL_VERSION in /etc/os-release.
+
+        Parses RHEL_VERSION first (available on RHCOS 4.6+), falls back
+        to PLATFORM_ID (e.g. 'platform:el9').
+
+        :returns: RHEL major version as string ('8', '9', '10')
+        :rtype: ``str``
+        """
+        os_release_content = None
+        if self.remote_exec:
+            ret = self.remote_exec('cat /etc/os-release')
+            if ret['status'] == 0:
+                os_release_content = ret['output']
+        else:
+            try:
+                os_release_path = self.join_sysroot('/etc/os-release')
+                with open(os_release_path, 'r', encoding='utf-8') as f:
+                    os_release_content = f.read()
+            except (IOError, OSError) as err:
+                self.soslog.debug(
+                    f"Unable to read /etc/os-release: {err}"
+                )
+
+        if os_release_content:
+            rhel_version = None
+            platform_id = None
+            for line in os_release_content.splitlines():
+                if line.startswith('RHEL_VERSION='):
+                    rhel_version = line.split('=', 1)[1].strip().strip('"')
+                elif line.startswith('PLATFORM_ID='):
+                    platform_id = line.split('=', 1)[1].strip().strip('"')
+            if rhel_version:
+                major = rhel_version.split('.')[0]
+                self.soslog.debug(
+                    f"Detected RHEL major version: {major}"
+                )
+                return major
+            if platform_id and ':el' in platform_id:
+                major = platform_id.split(':el')[1]
+                self.soslog.debug(
+                    f"Detected RHEL major version from "
+                    f"PLATFORM_ID: {major}"
+                )
+                return major
+
+        self.soslog.debug(
+            "Unable to detect RHEL version, defaulting to '8'"
+        )
+        return '8'
 
     @classmethod
     def check(cls, remote=''):
@@ -459,20 +511,70 @@ support representative.
 
         return archive_name
 
+    def _get_container_image(self):
+        """Determine the container image to use for sos collection.
+
+        Checks /root/.toolboxrc for a custom REGISTRY/IMAGE override,
+        then falls back to the version-appropriate support-tools image.
+
+        :returns: The container image reference
+        :rtype: ``str``
+        """
+        toolboxrc = self.join_sysroot('/root/.toolboxrc')
+        content = None
+        if self.remote_exec:
+            ret = self.remote_exec('cat /root/.toolboxrc')
+            if ret['status'] == 0:
+                content = ret['output']
+        else:
+            try:
+                with open(toolboxrc, 'r', encoding='utf-8') as f:
+                    content = f.read()
+            except IOError:
+                # .toolboxrc is optional; fall back to default image
+                pass
+
+        if content:
+            registry = None
+            img = None
+            for line in content.splitlines():
+                line = line.strip()
+                if line.startswith('REGISTRY='):
+                    registry = line.split('=', 1)[1].strip().strip('"')
+                elif line.startswith('IMAGE='):
+                    img = line.split('=', 1)[1].strip().strip('"')
+            if registry and img:
+                self.soslog.info(
+                    f"Using container image from .toolboxrc: "
+                    f"{registry}/{img}"
+                )
+                return f"{registry}/{img}"
+
+        return (f"registry.redhat.io/rhel{self._rhel_version}/"
+                f"support-tools:latest")
+
     def create_sos_container(self, image=None, auth=None, force_pull=False):
-        _image = image or self.container_image
+        _image = image or self._get_container_image()
         _pull = '--pull=always' if force_pull else ''
+        self.soslog.info(
+            f"Using RHEL {self._rhel_version} support-tools image"
+        )
         return (
-            f"{self.container_runtime} run -di "
+            f"{self.container_runtime} run -d "
             f"--name {self.sos_container_name} --privileged --ipc=host "
             f"--net=host --pid=host -e HOST=/host "
-            f"-e NAME={self.sos_container_name} -e "
-            f"IMAGE={_image} {_pull} "
+            f"-e NAME={self.sos_container_name} -e IMAGE={_image} "
+            f"{_pull} "
             f"-v /run:/run -v /var/log:/var/log "
             f"-v /etc/machine-id:/etc/machine-id "
-            f"-v /etc/localtime:/etc/localtime "
-            f"-v /:/host "
-            f"{auth or ''} {_image}"
+            f"-v /etc/localtime:/etc/localtime -v /:/host "
+            f"{auth or ''} {_image} sleep infinity"
+        )
+
+    def restart_sos_container(self):
+        return (
+            f"{self.container_runtime} start "
+            f"{self.sos_container_name}"
         )
 
     def set_cleanup_cmd(self):
