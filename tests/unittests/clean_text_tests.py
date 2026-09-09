@@ -881,3 +881,140 @@ with patch('sos.cleaner.text.check_staged_output', return_value=True):
         self.assertTrue(b'172.17.' in result.stdout)
         self.assertTrue(b'534f:' in result.stdout)
         self.assertTrue(b'53:4f:53:' in result.stdout)
+
+
+class CleanTextAdversarialCorpusTests(unittest.TestCase):
+    """Synthetic RHEL-like evidence used to attack the complete pipeline."""
+
+    run_clean_text = CleanTextTests.run_clean_text
+
+    def assert_success(self, result):
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        self.assertEqual(result.stderr, b'')
+
+    def test_rhel_troubleshooting_corpus(self):
+        corpus = (
+            'type=AVC msg=audit(172.20.10.5:4242): avc: denied '
+            '{ read } for pid=321 comm="sshd" path="/home/syntheticuser/'
+            'synthetic-host/.ssh/authorized_keys" scontext=system_u:system_r:sshd_t:s0 '
+            'tcontext=system_u:object_r:ssh_home_t:s0 tclass=file\r\n'
+            'setcon: Could not set context for syntheticuser on '
+            '/srv/synthetic-host: Permission denied\r\n'
+            'audit[4242]: pid=321 uid=1001 auid=syntheticuser '
+            'exe="/usr/sbin/sshd"\r\n'
+            'user-2000048158.slice/session-c33.scope '
+            '/sys/fs/cgroup/user.slice/user-2000048158.slice/session-c33.scope '
+            'system.slice/sshd.service sshd.service\r\n'
+            'ens192: flags=4163 mtu 1500 inet 10.29.38.47/24 '
+            'inet6 2607:c540:8c00:3318::34/64 scope global '
+            'inet6 fe80::1234/64 scope link ether 12:34:56:78:90:ab\r\n'
+            'default via 10.29.38.1 dev ens192 proto dhcp metric 100 '
+            'nameserver 10.29.38.53 search corp.example.test synthetic-host.example.test\r\n'
+            'sshd[321]: Accepted publickey for syntheticuser from '
+            '10.29.38.47 port 22 ssh2\r\n'
+            'sudo: syntheticuser : TTY=pts/0 ; PWD=/home/syntheticuser ; '
+            'COMMAND=/usr/bin/systemctl restart sshd.service\r\n'
+            'pam_unix(sshd:session): session opened for user syntheticuser(uid=1001)\r\n'
+            'Installed: demo-app-1.2.3-4.el9.x86_64 '
+            'python3-requests-2.31.0-1.el9.noarch java-17-openjdk-17.0.9.0.9-2.el9\r\n'
+            'uuid=550e8400-e29b-41d4-a716-446655440000 '
+            'sha256=0123456789abcdef0123456789abcdef '
+            'repo=https://mirror.example.test/rhel/9/BaseOS/x86_64/os/ '
+            'gpgcheck=1\r\n'
+            'password=synthetic-password-value token=synthetic-token-value '
+            'Authorization: Bearer synthetic-bearer-value '
+            'aws=AKIASYNTHETIC0000000\r\n'
+            'jwt=eyJzeW50aGV0aWMifQ.eyJ0ZXN0Ijp0cnVlfQ.c3ludGhldGlj '
+            'url=https://synthetic-user:synthetic-url-password@mirror.example.test/\r\n'
+            '-----BEGIN PRIVATE KEY-----\r\nsynthetic-key-body\r\n'
+            '-----END PRIVATE KEY-----\r\n'
+            'secret="10.29.38.47 12:34:56:78:90:ab synthetic.person@example.test"\r\n'
+            'localhost 127.0.0.1 ::1 lo virbr0 docker0\r\n'
+        ).encode()
+        result = self.run_clean_text(
+            corpus, '-', '--usernames', 'syntheticuser',
+            '--hostnames', 'synthetic-host', '--domains',
+            'synthetic-host.example.test')
+        self.assert_success(result)
+        for raw in (
+                b'10.29.38.47', b'2607:c540:8c00:3318::34',
+                b'12:34:56:78:90:ab', b'synthetic-password-value',
+                b'synthetic-token-value', b'synthetic-bearer-value',
+                b'AKIASYNTHETIC0000000', b'eyJzeW50aGV0aWMifQ.',
+                b'synthetic-key-body', b'synthetic.person@example.test',
+                b'synthetic-url-password'):
+            self.assertNotIn(raw, result.stdout)
+            self.assertNotIn(raw, result.stderr)
+        for readable in (b'avc: denied', b'setcon:', b'system_u:system_r:',
+                         b'user-2000048158.slice', b'session-c33.scope',
+                         b'system.slice', b'sshd.service', b'ens192',
+                         b'python3-requests', b'java-17-openjdk',
+                         b'uuid=550e8400-e29b-41d4-a716-446655440000',
+                         b'localhost', b'127.0.0.1', b'::1'):
+            self.assertIn(readable, result.stdout)
+        self.assertIn(b'[REDACTED_SECRET]', result.stdout)
+        self.assertIn(b'[REDACTED_TOKEN]', result.stdout)
+        self.assertIn(b'[REDACTED_PRIVATE_KEY]', result.stdout)
+
+    def test_repeated_identifiers_are_deterministic_in_long_mixed_lines(self):
+        line = ('synthetic.person@example.test synthetic-host syntheticuser '
+                '10.29.38.47 12:34:56:78:90:ab\r\n')
+        content = (line * 200).encode() + b'final line without newline'
+        result = self.run_clean_text(content, '-', '--usernames',
+                                     'syntheticuser', '--hostnames',
+                                     'synthetic-host')
+        self.assert_success(result)
+        lines = result.stdout.splitlines()
+        self.assertEqual(len(lines), 201)
+        self.assertTrue(all(line == lines[0] for line in lines[:-1]))
+        self.assertNotIn(b'synthetic.person@example.test', result.stdout)
+        self.assertNotIn(b'10.29.38.47', result.stdout)
+        self.assertNotIn(b'12:34:56:78:90:ab', result.stdout)
+
+    def test_quoted_escaped_and_punctuation_cases(self):
+        content = (
+            b'prefix,(password="synthetic-value\\\"quoted")], '
+            b'token: synthetic-token; '
+            b'Bearer synthetic-bearer, '
+            b'https://synthetic-user:synthetic-password@example.test/path.\r\n'
+            b'-----BEGIN RSA PRIVATE KEY----- truncated synthetic-key-body'
+        )
+        result = self.run_clean_text(content, '-')
+        self.assert_success(result)
+        for raw in (b'synthetic-value', b'synthetic-token',
+                    b'synthetic-bearer', b'synthetic-password',
+                    b'synthetic-key-body'):
+            self.assertNotIn(raw, result.stdout)
+        self.assertIn(b'[REDACTED_SECRET]', result.stdout)
+        self.assertIn(b'[REDACTED_TOKEN]', result.stdout)
+        self.assertIn(b'[REDACTED_PRIVATE_KEY]', result.stdout)
+
+    def test_malformed_utf8_fails_closed_without_echo(self):
+        secret = b'synthetic-malformed-secret'
+        result = self.run_clean_text(
+            b'normal evidence\r\npassword=' + secret + b'\xff\n', '-')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, b'')
+        self.assertNotIn(secret, result.stderr)
+
+    def test_residual_bypass_still_fails_closed(self):
+        # The adversarial corpus must not make the gate permissive: force a
+        # raw token through the secret stage and verify zero stdout.
+        value = 'synthetic-residual-token'
+        output = io.BytesIO()
+        stderr = io.StringIO()
+        with tempfile.TemporaryDirectory() as directory:
+            opts = SimpleNamespace(domains=[], hostnames=[], usernames=[],
+                                   target='-', tmp_dir=directory)
+            with mock.patch('sos.cleaner.text.sys.stdin',
+                            buffer=io.BytesIO(('token=' + value).encode())), \
+                    mock.patch('sos.cleaner.text.sys.stdout', buffer=output), \
+                    mock.patch('sos.cleaner.text.sys.stderr', stderr), \
+                    mock.patch('sos.cleaner.text.SecretRedactor.redact',
+                               lambda self, line: line):
+                with self.assertRaises(SystemExit):
+                    SoSCleanText(None, opts, None).execute()
+        self.assertEqual(output.getvalue(), b'')
+        self.assertEqual(stderr.getvalue(),
+                         'sos clean-text: residual privacy check failed\n')
+        self.assertNotIn(value, stderr.getvalue())
