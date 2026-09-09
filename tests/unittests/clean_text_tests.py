@@ -8,14 +8,16 @@
 
 import io
 import os
+import stat
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
+from types import SimpleNamespace
 from unittest import mock
 
-from sos.cleaner.text import sanitize_stream
+from sos.cleaner.text import CleanTextError, SoSCleanText, sanitize_stream
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -182,10 +184,34 @@ assert not any(os.path.exists(path) for path in seen)
         self.assertIn(b'sos clean-text:', result.stderr)
 
     def test_invalid_utf8(self):
-        result = self.run_clean_text(b'\xff\n', '-')
+        result = self.run_clean_text(b'10.20.30.40\nsensitive\xff\n', '-')
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(result.stdout, b'')
         self.assertTrue(result.stderr)
+        self.assertNotIn(b'sensitive', result.stderr)
+
+    def test_phase_one_output_equivalence(self):
+        content = (
+            b'customerhost node.customer.example customer.example '
+            b'10.20.30.40 2607:c540:8c00:3318::34 12:34:56:78:90:ab\r\n'
+            b'user-2000048158.slice session-c33.scope '
+            b'system_u:system_r:sshd_net_t:s0\n'
+            + ' café\tno final newline'.encode()
+        )
+        # Captured from the committed phase 1 CLI before adding staging.
+        expected = (
+            b'host0 host1.obfuscateddomain0.example '
+            b'obfuscateddomain0.example 172.17.0.1 '
+            b'534f:53ff:fe00:0001::0004 53:4f:53:00:00:02\r\n'
+            b'user-2000048158.slice session-c33.scope '
+            b'system_u:system_r:sshd_net_t:s0\n'
+            + ' café\tno final newline'.encode()
+        )
+        result = self.run_clean_text(content, '-', '--hostnames',
+                                     'customerhost', '--domains',
+                                     'customer.example')
+        self.assert_success(result)
+        self.assertEqual(result.stdout, expected)
 
     def test_parser_failure_exit_status(self):
         script = '''
@@ -210,7 +236,100 @@ with patch('sos.cleaner.text.SoSIPParser.parse_line',
         parser.name = 'Test Parser'
         parser.parse_line.side_effect = [('safe\n', 1), RuntimeError()]
         destination = io.BytesIO()
-        with self.assertRaisesRegex(RuntimeError, 'failed on line 2'):
+        with self.assertRaisesRegex(CleanTextError, 'failed on line 2'):
             sanitize_stream(io.BytesIO(b'first\nsecond\n'), destination,
                             [parser])
         self.assertEqual(destination.getvalue(), b'safe\n')
+
+
+class CleanTextStagingTests(unittest.TestCase):
+    """Exercise the release boundary with real private temporary files."""
+
+    def run_staged(self, failure=None):
+        output = io.BytesIO()
+        stderr = io.StringIO()
+        source = io.BytesIO(b'10.20.30.40\nsensitive input\n')
+        temporary_file = tempfile.NamedTemporaryFile
+        seen = []
+
+        def make_staged(*args, **kwargs):
+            staged = temporary_file(*args, **kwargs)
+            seen.append(staged.name)
+            self.assertEqual(stat.S_IMODE(os.stat(staged.name).st_mode),
+                             0o600)
+            self.assertEqual(stat.S_IMODE(
+                os.stat(Path(staged.name).parent).st_mode), 0o700)
+            if failure in ('write', 'flush', 'seek'):
+                original = getattr(staged, failure)
+
+                def fail_once(*args, **kwargs):
+                    # Restore so cleanup itself can flush and close normally.
+                    setattr(staged, failure, original)
+                    raise OSError('sensitive input')
+
+                setattr(staged, failure, fail_once)
+            return staged
+
+        calls = []
+
+        def parse_line(line):
+            self.assertEqual(output.getvalue(), b'')
+            calls.append(line)
+            if len(calls) == 2 and failure == 'parser':
+                raise RuntimeError(line)
+            return 'sanitized\n', 1
+
+        def failing_input():
+            yield b'10.20.30.40\n'
+            raise OSError('sensitive input')
+
+        if failure == 'input':
+            source = failing_input()
+        elif failure == 'decoding':
+            source = io.BytesIO(b'10.20.30.40\nsensitive input\xff\n')
+
+        with tempfile.TemporaryDirectory() as directory:
+            opts = SimpleNamespace(domains=[], hostnames=[], target='-',
+                                   tmp_dir=directory)
+            command = SoSCleanText(None, opts, None)
+            with mock.patch('sos.cleaner.text.sys.stdin', buffer=source), \
+                    mock.patch('sos.cleaner.text.sys.stdout', buffer=output), \
+                    mock.patch('sos.cleaner.text.sys.stderr', stderr), \
+                    mock.patch('sos.cleaner.text.tempfile.NamedTemporaryFile',
+                               side_effect=make_staged), \
+                    mock.patch('sos.cleaner.text.SoSIPParser.parse_line',
+                               side_effect=parse_line):
+                if failure:
+                    with self.assertRaises(SystemExit) as raised:
+                        command.execute()
+                    self.assertNotEqual(raised.exception.code, 0)
+                    self.assertEqual(output.getvalue(), b'')
+                    self.assertTrue(stderr.getvalue())
+                    self.assertNotIn('sensitive input', stderr.getvalue())
+                    if failure == 'parser':
+                        self.assertIn('failed on line 2', stderr.getvalue())
+                else:
+                    command.execute()
+                    self.assertEqual(output.getvalue(),
+                                     b'sanitized\nsanitized\n')
+                    self.assertEqual(stderr.getvalue(), '')
+            self.assertEqual(len(seen), 1)
+            self.assertFalse(os.path.exists(seen[0]))
+            self.assertEqual(os.listdir(directory), [])
+
+    def test_success_removes_private_output(self):
+        self.run_staged()
+
+    def test_line_two_parser_failure_removes_output(self):
+        self.run_staged('parser')
+
+    def test_line_two_decoding_failure_removes_output(self):
+        self.run_staged('decoding')
+
+    def test_line_two_input_failure_removes_output(self):
+        self.run_staged('input')
+
+    def test_output_preparation_failure_removes_output(self):
+        for operation in ('write', 'flush', 'seek'):
+            with self.subTest(operation=operation):
+                self.run_staged(operation)

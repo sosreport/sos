@@ -6,6 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import shutil
 import sys
 import tempfile
 from contextlib import ExitStack
@@ -17,12 +18,17 @@ from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 
 
+class CleanTextError(Exception):
+    """An error with a diagnostic safe to display without input contents."""
+
+
 def sanitize_stream(source, destination, parsers):
     """Sanitize UTF-8 binary streams using the existing cleaner parsers.
 
     Binary I/O preserves line endings and a missing final newline. Each line
     must pass every parser before it is written. Errors propagate to the
-    caller; previously written lines cannot be retracted from a pipe.
+    caller. The destination must be private staging storage, since earlier
+    lines may already have been written when a later line fails.
     """
     for number, raw_line in enumerate(source, start=1):
         line = raw_line.decode('utf-8')
@@ -31,7 +37,7 @@ def sanitize_stream(source, destination, parsers):
                 line, _ = parser.parse_line(line)
             except Exception as err:
                 # Do not echo potentially sensitive input from the exception.
-                raise RuntimeError(
+                raise CleanTextError(
                     f'{parser.name} failed on line {number}'
                 ) from err
         destination.write(line.encode('utf-8'))
@@ -56,8 +62,8 @@ class SoSCleanText(SoSComponent):
             'Write sanitized UTF-8 text to stdout. Hostnames and domains must '
             'be explicitly seeded; unknown names and usernames are unchanged. '
             'Uses a private temporary cache, without loading or updating the '
-            'system cleaner mapping. On failure, earlier output may be '
-            'partial.'
+            'system cleaner mapping. Output is released only after the '
+            'complete input has been sanitized successfully.'
         )
         parser.add_argument('target', metavar='FILE', nargs='?', default='-',
                             help='Input file, or - for stdin (default)')
@@ -71,7 +77,9 @@ class SoSCleanText(SoSComponent):
         try:
             for domain in self.opts.domains:
                 if len(domain.split('.')) < 2:
-                    raise ValueError('--domains values must contain a dot')
+                    raise CleanTextError(
+                        '--domains values must contain a dot'
+                    )
             with ExitStack() as stack:
                 workdir = stack.enter_context(tempfile.TemporaryDirectory(
                     prefix='sos-clean-text-', dir=self.opts.tmp_dir or None
@@ -90,12 +98,27 @@ class SoSCleanText(SoSComponent):
                     source = sys.stdin.buffer
                 else:
                     source = stack.enter_context(open(self.opts.target, 'rb'))
-                sanitize_stream(source, sys.stdout.buffer, parsers)
+                # NamedTemporaryFile creates a mode-0600 file inside the
+                # mode-0700 workdir. Disk staging keeps total output out of
+                # memory, and ExitStack removes it on success and failure.
+                staged = stack.enter_context(tempfile.NamedTemporaryFile(
+                    mode='w+b', prefix='sanitized-', dir=workdir
+                ))
+                sanitize_stream(source, staged, parsers)
+                # Finish input and output preparation before releasing bytes.
+                if self.opts.target != '-':
+                    source.close()
+                staged.flush()
+                staged.seek(0)
+                shutil.copyfileobj(staged, sys.stdout.buffer, length=64 * 1024)
                 # bin/sos exits with os._exit(), so flush explicitly.
                 sys.stdout.buffer.flush()
         except Exception as err:
-            print(f'sos clean-text: {err}', file=sys.stderr)
-            raise SystemExit(1) from err
+            # I/O and codec exceptions can contain filenames or input bytes.
+            message = (str(err) if isinstance(err, CleanTextError)
+                       else 'unable to sanitize text')
+            print(f'sos clean-text: {message}', file=sys.stderr)
+            raise SystemExit(1) from None
         except KeyboardInterrupt:
             print('sos clean-text: interrupted', file=sys.stderr)
             raise SystemExit(130) from None
