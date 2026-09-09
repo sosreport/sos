@@ -16,6 +16,7 @@ from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
+from sos.cleaner.text_secrets import SecretRedactor
 
 
 class CleanTextError(Exception):
@@ -30,16 +31,22 @@ def sanitize_stream(source, destination, parsers):
     caller. The destination must be private staging storage, since earlier
     lines may already have been written when a later line fails.
     """
+    redactor = SecretRedactor()
     for number, raw_line in enumerate(source, start=1):
-        line = raw_line.decode('utf-8')
+        try:
+            line = redactor.redact(raw_line.decode('utf-8'))
+        except Exception:
+            raise CleanTextError(
+                f'secret redaction failed on line {number}'
+            ) from None
         for parser in parsers:
             try:
                 line, _ = parser.parse_line(line)
-            except Exception as err:
+            except Exception:
                 # Do not echo potentially sensitive input from the exception.
                 raise CleanTextError(
                     f'{parser.name} failed on line {number}'
-                ) from err
+                ) from None
         destination.write(line.encode('utf-8'))
 
 
@@ -61,6 +68,8 @@ class SoSCleanText(SoSComponent):
         parser.description = (
             'Write sanitized UTF-8 text to stdout. Hostnames and domains must '
             'be explicitly seeded; unknown names and usernames are unchanged. '
+            'Recognized credentials and private keys are irreversibly '
+            'redacted before identity and address obfuscation. '
             'Uses a private temporary cache, without loading or updating the '
             'system cleaner mapping. Output is released only after the '
             'complete input has been sanitized successfully.'

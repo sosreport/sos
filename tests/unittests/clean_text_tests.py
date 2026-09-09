@@ -333,3 +333,144 @@ class CleanTextStagingTests(unittest.TestCase):
         for operation in ('write', 'flush', 'seek'):
             with self.subTest(operation=operation):
                 self.run_staged(operation)
+
+
+class CleanTextSecretTests(unittest.TestCase):
+    """All credentials below are synthetic and have no external validity."""
+
+    run_clean_text = CleanTextTests.run_clean_text
+
+    def check_redaction(self, content, expected, secrets):
+        result = self.run_clean_text(content.encode(), '-')
+        # Boolean assertions avoid echoing credential contents on failure.
+        self.assertTrue(result.returncode == 0)
+        self.assertTrue(result.stderr == b'')
+        self.assertTrue(result.stdout == expected.encode())
+        for value in secrets:
+            self.assertFalse(value.encode() in result.stdout)
+            self.assertFalse(value.encode() in result.stderr)
+
+    def test_secret_assignments(self):
+        for key in ('password', 'passwd', 'pwd', 'secret', 'api_key',
+                    'api-key', 'apikey', 'DB_PASSWORD', '--password'):
+            with self.subTest(key=key):
+                value = 'synthetic-credential-value'
+                self.check_redaction(key + '=' + value + '\n',
+                                     key + '=[REDACTED_SECRET]\n', [value])
+        self.check_redaction('token: synthetic-token-value\n',
+                             'token: [REDACTED_TOKEN]\n',
+                             ['synthetic-token-value'])
+
+    def test_quoted_and_multiline_assignments(self):
+        self.check_redaction(
+            '\"password\": \"synthetic \\\"quoted\\\"\n'
+            'continued\", other=ok\r\n',
+            '\"password\": \"[REDACTED_SECRET]\n\", other=ok\r\n',
+            ['synthetic', 'continued'])
+        self.check_redaction("passwd='synthetic unfinished\nremainder",
+                             "passwd='[REDACTED_SECRET]\n",
+                             ['synthetic', 'remainder'])
+
+    def test_bearer(self):
+        self.check_redaction('Authorization: Bearer '
+                             'synthetic.bearer/value==\n',
+                             'Authorization: Bearer [REDACTED_TOKEN]\n',
+                             ['synthetic.bearer/value=='])
+        self.check_redaction('token=Bearer synthetic-bearer\n',
+                             'token=[REDACTED_TOKEN]\n', ['synthetic-bearer'])
+
+    def test_jwt(self):
+        value = 'eyJzeW50aGV0aWMiOnRydWV9.eyJ0ZXN0Ijp0cnVlfQ.c3ludGhldGlj'
+        self.check_redaction('jwt ' + value, 'jwt [REDACTED_TOKEN]', [value])
+
+    def test_aws_ids(self):
+        for prefix in ('AKIA', 'ASIA'):
+            value = prefix + 'SYNTHETIC0000000'
+            self.check_redaction('id ' + value,
+                                 'id [REDACTED_SECRET]', [value])
+
+    def test_private_keys(self):
+        for kind in ('PRIVATE KEY', 'RSA PRIVATE KEY', 'EC PRIVATE KEY',
+                     'DSA PRIVATE KEY', 'ENCRYPTED PRIVATE KEY',
+                     'OPENSSH PRIVATE KEY'):
+            with self.subTest(kind=kind):
+                self.check_redaction(
+                    'before -----BEGIN ' + kind + '-----\r\n'
+                    'synthetic-key-body\r\n-----END ' + kind + '----- after\n',
+                    'before [REDACTED_PRIVATE_KEY]\r\n\r\n after\n',
+                    ['synthetic-key-body'])
+        self.check_redaction('-----BEGIN PRIVATE KEY-----\ntruncated-body',
+                             '[REDACTED_PRIVATE_KEY]\n', ['truncated-body'])
+
+    def test_url_credentials(self):
+        self.check_redaction(
+            'https://synthetic-user:synthetic%40password@example.test/path\n',
+            'https://[REDACTED_SECRET]@example.test/path\n',
+            ['synthetic-user', 'synthetic%40password'])
+
+    def test_false_positives(self):
+        content = (
+            'system_u:system_r:sshd_net_t:s0\n'
+            'user-2000048158.slice session-c33.scope\n'
+            'passwd shadow-utils python3-secretstorage api-key-tools\n'
+            'sha256=0123456789abcdef0123456789abcdef\n'
+            '550e8400-e29b-41d4-a716-446655440000\n'
+            'cat /etc/passwd; pwd; systemctl status sshd.service\n'
+            'password-file=/etc/example token_count=3 tokenizer=ok\n'
+            'alice alice@example.test https://example.test/path\n'
+            '-----BEGIN CERTIFICATE-----\nsynthetic-public-body\n'
+            '-----END CERTIFICATE-----\n'
+        )
+        self.check_redaction(content, content, [])
+
+    def test_secrets_cannot_reach_maps_or_cache(self):
+        from sos.cleaner.mappings import SoSMap
+        from sos.cleaner.parsers.ip_parser import SoSIPParser
+        from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
+        from sos.cleaner.parsers.mac_parser import SoSMacParser
+        from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
+
+        secrets = ['10.29.38.47', '2607:c540:8c00:3318::34',
+                   '12:34:56:78:90:ab', 'synthetic-private-body',
+                   'synthetic-api-value', 'synthetic-bearer-value',
+                   'eyJzeW50aGV0aWMifQ.eyJ0ZXN0Ijp0cnVlfQ.c3ludGhldGlj',
+                   'AKIASYNTHETIC0000000', 'ASIASYNTHETIC0000000',
+                   'synthetic-url-password']
+        source = ('password=' + secrets[0] + '\nsecret=' + secrets[1]
+                  + '\ntoken=' + secrets[2] + '\n'
+                  '-----BEGIN PRIVATE KEY-----\n' + secrets[3]
+                  + '\n-----END PRIVATE KEY-----\n'
+                  + 'api_key=' + secrets[4] + '\nBearer ' + secrets[5]
+                  + '\n' + '\n'.join(secrets[6:9]) + '\n'
+                  + 'https://example:' + secrets[9] + '@example.test/\n')
+        original_add = SoSMap.add
+
+        def check_add(mapping, value):
+            self.assertFalse(any(secret in value for secret in secrets))
+            return original_add(mapping, value)
+
+        with tempfile.TemporaryDirectory() as directory:
+            parsers = [cls({}, directory) for cls in
+                       (SoSHostnameParser, SoSIPParser, SoSIPv6Parser,
+                        SoSMacParser)]
+            output = io.BytesIO()
+            with mock.patch.object(SoSMap, 'add', check_add):
+                sanitize_stream(io.BytesIO(source.encode()), output, parsers)
+            for parser in parsers:
+                self.assertFalse(any(secret in repr(parser.mapping.dataset)
+                                     for secret in secrets))
+            for path in Path(directory).rglob('*'):
+                if path.is_file():
+                    data = path.read_bytes()
+                    self.assertFalse(any(s.encode() in data for s in secrets))
+        result = self.run_clean_text(source.encode(), '-')
+        self.assertTrue(result.returncode == 0)
+        for secret in secrets:
+            self.assertFalse(secret.encode() in output.getvalue())
+            self.assertFalse(secret.encode() in result.stdout)
+            self.assertFalse(secret.encode() in result.stderr)
+        result = self.run_clean_text(source.encode() + b'\xff', '-')
+        self.assertTrue(result.returncode != 0)
+        self.assertTrue(result.stdout == b'')
+        for secret in secrets:
+            self.assertFalse(secret.encode() in result.stderr)
