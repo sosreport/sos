@@ -30,6 +30,17 @@ _ASSIGNMENT = re.compile(
     r'(?:password|passwd|pwd|token|secret|api_key|api-key|apikey)'
     r'''["']?[ \t]*[=:][ \t]*(?P<quote>["']?)''', re.I
 )
+_USERNAME_CONTEXT = re.compile(
+    r'''(?<![A-Za-z0-9_])(?P<key>acct|AUID|UID|user|ruser|USER|LOGNAME)'''
+    r'''[ \t]*=[ \t]*["']?(?P<value>[A-Za-z_][A-Za-z0-9_.-]*)'''
+    r'''(?=["'\s,;)]|$)|'''
+    r'''\bfor[ \t]+(?P<sshd>[A-Za-z_][A-Za-z0-9_.-]*)'''
+    r'''(?=[ \t]+(?:from|port)\b)|'''
+    r'''\bfor[ \t]+user[ \t]+(?P<pam>[A-Za-z_][A-Za-z0-9_.-]*)'''
+    r'''(?=[(\s]|$)|'''
+    r'''(?m:^sudo:\s*(?P<sudo>[A-Za-z_][A-Za-z0-9_.-]*)\s*:)''')
+_USERNAME_ALIAS = re.compile(r'obfuscateduser\d+$', re.I)
+_PRESERVED_USERNAME = frozenset(('root', 'unset', 'nobody'))
 _MARKER = re.compile(
     r'\[REDACTED_(?:SECRET|TOKEN|PRIVATE_KEY)\]'
     r'''(?=$|[\s"',;&}\])<>])'''
@@ -103,6 +114,13 @@ def _has_residual(line, ipv4_aliases, ipv6_aliases):
             tail = line[marker.end():]
             if tail and not tail.startswith(match['quote']) and tail.strip():
                 return True
+    for match in _USERNAME_CONTEXT.finditer(line):
+        value = next((match.group(name) for name in
+                      ('value', 'sshd', 'pam', 'sudo')
+                      if match.group(name)), '')
+        if (value and value.lower() not in _PRESERVED_USERNAME
+                and not _USERNAME_ALIAS.fullmatch(value)):
+            return True
     # Match dnf's intentionally preserved journal version lines, as the IP
     # parser does. Package names such as package-2.3.4.5 do not match _IPV4.
     if not re.search(r'dnf\[.*\]:', line, re.I):
