@@ -652,3 +652,232 @@ class CleanTextIdentityTests(unittest.TestCase):
                     if failure:
                         self.assertTrue(output.getvalue() == b'')
                     self.assertTrue(os.listdir(directory) == [])
+
+
+class CleanTextResidualTests(unittest.TestCase):
+    """Force synthetic residuals past sanitizers and test the release gate."""
+
+    run_clean_text = CleanTextTests.run_clean_text
+
+    def assert_rejected(self, content, patch_target, replacement):
+        output, stderr = io.BytesIO(), io.StringIO()
+        with tempfile.TemporaryDirectory() as directory:
+            opts = SimpleNamespace(domains=[], hostnames=[], usernames=[],
+                                   target='-', tmp_dir=directory)
+            with mock.patch('sos.cleaner.text.sys.stdin',
+                            buffer=io.BytesIO(content.encode())), \
+                    mock.patch('sos.cleaner.text.sys.stdout', buffer=output), \
+                    mock.patch('sos.cleaner.text.sys.stderr', stderr), \
+                    mock.patch(patch_target, replacement):
+                with self.assertRaises(SystemExit) as error:
+                    SoSCleanText(None, opts, None).execute()
+            self.assertTrue(error.exception.code != 0)
+            self.assertTrue(output.getvalue() == b'')
+            # Exact diagnostic asserts no matched data or traceback escaped.
+            self.assertTrue(stderr.getvalue() ==
+                            'sos clean-text: residual privacy check failed\n')
+            self.assertTrue(os.listdir(directory) == [])
+
+    def test_bypassed_email_parser(self):
+        self.assert_rejected(
+            'safe first line\nsynthetic.person@example.test\n',
+            'sos.cleaner.text.TextEmailParser.parse_line',
+            lambda parser, line: (line, 0))
+
+    def test_bypassed_secret_redactor(self):
+        values = [
+            'AKIASYNTHETIC0000000', 'ASIASYNTHETIC0000000',
+            'Authorization: Bearer synthetic-bearer-value',
+            'eyJzeW50aGV0aWMifQ.eyJ0ZXN0Ijp0cnVlfQ.c3ludGhldGlj',
+            '-----BEGIN PRIVATE KEY-----',
+            '-----BEGIN RSA PRIVATE KEY-----',
+            '-----BEGIN ENCRYPTED PRIVATE KEY-----',
+        ]
+        values += [key + '=synthetic-value' for key in
+                   ('password', 'passwd', 'pwd', 'token', 'secret',
+                    'api_key', 'api-key', 'apikey', 'DB_PASSWORD')]
+        values += ['"password": "synthetic-value"',
+                   'token=[REDACTED_TOKEN]synthetic-suffix', 'password=',
+                   'password="[REDACTED_SECRET] synthetic-suffix"']
+        for number, value in enumerate(values):
+            with self.subTest(case=number):
+                self.assert_rejected(
+                    'safe first line\n' + value + '\n',
+                    'sos.cleaner.text.SecretRedactor.redact',
+                    lambda redactor, line: line)
+
+    def test_bypassed_ipv4_parser(self):
+        for value in ('10.29.38.47', '192.0.2.64/24', '172.17.0.99'):
+            self.assert_rejected(
+                'safe first line\npeer=' + value + '\n',
+                'sos.cleaner.text.SoSIPParser.parse_line',
+                lambda parser, line: (line, 0))
+
+    def test_identity_mapping_is_not_an_approved_alias(self):
+        def preserve(parser, line):
+            parser.mapping.dataset['10.29.38.47'] = '10.29.38.47'
+            return line, 0
+
+        self.assert_rejected('peer=10.29.38.47\n',
+                             'sos.cleaner.text.SoSIPParser.parse_line',
+                             preserve)
+
+    def test_bypassed_ipv6_parser(self):
+        # Avoid four full hextets, which the MAC parser also sanitizes.
+        for value in ('2607:c540::34', '2001:db8::1234',
+                      'fe80::1234', 'fd12:3456::1234'):
+            self.assert_rejected(
+                'safe first line\npeer=' + value + '\n',
+                'sos.cleaner.text.SoSIPv6Parser.parse_line',
+                lambda parser, line: (line, 0))
+
+    def test_bypassed_mac_parser(self):
+        for value in ('12:34:56:78:90:ab', '12-34-56-78-90-ab',
+                      '1234:5678:90ab:cdef'):
+            self.assert_rejected(
+                'safe first line\nmac=' + value + '\n',
+                'sos.cleaner.text.SoSMacParser.parse_line',
+                lambda parser, line: (line, 0))
+
+    def test_gate_runs_after_complete_sanitization_before_release(self):
+        from sos.cleaner.text_residual import check_staged_output
+
+        output, stderr = io.BytesIO(), io.StringIO()
+        source = io.BytesIO(b'password=synthetic-value\nlast line\n')
+        seen = []
+
+        def check(staged, *aliases):
+            self.assertTrue(source.tell() == len(source.getvalue()))
+            self.assertTrue(output.getvalue() == b'')
+            self.assertTrue(stat.S_IMODE(os.stat(staged.name).st_mode)
+                            == 0o600)
+            self.assertTrue(stat.S_IMODE(
+                Path(staged.name).parent.stat().st_mode) == 0o700)
+            position = staged.tell()
+            staged.seek(0)
+            self.assertTrue(staged.read() ==
+                            b'password=[REDACTED_SECRET]\nlast line\n')
+            staged.seek(position)
+            seen.append(True)
+            return check_staged_output(staged, *aliases)
+
+        with tempfile.TemporaryDirectory() as directory:
+            opts = SimpleNamespace(domains=[], hostnames=[], usernames=[],
+                                   target='-', tmp_dir=directory)
+            with mock.patch('sos.cleaner.text.sys.stdin', buffer=source), \
+                    mock.patch('sos.cleaner.text.sys.stdout', buffer=output), \
+                    mock.patch('sos.cleaner.text.sys.stderr', stderr), \
+                    mock.patch('sos.cleaner.text.check_staged_output', check):
+                SoSCleanText(None, opts, None).execute()
+            self.assertTrue(os.listdir(directory) == [])
+        self.assertTrue(seen == [True])
+        self.assertTrue(stderr.getvalue() == '')
+        self.assertTrue(output.getvalue() ==
+                        b'password=[REDACTED_SECRET]\nlast line\n')
+
+    def test_scanner_preserves_position_and_bytes(self):
+        from sos.cleaner.text_residual import check_staged_output
+
+        for content, expected in ((b'safe\r\nlast line', True),
+                                  (b'password=synthetic-value\n', False)):
+            staged = io.BytesIO(content)
+            staged.seek(3)
+            self.assertTrue(check_staged_output(staged) == expected)
+            self.assertTrue(staged.tell() == 3)
+            self.assertTrue(staged.getvalue() == content)
+
+    def test_incremental_read_without_mapping_writes(self):
+        from sos.cleaner.mappings import SoSMap
+        from sos.cleaner.text_residual import check_staged_output
+
+        class IncrementalFile(io.BytesIO):
+            def read(self, size=-1):
+                raise AssertionError('scanner must iterate lines')
+
+        staged = IncrementalFile(b'ordinary evidence\n' * 10000
+                                 + b'password=synthetic-value\n')
+        with mock.patch.object(SoSMap, 'add', side_effect=AssertionError()):
+            self.assertFalse(check_staged_output(staged))
+        self.assertTrue(staged.tell() == 0)
+
+    def test_scanner_io_errors_fail_closed(self):
+        from sos.cleaner.text_residual import check_staged_output
+
+        for operation in ('tell', 'seek', '__iter__'):
+            staged = mock.MagicMock()
+            staged.tell.return_value = 0
+            getattr(staged, operation).side_effect = OSError(
+                'synthetic-private-value')
+            self.assertFalse(check_staged_output(staged))
+        self.assertFalse(check_staged_output(io.BytesIO(b'\xff')))
+
+        staged = mock.MagicMock()
+        staged.tell.return_value = 0
+        staged.seek.side_effect = [None, OSError('synthetic-private-value')]
+        self.assertFalse(check_staged_output(staged))
+
+    def test_generated_alias_formats_and_markers(self):
+        from sos.cleaner.text_residual import check_staged_output
+
+        content = (
+            b'172.17.0.1 100.0.0.1/24\n'
+            b'534f:0001:0002:0003::0004 fd53:0001::0002\n'
+            b'fe80::0001 fe80::534f:53ff:fe00:0001\n'
+            b'53:4f:53:00:00:01 53:4f:53:ff:fe:00:00:01\n'
+            b'534f:53ff:fe00:0001\n'
+            b'host0 obfuscateddomain0.example obfuscateduser0\n'
+            b'user0@obfuscateddomain0.example\n'
+            b'password="[REDACTED_SECRET]" token=[REDACTED_TOKEN]\n'
+            b'Bearer [REDACTED_TOKEN] [REDACTED_PRIVATE_KEY]\n'
+        )
+        self.assertTrue(check_staged_output(
+            io.BytesIO(content), ['172.17.0.1', '100.0.0.1/24'],
+            ['fe80::0001']))
+
+    def test_normal_evidence_and_aliases(self):
+        content = (
+            'system_u:system_r:sshd_net_t:s0\n'
+            'user-2000048158.slice session-c33.scope\n'
+            '/etc/passwd shadow-utils kernel-5.14.0-503.el9\n'
+            'package-2.3.4.5 dnf[123]: package 2.3.4.5\n'
+            'uuid=550e8400-e29b-41d4-a716-446655440000\n'
+            'sha256=0123456789abcdef0123456789abcdef\n'
+            'localhost 127.0.0.1 ::1 :: 0.0.0.0 169.254.1.1\n'
+            '8.8.8.8 8.8.4.4 255.255.255.255\n'
+            '00:00:00:00:00:00 ff:ff:ff:ff:ff:ff\n'
+        ).encode()
+        result = self.run_clean_text(content, '-')
+        self.assertTrue(result.returncode == 0)
+        self.assertTrue(result.stderr == b'')
+        self.assertTrue(result.stdout == content)
+
+    def test_phase_four_output_equivalence_with_gate_disabled(self):
+        # Run fresh CLI processes so archive class counters cannot carry over.
+        script = '''
+from unittest.mock import patch
+from sos import SoS
+with patch('sos.cleaner.text.check_staged_output', return_value=True):
+    SoS(['clean-text', '-', '--usernames', 'syntheticuser',
+         '--hostnames', 'synthetichost']).execute()
+'''
+        content = (
+            b'password=synthetic-value\nsynthetic.person@example.test '
+            b'syntheticuser synthetichost\r\n'
+            b'10.29.38.47 192.0.2.64/24 192.0.2.65\n'
+            b'2607:c540:8c00:3318::34 fd12:3456::1234 fe80::1234\n'
+            b'12:34:56:78:90:ab\nlast line'
+        )
+        baseline = subprocess.run(
+            [sys.executable, '-c', script], input=content,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            cwd=ROOT, check=False)
+        result = self.run_clean_text(content, '-', '--usernames',
+                                     'syntheticuser', '--hostnames',
+                                     'synthetichost')
+        self.assertTrue(baseline.returncode == 0)
+        self.assertTrue(result.returncode == 0)
+        self.assertTrue(result.stderr == b'')
+        self.assertTrue(result.stdout == baseline.stdout)
+        self.assertTrue(b'172.17.' in result.stdout)
+        self.assertTrue(b'534f:' in result.stdout)
+        self.assertTrue(b'53:4f:53:' in result.stdout)
