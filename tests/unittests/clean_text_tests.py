@@ -1018,3 +1018,118 @@ class CleanTextAdversarialCorpusTests(unittest.TestCase):
         self.assertEqual(stderr.getvalue(),
                          'sos clean-text: residual privacy check failed\n')
         self.assertNotIn(value, stderr.getvalue())
+
+
+class CleanTextContextualUsernameTests(unittest.TestCase):
+    """Synthetic audit/auth contexts only; arbitrary words remain untouched."""
+
+    run_clean_text = CleanTextTests.run_clean_text
+
+    def test_audit_and_auth_contexts_are_pseudonymized(self):
+        content = (
+            'type=USER_LOGIN msg=audit(172.20.10.5:4242): '
+            'acct="audituser" AUID="audituser" UID="textuser" '
+            'user="loginuser" ruser="remoteuser" USER=envuser '
+            'LOGNAME=loguser\n'
+            'sshd[123]: Accepted publickey for sshuser from 10.29.38.47\n'
+            'pam_unix(sshd:session): session opened for user pamuser(uid=1001)\n'
+            'sudo: sudouser : TTY=pts/0 ; COMMAND=/usr/bin/id\n'
+        ).encode()
+        result = self.run_clean_text(content, '-')
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        self.assertEqual(result.stderr, b'')
+        for raw in (b'audituser', b'textuser', b'loginuser', b'remoteuser',
+                    b'envuser', b'loguser', b'sshuser', b'pamuser',
+                    b'sudouser'):
+            self.assertNotIn(raw, result.stdout)
+            self.assertNotIn(raw, result.stderr)
+        self.assertIn(b'acct="obfuscateduser', result.stdout)
+        self.assertIn(b'AUID="obfuscateduser', result.stdout)
+        self.assertIn(b'Accepted publickey for obfuscateduser', result.stdout)
+        self.assertIn(b'session opened for user obfuscateduser', result.stdout)
+        self.assertIn(b'sudo: obfuscateduser', result.stdout)
+
+    def test_contextual_repeats_share_explicit_mapping(self):
+        content = (b'acct="repeatuser" user=repeatuser\n'
+                   b'sshd: Accepted publickey for repeatuser from 192.0.2.1\n'
+                   b'sudo: repeatuser : COMMAND=/usr/bin/true\n')
+        result = self.run_clean_text(content, '-')
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        lines = result.stdout.splitlines()
+        first = lines[0].split()[0].split(b'=')[1].strip(b'"')
+        second = lines[0].split()[1].split(b'=')[1]
+        self.assertEqual(first, second)
+        self.assertEqual(second,
+                         lines[1].split(b'for ')[1].split(b' from')[0])
+        self.assertEqual(lines[1].split(b'for ')[1].split(b' from')[0],
+                         lines[2].split(b':')[1].strip())
+
+    def test_unknown_words_and_rhel_identifiers_remain(self):
+        content = (
+            b'ordinaryword audituser /home/audituser/bin/tool\n'
+            b'user-2000048158.slice session-c33.scope system.slice\n'
+            b'system_u:system_r:sshd_t:s0 shadow-utils sshd.service\n'
+            b'10-11-118-130_node.example.test\n'
+        )
+        result = self.run_clean_text(content, '-', '--domains',
+                                     'example.test')
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        self.assertIn(b'ordinaryword audituser /home/audituser/bin/tool',
+                      result.stdout)
+        self.assertIn(b'user-2000048158.slice', result.stdout)
+        self.assertIn(b'session-c33.scope', result.stdout)
+        self.assertIn(b'system_u:system_r:sshd_t:s0', result.stdout)
+        self.assertNotIn(b'example.test', result.stdout)
+        self.assertIn(b'obfuscateddomain', result.stdout)
+
+    def test_secret_email_and_context_ordering(self):
+        content = (b'secret="acct=hiddenuser hidden@example.test 10.29.38.47"\n'
+                   b'acct="visibleuser"\n')
+        result = self.run_clean_text(content, '-')
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        self.assertNotIn(b'hiddenuser', result.stdout)
+        self.assertNotIn(b'hidden@example.test', result.stdout)
+        self.assertNotIn(b'visibleuser', result.stdout)
+        self.assertIn(b'secret="[REDACTED_SECRET]"', result.stdout)
+        self.assertIn(b'acct="obfuscateduser', result.stdout)
+
+    def test_raw_supported_context_fails_closed(self):
+        output, stderr = io.BytesIO(), io.StringIO()
+        with tempfile.TemporaryDirectory() as directory:
+            opts = SimpleNamespace(domains=[], hostnames=[], usernames=[],
+                                   target='-', tmp_dir=directory)
+            with mock.patch('sos.cleaner.text.sys.stdin',
+                            buffer=io.BytesIO(b'acct="residualuser"\n')), \
+                    mock.patch('sos.cleaner.text.sys.stdout', buffer=output), \
+                    mock.patch('sos.cleaner.text.sys.stderr', stderr), \
+                    mock.patch('sos.cleaner.text.TextUsernameParser.parse_line',
+                               lambda parser, line: (line, 0)):
+                with self.assertRaises(SystemExit):
+                    SoSCleanText(None, opts, None).execute()
+        self.assertEqual(output.getvalue(), b'')
+        self.assertEqual(stderr.getvalue(),
+                         'sos clean-text: residual privacy check failed\n')
+        self.assertNotIn('residualuser', stderr.getvalue())
+
+    def test_exact_context_fields_and_system_identities(self):
+        content = (
+            'OUID="root" OGID="root" AUID="unset" '
+            'acct="root" user="nobody"\n'
+            'acct="exampleuser" AUID="exampleuser" UID="exampleuser"\n'
+            'uid=1001 auid=1001 UID="1002" AUID="1003"\n'
+        ).encode()
+        result = self.run_clean_text(content, '-')
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        self.assertEqual(result.stderr, b'')
+        self.assertIn(b'OUID="root" OGID="root" AUID="unset"',
+                      result.stdout)
+        self.assertIn(b'acct="root" user="nobody"', result.stdout)
+        self.assertNotIn(b'exampleuser', result.stdout)
+        self.assertIn(b'uid=1001 auid=1001 UID="1002" AUID="1003"',
+                      result.stdout)
+
+    def test_supported_context_boundary_does_not_match_suffix_fields(self):
+        content = b'OUID="root" EUID="root" SUID="root" FSUID="root" OGID="root"\n'
+        result = self.run_clean_text(content, '-')
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        self.assertEqual(result.stdout, content)

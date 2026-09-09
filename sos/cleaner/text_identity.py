@@ -21,6 +21,7 @@ class TextUsernameMap(SoSUsernameMap):
 
     ignore_short_items = False
     use_token_lookup = False
+    preserved_identities = frozenset(('root', 'unset', 'nobody'))
 
     def __init__(self, workdir, usernames):
         self._seeds = set(usernames)
@@ -36,6 +37,8 @@ class TextUsernameMap(SoSUsernameMap):
         pass
 
     def add(self, item):
+        if item.lower() in self.preserved_identities:
+            return item
         if item and item not in self.dataset:
             self.dataset[item] = self.sanitize_item(item)
             self.add_regex_item(item)
@@ -61,6 +64,22 @@ class TextUsernameMap(SoSUsernameMap):
 class TextUsernameParser(SoSUsernameParser):
     """Use the existing username parser with a text-only mapping policy."""
 
+    # These fields are authentication/audit grammar, rather than guesses from
+    # ordinary words. Values are deliberately limited to textual account
+    # identifiers and stop at the surrounding log punctuation.
+    _context = re.compile(
+        r'''(?<![A-Za-z0-9_])(?P<key>acct|AUID|UID|user|ruser|USER|LOGNAME)'''
+        r'''[ \t]*=[ \t]*["']?(?P<value>[A-Za-z_][A-Za-z0-9_.-]*)'''
+        r'''(?=["'\s,;)]|$)''')
+    _sshd_for = re.compile(
+        r'\bfor[ \t]+(?P<value>[A-Za-z_][A-Za-z0-9_.-]*)'
+        r'(?=[ \t]+(?:from|port)\b)')
+    _pam_user = re.compile(
+        r'\bfor[ \t]+user[ \t]+(?P<value>[A-Za-z_][A-Za-z0-9_.-]*)'
+        r'(?=[(\s]|$)')
+    _sudo_user = re.compile(
+        r'(?m)^sudo:\s*(?P<value>[A-Za-z_][A-Za-z0-9_.-]*)\s*:' )
+
     def __init__(self, workdir, usernames):
         self.mapping = TextUsernameMap(workdir, usernames)
         SoSCleanerParser.__init__(self, {})
@@ -73,6 +92,21 @@ class TextUsernameParser(SoSUsernameParser):
         return self.mapping.compiled_search.subn(
             lambda match: self.mapping.get(match[0]), line
         )
+
+    def parse_line(self, line):
+        line, count = self._parse_line_with_compiled_regexes(line)
+        for pattern in (self._context, self._sshd_for, self._pam_user,
+                        self._sudo_user):
+            def replace(match):
+                if re.fullmatch(r'obfuscateduser\d+',
+                                match.group('value'), re.I):
+                    return match.group(0)
+                return match.group(0).replace(
+                    match.group('value'), self.mapping.add(match.group('value')),
+                    1)
+            line, found = pattern.subn(replace, line)
+            count += found
+        return line, count
 
 
 class TextEmailParser:
