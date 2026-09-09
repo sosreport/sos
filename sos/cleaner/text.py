@@ -18,6 +18,7 @@ from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.text_secrets import SecretRedactor
 from sos.cleaner.text_identity import TextEmailParser, TextUsernameParser
+from sos.cleaner.text_residual import check_staged_output
 
 
 class CleanTextError(Exception):
@@ -76,7 +77,8 @@ class SoSCleanText(SoSComponent):
             'redacted before identity and address obfuscation. '
             'Uses a private temporary cache, without loading or updating the '
             'system cleaner mapping. Output is released only after the '
-            'complete input has been sanitized successfully.'
+            'complete input has been sanitized successfully and passed an '
+            'independent residual privacy check.'
         )
         parser.add_argument('target', metavar='FILE', nargs='?', default='-',
                             help='Input file, or - for stdin (default)')
@@ -129,6 +131,17 @@ class SoSCleanText(SoSComponent):
                 if self.opts.target != '-':
                     source.close()
                 staged.flush()
+                aliases = {}
+                for parser in parsers:
+                    if isinstance(parser, (SoSIPParser, SoSIPv6Parser)):
+                        aliases[parser.map_file_key] = [
+                            value for original, value
+                            in parser.mapping.dataset.items()
+                            if original != value
+                        ]
+                if not check_staged_output(
+                        staged, aliases['ip_map'], aliases['ipv6_map']):
+                    raise CleanTextError('residual privacy check failed')
                 staged.seek(0)
                 shutil.copyfileobj(staged, sys.stdout.buffer, length=64 * 1024)
                 # bin/sos exits with os._exit(), so flush explicitly.
