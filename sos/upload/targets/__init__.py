@@ -114,6 +114,18 @@ class UploadTarget():
     def get_target_id(self):
         return self.upload_target_id
 
+    def preauthorize(self):
+        """Pre-authorize this system and persist an auth token
+        locally without uploading anything.
+
+        Targets that use token-based (e.g. OIDC device-code)
+        auth should override this. The default is to declare
+        it unsupported.
+        """
+        raise NotImplementedError(
+            "This upload target does not support pre-authorization."
+        )
+
     @classmethod
     def name(cls):
         """Returns the upload target's name as a string."""
