@@ -171,6 +171,22 @@ class SanitizationSession:
                 raise SessionStageError(parser.name) from None
         return line
 
+    def sanitize_known_text(self, text):
+        """Replace only identities already present in this session.
+
+        This is intended for structural names. Unlike ``sanitize_line`` it
+        does not redact or discover new identities and therefore leaves
+        technical path text unchanged unless it is already mapped.
+        """
+        def replace_email(match):
+            address = match[0].lower()
+            return self.email_parser._addresses.get(address, match[0])
+
+        text = self.email_parser._email.sub(replace_email, text)
+        for parser in self.parsers[1:]:
+            text = parser.parse_string_for_keys(text)
+        return text
+
     def aliases(self, namespace):
         mapping = self.mappings[namespace]
         if namespace == 'email':
