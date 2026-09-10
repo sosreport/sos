@@ -194,6 +194,10 @@ class SanitizationSession:
         return [value for original, value in mapping.dataset.items()
                 if original != value]
 
+    def mapping_manifest(self):
+        from sos.cleaner.mapping_manifest import SoSMappingManifest
+        return SoSMappingManifest.from_session(self)
+
     def add_hostname(self, value):
         """Add a discovered hostname/domain without processing text."""
         return self.hostname_parser.mapping.add(value.lower().rstrip('.'))
