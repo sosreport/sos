@@ -8,6 +8,8 @@ cache boundary with an in-memory boundary and making mutable state local to
 one session.
 """
 
+import re
+
 from sos.cleaner.mappings.hostname_map import SoSHostnameMap
 from sos.cleaner.mappings import SoSMap
 from sos.cleaner.mappings.ip_map import SoSIPMap
@@ -140,6 +142,9 @@ class SanitizationSession:
             self.email_parser, self.username_parser, self.hostname_parser,
             self.ip_parser, self.ipv6_parser, self.mac_parser
         ]
+        self.explicit_domains = {
+            domain.lower().rstrip('.') for domain in domains
+        }
         for identity in tuple(hostnames) + tuple(domains):
             self.hostname_parser.mapping.add(identity.lower())
         self.hostname_parser.generate_item_regexes()
@@ -172,3 +177,40 @@ class SanitizationSession:
             return list(mapping._addresses.values())
         return [value for original, value in mapping.dataset.items()
                 if original != value]
+
+    def add_hostname(self, value):
+        """Add a discovered hostname/domain without processing text."""
+        return self.hostname_parser.mapping.add(value.lower().rstrip('.'))
+
+    def add_ip(self, value):
+        """Add a discovered IPv4 address or network."""
+        return self.ip_parser.mapping.add(value)
+
+    def add_ipv6(self, value):
+        """Add a discovered IPv6 address or network."""
+        return self.ipv6_parser.mapping.add(value)
+
+    def add_mac(self, value):
+        """Add a discovered MAC address."""
+        return self.mac_parser.mapping.add(value)
+
+    def add_username(self, value):
+        """Add a discovered contextual username."""
+        if re.fullmatch(r'obfuscateduser\d+', value, re.I):
+            return value
+        return self.username_parser.mapping.add(value)
+
+    def add_email(self, value):
+        """Register an email address in the email namespace."""
+        self.email_parser.parse_line(value)
+
+    def summary(self):
+        """Return mapping counts only; never return identity values."""
+        return {
+            'hostnames': len(self.hostname_parser.mapping.hosts),
+            'ipv4': len(self.ip_parser.mapping.dataset),
+            'ipv6': len(self.ipv6_parser.mapping.dataset),
+            'mac': len(self.mac_parser.mapping.dataset),
+            'usernames': len(self.username_parser.mapping.dataset),
+            'emails': len(self.email_parser._addresses),
+        }
