@@ -39,6 +39,11 @@ class Coredump(Plugin, IndependentPlugin):
     The dump files collected are compressed, and users should be aware that
     when inflated these files can be orders of magnitude larger than their
     collected sizes.
+
+    By default, coredumps larger than 200 MiB are skipped. The `all-cores`
+    option collects them regardless of size, ignoring both the plugin's
+    200 MiB cap and the global `--log-size` limit. Use with care, as this
+    can produce very large archives.
     """
 
     short_desc = 'systemd-coredump related information and dump files'
@@ -51,7 +56,10 @@ class Coredump(Plugin, IndependentPlugin):
         PluginOpt("dumps", default=3, desc="number of dump files to collect"),
         PluginOpt("executable", default='',
                   desc=("only collect info and dump output for executables "
-                        "matching this regex"))
+                        "matching this regex")),
+        PluginOpt("all-cores", default=False,
+                  desc="collect coredumps regardless of size (ignores "
+                       "--log-size)")
     ]
 
     def setup(self):
@@ -88,12 +96,20 @@ class Coredump(Plugin, IndependentPlugin):
                     # limit, move on to the next
                     # TODO: do not hardcode this. Extend log-size to per-plugin
                     # TODO: option and link this to that value
-                    if os.stat(core_path).st_size > 209715200:
+                    all_cores = self.get_option("all-cores")
+                    if (not all_cores
+                            and os.stat(core_path).st_size > 209715200):
                         self._log_info(
                             f"Skipping core dump file {core_path} due to size"
                         )
                         continue
-                    self.add_copy_spec(core_path, tailit=False, sizelimit=200)
+                    # all-cores bypasses both the 200 MiB pre-check above and
+                    # the copy sizelimit below. sizelimit=0 means "no cap" and
+                    # also overrides the global --log-size for these files, so
+                    # archives can grow very large.
+                    sizelimit = 0 if all_cores else 200
+                    self.add_copy_spec(core_path, tailit=False,
+                                       sizelimit=sizelimit)
                     plugpath = self.path_join(
                         self.commons['cmddir'],
                         self.name(),
