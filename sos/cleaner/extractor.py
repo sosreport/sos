@@ -110,7 +110,7 @@ class SafeReportExtractor:
     def _member_path(name):
         if not isinstance(name, str) or not name or '\x00' in name:
             raise ValueError
-        if name.startswith('/') or name.startswith('\\'):
+        if name.startswith('/') or name.startswith('\\') or '\\' in name:
             raise ValueError
         # Tar paths are POSIX paths. Reject explicit parent components before
         # normalization so that alternate spellings cannot evade validation.
@@ -228,6 +228,8 @@ class SafeReportExtractor:
         root_fd = self._root_fd(staging)
         modes = {path: self._safe_mode(member.mode, kind == 'directory')
                  for path, kind, member in members}
+        directory_modes = {path: modes[path] for path, kind, _ in members
+                           if kind == 'directory'}
         try:
             for path, kind, member in members:
                 parent, _, basename = path.rpartition('/')
@@ -243,13 +245,6 @@ class SafeReportExtractor:
                                                follow_symlinks=False)
                             if not stat.S_ISDIR(existing.st_mode):
                                 self._reject()
-                        directory_fd = os.open(
-                            basename, os.O_RDONLY | os.O_DIRECTORY |
-                            os.O_NOFOLLOW, dir_fd=parent_fd)
-                        try:
-                            os.fchmod(directory_fd, modes[path])
-                        finally:
-                            os.close(directory_fd)
                     else:
                         fd = os.open(basename, os.O_WRONLY | os.O_CREAT |
                                      os.O_EXCL | os.O_NOFOLLOW, 0o600,
@@ -274,6 +269,22 @@ class SafeReportExtractor:
                             self._summary['files_extracted'] += 1
                         finally:
                             os.close(fd)
+                finally:
+                    for child_fd in reversed(opened):
+                        os.close(child_fd)
+            for path, mode in sorted(directory_modes.items(),
+                                     key=lambda item: item[0].count('/'),
+                                     reverse=True):
+                parent, _, basename = path.rpartition('/')
+                parent_fd, opened = self._ensure_directory(root_fd, parent, {})
+                try:
+                    directory_fd = os.open(
+                        basename, os.O_RDONLY | os.O_DIRECTORY |
+                        os.O_NOFOLLOW, dir_fd=parent_fd)
+                    try:
+                        os.fchmod(directory_fd, mode)
+                    finally:
+                        os.close(directory_fd)
                 finally:
                     for child_fd in reversed(opened):
                         os.close(child_fd)
