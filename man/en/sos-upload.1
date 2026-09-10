@@ -19,6 +19,7 @@ sos_upload \- Upload files like previously generated sos reports or logs to a po
           [--upload-s3-access-key key]\fR
           [--upload-s3-secret-key key]\fR
           [--upload-s3-object-prefix prefix]\fR
+          [--preauth]\fR
 
 .PP
 .SH DESCRIPTION
@@ -135,6 +136,13 @@ Secret key for the S3 bucket
 .TP
 .B \--upload-s3-object-prefix PREFIX
 Prefix for the S3 object/key
+
+.TP
+.B \-\-preauth
+Pre-authorize this system by running the authentication flow and storing
+the resulting token locally (see \fBTOKEN STORAGE\fR), without uploading a
+file. Useful to prepare a system for later, unattended uploads. Only
+supported for upload targets that use token-based authentication.
 
 .SH TOKEN STORAGE
 When using web-based authentication for uploads, \fBsos\fR stores the

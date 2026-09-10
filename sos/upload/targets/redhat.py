@@ -47,6 +47,30 @@ class RHELUploadTarget(UploadTarget):
         """Return true if we are running in a RHEL system"""
         return isinstance(self.commons['policy'], RHELPolicy)
 
+    def preauthorize(self):
+        """Run the device auth flow and persist the refresh token locally
+        without performing an upload.
+        """
+        if not REQUESTS_LOADED:
+            raise Exception("python3-requests is not installed and is required"
+                            " for obtaining an auth token.")
+        try:
+            RHELAuth = DeviceAuthorizationClass(
+                self.client_identifier_url,
+                self.token_endpoint,
+                Path.home()
+            )
+        except Exception as e:
+            if "end user denied" in str(e):
+                raise Exception(
+                    "Device authorization was cancelled by the user") from e
+            raise
+        # Touch the access token so a fresh grant is validated end-to-end.
+        # This also confirms the refresh token was persisted by __init__.
+        self._device_token = RHELAuth.get_access_token()
+        if not self._device_token:
+            raise Exception("Failed to obtain a valid auth token.")
+
     def pre_work(self, hook_commons):
 
         super().pre_work(hook_commons)
