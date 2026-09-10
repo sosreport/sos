@@ -12,6 +12,7 @@ import shutil
 import tempfile
 
 from sos.cleaner.text import sanitize_stream
+from sos.cleaner.report_residual import ReportTreeResidualValidator
 
 
 class ReportTreeSanitizerError(Exception):
@@ -62,6 +63,8 @@ class ReportTreeSanitizer:
             finally:
                 os.close(source_fd)
             self._copy_stat(source_stat, staging)
+            ReportTreeResidualValidator(
+                staging, self.session.mapping_manifest()).validate()
             if os.path.lexists(self.destination):
                 self._fail()
             self._publish_noreplace(staging)
