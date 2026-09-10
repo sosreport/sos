@@ -16,6 +16,7 @@ from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
+from sos.cleaner.session import SanitizationSession, SessionStageError
 from sos.cleaner.text_secrets import SecretRedactor
 from sos.cleaner.text_identity import TextEmailParser, TextUsernameParser
 from sos.cleaner.text_residual import check_staged_output
@@ -25,7 +26,7 @@ class CleanTextError(Exception):
     """An error with a diagnostic safe to display without input contents."""
 
 
-def sanitize_stream(source, destination, parsers):
+def sanitize_stream(source, destination, parsers=None, session=None):
     """Sanitize UTF-8 binary streams using the existing cleaner parsers.
 
     Binary I/O preserves line endings and a missing final newline. Each line
@@ -33,22 +34,36 @@ def sanitize_stream(source, destination, parsers):
     caller. The destination must be private staging storage, since earlier
     lines may already have been written when a later line fails.
     """
-    redactor = SecretRedactor()
+    if session is None:
+        # Preserve the small helper's existing parser-list API for callers and
+        # tests. The session path below is the clean-text frontend's API.
+        from sos.cleaner.text_secrets import SecretRedactor
+        redactor = SecretRedactor()
+    else:
+        parsers = session.parsers
     for number, raw_line in enumerate(source, start=1):
-        try:
-            line = redactor.redact(raw_line.decode('utf-8'))
-        except Exception:
-            raise CleanTextError(
-                f'secret redaction failed on line {number}'
-            ) from None
-        for parser in parsers:
+        if session is not None:
             try:
-                line, _ = parser.parse_line(line)
-            except Exception:
-                # Do not echo potentially sensitive input from the exception.
+                line = session.sanitize_line(raw_line.decode('utf-8'))
+            except SessionStageError as err:
+                stage = 'secret redaction' if err.secret else err.name
                 raise CleanTextError(
-                    f'{parser.name} failed on line {number}'
+                    f'{stage} failed on line {number}'
                 ) from None
+        else:
+            try:
+                line = redactor.redact(raw_line.decode('utf-8'))
+            except Exception:
+                raise CleanTextError(
+                    f'secret redaction failed on line {number}'
+                ) from None
+            for parser in parsers:
+                try:
+                    line, _ = parser.parse_line(line)
+                except Exception:
+                    raise CleanTextError(
+                        f'{parser.name} failed on line {number}'
+                    ) from None
         destination.write(line.encode('utf-8'))
 
 
@@ -102,19 +117,13 @@ class SoSCleanText(SoSComponent):
                 workdir = stack.enter_context(tempfile.TemporaryDirectory(
                     prefix='sos-clean-text-', dir=self.opts.tmp_dir or None
                 ))
-                # Keep the existing address/hostname parser relative order.
-                parsers = [cls({}, workdir) for cls in (
-                    SoSHostnameParser, SoSIPParser, SoSIPv6Parser, SoSMacParser
-                )]
-                hostname_parser = parsers[0]
-                for identity in self.opts.hostnames + self.opts.domains:
-                    hostname_parser.mapping.add(identity.lower())
-                hostname_parser.generate_item_regexes()
-                parsers[0:0] = [
-                    TextEmailParser(),
-                    TextUsernameParser(workdir,
-                                       getattr(self.opts, 'usernames', []))
-                ]
+                session = SanitizationSession(
+                    workdir,
+                    hostnames=self.opts.hostnames,
+                    domains=self.opts.domains,
+                    usernames=getattr(self.opts, 'usernames', []),
+                    redactor=SecretRedactor())
+                parsers = session.parsers
 
                 if self.opts.target == '-':
                     source = sys.stdin.buffer
@@ -126,7 +135,7 @@ class SoSCleanText(SoSComponent):
                 staged = stack.enter_context(tempfile.NamedTemporaryFile(
                     mode='w+b', prefix='sanitized-', dir=workdir
                 ))
-                sanitize_stream(source, staged, parsers)
+                sanitize_stream(source, staged, session=session)
                 # Finish input and output preparation before releasing bytes.
                 if self.opts.target != '-':
                     source.close()

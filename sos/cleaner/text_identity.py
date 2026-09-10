@@ -25,6 +25,8 @@ class TextUsernameMap(SoSUsernameMap):
 
     def __init__(self, workdir, usernames):
         self._seeds = set(usernames)
+        # Text-only maps are invocation-local. Keep the legacy map untouched.
+        self.name_count = 0
         super().__init__(workdir)
 
     def sanitize_item(self, item):
@@ -134,6 +136,9 @@ class TextEmailParser:
 
     def parse_line(self, line):
         def replace(match):
+            if re.fullmatch(r'user\d+@obfuscateddomain\d+\.example',
+                            match[0], re.I):
+                return match[0]
             address = match[0].lower()
             if address not in self._addresses:
                 domain = address.rsplit('@', 1)[1]
