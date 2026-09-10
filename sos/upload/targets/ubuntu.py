@@ -26,6 +26,14 @@ class UbuntuUploadTarget(UploadTarget):
         """ Return true if we are running in a Ubuntu system"""
         return isinstance(self.commons['policy'], UbuntuPolicy)
 
+    def preauthorize(self):
+        """Ubuntu uploads do not use token-based authentication, so
+        pre-authorization is not supported.
+        """
+        raise NotImplementedError(
+            "This upload target does not support pre-authorization."
+        )
+
     def get_upload_https_auth(self, user=None, password=None):
         if self.upload_url.startswith(self._upload_url):
             return (self._upload_user, self._upload_password)
