@@ -112,7 +112,7 @@ class ReportSanitizerTests(unittest.TestCase):
                     archive, self.output)
         self.assertFalse(self.output.exists())
 
-        with mock.patch('sos.cleaner.sanitizer.SafeReportArchiver.create',
+        with mock.patch('sos.cleaner.sanitizer.SafeReportArchiver.create_private',
                         side_effect=SafeReportArchiverError({})):
             with self.assertRaises(ReportSanitizerError):
                 ReportSanitizer(temp_parent=self.root).sanitize(

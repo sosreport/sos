@@ -1,7 +1,9 @@
 import tempfile
 import unittest
+from io import BytesIO
 
 from sos.cleaner.session import SanitizationSession
+from sos.cleaner.text import sanitize_stream
 
 
 class SanitizationSessionTests(unittest.TestCase):
@@ -51,6 +53,30 @@ class SanitizationSessionTests(unittest.TestCase):
         self.assertNotIn('super-secret', state)
         self.assertNotIn('abc123', state)
         self.assertIsNone(session.redactor._quote)
+
+    def test_secret_state_isolated_between_independent_streams(self):
+        session = self.session(hostnames=('node',), usernames=('alice',))
+        first = BytesIO()
+        sanitize_stream(BytesIO(b'password="unfinished\n'), first,
+                        session=session,
+                        redactor=session.new_stream_redactor())
+        self.assertEqual(first.getvalue(), b'password="[REDACTED_SECRET]\n')
+
+        second = BytesIO()
+        sanitize_stream(BytesIO(b'systemd.service port=22\n'), second,
+                        session=session,
+                        redactor=session.new_stream_redactor())
+        self.assertEqual(second.getvalue(), b'systemd.service port=22\n')
+        self.assertEqual(session.hostname_parser.mapping.dataset['node'],
+                         'host0')
+
+    def test_clean_text_stream_state_remains_continuous(self):
+        session = self.session()
+        output = BytesIO()
+        sanitize_stream(BytesIO(b'password="unfinished\ncontinued\n'),
+                        output, session=session)
+        self.assertEqual(output.getvalue(),
+                         b'password="[REDACTED_SECRET]\n\n')
 
 
 if __name__ == '__main__':
