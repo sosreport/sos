@@ -35,6 +35,15 @@ class Named(Plugin):
                     join(self.get_dns_dir(cfg), "chroot/proc")
                 ])
 
+        # runtime state of the running server. `rndc status` is read-only
+        # and does not modify the daemon.
+        self.add_cmd_output("rndc status", tags="rndc_status")
+
+        # configuration syntax validation
+        if self.path_exists(self.named_conf):
+            self.add_cmd_output(f"named-checkconf {self.named_conf}",
+                                tags="named_checkconf")
+
     def get_dns_dir(self, config_file):
         """ grab directory path from named{conf,boot}
         """
@@ -58,6 +67,7 @@ class RedHatNamed(Named, RedHatPlugin):
                     "/etc/named.boot")
     files = (named_conf, '/etc/sysconfig/named')
     packages = ('bind',)
+    chroot_dir = "/var/named/chroot"
 
     def setup(self):
         super().setup()
@@ -65,6 +75,14 @@ class RedHatNamed(Named, RedHatPlugin):
         self.add_copy_spec("/etc/sysconfig/named")
         self.add_cmd_output("klist -ket /etc/named.keytab")
         self.add_forbidden_path("/etc/named.keytab")
+
+        # for named-chroot deployments, validate the config inside the
+        # chroot using BIND's own -t flag
+        if self.path_exists(self.chroot_dir):
+            self.add_cmd_output(
+                f"named-checkconf -t {self.chroot_dir} {self.named_conf}",
+                tags="named_checkconf"
+            )
 
 
 class DebianNamed(Named, DebianPlugin, UbuntuPlugin):
