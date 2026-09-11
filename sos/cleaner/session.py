@@ -160,8 +160,11 @@ class SanitizationSession:
         }
 
     def sanitize_line(self, line):
+        return self.sanitize_line_with_redactor(line, self.redactor)
+
+    def sanitize_line_with_redactor(self, line, redactor):
         try:
-            line = self.redactor.redact(line)
+            line = redactor.redact(line)
         except Exception:
             raise SessionStageError('secret', secret=True) from None
         for parser in self.parsers:
@@ -170,6 +173,11 @@ class SanitizationSession:
             except Exception:
                 raise SessionStageError(parser.name) from None
         return line
+
+    @staticmethod
+    def new_stream_redactor():
+        """Return fresh parsing state for one independent text stream."""
+        return SecretRedactor()
 
     def sanitize_known_text(self, text):
         """Replace only identities already present in this session.

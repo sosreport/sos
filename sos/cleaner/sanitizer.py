@@ -81,8 +81,9 @@ class ReportSanitizer:
 
             extracted = SafeReportExtractor(
                 input_archive, temp_parent=workspace).extract()
+            report_root = self._select_report_root(extracted)
             self._summary['discovered'] = ReportIdentityDiscovery(
-                extracted, session).discover()
+                report_root, session).discover()
             # This is an in-memory snapshot only. It establishes the
             # post-discovery correlation state without exposing raw values.
             SoSMappingManifest.from_session(session)
@@ -152,6 +153,19 @@ class ReportSanitizer:
                 os.path.realpath(root)
         except ValueError:
             return False
+
+    @staticmethod
+    def _select_report_root(extracted):
+        """Select the sole normal sosreport directory from extraction output."""
+        try:
+            entries = list(os.scandir(extracted))
+            directories = [entry for entry in entries
+                           if entry.is_dir(follow_symlinks=False)]
+            if len(entries) != 1 or len(directories) != 1:
+                raise ValueError
+            return os.path.join(extracted, directories[0].name)
+        except Exception:
+            raise ReportSanitizerError({}) from None
 
     def _validate_arguments(self, input_archive, output_archive,
                             mapping_output=None):

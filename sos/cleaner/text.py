@@ -26,7 +26,8 @@ class CleanTextError(Exception):
     """An error with a diagnostic safe to display without input contents."""
 
 
-def sanitize_stream(source, destination, parsers=None, session=None):
+def sanitize_stream(source, destination, parsers=None, session=None,
+                    redactor=None):
     """Sanitize UTF-8 binary streams using the existing cleaner parsers.
 
     Binary I/O preserves line endings and a missing final newline. Each line
@@ -41,10 +42,12 @@ def sanitize_stream(source, destination, parsers=None, session=None):
         redactor = SecretRedactor()
     else:
         parsers = session.parsers
+        redactor = redactor if redactor is not None else session.redactor
     for number, raw_line in enumerate(source, start=1):
         if session is not None:
             try:
-                line = session.sanitize_line(raw_line.decode('utf-8'))
+                line = session.sanitize_line_with_redactor(
+                    raw_line.decode('utf-8'), redactor)
             except SessionStageError as err:
                 stage = 'secret redaction' if err.secret else err.name
                 raise CleanTextError(
