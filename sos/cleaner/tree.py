@@ -328,10 +328,12 @@ class ReportTreeSanitizer:
             self._fail()
         try:
             os.lseek(fd, 0, os.SEEK_SET)
+            file_redactor = self.session.new_stream_redactor()
             with os.fdopen(fd, 'rb', closefd=True) as source_stream, \
                     open(destination, 'wb') as destination_stream:
                 sanitize_stream(source_stream, destination_stream,
-                                session=self.session)
+                                session=self.session,
+                                redactor=file_redactor)
             self._copy_stat(opened, destination)
             self._hardlinks[key] = destination
             self._summary['files_processed'] += 1

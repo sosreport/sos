@@ -46,11 +46,31 @@ class SafeReportArchiver:
             'bytes_written': 0,
         }
         self._names = set()
+        self._private_path = None
+        self._private_stat = None
 
     def summary(self):
         return dict(self._summary)
 
+    @property
+    def private_path(self):
+        return self._private_path
+
     def create(self):
+        try:
+            self.create_private()
+            self.publish_private()
+            return self.destination
+        except SafeReportArchiverError:
+            raise
+        except Exception:
+            self._fail()
+        finally:
+            if self._private_path is not None:
+                self.discard_private()
+
+    def create_private(self):
+        """Create and structurally validate a private archive, unpublished."""
         staging = None
         try:
             self._validate_inputs()
@@ -64,9 +84,10 @@ class SafeReportArchiver:
                               format=tarfile.USTAR_FORMAT) as archive:
                 self._write_tree(archive)
             self._validate_archive(staging)
-            self._publish_noreplace(staging)
+            self._private_path = staging
+            self._private_stat = os.stat(staging, follow_symlinks=False)
             staging = None
-            return self.destination
+            return self._private_path
         except SafeReportArchiverError:
             raise
         except Exception:
@@ -77,6 +98,42 @@ class SafeReportArchiver:
                     os.unlink(staging)
                 except OSError:
                     pass
+
+    def publish_private(self):
+        """Publish the exact private archive previously created."""
+        if self._private_path is None or self._private_stat is None:
+            self._fail()
+        try:
+            flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0)
+            fd = os.open(self._private_path, flags)
+            try:
+                current = os.fstat(fd)
+                if (not stat.S_ISREG(current.st_mode) or
+                        (current.st_dev, current.st_ino) !=
+                        (self._private_stat.st_dev, self._private_stat.st_ino)):
+                    self._fail()
+            finally:
+                os.close(fd)
+            self._publish_noreplace(self._private_path)
+            self._private_path = None
+            self._private_stat = None
+            return self.destination
+        except SafeReportArchiverError:
+            raise
+        except Exception:
+            self._fail()
+
+    def discard_private(self):
+        """Remove an unpublished private archive owned by this instance."""
+        path = self._private_path
+        self._private_path = None
+        self._private_stat = None
+        if path is not None:
+            try:
+                if os.path.lexists(path):
+                    os.unlink(path)
+            except OSError:
+                pass
 
     archive = create
 
