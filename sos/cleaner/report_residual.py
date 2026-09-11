@@ -11,6 +11,49 @@ import stat
 from sos.cleaner.text_residual import _has_residual, _packed
 
 
+_NAMESPACES = ('hostnames', 'domains', 'ipv4', 'ipv6', 'mac',
+               'emails', 'usernames')
+
+
+def build_manifest_patterns(mappings):
+    """Build detached known-original patterns for residual validation."""
+    patterns = {}
+    for namespace in _NAMESPACES:
+        values = []
+        for original, alias in mappings[namespace].items():
+            if original == alias or original == '':
+                continue
+            if namespace == 'mac':
+                pieces = original.replace('-', ':').split(':')
+                expression = r'[:-]?'.join(re.escape(piece)
+                                          for piece in pieces)
+            else:
+                expression = re.escape(original)
+            if namespace in ('hostnames', 'domains'):
+                expression = (r'(?<![A-Za-z0-9_-])' + expression +
+                              r'(?![A-Za-z0-9_-])')
+            elif namespace == 'username':
+                expression = (r'(?<![A-Za-z0-9_.-])' + expression +
+                              r'(?![A-Za-z0-9_.-])')
+            elif namespace == 'email':
+                expression = (r'(?<![\w@.-])' + expression +
+                              r'(?![\w@-])')
+            else:
+                expression = (r'(?<![A-Za-z0-9_.:-])' + expression +
+                              r'(?![A-Za-z0-9_.:-])')
+            values.append((original, re.compile(
+                expression, re.I if namespace in
+                ('hostnames', 'domains', 'emails', 'mac') else 0)))
+        patterns[namespace] = tuple(values)
+    return patterns
+
+
+def known_original_residual(text, patterns):
+    """Return whether a detached known-original pattern occurs in text."""
+    return any(pattern.search(text) for values in patterns.values()
+               for _original, pattern in values)
+
+
 class ReportTreeResidualError(Exception):
     """A residual validation failure with a counts-only summary."""
 
@@ -22,8 +65,7 @@ class ReportTreeResidualError(Exception):
 class ReportTreeResidualValidator:
     """Validate a fully staged tree without following links."""
 
-    _namespaces = ('hostnames', 'domains', 'ipv4', 'ipv6', 'mac',
-                   'emails', 'usernames')
+    _namespaces = _NAMESPACES
 
     def __init__(self, staged, manifest):
         self.staged = os.path.abspath(staged)
@@ -46,36 +88,7 @@ class ReportTreeResidualValidator:
 
     @classmethod
     def _build_patterns(cls, mappings):
-        patterns = {}
-        for namespace in cls._namespaces:
-            values = []
-            for original, alias in mappings[namespace].items():
-                # Manifest construction excludes identity/no-op entries and
-                # generated aliases. Keep this guard for detached manifests.
-                if original != alias and original != '':
-                    if namespace == 'mac':
-                        pieces = original.replace('-', ':').split(':')
-                        expression = r'[:-]?'.join(re.escape(piece)
-                                                  for piece in pieces)
-                    else:
-                        expression = re.escape(original)
-                    if namespace in ('hostnames', 'domains'):
-                        expression = (r'(?<![A-Za-z0-9_-])' + expression +
-                                      r'(?![A-Za-z0-9_-])')
-                    elif namespace == 'username':
-                        expression = (r'(?<![A-Za-z0-9_.-])' + expression +
-                                      r'(?![A-Za-z0-9_.-])')
-                    elif namespace == 'email':
-                        expression = (r'(?<![\w@.-])' + expression +
-                                      r'(?![\w@-])')
-                    else:
-                        expression = (r'(?<![A-Za-z0-9_.:-])' + expression +
-                                      r'(?![A-Za-z0-9_.:-])')
-                    values.append((original, re.compile(
-                        expression, re.I if namespace in
-                        ('hostnames', 'domains', 'emails', 'mac') else 0)))
-            patterns[namespace] = tuple(values)
-        return patterns
+        return build_manifest_patterns(mappings)
 
     def summary(self):
         return dict(self._summary)
@@ -96,11 +109,7 @@ class ReportTreeResidualValidator:
         raise ReportTreeResidualError(self._summary)
 
     def _known_residual(self, text):
-        for namespace, entries in self._patterns.items():
-            for original, pattern in entries:
-                if pattern.search(text):
-                    return namespace
-        return None
+        return known_original_residual(text, self._patterns)
 
     def _check_text(self, text):
         if self._known_residual(text):

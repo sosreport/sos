@@ -7,6 +7,7 @@ import shutil
 import tempfile
 
 from sos.cleaner.archiver import SafeReportArchiver
+from sos.cleaner.archive_residual import ReportArchiveResidualValidator
 from sos.cleaner.discovery import ReportIdentityDiscovery
 from sos.cleaner.extractor import SafeReportExtractor
 from sos.cleaner.mapping_manifest import SoSMappingManifest
@@ -59,6 +60,7 @@ class ReportSanitizer:
         sanitized_tree = None
         published_archive = False
         published_mapping = False
+        archiver = None
         try:
             self._validate_arguments(input_archive, output_archive,
                                      mapping_output)
@@ -99,7 +101,10 @@ class ReportSanitizer:
             manifest = SoSMappingManifest.from_session(session)
             self._summary['discovered'] = manifest.summary()
             archiver = SafeReportArchiver(tree_destination, output_archive)
-            archiver.create()
+            archiver.create_private()
+            ReportArchiveResidualValidator(
+                archiver.private_path, manifest).validate()
+            archiver.publish_private()
             self._summary['archive'] = archiver.summary()
             published_archive = True
             if mapping_output is not None:
@@ -122,6 +127,8 @@ class ReportSanitizer:
                 self._remove_created(output_archive)
             self._fail()
         finally:
+            if archiver is not None and archiver.private_path is not None:
+                archiver.discard_private()
             cleanup_error = False
             for path in (extracted, sanitized_tree, workspace):
                 if path is None or not os.path.lexists(path):
