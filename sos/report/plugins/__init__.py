@@ -25,7 +25,7 @@ import fnmatch
 import errno
 import textwrap
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from sos.utilities import (sos_get_command_output, import_module, grep,
@@ -749,6 +749,7 @@ class Plugin():
     def set_timeout_hit(self):
         self._timeout_hit = True
         self.manifest.add_field('end_time', datetime.now())
+        self.manifest.add_field('run_time', timedelta(seconds=self.timeout))
         self.manifest.add_field('timeout_hit', True)
 
     def check_timeout(self):
