@@ -42,10 +42,11 @@ class RedHatPolicy(LinuxPolicy):
     default_container_runtime = 'podman'
     sos_pkg_name = 'sos'
     sos_bin_path = '/usr/sbin'
-    client_identifier_url = "https://sso.redhat.com/auth/"\
-        "realms/redhat-external/protocol/openid-connect/auth/device"
-    token_endpoint = "https://sso.redhat.com/auth/realms/"\
-        "redhat-external/protocol/openid-connect/token"
+    # These endpoints are specific to RHEL and should not
+    # be inherted by the non-RHEL distributions that subclass
+    # RedHatPolicy.
+    client_identifier_url = None
+    token_endpoint = None
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -214,6 +215,10 @@ support representative.
     _device_token = None
     # Max size for an http single request is 1Gb
     _max_size_request = 1073741824
+    client_identifier_url = "https://sso.redhat.com/auth/"\
+        "realms/redhat-external/protocol/openid-connect/auth/device"
+    token_endpoint = "https://sso.redhat.com/auth/realms/"\
+        "redhat-external/protocol/openid-connect/token"
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
