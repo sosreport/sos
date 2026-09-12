@@ -88,6 +88,50 @@ class ReportArchiveResidualTests(unittest.TestCase):
         self.assertEqual(result['members_checked'], 1)
         self.assertEqual(result['regular_files_checked'], 1)
 
+    def test_ipv4_mapped_policy_prefix_variants_pass(self):
+        data = ('::ffff:0:0/96 '
+                '0:0:0:0:0:ffff:0:0/96 '
+                '::ffff:0.0.0.0/96 '
+                '::ffff:169.254.0.0/112 '
+                '0:0:0:0:0:ffff:a9fe:0/112 '
+                '::ffff:127.0.0.0/104 '
+                '0:0:0:0:0:ffff:7f00:0/104')
+        result = ReportArchiveResidualValidator(
+            self.archive([('file', 'file', data)]), self.manifest).validate()
+        self.assertEqual(result['regular_files_checked'], 1)
+
+    def test_ipv4_mapped_policy_prefix_near_matches_rejected(self):
+        for value in (
+                '::ffff:192.0.2.1', '::ffff:c000:0201',
+                '::ffff:0:1/96', '::ffff:0:0/95',
+                '::ffff:0:0/97', '::ffff:169.254.0.1/112',
+                '::ffff:169.254.1.0/112', '::ffff:169.254.0.0/111',
+                '::ffff:169.254.0.0/113', '::ffff:127.0.0.1/104',
+                '::ffff:127.1.0.0/104', '::ffff:127.0.0.0/103',
+                '::ffff:127.0.0.0/105', '::ffff:0:0'):
+            with self.subTest(value=value):
+                self.assert_rejects([('file', 'file', value)])
+
+    def test_literal_backslash_member_name_passes(self):
+        result = ReportArchiveResidualValidator(
+            self.archive([('component\\name/file', 'file', 'safe')]),
+            self.manifest).validate()
+        self.assertEqual(result['regular_files_checked'], 1)
+
+    def test_unexpected_binary_regular_member_is_rejected(self):
+        self.assert_rejects([('opaque', 'file', 'safe\x00binary')])
+
+    def test_regular_member_requires_owner_read(self):
+        path = self.archive([('file', 'file', 'safe')])
+        with tarfile.open(path, 'r:xz') as source:
+            member = source.getmember('file')
+            member.mode = 0o200
+            rewritten = self.root / 'unreadable-mode.tar.xz'
+            with tarfile.open(rewritten, 'w:xz', format=tarfile.USTAR_FORMAT) as out:
+                out.addfile(member, source.extractfile(member))
+        with self.assertRaises(ReportArchiveResidualError):
+            ReportArchiveResidualValidator(rewritten, self.manifest).validate()
+
     def test_structure_and_metadata_are_rejected(self):
         self.assert_rejects([('../escape', 'file', 'safe')])
         self.assert_rejects([('file', 'file', 'safe'),

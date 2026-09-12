@@ -3,6 +3,7 @@
 import io
 import json
 import os
+import struct
 import tarfile
 import tempfile
 import unittest
@@ -42,8 +43,20 @@ class SyntheticReportCorpus:
         'package-1.2.3', '22/tcp', 'ext4', 'defaults,_netdev',
         'mapper/vg_test-lv_root', 'UUID=11111111-2222-3333-4444-555555555555',
         'Resource TEST_HANA_00-clone: Started Promoted', 'cpu MHz : 2400',
-        'MemTotal:       16384000 kB',
+        'MemTotal:       16384000 kB', 'Average: CPU utilization preserved',
     )
+
+    @staticmethod
+    def public_key_packet():
+        body = b'\x04\x00synthetic-public-key'
+        return bytes((0x98, len(body))) + body
+
+    @staticmethod
+    def timezone_file():
+        header = (b'TZif2' + (b'\0' * 15) +
+                  struct.pack('>6I', 0, 0, 0, 0, 1, 4))
+        block = b'\0\0\0\0\0\0UTC\0'
+        return header + block + header + block + b'\nUTC0\n'
 
     @classmethod
     def build_tree(cls, root):
@@ -100,6 +113,7 @@ class SyntheticReportCorpus:
             'sos_commands/process/ps': 'root 123 sshd --foreground\nalice 456 hana-worker\n',
             'sos_commands/kernel/uname': 'Linux hana-prod-01 5.14.0-1.el9 x86_64\n',
             'sos_commands/kernel/vmstat': 'r b swpd free 1 0 0 8192\n',
+            'sos_commands/sar/sar01': 'Average: CPU utilization preserved\n',
             'sos_commands/filesys/df': '/dev/mapper/vg_test-lv_root 100G 20G 80G 20% /var\n',
             'sos_commands/multipath/multipath_ll': 'mpatha (3600508b400105e210000900000490000) dm-0\n',
             'sos_commands/sap/hana_replication': (
@@ -126,6 +140,18 @@ class SyntheticReportCorpus:
             path = Path(root) / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content, encoding='utf-8')
+        binary_files = {
+            'var/log/sysstat/sa01':
+                b'\x96\xd5\x75\x21\x00synthetic-sysstat',
+            'proc/bus/pci/00/00.0': b'\x00\xffsynthetic-pci',
+            'etc/apt/trusted.gpg.d/synthetic.gpg':
+                cls.public_key_packet(),
+            'usr/share/zoneinfo/Etc/UTC': cls.timezone_file(),
+        }
+        for relative, content in binary_files.items():
+            path = Path(root) / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
 
     @classmethod
     def build_archive(cls, root, archive_path):
@@ -194,6 +220,17 @@ class ReportCorpusTests(unittest.TestCase):
         self.assertEqual(mapping['schema_version'], 1)
         self.assertEqual(mapping['hostnames']['hana-prod-01'],
                          mapping['hostnames']['hana-prod-01'])
+        self.assertEqual(result['tree']['binary_files_omitted'], 4)
+        self.assertEqual(result['tree']['sysstat_files_omitted'], 1)
+        self.assertEqual(result['tree']['proc_sys_files_omitted'], 1)
+        self.assertEqual(result['tree']['package_keyrings_omitted'], 1)
+        self.assertEqual(result['tree']['timezone_files_omitted'], 1)
+        self.assertNotIn(b'var/log/sysstat/sa01', data)
+        self.assertNotIn(b'proc/bus/pci/00/00.0', data)
+        self.assertNotIn(
+            b'sosreport-synthetic/etc/apt/trusted.gpg.d/synthetic.gpg', data)
+        self.assertNotIn(
+            b'sosreport-synthetic/usr/share/zoneinfo/Etc/UTC', data)
 
     def test_preservation_summary(self):
         self.run_pipeline(mapping=False)
@@ -264,17 +301,21 @@ class ReportCorpusTests(unittest.TestCase):
         with tarfile.open(self.output, 'r:xz') as archive:
             names = [member.name for member in archive]
         self.assertIn('sosreport-synthetic/details/secrets.txt', names)
-        # Phase 15 rejects archive symlink members, so the positive corpus
-        # remains link-free; link behavior is covered by lower-level tests.
+        # Safe internal relative archive links are preserved end-to-end;
+        # unsafe link behavior is covered by lower-level extractor tests.
         linked = self.root / 'linked-tree'
         linked.mkdir()
         (linked / 'target').write_text('safe', encoding='utf-8')
         (linked / 'link').symlink_to('target')
         linked_archive = self.root / 'linked.tar.xz'
         SyntheticReportCorpus.build_archive(linked, linked_archive)
-        with self.assertRaises(ReportSanitizerError):
-            ReportSanitizer(temp_parent=self.root).sanitize(
-                linked_archive, self.root / 'linked-out.tar.xz')
+        ReportSanitizer(temp_parent=self.root).sanitize(
+            linked_archive, self.root / 'linked-out.tar.xz')
+        with tarfile.open(self.root / 'linked-out.tar.xz', 'r:xz') as archive:
+            link_member = next(member for member in archive
+                               if member.name.endswith('/link'))
+            self.assertTrue(link_member.issym())
+            self.assertEqual(link_member.linkname, 'target')
 
     def test_malformed_and_invalid_utf8_policy(self):
         self.run_pipeline(mapping=False)

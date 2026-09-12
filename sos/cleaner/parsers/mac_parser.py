@@ -54,6 +54,9 @@ class SoSMacParser(SoSCleanerParser):
     ]
     map_file_key = 'mac_map'
     compile_regexes = False
+    _contiguous_known = re.compile(
+        r'(?<![A-Za-z0-9_.:-])(?P<value>[0-9a-fA-F]{12})'
+        r'(?![A-Za-z0-9_.:-])')
 
     def __init__(self, config, workdir, skip_cleaning_files=[]):
         self.mapping = SoSMacMap(workdir, self.regex_pattern)
@@ -72,16 +75,27 @@ class SoSMacParser(SoSCleanerParser):
 
     def _parse_line(self, line):
         count = 0
-        if not self._quick_check.search(line):
-            return line, count
-        matches = [m[0] for m in self.regex_pattern.findall(line)]
-        if matches:
-            count += len(matches)
-            for match in matches:
-                stripped_match = self.reduce_mac_match(match)
-                if stripped_match.startswith(self.obfuscated_patterns):
-                    # avoid double scrubbing
-                    continue
-                new_match = self.mapping.get(stripped_match)
-                line = line.replace(stripped_match, new_match)
+        if self._quick_check.search(line):
+            matches = [m[0] for m in self.regex_pattern.findall(line)]
+            if matches:
+                count += len(matches)
+                for match in matches:
+                    stripped_match = self.reduce_mac_match(match)
+                    if stripped_match.startswith(self.obfuscated_patterns):
+                        # avoid double scrubbing
+                        continue
+                    new_match = self.mapping.get(stripped_match)
+                    line = line.replace(stripped_match, new_match)
+        # proc/net/dev_mcast emits known MACs as twelve contiguous hex digits.
+        # Only replace values already present in the mapping: this path never
+        # discovers arbitrary hexadecimal strings, especially while mappings
+        # are frozen for report sanitization.
+        known = {}
+        for original, alias in self.mapping.dataset.items():
+            normalized = re.sub(r'[^0-9a-f]', '', original.lower())
+            if len(normalized) == 12:
+                known[normalized] = alias
+        def replace_contiguous(match):
+            return known.get(match.group('value').lower(), match.group(0))
+        line = self._contiguous_known.sub(replace_contiguous, line)
         return line, count

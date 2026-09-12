@@ -1,3 +1,4 @@
+import io
 import os
 import shutil
 import tarfile
@@ -118,6 +119,77 @@ class ReportSanitizerTests(unittest.TestCase):
                 ReportSanitizer(temp_parent=self.root).sanitize(
                     archive, self.output)
         self.assertFalse(self.output.exists())
+
+    def test_unsupported_binary_publishes_neither_output_nor_mapping(self):
+        binary = self.input_tree / 'opaque.txt'
+        binary.write_bytes(b'unknown\x00binary')
+        source = binary.read_bytes()
+        archive = self.make_archive('binary.tar.xz')
+        mapping = self.root / 'binary-map.json'
+
+        with self.assertRaises(ReportSanitizerError):
+            ReportSanitizer(temp_parent=self.root).sanitize(
+                archive, self.output, mapping_output=mapping)
+
+        self.assertFalse(self.output.exists())
+        self.assertFalse(mapping.exists())
+        self.assertEqual(binary.read_bytes(), source)
+
+    def test_public_apt_keyring_is_omitted_from_final_archive(self):
+        keyring = bytes((0x98, 22)) + b'\x04\x00synthetic-public-key'
+        keyring_path = self.input_tree / 'etc/apt/trusted.gpg.d/synthetic.gpg'
+        keyring_path.parent.mkdir(parents=True, exist_ok=True)
+        keyring_path.write_bytes(keyring)
+        archive = self.make_archive('keyring.tar.xz')
+
+        result = ReportSanitizer(temp_parent=self.root).sanitize(
+            archive, self.output)
+
+        self.assertEqual(result['tree']['package_keyrings_omitted'], 1)
+        with tarfile.open(self.output, 'r:xz') as output:
+            self.assertNotIn(
+                'sosreport-input/etc/apt/trusted.gpg.d/synthetic.gpg',
+                [member.name for member in output])
+
+    def test_unreadable_regular_file_is_inspected_and_readable_in_output(self):
+        path = self.input_tree / 'details/unreadable.log'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        content = b'node\npassword=SyntheticSecret123\n'
+        path.write_bytes(content)
+        write_only_content = b'alice\npassword=SyntheticSecret456\n'
+        write_only = self.input_tree / 'details/write-only.log'
+        write_only.write_bytes(write_only_content)
+        archive = self.root / 'unreadable.tar.xz'
+        with tarfile.open(archive, 'w:xz') as output:
+            for name, data, mode in (
+                    ('unreadable.log', content, 0o000),
+                    ('write-only.log', write_only_content, 0o200)):
+                info = tarfile.TarInfo('sosreport-input/details/' + name)
+                info.mode = mode
+                info.size = len(data)
+                output.addfile(info, io.BytesIO(data))
+        path.chmod(0o000)
+        write_only.chmod(0o200)
+        before_mode = path.stat().st_mode
+
+        result = ReportSanitizer(hostnames=('node',), usernames=('alice',),
+                                 temp_parent=self.root) \
+            .sanitize(archive, self.output)
+
+        self.assertGreater(result['tree']['text_files_sanitized'], 0)
+        self.assertEqual(path.stat().st_mode, before_mode)
+        with tarfile.open(self.output, 'r:xz') as output:
+            member = output.getmember('sosreport-input/details/unreadable.log')
+            self.assertEqual(member.mode, 0o400)
+            content = output.extractfile(member).read()
+            write_only_member = output.getmember(
+                'sosreport-input/details/write-only.log')
+            self.assertEqual(write_only_member.mode, 0o600)
+            write_only_content = output.extractfile(write_only_member).read()
+        self.assertNotIn(b'node\n', content)
+        self.assertNotIn(b'SyntheticSecret123', content)
+        self.assertNotIn(b'alice\n', write_only_content)
+        self.assertNotIn(b'SyntheticSecret456', write_only_content)
 
     def test_residual_failure_and_existing_output_are_fail_closed(self):
         self.populate_realistic_tree()

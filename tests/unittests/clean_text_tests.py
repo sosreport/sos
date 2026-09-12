@@ -86,6 +86,14 @@ class CleanTextTests(unittest.TestCase):
         self.assertNotIn(b'2607:c540:8c00:3318::34', result.stdout)
         self.assertIn(b'534f:', result.stdout)
 
+    def test_ipv4_mapped_policy_prefix_is_preserved(self):
+        content = (b'label ::ffff:0:0/96 4\n'
+                   b'label ::ffff:169.254.0.0/112 4\n'
+                   b'label ::ffff:127.0.0.0/104 4\n')
+        result = self.run_clean_text(content, '-')
+        self.assert_success(result)
+        self.assertEqual(result.stdout, content)
+
     def test_mac(self):
         result = self.run_clean_text(b'mac=12:34:56:78:90:ab\n', '-')
         self.assert_success(result)

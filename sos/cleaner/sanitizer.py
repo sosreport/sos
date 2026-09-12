@@ -3,7 +3,6 @@
 """End-to-end orchestration for sanitizing a sosreport archive."""
 
 import os
-import shutil
 import tempfile
 
 from sos.cleaner.archiver import SafeReportArchiver
@@ -14,6 +13,7 @@ from sos.cleaner.mapping_manifest import SoSMappingManifest
 from sos.cleaner.mapping_writer import MappingManifestWriter
 from sos.cleaner.session import SanitizationSession
 from sos.cleaner.tree import ReportTreeSanitizer
+from sos.cleaner.filesystem import remove_private_tree
 
 
 class ReportSanitizerError(Exception):
@@ -188,10 +188,7 @@ class ReportSanitizer:
 
     @staticmethod
     def _cleanup_path(path):
-        if os.path.isdir(path) and not os.path.islink(path):
-            shutil.rmtree(path)
-        else:
-            os.unlink(path)
+        remove_private_tree(path)
 
     @staticmethod
     def _remove_created(path):

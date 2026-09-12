@@ -21,7 +21,8 @@ from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
-from sos.cleaner.text_identity import TextEmailParser, TextUsernameParser
+from sos.cleaner.text_identity import (TextEmailParser, TextUsernameMap,
+                                       TextUsernameParser)
 from sos.cleaner.text_secrets import SecretRedactor
 
 
@@ -32,6 +33,13 @@ class SessionStageError(Exception):
         self.name = name
         self.secret = secret
         super().__init__(name)
+
+
+class SessionMappingFrozenError(Exception):
+    """An identity parser attempted to grow a frozen report mapping."""
+
+    def __init__(self):
+        super().__init__('session mappings are frozen')
 
 
 class _SessionMap:
@@ -47,6 +55,8 @@ class _SessionMap:
         if self.ignore_item(item):
             return item
         if item not in self.dataset:
+            if getattr(self, '_mappings_frozen', False):
+                raise SessionMappingFrozenError()
             self.add_sanitised_item_to_dataset(item)
         return self.dataset[item]
 
@@ -120,10 +130,30 @@ class SessionMacParser(SoSMacParser):
         SoSCleanerParser.__init__(self, {})
 
 
+class SessionUsernameMap(TextUsernameMap):
+    """Text username map with report-only freeze enforcement."""
+
+    def __init__(self, workdir, usernames):
+        self._mappings_frozen = False
+        super().__init__(workdir, usernames)
+
+    def add(self, item):
+        if (self._mappings_frozen and item and
+                item.lower() not in self.preserved_identities and
+                item not in self.dataset):
+            raise SessionMappingFrozenError()
+        return super().add(item)
+
+
 class SessionUsernameParser(TextUsernameParser):
     """Text username parser using the existing text-only policy."""
 
-    pass
+    def __init__(self, workdir, usernames):
+        self.mapping = SessionUsernameMap(workdir, usernames)
+        SoSCleanerParser.__init__(self, {})
+        for username in usernames:
+            self.mapping.add(username)
+        self.generate_item_regexes()
 
 
 class SanitizationSession:
@@ -131,6 +161,7 @@ class SanitizationSession:
 
     def __init__(self, workdir, hostnames=(), domains=(), usernames=(),
                  redactor=None):
+        self._mappings_frozen = False
         self.redactor = redactor if redactor is not None else SecretRedactor()
         self.email_parser = TextEmailParser()
         self.username_parser = SessionUsernameParser(workdir, usernames)
@@ -158,6 +189,21 @@ class SanitizationSession:
             'email': self.email_parser,
             'username': self.username_parser.mapping,
         }
+
+    @property
+    def mappings_frozen(self):
+        return self._mappings_frozen
+
+    def freeze_mappings(self):
+        """Prevent report sanitization from creating new identity mappings."""
+        self._mappings_frozen = True
+        for mapping in (self.hostname_parser.mapping,
+                        self.ip_parser.mapping,
+                        self.ipv6_parser.mapping,
+                        self.mac_parser.mapping,
+                        self.username_parser.mapping):
+            mapping._mappings_frozen = True
+        self.email_parser._mappings_frozen = True
 
     def sanitize_line(self, line):
         return self.sanitize_line_with_redactor(line, self.redactor)

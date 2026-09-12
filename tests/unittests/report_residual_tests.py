@@ -1,4 +1,5 @@
 import os
+import socket
 import stat
 import tempfile
 import unittest
@@ -8,6 +9,8 @@ from sos.cleaner.mapping_manifest import SoSMappingManifest
 from sos.cleaner.report_residual import (ReportTreeResidualError,
                                          ReportTreeResidualValidator)
 from sos.cleaner.session import SanitizationSession
+from sos.cleaner.text_residual import (_has_residual, _ipv6_preserved,
+                                       _packed)
 from sos.cleaner.tree import ReportTreeSanitizer, ReportTreeSanitizerError
 
 
@@ -80,6 +83,68 @@ class ReportResidualTests(unittest.TestCase):
         result = ReportTreeResidualValidator(
             output, SoSMappingManifest.from_session(self.session)).validate()
         self.assertEqual(result['residual_failures'], 0)
+
+    def test_standard_ipv4_mapped_prefix_is_preserved(self):
+        """A standard address-selection prefix is technical configuration."""
+        for index, value in enumerate((
+                '::ffff:0:0/96',
+                '0:0:0:0:0:ffff:0:0/96',
+                '::ffff:0.0.0.0/96',
+                '::ffff:169.254.0.0/112',
+                '0:0:0:0:0:ffff:a9fe:0/112',
+                '::ffff:127.0.0.0/104',
+                '0:0:0:0:0:ffff:7f00:0/104')):
+            self.write(f'etc/gai-{index}.conf', f'#label {value} 4\n')
+        result = ReportTreeResidualValidator(
+            self.source, self.manifest).validate()
+        self.assertEqual(result['residual_failures'], 0)
+
+    def test_mapped_policy_prefixes_do_not_create_ipv6_mappings(self):
+        before = dict(self.session.ipv6_parser.mapping.dataset)
+        for value in ('::ffff:0:0/96', '::ffff:169.254.0.0/112',
+                      '::ffff:127.0.0.0/104'):
+            self.assertEqual(self.session.sanitize_line(value + '\n'),
+                             value + '\n')
+        self.assertEqual(before, self.session.ipv6_parser.mapping.dataset)
+
+    def test_ipv4_mapped_policy_prefix_near_matches_are_residual(self):
+        for value in (
+                '::ffff:192.0.2.1', '::ffff:c000:0201',
+                '::ffff:0:1/96', '::ffff:0:0/95',
+                '::ffff:0:0/97', '::ffff:169.254.0.1/112',
+                '::ffff:169.254.1.0/112', '::ffff:169.254.0.0/111',
+                '::ffff:169.254.0.0/113', '::ffff:127.0.0.1/104',
+                '::ffff:127.1.0.0/104', '::ffff:127.0.0.0/103',
+                '::ffff:127.0.0.0/105', '::ffff:0:0'):
+            with self.subTest(value=value):
+                self.assertTrue(_has_residual(value, set(), set()))
+
+        address = _packed('::ffff:0:0/96', socket.AF_INET6)
+        self.assertFalse(_ipv6_preserved('::ffff:0:0/96x', address))
+        self.assertFalse(_ipv6_preserved('x::ffff:0:0/96', address))
+
+    def test_standard_mapped_link_local_policy_prefix_is_preserved(self):
+        """The fixed mapped link-local policy prefix is technical syntax."""
+        self.write('etc/gai.conf',
+                   '#label ::ffff:169.254.0.0/112 4\n')
+        result = ReportTreeResidualValidator(
+            self.source, self.manifest).validate()
+        self.assertEqual(result['residual_failures'], 0)
+
+    def test_systemd_instance_unit_is_not_email_residual(self):
+        """An instance unit containing @ is not an email address."""
+        self.write('proc/cgroup',
+                   '/system.slice/system-postfix.slice/postfix@-.service\n')
+        result = ReportTreeResidualValidator(
+            self.source, self.manifest).validate()
+        self.assertEqual(result['residual_failures'], 0)
+
+    def test_mapped_contiguous_mac_form_is_not_left_as_original(self):
+        """A mapped MAC in contiguous form must not survive validation."""
+        self.write('proc/dev_mcast',
+                   '1234567890ab\n')
+        with self.assertRaises(ReportTreeResidualError):
+            ReportTreeResidualValidator(self.source, self.manifest).validate()
 
     def test_generic_secret_residuals_are_rejected_but_markers_allowed(self):
         for value in (
