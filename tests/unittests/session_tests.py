@@ -35,9 +35,23 @@ class SanitizationSessionTests(unittest.TestCase):
     def test_known_contiguous_mac_representation_is_replaced(self):
         session = self.session()
         session.sanitize_line('mac=aa:bb:cc:dd:ee:ff')
+        first = session.mac_parser._known_contiguous_mappings()
+        self.assertEqual(first['aabbccddeeff'], '53:4f:53:00:00:01')
+        self.assertIs(first, session.mac_parser._known_contiguous_mappings())
         session.freeze_mappings()
         result = session.sanitize_line('mac=aabbccddeeff')
         self.assertEqual(result, 'mac=53:4f:53:00:00:01')
+
+    def test_contiguous_mac_lookup_rebuilds_when_mapping_grows(self):
+        session = self.session()
+        session.sanitize_line('mac=aa:bb:cc:dd:ee:ff')
+        first = session.mac_parser._known_contiguous_mappings()
+        session.sanitize_line('mac=11:22:33:44:55:66')
+        second = session.mac_parser._known_contiguous_mappings()
+        self.assertIsNot(first, second)
+        self.assertEqual(second['112233445566'], '53:4f:53:00:00:02')
+        session.freeze_mappings()
+        self.assertIs(second, session.mac_parser._known_contiguous_mappings())
 
     def test_unknown_contiguous_mac_is_not_discovered_or_partially_replaced(self):
         session = self.session()

@@ -127,6 +127,8 @@ class SessionIPv6Parser(SoSIPv6Parser):
 class SessionMacParser(SoSMacParser):
     def __init__(self, workdir):
         self.mapping = SessionMacMap(workdir, self.regex_pattern)
+        self._known_contiguous_cache = None
+        self._known_contiguous_generation = -1
         SoSCleanerParser.__init__(self, {})
 
 
