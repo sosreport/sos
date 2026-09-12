@@ -6,8 +6,9 @@ import unittest
 from pathlib import Path
 
 from sos.cleaner.mapping_manifest import SoSMappingManifest
-from sos.cleaner.report_residual import (ReportTreeResidualError,
-                                         ReportTreeResidualValidator)
+from sos.cleaner.report_residual import (
+    ResidualMatcher, ReportTreeResidualError, ReportTreeResidualValidator,
+    build_manifest_patterns, known_original_residual)
 from sos.cleaner.session import SanitizationSession
 from sos.cleaner.text_residual import (_has_residual, _ipv6_preserved,
                                        _packed)
@@ -178,6 +179,43 @@ class ReportResidualTests(unittest.TestCase):
             ReportTreeResidualValidator(self.source, self.manifest).validate()
         self.assertNotIn('node', str(context.exception))
         self.assertEqual(before, self.manifest.raw_mappings())
+
+    def test_compiled_residual_matcher_matches_individual_patterns(self):
+        mappings = self.manifest.raw_mappings()
+        individual = build_manifest_patterns(mappings)
+        matcher = ResidualMatcher(mappings)
+        cases = (
+            ('safe technical text', False),
+            ('node', True),
+            ('node-extra', False),
+            ('customer.example', True),
+            ('10.20.30.40', True),
+            ('2001:db8::10', True),
+            ('12:34:56:78:90:ab', True),
+            ('alice@example.test', True),
+            ('alice-admin', False),
+        )
+        for text, expected in cases:
+            with self.subTest(text=text):
+                self.assertEqual(
+                    known_original_residual(text, individual), expected)
+                self.assertEqual(matcher.search(text), expected)
+
+    def test_compiled_residual_matcher_handles_overlapping_originals(self):
+        mappings = {namespace: {} for namespace in (
+            'hostnames', 'domains', 'ipv4', 'ipv6', 'mac', 'emails',
+            'usernames')}
+        mappings['hostnames'] = {
+            'node': 'host0', 'node.example': 'host1',
+            'node+special': 'host2',
+        }
+        individual = build_manifest_patterns(mappings)
+        matcher = ResidualMatcher(mappings)
+        for text in ('node', 'node.example', 'node+special', 'node-other'):
+            with self.subTest(text=text):
+                self.assertEqual(
+                    matcher.search(text),
+                    known_original_residual(text, individual))
 
 
 if __name__ == '__main__':

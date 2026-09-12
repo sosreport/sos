@@ -48,8 +48,33 @@ def build_manifest_patterns(mappings):
     return patterns
 
 
+class ResidualMatcher:
+    """Immutable known-original matcher for one detached manifest.
+
+    Each namespace retains the exact boundary expression used by the previous
+    individual-pattern implementation.  The alternatives are compiled once,
+    so validation does not repeatedly walk every mapping for every line.
+    """
+
+    def __init__(self, mappings):
+        self.patterns = build_manifest_patterns(mappings)
+        expressions = []
+        for namespace, values in self.patterns.items():
+            for _original, pattern in values:
+                expression = pattern.pattern
+                if namespace in ('hostnames', 'domains', 'emails', 'mac'):
+                    expression = '(?i:' + expression + ')'
+                expressions.append(expression)
+        self._combined = re.compile('|'.join(expressions) or r'(?!)')
+
+    def search(self, text):
+        return self._combined.search(text) is not None
+
+
 def known_original_residual(text, patterns):
     """Return whether a detached known-original pattern occurs in text."""
+    if isinstance(patterns, ResidualMatcher):
+        return patterns.search(text)
     return any(pattern.search(text) for values in patterns.values()
                for _original, pattern in values)
 
@@ -77,9 +102,17 @@ class ReportTreeResidualValidator:
             'residual_failures': 0,
         }
         raw = manifest.raw_mappings()
-        self._patterns = self._build_patterns(raw)
-        self._ipv4_aliases = self._aliases(raw['ipv4'])
-        self._ipv6_aliases = self._aliases(raw['ipv6'])
+        self._patterns = ResidualMatcher(raw)
+        self._ipv4_aliases = {
+            _packed(alias, socket.AF_INET)
+            for original, alias in raw['ipv4'].items()
+            if original != alias
+        }
+        self._ipv6_aliases = {
+            _packed(alias, socket.AF_INET6)
+            for original, alias in raw['ipv6'].items()
+            if original != alias
+        }
 
     @staticmethod
     def _aliases(mapping):
@@ -116,11 +149,7 @@ class ReportTreeResidualValidator:
             self._fail()
         # Reuse independent clean-text detectors. They only receive generated
         # IP aliases and never discover or mutate identities.
-        if _has_residual(text, {
-                _packed(value, socket.AF_INET)
-                for value in self._ipv4_aliases}, {
-                _packed(value, socket.AF_INET6)
-                for value in self._ipv6_aliases}):
+        if _has_residual(text, self._ipv4_aliases, self._ipv6_aliases):
             self._fail()
 
     @staticmethod

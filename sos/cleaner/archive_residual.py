@@ -10,7 +10,7 @@ import stat
 import tarfile
 
 from sos.cleaner.archiver import SafeReportArchiver
-from sos.cleaner.report_residual import (build_manifest_patterns,
+from sos.cleaner.report_residual import (ResidualMatcher,
                                          known_original_residual)
 from sos.cleaner.text_residual import _has_residual, _packed
 
@@ -47,7 +47,7 @@ class ReportArchiveResidualValidator:
             'bytes_checked': 0,
         }
         raw = manifest.raw_mappings()
-        self._patterns = build_manifest_patterns(raw)
+        self._patterns = ResidualMatcher(raw)
         self._ipv4_aliases = {
             _packed(alias, socket.AF_INET)
             for original, alias in raw['ipv4'].items() if original != alias
