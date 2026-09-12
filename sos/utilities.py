@@ -744,7 +744,11 @@ class HeadReader(threading.Thread):
         once done, close f_src to signal the program that we are done.
         """
         while self.remaining > 0:
-            buf = self.f_src.read(min(self.remaining, self.COPY_BUFSIZE))
+            try:
+                buf = self.f_src.read(min(self.remaining, self.COPY_BUFSIZE))
+            except (ValueError, IOError):
+                # a pipe error, terminate
+                break
             if not buf:
                 break
             self.f_dst.write(buf)
