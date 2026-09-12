@@ -217,6 +217,40 @@ class ReportResidualTests(unittest.TestCase):
                     matcher.search(text),
                     known_original_residual(text, individual))
 
+    def test_residual_matcher_prefilter_is_conservative(self):
+        mappings = self.manifest.raw_mappings()
+        individual = build_manifest_patterns(mappings)
+        matcher = ResidualMatcher(mappings)
+        for namespace, values in mappings.items():
+            if namespace == 'schema_version':
+                continue
+            for original, _alias in values.items():
+                with self.subTest(namespace=namespace, original=original):
+                    self.assertTrue(matcher.may_match(original))
+                    self.assertEqual(
+                        matcher.search(original),
+                        known_original_residual(original, individual))
+        self.assertFalse(matcher.may_match('zzzz'))
+
+    def test_residual_matcher_skips_impossible_lines(self):
+        matcher = ResidualMatcher(self.manifest.raw_mappings())
+
+        class CountingPattern:
+            def __init__(self, pattern):
+                self.pattern = pattern
+                self.calls = 0
+
+            def search(self, text):
+                self.calls += 1
+                return self.pattern.search(text)
+
+        combined = CountingPattern(matcher._combined)
+        matcher._combined = combined
+        self.assertFalse(matcher.search('zzzz'))
+        self.assertEqual(combined.calls, 0)
+        self.assertTrue(matcher.search('node'))
+        self.assertEqual(combined.calls, 1)
+
 
 if __name__ == '__main__':
     unittest.main()

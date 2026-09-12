@@ -66,8 +66,50 @@ class ResidualMatcher:
                     expression = '(?i:' + expression + ')'
                 expressions.append(expression)
         self._combined = re.compile('|'.join(expressions) or r'(?!)')
+        anchors = set()
+        single_character_anchors = set()
+        for namespace, values in self.patterns.items():
+            for original, _pattern in values:
+                # Every accepted match contains the first two literal
+                # characters of its original (or its sole character). MAC
+                # separators are optional, so do not include a separator in
+                # this anchor.
+                anchor = original[:2]
+                if not anchor:
+                    continue
+                if len(anchor) == 1:
+                    single_character_anchors.add(anchor.lower())
+                else:
+                    anchors.add(anchor.lower())
+        self._anchors = frozenset(anchors)
+        self._single_character_anchors = frozenset(single_character_anchors)
+
+    def may_match(self, text):
+        """Return whether the line may contain a known original.
+
+        This is only a conservative dispatch filter.  The compiled residual
+        matcher remains the sole source of the known-original decision.
+        """
+        if not self._anchors and not self._single_character_anchors:
+            return False
+        # ASCII lower-casing has the same case-insensitive behavior as the
+        # namespace patterns for the identities accepted by the sanitizer.
+        # Non-ASCII input takes the conservative path because Unicode case
+        # folding has equivalences that are not safely represented by a
+        # two-byte literal index.
+        if not text.isascii():
+            return True
+        lowered = text.lower()
+        if self._single_character_anchors and any(
+                character in lowered
+                for character in self._single_character_anchors):
+            return True
+        return any(lowered[index:index + 2] in self._anchors
+                   for index in range(len(lowered) - 1))
 
     def search(self, text):
+        if not self.may_match(text):
+            return False
         return self._combined.search(text) is not None
 
 
