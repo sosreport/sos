@@ -172,7 +172,10 @@ class SafeReportArchiver:
 
     @staticmethod
     def _safe_mode(mode, directory=False):
-        return stat.S_IMODE(mode) & (0o777 if directory else 0o666)
+        ordinary = stat.S_IMODE(mode) & 0o777
+        if directory:
+            return ordinary
+        return ordinary | stat.S_IRUSR
 
     @staticmethod
     def _classify_mode(mode):

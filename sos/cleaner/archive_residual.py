@@ -85,7 +85,9 @@ class ReportArchiveResidualValidator:
     def _check_member_metadata(self, member):
         if (member.uid != 0 or member.gid != 0 or member.uname != '' or
                 member.gname != '' or member.mtime != 0 or
-                member.pax_headers or member.mode != stat.S_IMODE(member.mode)):
+                member.pax_headers or member.mode != stat.S_IMODE(member.mode) or
+                member.mode & 0o7000 or
+                (member.isreg() and not member.mode & stat.S_IRUSR)):
             self._fail()
 
     def _check_regular(self, archive, member):
@@ -177,4 +179,3 @@ class ReportArchiveResidualValidator:
         except Exception:
             self._fail()
         return self.summary()
-

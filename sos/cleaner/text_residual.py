@@ -13,9 +13,12 @@ cleaner policy. Only a boolean verdict leaves the scanner.
 
 import re
 import socket
+import ipaddress
+
+from sos.cleaner.text_identity import EMAIL_CANDIDATE
 
 
-_EMAIL = re.compile(r"[\w.!#$%&'*+/?^`{|}~-]+@[\w-]+(?:\.[\w-]+)+")
+_EMAIL = EMAIL_CANDIDATE
 _EMAIL_ALIAS = re.compile(
     r'(?:user|host|obfuscateduser)\d+@obfuscateddomain\d+\.'
     r'(?:example|host\d+|obfuscateduser\d+)', re.I
@@ -50,8 +53,9 @@ _IPV4 = re.compile(
 )
 # Validate whole colon tokens with inet_pton; this excludes SELinux contexts
 # and avoids treating an IPv6 substring or a UUID as a MAC address.
-_IPV6 = re.compile(r'(?<![\w:.-])[a-f0-9:]*:[a-f0-9:.]+(?![\w:.-])',
-                   re.I)
+_IPV6 = re.compile(
+    r'(?<![\w:./-])[a-f0-9:]*:[a-f0-9:.]+(?:/\d{1,3})?'
+    r'(?![\w:./-])', re.I)
 _MAC = re.compile(
     r'(?<![\w:.-])(?:'
     r'(?:[a-f0-9]{2}[:_-]){5}[a-f0-9]{2}|'
@@ -59,6 +63,12 @@ _MAC = re.compile(
     r'(?:[a-f0-9]{4}[:-]){3}[a-f0-9]{4}'
     r')(?![\w:.-])', re.I
 )
+
+_IPV4_MAPPED_POLICY_PREFIXES = frozenset((
+    ipaddress.IPv6Network('::ffff:0:0/96'),
+    ipaddress.IPv6Network('::ffff:169.254.0.0/112'),
+    ipaddress.IPv6Network('::ffff:127.0.0.0/104'),
+))
 
 
 def _packed(value, family):
@@ -84,6 +94,13 @@ def _ipv4_preserved(address):
 
 def _ipv6_preserved(value, address):
     # Unspecified/loopback, reserved aliases, and link-local network prefixes.
+    if '/' in value:
+        try:
+            if ipaddress.ip_network(value, strict=True) in \
+                    _IPV4_MAPPED_POLICY_PREFIXES:
+                return True
+        except ValueError:
+            pass
     if address in (bytes(16), bytes(15) + b'\x01'):
         return True
     if address[0] == 0x53 or address[:2] == b'\xfd\x53':

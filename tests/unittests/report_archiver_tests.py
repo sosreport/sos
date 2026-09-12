@@ -58,6 +58,15 @@ class ReportArchiverTests(unittest.TestCase):
             self.assertEqual(members[2].linkname, 'a/b.txt')
             self.assertEqual(members[5].linkname, '../a/b.txt')
 
+    def test_regular_mode_formula_preserves_ordinary_bits_and_owner_read(self):
+        for original, expected in {
+                0o000: 0o400, 0o200: 0o600, 0o400: 0o400,
+                0o444: 0o444, 0o600: 0o600, 0o644: 0o644,
+                0o755: 0o755, 0o4755: 0o755}.items():
+            with self.subTest(mode=oct(original)):
+                self.assertEqual(
+                    SafeReportArchiver._safe_mode(original), expected)
+
     def test_source_is_unchanged_and_hardlinks_are_independent_files(self):
         first = self.write('first', b'content')
         second = self.source / 'second'
@@ -70,6 +79,14 @@ class ReportArchiverTests(unittest.TestCase):
         after = {path.relative_to(self.source): path.read_bytes()
                  for path in self.source.iterdir()}
         self.assertEqual(before, after)
+
+    def test_literal_backslash_member_name_round_trips(self):
+        self.write('component\\name/file', b'safe')
+        archive_path = self.create()
+        with tarfile.open(archive_path, 'r:xz') as archive:
+            self.assertIn('component\\name', [m.name for m in archive])
+            self.assertIn('component\\name/file',
+                          [m.name for m in archive])
 
     def test_unsafe_objects_and_symlinks_fail_closed(self):
         os.mkfifo(self.source / 'pipe')

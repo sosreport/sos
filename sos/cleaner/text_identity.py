@@ -11,6 +11,18 @@ from sos.cleaner.parsers import SoSCleanerParser
 from sos.cleaner.parsers.username_parser import SoSUsernameParser
 
 
+# Keep email candidate extraction identical for the text sanitizer and the
+# independent residual gate.  The latter still makes its own safety decision
+# after extracting candidates.
+_EMAIL_ATOM = r"[a-z0-9!#$%&'*+?^_`{|}~-]+"
+_EMAIL_DOMAIN_LABEL = r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?'
+EMAIL_CANDIDATE = re.compile(
+    r"(?<![\w.!#$%&'*+?^_`{|}~-])" + _EMAIL_ATOM +
+    r'(?:\.' + _EMAIL_ATOM + r')*@' + _EMAIL_DOMAIN_LABEL +
+    r'(?:\.' + _EMAIL_DOMAIN_LABEL + r')*\.[a-z]{2,63}' +
+    r'(?![\w@-])', re.I)
+
+
 class TextUsernameMap(SoSUsernameMap):
     """Reuse username pseudonyms with exact, case-sensitive token matching.
 
@@ -121,18 +133,12 @@ class TextEmailParser:
 
     name = 'Email Parser'
     # Exclude slash and equals to preserve common path/assignment prefixes.
-    _atom = r"[a-z0-9!#$%&'*+?^_`{|}~-]+"
-    _label = r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?'
-    _email = re.compile(
-        r"(?<![\w.!#$%&'*+?^_`{|}~-])"
-        + _atom + r'(?:\.' + _atom + r')*@'
-        + _label + r'(?:\.' + _label + r')*\.[a-z]{2,63}'
-        + r'(?![\w@-])', re.I
-    )
+    _email = EMAIL_CANDIDATE
 
     def __init__(self):
         self._addresses = {}
         self._domains = {}
+        self._mappings_frozen = False
 
     def parse_line(self, line):
         def replace(match):
@@ -141,6 +147,8 @@ class TextEmailParser:
                 return match[0]
             address = match[0].lower()
             if address not in self._addresses:
+                if self._mappings_frozen:
+                    raise RuntimeError('email mappings are frozen')
                 domain = address.rsplit('@', 1)[1]
                 if domain not in self._domains:
                     self._domains[domain] = (

@@ -5,6 +5,8 @@ import unittest
 from pathlib import Path
 
 from sos.cleaner.discovery import ReportIdentityDiscovery
+from sos.cleaner.openpgp import is_public_keyring_fd
+from sos.cleaner.tzif import is_tzif_fd
 from sos.cleaner.session import SanitizationSession
 from sos.cleaner.tree import ReportTreeSanitizer, ReportTreeSanitizerError
 
@@ -43,6 +45,19 @@ class ReportTreeTests(unittest.TestCase):
     def destination(self, name='output'):
         return Path(self.output_parent.name) / name
 
+    @staticmethod
+    def openpgp_packet(tag, body=b'\x04\x00synthetic-public-key'):
+        """Build a small old-format packet fixture without real key data."""
+        return bytes((0x80 | (tag << 2), len(body))) + body
+
+    @staticmethod
+    def tzif(version=b'2', counts=(0, 0, 0, 0, 1, 4),
+             footer=b'\nUTC0\n'):
+        import struct
+        header = b'TZif' + version + (b'\0' * 15) + struct.pack('>6I', *counts)
+        block = b'\0\0\0\0\0\0' + b'UTC\0'
+        return header + block + header + block + footer
+
     def test_tree_is_copied_and_sanitized_with_shared_session(self):
         self.discover()
         self.write('logs/node/status.log',
@@ -78,6 +93,34 @@ class ReportTreeTests(unittest.TestCase):
                          'obfuscateduser0\n')
         for relative, content in source_snapshot.items():
             self.assertEqual((self.source / relative).read_bytes(), content)
+
+    def test_late_contextual_username_applies_to_earlier_file(self):
+        """Contextual discovery must not make output traversal-dependent."""
+        self.write('a-plain.txt', 'lateuser diagnostic evidence\n')
+        self.write('z-context.txt', 'user=lateuser\n')
+
+        result = ReportTreeSanitizer(
+            self.source, self.destination(), self.session).sanitize()
+
+        alias = self.session.username_parser.mapping.dataset['lateuser']
+        self.assertEqual(result['text_files_sanitized'], 2)
+        self.assertEqual(
+            (self.destination() / 'a-plain.txt').read_text(encoding='utf-8'),
+            f'{alias} diagnostic evidence\n')
+        self.assertEqual(
+            (self.destination() / 'z-context.txt').read_text(encoding='utf-8'),
+            f'user={alias}\n')
+
+    def test_late_contextual_username_sanitizes_an_earlier_path(self):
+        self.write('lateuser/log.txt', 'diagnostic evidence\n')
+        self.write('z-context.txt', 'user=lateuser\n')
+
+        ReportTreeSanitizer(
+            self.source, self.destination(), self.session).sanitize()
+
+        alias = self.session.username_parser.mapping.dataset['lateuser']
+        self.assertTrue((self.destination() / alias / 'log.txt').exists())
+        self.assertFalse((self.destination() / 'lateuser').exists())
 
     def test_collision_fails_closed(self):
         self.session.add_hostname('node')
@@ -123,6 +166,200 @@ class ReportTreeTests(unittest.TestCase):
                                 self.session).sanitize()
         self.assertEqual(context.exception.summary['unsupported_files'], 1)
         self.assertFalse(destination.exists())
+
+    def test_approved_binary_classes_are_omitted_and_counted(self):
+        sysstat = b'\x96\xd5\x75\x21\x00sysstat-binary'
+        proc_pci = b'\x00\xffpci-config-space'
+        apt_xz = b'\xfd7zXZ\x00opaque-compressed-log'
+        self.write('var/log/sysstat/sa01', sysstat, binary=True)
+        self.write('proc/bus/pci/00/00.0', proc_pci, binary=True)
+        self.write('var/log/apt/eipp.log.xz', apt_xz, binary=True)
+        self.write('details/something.gz', 'seedhost diagnostic text\n')
+        source_snapshot = {
+            path.relative_to(self.source): path.read_bytes()
+            for path in self.source.rglob('*') if path.is_file()
+        }
+
+        result = ReportTreeSanitizer(
+            self.source, self.destination(), self.session).sanitize()
+
+        self.assertEqual(result['binary_files_omitted'], 3)
+        self.assertEqual(result['sysstat_files_omitted'], 1)
+        self.assertEqual(result['proc_sys_files_omitted'], 1)
+        self.assertEqual(result['compressed_files_omitted'], 1)
+        output = self.destination()
+        self.assertFalse((output / 'var/log/sysstat/sa01').exists())
+        self.assertFalse((output / 'proc/bus/pci/00/00.0').exists())
+        self.assertFalse((output / 'var/log/apt/eipp.log.xz').exists())
+        self.assertEqual((output / 'details/something.gz').read_text(),
+                         'host0 diagnostic text\n')
+        for relative, content in source_snapshot.items():
+            self.assertEqual((self.source / relative).read_bytes(), content)
+
+    def test_binary_omission_requires_exact_path_and_signature(self):
+        cases = {
+            'details/sa01': b'\x96\xd5\x75\x21\x00binary',
+            'var/log/sysstat/not-sa': b'\x96\xd5\x75\x21\x00binary',
+            'var/log/sysstat/sa01': b'wrong-magic\x00binary',
+            'proc/bus/pci/not-a-device': b'\x00binary',
+            'var/log/apt/other.xz': b'\xfd7zXZ\x00binary',
+            'var/log/apt/eipp.log.xz': b'wrong-magic\x00binary',
+        }
+        for index, (relative, content) in enumerate(cases.items()):
+            with self.subTest(relative=relative):
+                path = self.source / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(content)
+                destination = self.destination(f'exact-{index}')
+                with self.assertRaises(ReportTreeSanitizerError):
+                    ReportTreeSanitizer(
+                        self.source, destination, self.session).sanitize()
+                self.assertFalse(destination.exists())
+                path.unlink()
+
+    def test_high_risk_and_non_utf8_binary_classes_fail_closed(self):
+        cases = {
+            'unknown.bin': b'\x00\x01opaque',
+            'non-utf8.log': b'diagnostic\xfftext',
+            'database.sqlite': b'SQLite format 3\x00data',
+            'executable': b'\x7fELF\x02\x01\x00data',
+            'image.png': b'\x89PNG\r\n\x1a\n\x00data',
+            'certificate.der': b'0\x82\x00\x01certificate',
+            'private-key.p12': b'0\x82\x00\x01private-key',
+            'misleading.txt': b'plain-name\x00binary',
+        }
+        for index, (relative, content) in enumerate(cases.items()):
+            with self.subTest(relative=relative):
+                path = self.source / relative
+                path.write_bytes(content)
+                destination = self.destination(f'high-risk-{index}')
+                with self.assertRaises(ReportTreeSanitizerError):
+                    ReportTreeSanitizer(
+                        self.source, destination, self.session).sanitize()
+                self.assertFalse(destination.exists())
+                path.unlink()
+
+    def test_public_only_apt_keyrings_are_omitted(self):
+        keyring = self.openpgp_packet(6)
+        cases = ('etc/apt/trusted.gpg',
+                 'etc/apt/trusted.gpg.d/synthetic.gpg')
+        for index, relative in enumerate(cases):
+            with self.subTest(relative=relative):
+                path = self.source / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(keyring)
+                result = ReportTreeSanitizer(
+                    self.source, self.destination(f'keyring-{index}'),
+                    self.session).sanitize()
+                self.assertEqual(result['package_keyrings_omitted'], 1)
+                self.assertFalse(
+                    (self.destination(f'keyring-{index}') / relative).exists())
+                path.unlink()
+
+    def test_exact_timezone_file_is_omitted_and_counted(self):
+        path = self.source / 'usr/share/zoneinfo/Etc/UTC'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(self.tzif())
+        with path.open('rb') as stream:
+            self.assertTrue(is_tzif_fd(stream.fileno()))
+        result = ReportTreeSanitizer(
+            self.source, self.destination(), self.session).sanitize()
+        self.assertEqual(result['timezone_files_omitted'], 1)
+        self.assertEqual(result['binary_files_omitted'], 1)
+        self.assertFalse((self.destination() / 'usr/share/zoneinfo/Etc/UTC').exists())
+
+    def test_timezone_omission_requires_exact_path_and_valid_structure(self):
+        valid = self.tzif()
+        cases = {
+            'usr/share/zoneinfo/Etc/GMT': valid,
+            'usr/share/zoneinfo/UTC': valid,
+            'etc/UTC': valid,
+            'usr/share/zoneinfo/Etc/UTC-copy': valid,
+            'usr/share/zoneinfo/Etc/UTC': b'TZif' + b'\0' * 20,
+            'usr/share/zoneinfo/Etc/UTC.bad': valid,
+        }
+        for index, (relative, content) in enumerate(cases.items()):
+            with self.subTest(relative=relative):
+                path = self.source / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(content)
+                destination = self.destination(f'tzif-rejected-{index}')
+                with self.assertRaises(ReportTreeSanitizerError):
+                    ReportTreeSanitizer(
+                        self.source, destination, self.session).sanitize()
+                self.assertFalse(destination.exists())
+                path.unlink()
+
+    def test_tzif_classifier_rejects_unsupported_or_malformed_inputs(self):
+        cases = (
+            self.tzif(version=b'1'),
+            self.tzif(counts=(0, 0, 0, 0, 1, 4), footer=b'bad'),
+            self.tzif()[:-1],
+            b'TZif2' + b'\0' * 39,
+        )
+        for content in cases:
+            path = self.source / 'usr/share/zoneinfo/Etc/UTC'
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+            with path.open('rb') as stream:
+                self.assertFalse(is_tzif_fd(stream.fileno()))
+            with self.assertRaises(ReportTreeSanitizerError):
+                ReportTreeSanitizer(
+                    self.source, self.destination(), self.session).sanitize()
+            self.assertFalse(self.destination().exists())
+            path.unlink()
+
+    def test_oversized_tzif_is_not_omitted(self):
+        path = self.source / 'usr/share/zoneinfo/Etc/UTC'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(self.tzif() + b'x' * (1024 * 1024))
+        with self.assertRaises(ReportTreeSanitizerError):
+            ReportTreeSanitizer(
+                self.source, self.destination(), self.session).sanitize()
+        self.assertFalse(self.destination().exists())
+
+    def test_public_only_keyring_supports_common_public_packets(self):
+        keyring = b''.join((self.openpgp_packet(6),
+                            self.openpgp_packet(13, b'synthetic-user-id'),
+                            self.openpgp_packet(14)))
+        path = self.source / 'etc/apt/trusted.gpg.d/synthetic.gpg'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(keyring)
+        with path.open('rb') as stream:
+            self.assertTrue(is_public_keyring_fd(stream.fileno()))
+
+        result = ReportTreeSanitizer(
+            self.source, self.destination(), self.session).sanitize()
+        self.assertEqual(result['package_keyrings_omitted'], 1)
+
+    def test_secret_or_malformed_apt_keyrings_fail_closed(self):
+        cases = {
+            'secret.gpg': self.openpgp_packet(5),
+            'secret-subkey.gpg': self.openpgp_packet(7),
+            'truncated.gpg': b'\x98\x20short',
+            'arbitrary.gpg': b'\x00\x01\x02\x00arbitrary',
+        }
+        for index, (name, content) in enumerate(cases.items()):
+            with self.subTest(name=name):
+                path = self.source / 'etc/apt/trusted.gpg.d' / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(content)
+                destination = self.destination(f'rejected-keyring-{index}')
+                with self.assertRaises(ReportTreeSanitizerError):
+                    ReportTreeSanitizer(
+                        self.source, destination, self.session).sanitize()
+                self.assertFalse(destination.exists())
+                path.unlink()
+
+    def test_approved_keyring_path_is_required_for_omission(self):
+        content = self.openpgp_packet(6)
+        path = self.source / 'etc/apt/other.gpg'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+        with self.assertRaises(ReportTreeSanitizerError):
+            ReportTreeSanitizer(
+                self.source, self.destination(), self.session).sanitize()
+        self.assertFalse(self.destination().exists())
 
     def test_separate_sessions_do_not_share_path_mappings(self):
         self.session.add_hostname('node')

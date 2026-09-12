@@ -2,7 +2,9 @@ import tempfile
 import unittest
 from io import BytesIO
 
-from sos.cleaner.session import SanitizationSession
+from sos.cleaner.session import (SanitizationSession,
+                                  SessionMappingFrozenError,
+                                  SessionStageError)
 from sos.cleaner.text import sanitize_stream
 
 
@@ -29,6 +31,21 @@ class SanitizationSessionTests(unittest.TestCase):
             second = session.sanitize_line(expected_input)
             self.assertEqual(first, second, original)
             self.assertNotEqual(first, expected_input, original)
+
+    def test_known_contiguous_mac_representation_is_replaced(self):
+        session = self.session()
+        session.sanitize_line('mac=aa:bb:cc:dd:ee:ff')
+        session.freeze_mappings()
+        result = session.sanitize_line('mac=aabbccddeeff')
+        self.assertEqual(result, 'mac=53:4f:53:00:00:01')
+
+    def test_unknown_contiguous_mac_is_not_discovered_or_partially_replaced(self):
+        session = self.session()
+        session.freeze_mappings()
+        value = 'aabbccddeeff'
+        self.assertEqual(session.sanitize_line(value), value)
+        self.assertEqual(session.sanitize_line('x' + value + '0'),
+                         'x' + value + '0')
 
     def test_sessions_do_not_share_state(self):
         first = self.session(hostnames=('node',))
@@ -77,6 +94,27 @@ class SanitizationSessionTests(unittest.TestCase):
                         output, session=session)
         self.assertEqual(output.getvalue(),
                          b'password="[REDACTED_SECRET]\n\n')
+
+    def test_frozen_session_rejects_new_username_mapping(self):
+        session = self.session()
+        session.freeze_mappings()
+        self.assertTrue(session.mappings_frozen)
+        with self.assertRaises(SessionMappingFrozenError):
+            session.add_username('lateuser')
+        with self.assertRaises(SessionStageError):
+            session.sanitize_line('user=lateuser\n')
+
+    def test_frozen_session_rejects_new_ip_mapping(self):
+        session = self.session()
+        session.freeze_mappings()
+        with self.assertRaises(SessionMappingFrozenError):
+            session.add_ip('10.20.30.40')
+
+    def test_frozen_session_rejects_new_email_mapping(self):
+        session = self.session()
+        session.freeze_mappings()
+        with self.assertRaises(SessionStageError):
+            session.sanitize_line('lateuser@example.test\n')
 
 
 if __name__ == '__main__':

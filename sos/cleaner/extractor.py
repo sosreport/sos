@@ -5,10 +5,12 @@
 import errno
 import os
 import posixpath
-import shutil
+import re
 import stat
 import tarfile
 import tempfile
+
+from sos.cleaner.filesystem import remove_private_tree
 
 
 class SafeReportExtractorError(Exception):
@@ -40,6 +42,8 @@ class SafeReportExtractor:
             'members_seen': 0,
             'files_extracted': 0,
             'directories_created': 0,
+            'symlinks_created': 0,
+            'fifos_omitted': 0,
             'rejected_members': 0,
             'bytes_extracted': 0,
         }
@@ -75,7 +79,10 @@ class SafeReportExtractor:
                 except OSError:
                     pass
             if not succeeded and staging is not None and os.path.lexists(staging):
-                shutil.rmtree(staging, ignore_errors=True)
+                try:
+                    remove_private_tree(staging)
+                except OSError:
+                    pass
 
     def _validate_limits(self):
         if (not isinstance(self.max_members, int) or self.max_members < 1 or
@@ -110,7 +117,15 @@ class SafeReportExtractor:
     def _member_path(name):
         if not isinstance(name, str) or not name or '\x00' in name:
             raise ValueError
-        if name.startswith('/') or name.startswith('\\') or '\\' in name:
+        if name.startswith('/'):
+            raise ValueError
+        # Archive paths use POSIX separators.  Preserve ordinary literal
+        # backslashes, but reject forms that could become absolute or
+        # traversing paths when consumed by Windows-oriented tooling.
+        if (name.startswith('\\') or
+                re.match(r'^[A-Za-z]:', name) or
+                re.search(r'(?:^|/)\.\.?\\', name) or
+                re.search(r'\\\.\.?(?:\\|/|$)', name)):
             raise ValueError
         # Tar paths are POSIX paths. Reject explicit parent components before
         # normalization so that alternate spellings cannot evade validation.
@@ -142,6 +157,19 @@ class SafeReportExtractor:
             return 'block'
         return 'unknown'
 
+    @staticmethod
+    def _symlink_target(path, target):
+        """Return a safe archive-relative target, or raise ValueError."""
+        if (not isinstance(target, str) or not target or '\x00' in target or
+                target.startswith('\\') or '\\' in target or
+                posixpath.isabs(target)):
+            raise ValueError
+        parent = posixpath.dirname(path)
+        normalized = posixpath.normpath(posixpath.join(parent, target))
+        if normalized in ('', '.', '..') or normalized.startswith('../'):
+            raise ValueError
+        return target
+
     def _preflight(self, archive):
         members = []
         paths = {}
@@ -153,7 +181,10 @@ class SafeReportExtractor:
                     self._reject()
                 kind = self._classify_member(member)
                 path = self._member_path(member.name)
-                if kind != 'regular' and kind != 'directory':
+                if kind in ('symlink', 'fifo'):
+                    if kind == 'symlink':
+                        self._symlink_target(path, member.linkname)
+                elif kind != 'regular' and kind != 'directory':
                     self._reject()
                 if path in paths:
                     self._reject()
@@ -183,7 +214,7 @@ class SafeReportExtractor:
     @staticmethod
     def _safe_mode(mode, directory=False):
         # Never carry setuid, setgid, sticky, or special type bits from tar.
-        allowed = 0o777 if directory else 0o666
+        allowed = 0o777
         return stat.S_IMODE(mode) & allowed
 
     def _root_fd(self, staging):
@@ -192,7 +223,7 @@ class SafeReportExtractor:
         return os.open(staging, os.O_RDONLY | os.O_DIRECTORY |
                        os.O_NOFOLLOW | getattr(os, 'O_CLOEXEC', 0))
 
-    def _ensure_directory(self, root_fd, relative, modes):
+    def _ensure_directory(self, root_fd, relative):
         current = root_fd
         opened = []
         try:
@@ -207,8 +238,6 @@ class SafeReportExtractor:
                     self._summary['directories_created'] += 1
                 opened.append(child)
                 current = child
-            if relative in modes:
-                os.fchmod(current, modes[relative])
             return current, opened
         except Exception:
             for fd in reversed(opened):
@@ -230,11 +259,16 @@ class SafeReportExtractor:
                  for path, kind, member in members}
         directory_modes = {path: modes[path] for path, kind, _ in members
                            if kind == 'directory'}
+        symlink_members = [(path, member) for path, kind, member in members
+                           if kind == 'symlink']
         try:
             for path, kind, member in members:
+                if kind in ('symlink', 'fifo'):
+                    if kind == 'fifo':
+                        self._summary['fifos_omitted'] += 1
+                    continue
                 parent, _, basename = path.rpartition('/')
-                parent_fd, opened = self._ensure_directory(root_fd, parent,
-                                                           modes)
+                parent_fd, opened = self._ensure_directory(root_fd, parent)
                 try:
                     if kind == 'directory':
                         try:
@@ -265,18 +299,40 @@ class SafeReportExtractor:
                                     self._summary['bytes_extracted'] += len(data)
                                 if source.read(1):
                                     self._reject()
-                            os.fchmod(fd, modes[path])
+                            # Keep the private extracted tree readable by the
+                            # invoking user.  Construction remains 0600; the
+                            # final mode retains ordinary archive semantics
+                            # while guaranteeing owner-read access.
+                            os.fchmod(fd, modes[path] | stat.S_IRUSR)
                             self._summary['files_extracted'] += 1
                         finally:
                             os.close(fd)
                 finally:
                     for child_fd in reversed(opened):
                         os.close(child_fd)
-            for path, mode in sorted(directory_modes.items(),
-                                     key=lambda item: item[0].count('/'),
-                                     reverse=True):
+            # Create links only after all real files and directories exist.
+            # Parent traversal remains no-follow and therefore cannot use a
+            # previously-created link as an extraction directory.
+            for path, member in symlink_members:
                 parent, _, basename = path.rpartition('/')
-                parent_fd, opened = self._ensure_directory(root_fd, parent, {})
+                parent_fd, opened = self._ensure_directory(root_fd, parent)
+                try:
+                    os.symlink(member.linkname, basename, dir_fd=parent_fd)
+                    self._summary['symlinks_created'] += 1
+                finally:
+                    for child_fd in reversed(opened):
+                        os.close(child_fd)
+            self._finalize_directory_modes(root_fd, directory_modes)
+        finally:
+            os.close(root_fd)
+
+    def _finalize_directory_modes(self, root_fd, directory_modes):
+        """Apply safe archive directory modes after construction."""
+        for path, mode in sorted(directory_modes.items(),
+                                  key=lambda item: item[0].count('/'),
+                                  reverse=True):
+                parent, _, basename = path.rpartition('/')
+                parent_fd, opened = self._ensure_directory(root_fd, parent)
                 try:
                     directory_fd = os.open(
                         basename, os.O_RDONLY | os.O_DIRECTORY |
@@ -288,5 +344,3 @@ class SafeReportExtractor:
                 finally:
                     for child_fd in reversed(opened):
                         os.close(child_fd)
-        finally:
-            os.close(root_fd)
