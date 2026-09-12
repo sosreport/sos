@@ -60,7 +60,22 @@ class SoSMacParser(SoSCleanerParser):
 
     def __init__(self, config, workdir, skip_cleaning_files=[]):
         self.mapping = SoSMacMap(workdir, self.regex_pattern)
+        self._known_contiguous_cache = None
+        self._known_contiguous_generation = -1
         super().__init__(config, skip_cleaning_files)
+
+    def _known_contiguous_mappings(self):
+        generation = self.mapping._mapping_generation
+        if generation == self._known_contiguous_generation:
+            return self._known_contiguous_cache
+        known = {}
+        for original, alias in self.mapping.dataset.items():
+            normalized = re.sub(r'[^0-9a-f]', '', original.lower())
+            if len(normalized) == 12:
+                known[normalized] = alias
+        self._known_contiguous_cache = known
+        self._known_contiguous_generation = generation
+        return known
 
     def reduce_mac_match(self, match):
         """Strips away leading and trailing non-alphanum characters from any
@@ -90,11 +105,7 @@ class SoSMacParser(SoSCleanerParser):
         # Only replace values already present in the mapping: this path never
         # discovers arbitrary hexadecimal strings, especially while mappings
         # are frozen for report sanitization.
-        known = {}
-        for original, alias in self.mapping.dataset.items():
-            normalized = re.sub(r'[^0-9a-f]', '', original.lower())
-            if len(normalized) == 12:
-                known[normalized] = alias
+        known = self._known_contiguous_mappings()
         def replace_contiguous(match):
             return known.get(match.group('value').lower(), match.group(0))
         line = self._contiguous_known.sub(replace_contiguous, line)

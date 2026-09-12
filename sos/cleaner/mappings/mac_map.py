@@ -51,6 +51,14 @@ class SoSMacMap(SoSMap):
     compile_regexes = False
     ob_hextets_cnt = 0
 
+    def __init__(self, workdir, static_regex=re.compile(r'(?!)')):
+        self._mapping_generation = 0
+        super().__init__(workdir, static_regex)
+
+    def insert_to_dataset(self, item, value):
+        self._mapping_generation += 1
+        super().insert_to_dataset(item, value)
+
     def add(self, item):
         item = item.replace('-', ':').lower().strip('=.,').strip()
         return super().add(item)
