@@ -278,7 +278,10 @@ class SanitizationSession:
 
     def add_email(self, value):
         """Register an email address in the email namespace."""
-        self.email_parser.parse_line(value)
+        try:
+            self.email_parser.parse_line(value)
+        except RuntimeError:
+            raise SessionMappingFrozenError() from None
 
     def summary(self):
         """Return mapping counts only; never return identity values."""

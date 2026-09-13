@@ -133,7 +133,8 @@ class SafeReportExtractor:
         if any(part == '..' for part in parts):
             raise ValueError
         normalized = posixpath.normpath(name)
-        if normalized in ('', '.', '..') or normalized.startswith('../'):
+        if (normalized != name or normalized in ('', '.', '..') or
+                normalized.startswith('../')):
             raise ValueError
         if posixpath.isabs(normalized):
             raise ValueError
