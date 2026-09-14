@@ -167,7 +167,7 @@ class SoSOptions():
             if val is None:
                 raise Exception(
                     f"Value of '{key}' in {conf} must be True or False or "
-                    "analagous")
+                    "analogous")
             return val
         if isinstance(self.arg_defaults[key], int):
             return int(val)

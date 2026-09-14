@@ -38,10 +38,10 @@ _sos = _default
 class SoS():
     """Main entrypoint for sos from the command line
 
-    Upon intialization, this class loads the basic option parser which will
+    Upon initialization, this class loads the basic option parser which will
     include the options shared by support components/subcommands. This is also
     where all subcommands present in the local installation are discovered,
-    loaded, and if a matching one is found, intialized.
+    loaded, and if a matching one is found, initialized.
     """
 
     def __init__(self, args):

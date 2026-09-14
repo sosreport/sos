@@ -265,7 +265,7 @@ class SoSCollector(SoSComponent):
         """Parses the given --nodes option(s) to properly format the regex
         list that we use. We cannot blindly split on ',' chars since it is a
         valid regex character, so we need to scan along the given strings and
-        check at each comma if we should use the preceeding string by itself
+        check at each comma if we should use the preceding string by itself
         or not, based on if there is a valid regex at that index.
         """
         if not self.opts.nodes:

@@ -152,7 +152,7 @@ class SoSHelper(SoSComponent):
 
     def _get_policy_by_name(self):
         _topic = self.opts.topic.split('.')[-1]
-        # mimic policy loading to discover all policiy classes without
+        # mimic policy loading to discover all policy classes without
         # needing to manually define each here
         import sos.policies.distros
         _helper = ImporterHelper(sos.policies.distros)

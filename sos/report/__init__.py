@@ -795,7 +795,7 @@ class SoSReport(SoSComponent):
         # Make sure the log files are added before we remove the log
         # handlers. This prevents "No handlers could be found.." messages
         # from leaking to the console when running in --quiet mode when
-        # Archive classes attempt to acess the log API.
+        # Archive classes attempt to access the log API.
         if getattr(self, "sos_log_file", None):
             self.archive.add_file(self.sos_log_file,
                                   dest=os.path.join('sos_logs', 'sos.log'))

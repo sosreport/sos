@@ -12,7 +12,7 @@ MOCK_FILE = '/tmp/sos-test-ipv6.txt'
 
 
 class IPv6Test(StageTwoReportTest):
-    """Place artificial plugin collecting crafted text file with ipv6 adresses
+    """Place artificial plugin collecting crafted text file with ipv6 addresses
     to make sure ipv6 obfuscation works when calling 'sos clean' like a user
     would.
 
