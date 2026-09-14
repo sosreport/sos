@@ -21,10 +21,6 @@ class SoSIPParser(SoSCleanerParser):
         # IPv4 with or without CIDR
         r'((?<!(-|\.|\d))([0-9]{1,3}\.){3}([0-9]){1,3}(\/([0-9]{1,2}))?)'
     )
-    skip_line_patterns = [
-        # don't match package versions recorded in journals
-        r'.*dnf\[.*\]:'
-    ]
 
     parser_skip_files = [
         # skip these as version numbers will frequently look like IP addresses

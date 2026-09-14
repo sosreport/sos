@@ -43,7 +43,6 @@ class SoSCleanerParser():
 
     name = 'Undefined Parser'
     regex_pattern = re.compile(r'(?!)')  # match nothing
-    skip_line_patterns = []
     parser_skip_files = []  # list of skip files relevant to a parser
     skip_cleaning_files = []   # list of global skip files from cmdline args
     map_file_key = 'unset'
@@ -92,9 +91,6 @@ class SoSCleanerParser():
         line again looking for new matches.
         """
         count = 0
-        for skip_pattern in self.skip_line_patterns:
-            if re.match(skip_pattern, line, re.I):
-                return line, count
         if self.compile_regexes:
             line, _rcount = self._parse_line_with_compiled_regexes(line)
             count += _rcount

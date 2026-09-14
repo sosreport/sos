@@ -33,9 +33,6 @@ class SoSHostnameParser(SoSCleanerParser):
         _parse_line_with_compiled_regexes and _parse_line calls.
         """
         count = 0
-        for skip_pattern in self.skip_line_patterns:
-            if re.match(skip_pattern, line, re.I):
-                return line, count
         line, _count = self._parse_line(line)
         count += _count
         if self.compile_regexes:
