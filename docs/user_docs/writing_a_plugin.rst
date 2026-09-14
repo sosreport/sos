@@ -160,7 +160,11 @@ collection process call the ``add_cmd_output`` method:
                "lscpu",
                "cpupower info"
            ])
-           
+
+**NOTE:** We do ***not*** allow embedded shell scripting into sos
+plugins. Do not include calls to `sh` to wrap executions, perform output
+redirection, or pipes to other utilities (like `sed` or `awk` for
+example) in plugin command collections.           
 
 Like ``add_copy_spec``, ``add_cmd_output`` accepts either a list of
 strings or a single string. Also like ``add_copy_spec``, this method
