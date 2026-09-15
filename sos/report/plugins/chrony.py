@@ -42,16 +42,21 @@ class Chrony(Plugin):
 
 
 class RedHatChrony(Chrony, RedHatPlugin):
+
+    services = ('chronyd',)
+
     def setup(self):
         super().setup()
         self.add_copy_spec([
             "/etc/chrony.conf",
             "/var/lib/chrony/drift"
         ])
-        self.add_journal(units="chronyd")
 
 
 class DebianChrony(Chrony, DebianPlugin, UbuntuPlugin):
+
+    services = ('chrony',)
+
     def setup(self):
         super().setup()
         self.add_copy_spec([
@@ -61,6 +66,5 @@ class DebianChrony(Chrony, DebianPlugin, UbuntuPlugin):
             "/var/lib/chrony/chrony.drift",
             "/etc/default/chrony"
         ])
-        self.add_journal(units="chrony")
 
 # vim: et ts=4 sw=4
