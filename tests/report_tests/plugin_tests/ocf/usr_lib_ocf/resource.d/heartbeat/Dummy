@@ -1,0 +1,20 @@
+#!/bin/sh
+# Sample OCF resource agent for sos plugin testing
+. ${OCF_ROOT}/lib/heartbeat/ocf-shellfuncs 2>/dev/null || true
+
+case "$1" in
+    meta-data)
+        cat <<EOF
+<?xml version="1.0"?>
+<resource-agent name="Dummy" version="1.0">
+  <shortdesc lang="en">Dummy test agent</shortdesc>
+</resource-agent>
+EOF
+        ;;
+    start|stop|monitor)
+        exit 0
+        ;;
+    *)
+        exit $OCF_ERR_UNIMPLEMENTED
+        ;;
+esac
