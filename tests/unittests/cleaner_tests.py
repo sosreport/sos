@@ -723,3 +723,94 @@ class PackedDirTarballTests(unittest.TestCase):
         with mock.patch.object(self.archive, 'get_file_content',
                                return_value='{"components": {"report": {}}}'):
             self.assertEqual(self.archive._load_packed_dirs(), [])
+
+
+class ExtractArchiveSafetyTests(unittest.TestCase):
+    """Out-of-tree symlink members must not write outside dest."""
+
+    def _write_tar(self, members):
+        import io
+        import tarfile
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix='.tar', delete=False) as handle:
+            tar_path = handle.name
+        with tarfile.open(tar_path, 'w') as tf:
+            for name, kind, extra in members:
+                info = tarfile.TarInfo(name=name)
+                if kind == 'symlink':
+                    info.type = tarfile.SYMTYPE
+                    info.linkname = extra
+                    tf.addfile(info)
+                else:
+                    payload = extra
+                    info.size = len(payload)
+                    tf.addfile(info, io.BytesIO(payload))
+        return tar_path
+
+    def test_absolute_symlink_does_not_write_outside_dest(self):
+        import os
+        import tempfile
+        from sos.cleaner.archives import extract_archive
+
+        victim_dir = tempfile.mkdtemp()
+        victim = os.path.join(victim_dir, 'pwned')
+        tar_path = self._write_tar([
+            ('sosreport-host/var/log/link', 'symlink', victim_dir),
+            ('sosreport-host/var/log/link/pwned', 'file', b'PWNED\n'),
+        ])
+        dest = tempfile.mkdtemp()
+        extract_archive(tar_path, dest)
+        self.assertFalse(
+            os.path.exists(victim),
+            'extraction followed an out-of-tree symlink',
+        )
+        os.remove(tar_path)
+
+    def test_absolute_symlink_when_extractall_ignores_filter(self):
+        """Debian 12 / Python 3.11.2 ignores TarFile.extraction_filter."""
+        import os
+        import tarfile
+        import tempfile
+        from sos.cleaner.archives import extract_archive
+
+        orig_extractall = tarfile.TarFile.extractall
+
+        def extractall_ignore_filter(self, *args, **kwargs):
+            self.extraction_filter = (lambda member, path: member)
+            return orig_extractall(self, *args, **kwargs)
+
+        victim_dir = tempfile.mkdtemp()
+        victim = os.path.join(victim_dir, 'pwned')
+        tar_path = self._write_tar([
+            ('sosreport-host/var/log/link', 'symlink', victim_dir),
+            ('sosreport-host/var/log/link/pwned', 'file', b'PWNED\n'),
+        ])
+        dest = tempfile.mkdtemp()
+        with mock.patch.object(tarfile.TarFile, 'extractall',
+                               extractall_ignore_filter):
+            extract_archive(tar_path, dest)
+        self.assertFalse(
+            os.path.exists(victim),
+            'extraction followed an out-of-tree symlink',
+        )
+        os.remove(tar_path)
+
+    def test_in_tree_relative_symlink_is_kept(self):
+        import os
+        import tempfile
+        from sos.cleaner.archives import extract_archive
+
+        tar_path = self._write_tar([
+            ('sosreport-host/etc/motd', 'file', b'hello\n'),
+            ('sosreport-host/etc/motd.link', 'symlink', 'motd'),
+        ])
+        dest = tempfile.mkdtemp()
+        extract_archive(tar_path, dest)
+        found_link = None
+        for root, _, files in os.walk(dest):
+            if 'motd.link' in files:
+                found_link = os.path.join(root, 'motd.link')
+                break
+        self.assertTrue(found_link and os.path.islink(found_link))
+        self.assertEqual(os.readlink(found_link), 'motd')
+        os.remove(tar_path)

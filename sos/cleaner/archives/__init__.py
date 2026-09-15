@@ -22,36 +22,88 @@ from sos.utilities import (file_is_binary, sos_get_command_output,
                            file_is_certificate)
 
 
+def _path_is_within(directory, target):
+    """Return True if *target* is inside (or equal to) *directory*.
+
+    Both arguments must already be absolute paths.
+    """
+    try:
+        return os.path.commonpath([directory, target]) == directory
+    except ValueError:
+        return False
+
+
+def _member_path_ok(abs_dest, member):
+    """Return True when the member resolves inside *abs_dest*."""
+    member_path = os.path.abspath(os.path.join(abs_dest, member.name))
+    if not _path_is_within(abs_dest, member_path):
+        return False
+    if member.issym() or member.islnk():
+        if os.path.isabs(member.linkname):
+            link_target = member.linkname
+        else:
+            link_target = os.path.abspath(
+                os.path.join(os.path.dirname(member_path), member.linkname)
+            )
+        if not _path_is_within(abs_dest, link_target):
+            return False
+    return True
+
+
+def _make_safer_extract_filter(dest_path):
+    """Build a per-archive extraction filter (closure).
+
+    PEP-706 ``data_filter`` is the primary check.  It rejects special files
+    (block devices, FIFOs) that are legitimate sosreport members, so those
+    are rescued when their path stays inside the destination tree.
+    Out-of-tree symlinks and absolute links are skipped rather than aborting
+    the whole extraction.  ``fully_trusted`` is not used: a member-name-only
+    ``abspath``/``commonprefix`` guard does not stop a symlink-to-absolute-
+    path followed by a regular file of the same relative name.
+    """
+    abs_dest = os.path.abspath(dest_path)
+    data_filter = getattr(tarfile, 'data_filter', None)
+
+    def _filter(member, dest_path):
+        if data_filter is not None:
+            try:
+                return data_filter(member, dest_path)
+            except tarfile.FilterError:
+                if (member.isdev() or member.isfifo()) \
+                        and _member_path_ok(abs_dest, member):
+                    return member
+                return None
+
+        if not _member_path_ok(abs_dest, member):
+            return None
+        return member
+
+    return _filter
+
+
 # python older than 3.8 will hit a pickling error when we go to spawn a new
 # process for extraction if this method is a part of the SoSObfuscationArchive
 # class. So, the simplest solution is to remove it from the class.
 def extract_archive(archive_path, tmpdir):
     with tarfile.open(archive_path) as archive:
         path = os.path.join(tmpdir, 'cleaner')
-        # set extract filter since python 3.12 (see PEP-706 for more)
-        # Because python 3.10 and 3.11 raises false alarms as exceptions
-        # (see #3330 for examples), we can't use data filter but must
-        # fully trust the archive (legacy behaviour)
-        archive.extraction_filter = getattr(tarfile, 'fully_trusted_filter',
-                                            (lambda member, path: member))
+        filt = _make_safer_extract_filter(path)
+        # Honored on 3.12+ (and 3.11.4+). Debian 12 ships 3.11.2, where
+        # this attribute is ignored; members must still be pre-filtered.
+        archive.extraction_filter = filt
 
-        # Guard against "Arbitrary file write during tarfile extraction"
-        # Checks the extracted files don't stray out of the target directory.
         not_root = os.getuid() != 0
-        members = archive.getmembers()
-        for member in members:
-            member_path = os.path.join(path, member.name)
-            abs_directory = os.path.abspath(path)
-            abs_target = os.path.abspath(member_path)
-            prefix = os.path.commonprefix([abs_directory, abs_target])
-            if prefix != abs_directory:
-                raise Exception(f"Attempted path traversal in tarfle"
-                                f"{prefix} != {abs_directory}")
+        members = []
+        for member in archive.getmembers():
+            member = filt(member, path)
+            if member is None:
+                continue
             # Directories collected from the host may lack u+w or u+x
             # permissions, preventing child members from being created during
             # extract
             if not_root and member.isdir():
                 member.mode |= stat.S_IWUSR | stat.S_IXUSR
+            members.append(member)
         archive.extractall(path, members=members)
         return os.path.join(path, archive.name.split('/')[-1].split('.tar')[0])
 
