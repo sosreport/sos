@@ -70,7 +70,9 @@ class Lustre(Plugin, RedHatPlugin):
             "osd-*.*.{fallocate_*,full_scrub_*,files*,kbytes*,mntdev}",
             "osd-*.*.{nonrotational,oi_scrub,pdo,stats,read*,write*}"
         ])
-        self.get_params("quota", ["osd-*.*.quota_slave.{info,limit_*,acct_*}"])
+        self.get_params("quota", [
+            "osd-*.*.quota_slave.{info,limit_*,acct_*,root_prj_enable}"
+        ])
         self.get_params("mgs", ["mgs.MGS.ir_timeout", "mgs.MGS.live.*"])
 
         # mb_groups can be VERY large, and provide minimal debug usefulness
