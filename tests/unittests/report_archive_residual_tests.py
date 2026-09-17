@@ -88,6 +88,32 @@ class ReportArchiveResidualTests(unittest.TestCase):
         self.assertEqual(result['members_checked'], 1)
         self.assertEqual(result['regular_files_checked'], 1)
 
+    def test_corosync_authkey_is_rejected_regardless_of_payload(self):
+        for value in ('K' * 256, 'placeholder', ''):
+            with self.subTest(payload_length=len(value)):
+                self.assert_rejects([('etc/corosync/authkey', 'file', value)])
+
+    def test_selinux_file_contexts_bin_is_rejected_regardless_of_payload(self):
+        paths = ('etc/selinux/targeted/contexts/files/file_contexts.bin',
+                 'etc/selinux/targeted/contexts/files/file_contexts.homedirs.bin')
+        for relative in paths:
+            for value in ('X' * 580886, 'placeholder', ''):
+                with self.subTest(path=relative, payload_length=len(value)):
+                    self.assert_rejects([(relative, 'file', value)])
+
+    def test_selinux_binary_policy_is_rejected_regardless_of_payload(self):
+        for relative in ('etc/selinux/targeted/policy/policy.15',
+                         'etc/selinux/targeted/policy/policy.31',
+                         'etc/selinux/targeted/policy/policy.35'):
+            with self.subTest(path=relative):
+                self.assert_rejects([(relative, 'file', 'placeholder')])
+
+    def test_process_environment_is_rejected_regardless_of_payload(self):
+        for relative in ('proc/1/environ', 'proc/4194303/environ'):
+            for value in ('', 'LANG=C\0TOKEN=secret\0', 'placeholder'):
+                with self.subTest(path=relative, length=len(value)):
+                    self.assert_rejects([(relative, 'file', value)])
+
     def test_ipv4_mapped_policy_prefix_variants_pass(self):
         data = ('::ffff:0:0/96 '
                 '0:0:0:0:0:ffff:0:0/96 '

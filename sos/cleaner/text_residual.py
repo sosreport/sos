@@ -44,6 +44,10 @@ _USERNAME_CONTEXT = re.compile(
     r'''(?m:^sudo:\s*(?P<sudo>[A-Za-z_][A-Za-z0-9_.-]*)\s*:)''')
 _USERNAME_ALIAS = re.compile(r'obfuscateduser\d+$', re.I)
 _PRESERVED_USERNAME = frozenset(('root', 'unset', 'nobody'))
+_ASSIGNMENT_WORDS = ('password', 'passwd', 'pwd', 'token', 'secret',
+                     'api_key', 'api-key', 'apikey')
+_USERNAME_WORDS = ('acct', 'auid', 'uid', 'user', 'ruser', 'logname',
+                    'for', 'sudo:')
 _MARKER = re.compile(
     r'\[REDACTED_(?:SECRET|TOKEN|PRIVATE_KEY)\]'
     r'''(?=$|[\s"',;&}\])<>])'''
@@ -115,15 +119,36 @@ def _ipv6_preserved(value, address):
 
 
 def _has_residual(line, ipv4_aliases, ipv6_aliases):
-    if _AWS.search(line) or _JWT.search(line) or _PRIVATE_KEY.search(line):
+    ascii_line = line.isascii()
+    lowered = line.lower() if ascii_line else None
+    if ((not ascii_line or 'AKIA' in line or 'ASIA' in line) and
+            _AWS.search(line)):
         return True
-    for match in _EMAIL.finditer(line):
+    if ((not ascii_line or 'eyJ' in line) and _JWT.search(line)):
+        return True
+    if ((not ascii_line or '-----BEGIN ' in line) and
+            _PRIVATE_KEY.search(line)):
+        return True
+    if (not ascii_line or '@' in line):
+        email_matches = _EMAIL.finditer(line)
+    else:
+        email_matches = ()
+    for match in email_matches:
         if not _EMAIL_ALIAS.fullmatch(match[0].rstrip('.')):
             return True
-    for match in _BEARER.finditer(line):
+    if (not ascii_line or 'bearer' in lowered):
+        bearer_matches = _BEARER.finditer(line)
+    else:
+        bearer_matches = ()
+    for match in bearer_matches:
         if not _MARKER.match(match[1]):
             return True
-    for match in _ASSIGNMENT.finditer(line):
+    if (not ascii_line or
+            any(word in lowered for word in _ASSIGNMENT_WORDS)):
+        assignment_matches = _ASSIGNMENT.finditer(line)
+    else:
+        assignment_matches = ()
+    for match in assignment_matches:
         marker = _MARKER.match(line, match.end())
         if not marker:
             return True
@@ -131,7 +156,11 @@ def _has_residual(line, ipv4_aliases, ipv6_aliases):
             tail = line[marker.end():]
             if tail and not tail.startswith(match['quote']) and tail.strip():
                 return True
-    for match in _USERNAME_CONTEXT.finditer(line):
+    if (not ascii_line or any(word in lowered for word in _USERNAME_WORDS)):
+        username_matches = _USERNAME_CONTEXT.finditer(line)
+    else:
+        username_matches = ()
+    for match in username_matches:
         value = next((match.group(name) for name in
                       ('value', 'sshd', 'pam', 'sudo')
                       if match.group(name)), '')
@@ -140,18 +169,27 @@ def _has_residual(line, ipv4_aliases, ipv6_aliases):
             return True
     # Match dnf's intentionally preserved journal version lines, as the IP
     # parser does. Package names such as package-2.3.4.5 do not match _IPV4.
-    if not re.search(r'dnf\[.*\]:', line, re.I):
+    if ('.' in line and
+            not re.search(r'dnf\[.*\]:', line, re.I)):
         for match in _IPV4.finditer(line):
             address = _packed(match[0], socket.AF_INET)
             if (address is not None and address not in ipv4_aliases
                     and not _ipv4_preserved(address)):
                 return True
-    for match in _IPV6.finditer(line):
+    if ':' in line:
+        ipv6_matches = _IPV6.finditer(line)
+    else:
+        ipv6_matches = ()
+    for match in ipv6_matches:
         address = _packed(match[0], socket.AF_INET6)
         if (address is not None and address not in ipv6_aliases
                 and not _ipv6_preserved(match[0], address)):
             return True
-    for match in _MAC.finditer(line):
+    if ':' in line or '-' in line or '_' in line:
+        mac_matches = _MAC.finditer(line)
+    else:
+        mac_matches = ()
+    for match in mac_matches:
         if not _mac_allowed(match[0]):
             return True
     return False
