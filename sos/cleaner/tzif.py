@@ -25,7 +25,9 @@ def _header(data, offset, version):
     ttisgmtcnt, ttisstdcnt, leapcnt, timecnt, typecnt, charcnt = counts
     if typecnt == 0 or typecnt > 256 or charcnt > _MAX_COUNT:
         return None
-    if ttisgmtcnt not in (0, timecnt) or ttisstdcnt not in (0, timecnt):
+    # TZif stores one indicator per local-time type, not per transition.
+    # Implementations commonly use either zero indicators or one per type.
+    if ttisgmtcnt not in (0, typecnt) or ttisstdcnt not in (0, typecnt):
         return None
     return counts
 
