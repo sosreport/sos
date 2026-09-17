@@ -3,6 +3,7 @@
 """End-to-end orchestration for sanitizing a sosreport archive."""
 
 import os
+import sys
 import tempfile
 
 from sos.cleaner.archiver import SafeReportArchiver
@@ -200,5 +201,10 @@ class ReportSanitizer:
         except OSError:
             pass
 
-    def _fail(self):
-        raise ReportSanitizerError(self.summary())
+    def _fail(self, cause=None):
+        if cause is None:
+            cause = sys.exc_info()[1]
+        error = ReportSanitizerError(self.summary())
+        if cause is None:
+            raise error
+        raise error from cause

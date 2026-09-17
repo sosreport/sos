@@ -11,6 +11,8 @@ from pathlib import Path
 from unittest import mock
 
 from sos import SoS
+from sos.cleaner.report_residual import ReportTreeResidualError
+from sos.cleaner.sanitizer import ReportSanitizerError
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -122,6 +124,35 @@ class ReportCliTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn('Traceback', result.stderr)
         self.assertNotIn(str(bad), result.stderr)
+
+    def test_sanitizer_failure_remains_generic(self):
+        self.tree.joinpath('opaque').write_bytes(b'unknown\x00binary')
+        self.make_archive()
+        result = self.run_cli(str(self.archive), '--output',
+                              str(self.output))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(
+            result.stderr,
+            'sos sanitize-report: ERROR: report sanitization failed\n')
+        self.assertNotIn('Traceback', result.stderr)
+
+    def test_cli_hides_safe_internal_residual_context(self):
+        error = ReportSanitizerError({})
+        error.__cause__ = ReportTreeResidualError(
+            {}, 'known hostname', ('safe', 'details.txt'))
+        self.make_archive()
+        command = SoS(['sanitize-report', str(self.archive), '--output',
+                       str(self.output)])
+        stderr = StringIO()
+        with mock.patch('sos.cleaner.report_cli.ReportSanitizer.sanitize',
+                        side_effect=error), redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as context:
+                command.execute()
+        self.assertEqual(context.exception.code, 1)
+        self.assertEqual(
+            stderr.getvalue(),
+            'sos sanitize-report: ERROR: report sanitization failed\n')
+        self.assertNotIn('details.txt', stderr.getvalue())
 
     def test_keyboard_interrupt_is_nonzero_and_does_not_publish(self):
         self.populate()

@@ -10,6 +10,7 @@ from unittest import mock
 from sos.cleaner.archiver import SafeReportArchiverError
 from sos.cleaner.sanitizer import ReportSanitizer, ReportSanitizerError
 from sos.cleaner.tree import ReportTreeSanitizerError
+from sos.cleaner.report_residual import ReportTreeResidualError
 
 
 class ReportSanitizerTests(unittest.TestCase):
@@ -196,9 +197,11 @@ class ReportSanitizerTests(unittest.TestCase):
         archive = self.make_archive()
         with mock.patch('sos.cleaner.sanitizer.ReportTreeSanitizer.sanitize',
                         side_effect=ReportTreeSanitizerError({})):
-            with self.assertRaises(ReportSanitizerError):
+            with self.assertRaises(ReportSanitizerError) as context:
                 ReportSanitizer(temp_parent=self.root).sanitize(
                     archive, self.output)
+        self.assertIsInstance(context.exception.__cause__,
+                              ReportTreeSanitizerError)
         self.assertFalse(self.output.exists())
 
         self.output.write_bytes(b'keep')
@@ -206,6 +209,27 @@ class ReportSanitizerTests(unittest.TestCase):
             ReportSanitizer(temp_parent=self.root).sanitize(
                 archive, self.output)
         self.assertEqual(self.output.read_bytes(), b'keep')
+
+    def test_safe_residual_cause_is_preserved_without_sensitive_values(self):
+        residual = ReportTreeResidualError(
+            {}, 'known hostname', ('safe', 'details.txt'))
+        cause = ReportTreeSanitizerError({})
+        cause.__cause__ = residual
+        self.populate_realistic_tree()
+        archive = self.make_archive('residual-cause.tar.xz')
+        with mock.patch('sos.cleaner.sanitizer.ReportTreeSanitizer.sanitize',
+                        side_effect=cause):
+            with self.assertRaises(ReportSanitizerError) as context:
+                ReportSanitizer(temp_parent=self.root).sanitize(
+                    archive, self.output)
+        chain = context.exception.__cause__
+        self.assertIsInstance(chain, ReportTreeSanitizerError)
+        self.assertIs(chain.__cause__, residual)
+        self.assertEqual(chain.__cause__.category, 'known hostname')
+        self.assertEqual(chain.__cause__.relative_path,
+                         ('safe', 'details.txt'))
+        self.assertNotIn('node', str(context.exception))
+        self.assertNotIn('secret', str(context.exception))
 
     def test_cleanup_removes_private_intermediates(self):
         self.populate_realistic_tree()

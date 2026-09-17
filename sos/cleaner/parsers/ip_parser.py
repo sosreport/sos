@@ -19,7 +19,12 @@ class SoSIPParser(SoSCleanerParser):
     name = 'IP Parser'
     regex_pattern = re.compile(
         # IPv4 with or without CIDR
-        r'((?<!(-|\.|\d))([0-9]{1,3}\.){3}([0-9]){1,3}(\/([0-9]{1,2}))?)'
+        # A slash followed by a non-CIDR suffix is used by some diagnostic
+        # formats for address/port-service fields.  Limit the optional CIDR
+        # to prefixes 0-32 so an invalid prefix cannot consume the first
+        # port digits and cause the complete address match to be rejected.
+        r'((?<!(-|\.|\d))([0-9]{1,3}\.){3}([0-9]){1,3}'
+        r'(?:\/(?:[0-9]|[12][0-9]|3[0-2]))?(?![0-9]))'
     )
     skip_line_patterns = [
         # don't match package versions recorded in journals
