@@ -5,6 +5,7 @@ import tarfile
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from sos.cleaner.extractor import SafeReportExtractor, SafeReportExtractorError
 
@@ -75,6 +76,106 @@ class ReportExtractorTests(unittest.TestCase):
         self.assertEqual((output / 'report/file.txt').read_bytes(), b'hello')
         self.assertEqual(SafeReportExtractor(self.root / 'report.tar').summary()
                          ['members_seen'], 0)
+
+    def test_preflight_completes_before_first_file_write(self):
+        events = []
+
+        class Probe(SafeReportExtractor):
+            def _preflight(inner, archive):
+                events.append('preflight-start')
+                result = super()._preflight(archive)
+                events.append('preflight-complete')
+                return result
+
+            @staticmethod
+            def _write_all(fd, data):
+                events.append('write')
+                return SafeReportExtractor._write_all(fd, data)
+
+        extractor = Probe(self.archive(members=[(self.member('file'),
+                                                 b'value')]))
+        output = Path(extractor.extract())
+        self.addCleanup(lambda: os.path.exists(output) and
+                        __import__('shutil').rmtree(output))
+        self.assertEqual(events, ['preflight-start', 'preflight-complete',
+                                  'write'])
+        self.assertEqual((output / 'file').read_bytes(), b'value')
+
+    def test_regular_payloads_follow_archive_order_not_path_order(self):
+        members = [(self.member('root', 'directory'), None),
+                   (self.member('root/z-file'), b'z'),
+                   (self.member('root/a-file'), b'a'),
+                   (self.member('root/link', 'symlink', linkname='z-file'),
+                    None)]
+        archive = self.archive('ordered.tar.xz', mode='w:xz', members=members)
+        extracted_order = []
+        original_extractfile = tarfile.TarFile.extractfile
+
+        def capture(archive_file, member):
+            extracted_order.append(member.name)
+            return original_extractfile(archive_file, member)
+
+        with mock.patch.object(tarfile.TarFile, 'extractfile', capture):
+            output = self.extract(archive)
+        self.assertEqual(extracted_order, ['root/z-file', 'root/a-file'])
+        self.assertEqual((output / 'root/z-file').read_bytes(), b'z')
+        self.assertEqual((output / 'root/a-file').read_bytes(), b'a')
+
+    def test_directories_are_planned_separately_from_payload_order(self):
+        # Parent directories are implied and their explicit archive entries
+        # occur after the regular payloads.
+        archive = self.archive('implied-parent.tar.xz', mode='w:xz',
+                               members=[
+                                   (self.member('root/file'), b'value'),
+                                   (self.member('root', 'directory'), None),
+                               ])
+        output = self.extract(archive)
+        self.assertEqual((output / 'root/file').read_bytes(), b'value')
+
+    def test_symlinks_are_created_after_regular_payloads(self):
+        events = []
+        original_symlink = os.symlink
+        original_write = SafeReportExtractor._write_all
+
+        def capture_symlink(target, link, *args, **kwargs):
+            events.append('symlink')
+            return original_symlink(target, link, *args, **kwargs)
+
+        def capture_write(fd, data):
+            events.append('write')
+            return original_write(fd, data)
+
+        archive = self.archive(members=[
+            (self.member('root', 'directory'), None),
+            (self.member('root/link', 'symlink', linkname='file'), None),
+            (self.member('root/file'), b'value'),
+        ])
+        with mock.patch.object(os, 'symlink', capture_symlink), \
+                mock.patch.object(SafeReportExtractor, '_write_all',
+                                  staticmethod(capture_write)):
+            output = self.extract(archive)
+        self.assertLess(events.index('write'), events.index('symlink'))
+        self.assertEqual(os.readlink(output / 'root/link'), 'file')
+
+    def test_late_invalid_member_writes_nothing(self):
+        writes = []
+        original_write = SafeReportExtractor._write_all
+
+        def capture_write(fd, data):
+            writes.append(data)
+            return original_write(fd, data)
+
+        archive = self.archive(members=[
+            (self.member('safe'), b'value'),
+            (self.member('../unsafe'), b'bad'),
+        ])
+        with mock.patch.object(SafeReportExtractor, '_write_all',
+                               staticmethod(capture_write)):
+            with self.assertRaises(SafeReportExtractorError):
+                SafeReportExtractor(archive, temp_parent=self.root).extract()
+        self.assertEqual(writes, [])
+        self.assertFalse(any(path.name.startswith('.sos-report-extract-')
+                             for path in self.root.iterdir()))
 
     def test_compressed_formats_extract(self):
         for suffix, mode in (('.tar.gz', 'w:gz'), ('.tgz', 'w:gz'),
