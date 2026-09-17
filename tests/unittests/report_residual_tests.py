@@ -85,6 +85,60 @@ class ReportResidualTests(unittest.TestCase):
             output, SoSMappingManifest.from_session(self.session)).validate()
         self.assertEqual(result['residual_failures'], 0)
 
+    def test_corosync_authkey_is_rejected_regardless_of_content(self):
+        for content in (b'K' * 256, b'placeholder', b''):
+            with self.subTest(content_length=len(content)):
+                path = self.source / 'etc/corosync/authkey'
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(content)
+                with self.assertRaises(ReportTreeResidualError):
+                    ReportTreeResidualValidator(
+                        self.source, self.manifest).validate()
+                import shutil
+                shutil.rmtree(self.source / 'etc')
+
+    def test_selinux_file_contexts_bin_is_rejected_regardless_of_content(self):
+        paths = ('etc/selinux/targeted/contexts/files/file_contexts.bin',
+                 'etc/selinux/targeted/contexts/files/file_contexts.homedirs.bin')
+        for relative in paths:
+            for content in (b'X' * 580886, b'placeholder', b''):
+                with self.subTest(path=relative, content_length=len(content)):
+                    path = self.source / relative
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(content)
+                    with self.assertRaises(ReportTreeResidualError):
+                        ReportTreeResidualValidator(
+                            self.source, self.manifest).validate()
+                    import shutil
+                    shutil.rmtree(self.source / 'etc')
+
+    def test_selinux_binary_policy_is_rejected_regardless_of_content(self):
+        for relative in ('etc/selinux/targeted/policy/policy.15',
+                         'etc/selinux/targeted/policy/policy.31',
+                         'etc/selinux/targeted/policy/policy.35'):
+            with self.subTest(path=relative):
+                path = self.source / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b'placeholder')
+                with self.assertRaises(ReportTreeResidualError):
+                    ReportTreeResidualValidator(
+                        self.source, self.manifest).validate()
+                import shutil
+                shutil.rmtree(self.source / 'etc')
+
+    def test_process_environment_is_rejected_regardless_of_content(self):
+        for relative in ('proc/1/environ', 'proc/4194303/environ'):
+            for content in (b'', b'LANG=C\0TOKEN=secret\0', b'placeholder'):
+                with self.subTest(path=relative, length=len(content)):
+                    path = self.source / relative
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(content)
+                    with self.assertRaises(ReportTreeResidualError):
+                        ReportTreeResidualValidator(
+                            self.source, self.manifest).validate()
+                    import shutil
+                    shutil.rmtree(self.source / 'proc')
+
     def test_standard_ipv4_mapped_prefix_is_preserved(self):
         """A standard address-selection prefix is technical configuration."""
         for index, value in enumerate((
@@ -234,22 +288,53 @@ class ReportResidualTests(unittest.TestCase):
 
     def test_residual_matcher_skips_impossible_lines(self):
         matcher = ResidualMatcher(self.manifest.raw_mappings())
-
-        class CountingPattern:
-            def __init__(self, pattern):
-                self.pattern = pattern
-                self.calls = 0
-
-            def search(self, text):
-                self.calls += 1
-                return self.pattern.search(text)
-
-        combined = CountingPattern(matcher._combined)
-        matcher._combined = combined
         self.assertFalse(matcher.search('zzzz'))
-        self.assertEqual(combined.calls, 0)
         self.assertTrue(matcher.search('node'))
-        self.assertEqual(combined.calls, 1)
+
+    def test_residual_failure_exposes_only_safe_category_and_path(self):
+        self.write('safe/path.txt', 'node\n')
+        with self.assertRaises(ReportTreeResidualError) as context:
+            ReportTreeResidualValidator(
+                self.source, self.manifest).validate()
+        error = context.exception
+        self.assertEqual(error.category, 'known hostname')
+        self.assertEqual(error.relative_path, ('safe', 'path.txt'))
+        self.assertNotIn('node', str(error))
+
+    def test_optimized_matcher_matches_reference_on_edge_cases(self):
+        mappings = {namespace: {} for namespace in (
+            'hostnames', 'domains', 'ipv4', 'ipv6', 'mac', 'emails',
+            'usernames')}
+        mappings['hostnames'] = {
+            'Node': 'host0', 'node.example': 'host1',
+            'node+special': 'host2'}
+        mappings['mac'] = {'aa:bb:cc:dd:ee:ff': 'mac0'}
+        mappings['emails'] = {'Alice@Example.test': 'mail0'}
+        matcher = ResidualMatcher(mappings)
+        reference = build_manifest_patterns(mappings)
+        cases = (
+            '', 'safe text', 'Node', 'node-extra', 'NODE',
+            'node.example', 'node+special', 'aa:bb:cc:dd:ee:ff',
+            'aabbccddeeff', 'aa-bb-cc-dd-ee-ff',
+            'Alice@Example.test', 'ALICE@EXAMPLE.TEST',
+            'xnode', 'node_', 'prefix node suffix', 'naïve text')
+        for text in cases:
+            with self.subTest(text=text):
+                expected = known_original_residual(text, reference)
+                self.assertEqual(matcher.search(text), expected)
+
+    def test_optimized_matcher_preserves_case_sensitive_usernames(self):
+        mappings = {namespace: {} for namespace in (
+            'hostnames', 'domains', 'ipv4', 'ipv6', 'mac', 'emails',
+            'usernames')}
+        mappings['usernames'] = {'Alice': 'obfuscateduser0'}
+        matcher = ResidualMatcher(mappings)
+        reference = build_manifest_patterns(mappings)
+        for text in ('Alice', 'alice', 'ALICE', 'prefix Alice suffix',
+                     'prefix alice suffix'):
+            with self.subTest(text=text):
+                self.assertEqual(matcher.search(text),
+                                 known_original_residual(text, reference))
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@
 """Independent residual privacy validation for completed report archives."""
 
 import errno
+import io
 import os
 import posixpath
 import socket
@@ -13,6 +14,17 @@ from sos.cleaner.archiver import SafeReportArchiver
 from sos.cleaner.report_residual import (ResidualMatcher,
                                          known_original_residual)
 from sos.cleaner.text_residual import _has_residual, _packed
+from sos.cleaner.pacemaker import (PacemakerSchedulerInput,
+                                   PacemakerSchedulerInputError)
+from sos.cleaner.edid import DrmEdidPolicy
+from sos.cleaner.corosync import (CorosyncLog, CorosyncLogError,
+                                   PacemakerLog)
+from sos.cleaner.sssd import SssdLog
+from sos.cleaner.acpi import is_path as is_acpi_path
+from sos.cleaner.systemd import is_path as is_systemd_coredump_path
+from sos.cleaner.selinux_store import (active_store_module_path,
+                                       active_store_path)
+from sos.cleaner.selinux_cil import DirectCil, DirectCilError
 
 
 class ReportArchiveResidualError(Exception):
@@ -29,6 +41,71 @@ class ReportArchiveResidualValidator:
     DEFAULT_MAX_MEMBERS = 100000
     DEFAULT_MAX_FILE_SIZE = 8 * 1024 * 1024 * 1024
     DEFAULT_MAX_TOTAL_SIZE = 32 * 1024 * 1024 * 1024
+    _corosync_authkey_path = 'etc/corosync/authkey'
+    _selinux_file_contexts_bin_paths = frozenset((
+        'etc/selinux/targeted/contexts/files/file_contexts.bin',
+        'etc/selinux/targeted/contexts/files/file_contexts.homedirs.bin',
+    ))
+    _selinux_binary_policy_versions = frozenset(
+        str(version) for version in range(15, 36))
+    _process_environment_max_pid = 4194303
+    _timezone_paths = frozenset((
+        'usr/share/zoneinfo/Etc/UTC',
+        'usr/share/zoneinfo/Australia/Sydney',
+    ))
+
+    @classmethod
+    def _is_corosync_authkey_path(cls, name):
+        parts = tuple(name.split('/'))
+        target = tuple(cls._corosync_authkey_path.split('/'))
+        return parts == target or (len(parts) == 4 and parts[1:] == target)
+
+    @classmethod
+    def _is_selinux_file_contexts_bin_path(cls, name):
+        parts = tuple(name.split('/'))
+        return name in cls._selinux_file_contexts_bin_paths or any(
+            len(parts) == len(target.split('/')) + 1 and
+            parts[1:] == tuple(target.split('/'))
+            for target in cls._selinux_file_contexts_bin_paths)
+
+    @classmethod
+    def _is_selinux_binary_policy_path(cls, name):
+        parts = tuple(name.split('/'))
+        for candidate in (parts, parts[1:] if parts else ()):
+            if (candidate[:4] == ('etc', 'selinux', 'targeted', 'policy') and
+                    len(candidate) == 5 and
+                    candidate[4].startswith('policy.') and
+                    candidate[4][7:] in cls._selinux_binary_policy_versions):
+                return True
+        return False
+
+    @classmethod
+    def _is_process_environment_path(cls, name):
+        parts = tuple(name.split('/'))
+        for candidate in (parts, parts[1:] if parts else ()):
+            if len(candidate) != 3 or candidate[0] != 'proc':
+                continue
+            pid, filename = candidate[1:]
+            if (not pid or not pid.isascii() or not pid.isdecimal() or
+                    pid[0] == '0' or filename != 'environ'):
+                return False
+            return 1 <= int(pid) <= cls._process_environment_max_pid
+        return False
+
+    @classmethod
+    def _is_selinux_active_store_omission_path(cls, name):
+        relative = tuple(name.split('/'))
+        return ((active_store_module_path(relative) is not None and
+                 not DirectCil.is_path(relative)) or
+                any(active_store_path(relative, filename) for filename in (
+                    'policy.kern', 'policy.linked', 'modules_checksum',
+                    'commit_num')))
+
+    @classmethod
+    def _is_timezone_path(cls, name):
+        parts = tuple(name.split('/'))
+        return name in cls._timezone_paths or (
+            len(parts) == 4 and '/'.join(parts[1:]) in cls._timezone_paths)
 
     def __init__(self, archive_path, manifest,
                  max_members=DEFAULT_MAX_MEMBERS,
@@ -56,12 +133,21 @@ class ReportArchiveResidualValidator:
             _packed(alias, socket.AF_INET6)
             for original, alias in raw['ipv6'].items() if original != alias
         }
+        self._corosync_members = 0
+        self._corosync_bytes = 0
 
     def summary(self):
         return dict(self._summary)
 
     def _fail(self):
         raise ReportArchiveResidualError(self._summary)
+
+    def _accept_corosync_payload(self, size):
+        if self._corosync_members >= CorosyncLog.MAX_MEMBERS or \
+                self._corosync_bytes + size > CorosyncLog.MAX_AGGREGATE:
+            self._fail()
+        self._corosync_members += 1
+        self._corosync_bytes += size
 
     @staticmethod
     def _validate_name(name):
@@ -85,7 +171,8 @@ class ReportArchiveResidualValidator:
     def _check_member_metadata(self, member):
         if (member.uid != 0 or member.gid != 0 or member.uname != '' or
                 member.gname != '' or member.mtime != 0 or
-                member.pax_headers or member.mode != stat.S_IMODE(member.mode) or
+                member.pax_headers or
+                member.mode != stat.S_IMODE(member.mode) or
                 member.mode & 0o7000 or
                 (member.isreg() and not member.mode & stat.S_IRUSR)):
             self._fail()
@@ -95,9 +182,84 @@ class ReportArchiveResidualValidator:
             self._fail()
         if self._summary['bytes_checked'] + member.size > self.max_total_size:
             self._fail()
+        is_corosync = CorosyncLog.is_path(tuple(member.name.split('/')))
+        is_pacemaker = PacemakerLog.is_path(tuple(member.name.split('/')))
+        if DirectCil.is_path(tuple(member.name.split('/'))):
+            if member.size > DirectCil.MAX_COMPRESSED:
+                self._fail()
+            stream = archive.extractfile(member)
+            if stream is None:
+                self._fail()
+            try:
+                payload = DirectCil.decode(stream, member.size)
+                DirectCil.residual_check(payload, self._check_text)
+            except (OSError, UnicodeError, DirectCilError, tarfile.TarError):
+                self._fail()
+            finally:
+                stream.close()
+            self._summary['bytes_checked'] += member.size
+            self._summary['regular_files_checked'] += 1
+            return
+        if ((is_corosync or is_pacemaker) and
+                member.size > CorosyncLog.MAX_COMPRESSED):
+            self._fail()
         stream = archive.extractfile(member)
         if stream is None:
             self._fail()
+        if PacemakerSchedulerInput.is_path(member.name):
+            try:
+                payload = PacemakerSchedulerInput.decode(stream, member.size)
+                PacemakerSchedulerInput.residual_check(payload)
+                for raw_line in payload.splitlines(keepends=True):
+                    self._check_text(raw_line.decode('utf-8'))
+            except ReportArchiveResidualError:
+                raise
+            except (OSError, UnicodeError, PacemakerSchedulerInputError):
+                self._fail()
+            finally:
+                stream.close()
+            self._summary['bytes_checked'] += member.size
+            self._summary['regular_files_checked'] += 1
+            return
+        if is_corosync:
+            try:
+                compressed = stream.read(member.size)
+                payload = CorosyncLog.decode(io.BytesIO(compressed),
+                                             member.size)
+                self._accept_corosync_payload(len(payload))
+                for raw_line in payload.decode('utf-8').splitlines(
+                        keepends=True):
+                    self._check_text(raw_line)
+            except ReportArchiveResidualError:
+                raise
+            except (OSError, UnicodeError, CorosyncLogError, tarfile.TarError):
+                self._fail()
+            finally:
+                stream.close()
+            if len(compressed) != member.size:
+                self._fail()
+            self._summary['bytes_checked'] += member.size
+            self._summary['regular_files_checked'] += 1
+            return
+        if is_pacemaker:
+            try:
+                compressed = stream.read(member.size)
+                payload = PacemakerLog.decode(io.BytesIO(compressed),
+                                              member.size)
+                for raw_line in payload.decode('utf-8').splitlines(
+                        keepends=True):
+                    self._check_text(raw_line)
+            except ReportArchiveResidualError:
+                raise
+            except (OSError, UnicodeError, CorosyncLogError, tarfile.TarError):
+                self._fail()
+            finally:
+                stream.close()
+            if len(compressed) != member.size:
+                self._fail()
+            self._summary['bytes_checked'] += member.size
+            self._summary['regular_files_checked'] += 1
+            return
         read = 0
         try:
             for raw_line in stream:
@@ -142,6 +304,35 @@ class ReportArchiveResidualValidator:
                             if self._summary['members_checked'] > self.max_members:
                                 self._fail()
                             self._validate_name(member.name)
+                            if DirectCil.is_path(tuple(member.name.split('/'))):
+                                if not member.isreg():
+                                    self._fail()
+                            if (self._is_corosync_authkey_path(member.name) or
+                                    self._is_selinux_file_contexts_bin_path(
+                                        member.name) or
+                                    self._is_selinux_binary_policy_path(
+                                        member.name) or
+                                    self._is_selinux_active_store_omission_path(
+                                        member.name) or
+                                    self._is_process_environment_path(
+                                        member.name) or
+                                    is_acpi_path(tuple(member.name.split('/'))) or
+                                    is_systemd_coredump_path(
+                                        tuple(member.name.split('/'))) or
+                                    self._is_timezone_path(member.name) or
+                                    SssdLog.is_path(
+                                        tuple(member.name.split('/'))) or
+                                    DrmEdidPolicy.is_path(
+                                        tuple(member.name.split('/')))):
+                                self._fail()
+                            if (CorosyncLog.is_path(
+                                    tuple(member.name.split('/'))) and
+                                    not member.isreg()):
+                                self._fail()
+                            if (PacemakerLog.is_path(
+                                    tuple(member.name.split('/'))) and
+                                    not member.isreg()):
+                                self._fail()
                             if member.name in names:
                                 self._fail()
                             names.add(member.name)
