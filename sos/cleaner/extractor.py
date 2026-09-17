@@ -11,6 +11,7 @@ import tarfile
 import tempfile
 
 from sos.cleaner.filesystem import remove_private_tree
+from sos.cleaner.symlink import validate_symlink_target
 
 
 class SafeReportExtractorError(Exception):
@@ -158,25 +159,12 @@ class SafeReportExtractor:
             return 'block'
         return 'unknown'
 
-    @staticmethod
-    def _symlink_target(path, target):
-        """Return a safe archive-relative target, or raise ValueError."""
-        if (not isinstance(target, str) or not target or '\x00' in target or
-                target.startswith('\\') or '\\' in target or
-                posixpath.isabs(target)):
-            raise ValueError
-        parent = posixpath.dirname(path)
-        normalized = posixpath.normpath(posixpath.join(parent, target))
-        if normalized in ('', '.', '..') or normalized.startswith('../'):
-            raise ValueError
-        return target
-
     def _preflight(self, archive):
         members = []
         paths = {}
         total = 0
         try:
-            for member in archive:
+            for archive_index, member in enumerate(archive):
                 self._summary['members_seen'] += 1
                 if self._summary['members_seen'] > self.max_members:
                     self._reject()
@@ -184,7 +172,7 @@ class SafeReportExtractor:
                 path = self._member_path(member.name)
                 if kind in ('symlink', 'fifo'):
                     if kind == 'symlink':
-                        self._symlink_target(path, member.linkname)
+                        validate_symlink_target(path, member.linkname)
                 elif kind != 'regular' and kind != 'directory':
                     self._reject()
                 if path in paths:
@@ -198,7 +186,10 @@ class SafeReportExtractor:
                     if total > self.max_total_size:
                         self._reject()
                 paths[path] = kind
-                members.append((path, kind, member))
+                # Retain the source position. Validation is independent of
+                # extraction order, while compressed payloads must be read
+                # in this original archive order.
+                members.append((archive_index, path, kind, member))
         except SafeReportExtractorError:
             raise
         except Exception:
@@ -210,7 +201,10 @@ class SafeReportExtractor:
                 parent = '/'.join(parts[:index])
                 if parent in paths and paths[parent] != 'directory':
                     self._reject()
-        return sorted(members, key=lambda item: (item[0].count('/'), item[0]))
+        # The complete member graph has now been validated. Keep the records
+        # in archive order so regular payload reads do not seek backwards in
+        # compressed tar streams.
+        return members
 
     @staticmethod
     def _safe_mode(mode, directory=False):
@@ -256,58 +250,76 @@ class SafeReportExtractor:
 
     def _extract_members(self, archive, members, staging):
         root_fd = self._root_fd(staging)
-        modes = {path: self._safe_mode(member.mode, kind == 'directory')
-                 for path, kind, member in members}
-        directory_modes = {path: modes[path] for path, kind, _ in members
-                           if kind == 'directory'}
-        symlink_members = [(path, member) for path, kind, member in members
+        directories = sorted(
+            ((path, member) for _, path, kind, member in members
+             if kind == 'directory'),
+            key=lambda item: (item[0].count('/'), item[0]))
+        regular_files = sorted(
+            ((archive_index, path, member)
+             for archive_index, path, kind, member in members
+             if kind == 'regular'),
+            key=lambda item: item[0])
+        symlink_members = [(path, member) for _, path, kind, member in members
                            if kind == 'symlink']
+        fifo_count = sum(1 for _, _, kind, _ in members if kind == 'fifo')
+        modes = {path: self._safe_mode(member.mode, kind == 'directory')
+                 for _, path, kind, member in members}
+        directory_modes = {path: modes[path] for path, _ in directories}
         try:
-            for path, kind, member in members:
-                if kind in ('symlink', 'fifo'):
-                    if kind == 'fifo':
-                        self._summary['fifos_omitted'] += 1
-                    continue
+            # Directory creation is metadata-only and can use validated
+            # depth/path order. It must complete before payload extraction so
+            # regular files can be consumed in archive order.
+            for path, member in directories:
                 parent, _, basename = path.rpartition('/')
                 parent_fd, opened = self._ensure_directory(root_fd, parent)
                 try:
-                    if kind == 'directory':
-                        try:
-                            os.mkdir(basename, 0o700, dir_fd=parent_fd)
-                            self._summary['directories_created'] += 1
-                        except FileExistsError:
-                            existing = os.stat(basename, dir_fd=parent_fd,
-                                               follow_symlinks=False)
-                            if not stat.S_ISDIR(existing.st_mode):
-                                self._reject()
-                    else:
-                        fd = os.open(basename, os.O_WRONLY | os.O_CREAT |
-                                     os.O_EXCL | os.O_NOFOLLOW, 0o600,
-                                     dir_fd=parent_fd)
-                        try:
-                            source = archive.extractfile(member)
-                            if source is None:
-                                self._reject()
-                            with source:
-                                remaining = member.size
-                                while remaining:
-                                    data = source.read(min(64 * 1024,
-                                                           remaining))
-                                    if not data:
-                                        self._reject()
-                                    self._write_all(fd, data)
-                                    remaining -= len(data)
-                                    self._summary['bytes_extracted'] += len(data)
-                                if source.read(1):
+                    try:
+                        os.mkdir(basename, 0o700, dir_fd=parent_fd)
+                        self._summary['directories_created'] += 1
+                    except FileExistsError:
+                        existing = os.stat(basename, dir_fd=parent_fd,
+                                           follow_symlinks=False)
+                        if not stat.S_ISDIR(existing.st_mode):
+                            self._reject()
+                finally:
+                    for child_fd in reversed(opened):
+                        os.close(child_fd)
+
+            self._summary['fifos_omitted'] += fifo_count
+
+            # This list is deliberately not sorted: its order is the order
+            # in which regular TarInfo objects appeared in the archive.
+            for _, path, member in regular_files:
+                parent, _, basename = path.rpartition('/')
+                parent_fd, opened = self._ensure_directory(root_fd, parent)
+                try:
+                    fd = os.open(basename, os.O_WRONLY | os.O_CREAT |
+                                 os.O_EXCL | os.O_NOFOLLOW, 0o600,
+                                 dir_fd=parent_fd)
+                    try:
+                        source = archive.extractfile(member)
+                        if source is None:
+                            self._reject()
+                        with source:
+                            remaining = member.size
+                            while remaining:
+                                data = source.read(min(64 * 1024,
+                                                       remaining))
+                                if not data:
                                     self._reject()
-                            # Keep the private extracted tree readable by the
-                            # invoking user.  Construction remains 0600; the
-                            # final mode retains ordinary archive semantics
-                            # while guaranteeing owner-read access.
-                            os.fchmod(fd, modes[path] | stat.S_IRUSR)
-                            self._summary['files_extracted'] += 1
-                        finally:
-                            os.close(fd)
+                                self._write_all(fd, data)
+                                remaining -= len(data)
+                                self._summary['bytes_extracted'] += len(data)
+                            if source.read(1):
+                                self._reject()
+                        # Keep the private extracted tree readable by the
+                        # invoking user. Construction remains 0600; the
+                        # final mode retains ordinary archive semantics
+                        # while guaranteeing owner-read access.
+                        os.fchmod(fd, modes[path] | stat.S_IRUSR)
+                        self._summary['files_extracted'] += 1
+                    finally:
+                        os.close(fd)
                 finally:
                     for child_fd in reversed(opened):
                         os.close(child_fd)
