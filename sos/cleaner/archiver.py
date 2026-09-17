@@ -11,6 +11,8 @@ import stat
 import tarfile
 import tempfile
 
+from sos.cleaner.symlink import validate_symlink_target
+
 
 class SafeReportArchiverError(Exception):
     """A fail-closed archive creation error with counts only."""
@@ -81,7 +83,7 @@ class SafeReportArchiver:
             os.close(staging_fd)
             mode = 'w:xz'
             with tarfile.open(staging, mode=mode,
-                              format=tarfile.USTAR_FORMAT) as archive:
+                              format=tarfile.PAX_FORMAT) as archive:
                 self._write_tree(archive)
             self._validate_archive(staging)
             self._private_path = staging
@@ -287,8 +289,12 @@ class SafeReportArchiver:
                         info = self._tar_info(name, kind, opened.st_mode,
                                               opened.st_size)
                         with os.fdopen(fd, 'rb', closefd=True) as stream:
+                            # The context manager owns the descriptor even
+                            # when tarfile raises.  Clear our fallback close
+                            # before handing it to tarfile so an exception
+                            # cannot cause a double-close.
+                            fd = None
                             archive.addfile(info, stream)
-                        fd = None
                         self._summary['files_written'] += 1
                         self._summary['bytes_written'] += opened.st_size
                         self._summary['members_written'] += 1
@@ -314,12 +320,8 @@ class SafeReportArchiver:
 
     @staticmethod
     def _validate_link_target(target, relative=''):
-        if (not target or target.startswith('/') or target.startswith('\\') or
-                '\\' in target):
-            raise ValueError
-        normalized = posixpath.normpath(posixpath.join(relative, target))
-        if normalized in ('', '..') or normalized.startswith('../'):
-            raise ValueError
+        validate_symlink_target(
+            relative + ('/' if relative else '') + 'link', target)
 
     @staticmethod
     def _validate_archive_name(name):
@@ -344,7 +346,7 @@ class SafeReportArchiver:
                     names.add(member.name)
                     if member.uid != 0 or member.gid != 0 or member.uname or \
                             member.gname or member.mtime != 0 or \
-                            member.pax_headers:
+                            not self._safe_pax_headers(member):
                         self._fail()
                     if member.isdir():
                         continue
@@ -366,6 +368,16 @@ class SafeReportArchiver:
             raise
         except Exception:
             self._fail()
+
+    @staticmethod
+    def _safe_pax_headers(member):
+        """Accept only tarfile-generated long-name headers."""
+        allowed = {}
+        if 'path' in member.pax_headers:
+            allowed['path'] = member.name + ('/' if member.isdir() else '')
+        if 'linkpath' in member.pax_headers and member.issym():
+            allowed['linkpath'] = member.linkname
+        return member.pax_headers == allowed
 
     def _publish_noreplace(self, staging):
         if os.name != 'posix':
