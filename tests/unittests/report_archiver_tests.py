@@ -1,11 +1,17 @@
+import io
 import os
+import errno
 import stat
 import tarfile
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from sos.cleaner.archiver import SafeReportArchiver, SafeReportArchiverError
+from sos.cleaner.mapping_manifest import SoSMappingManifest
+from tests.tools.run_archive_stage import (report_root_name,
+                                            sanitized_report_root_name)
 
 
 class ReportArchiverTests(unittest.TestCase):
@@ -87,6 +93,91 @@ class ReportArchiverTests(unittest.TestCase):
             self.assertIn('component\\name', [m.name for m in archive])
             self.assertIn('component\\name/file',
                           [m.name for m in archive])
+
+    def test_long_pax_names_round_trip_for_directory_file_and_symlink(self):
+        directory = 'd' * 90
+        filename = 'f' * 110
+        linkname = 'l' * 110
+        self.write(directory + '/' + filename, b'safe')
+        (self.source / directory / ('link-' + 'x' * 100)).symlink_to(
+            '../' + linkname)
+        archive_path = self.create()
+        with tarfile.open(archive_path, 'r:xz') as archive:
+            names = [member.name for member in archive]
+            self.assertIn(directory, names)
+            self.assertIn(directory + '/' + filename, names)
+            link = archive.getmember(directory + '/' + ('link-' + 'x' * 100))
+            self.assertTrue(link.issym())
+            self.assertEqual(link.linkname, '../' + linkname)
+            self.assertEqual(link.pax_headers.get('path'), link.name)
+
+    def test_ustar_name_boundary_round_trips(self):
+        self.write('a' * 100, b'exact')
+        self.write('b' * 101, b'next')
+        archive_path = self.create()
+        with tarfile.open(archive_path, 'r:xz') as archive:
+            self.assertEqual(
+                {member.name for member in archive},
+                {'a' * 100, 'b' * 101})
+
+    def test_archive_stage_preserves_one_report_root(self):
+        source = self.output / 'input.tar.xz'
+        with tarfile.open(source, 'w:xz') as archive:
+            info = tarfile.TarInfo('sosreport-test-root')
+            info.type = tarfile.DIRTYPE
+            archive.addfile(info)
+            info = tarfile.TarInfo('sosreport-test-root/file')
+            info.size = 4
+            archive.addfile(info, io.BytesIO(b'data'))
+        self.assertEqual(report_root_name(source), 'sosreport-test-root')
+        manifest = SoSMappingManifest({
+            'hostnames': {'sourcehost': 'host0'}, 'domains': {}, 'ipv4': {},
+            'ipv6': {}, 'mac': {}, 'emails': {}, 'usernames': {},
+        })
+        self.assertEqual(
+            sanitized_report_root_name(source, manifest),
+            'sosreport-test-root')
+
+    def test_pax_archive_is_deterministic(self):
+        self.write('d' * 90 + '/' + 'f' * 110, b'safe')
+        first = self.create('first.tar.xz')
+        second = self.destination('second.tar.xz')
+        SafeReportArchiver(self.source, second).create()
+        self.addCleanup(lambda: second.exists() and second.unlink())
+        self.assertEqual(first.read_bytes(), second.read_bytes())
+
+    def test_long_unsafe_names_remain_rejected(self):
+        with self.assertRaises(ValueError):
+            SafeReportArchiver._member_name('../' + 'x' * 300)
+        with self.assertRaises(ValueError):
+            SafeReportArchiver._member_name('/' + 'x' * 300)
+        source = self.source / ('d' * 90)
+        source.mkdir()
+        (source / ('link-' + 'x' * 100)).symlink_to('../../' + 'x' * 300)
+        with self.assertRaises(SafeReportArchiverError):
+            SafeReportArchiver(self.source, self.destination()).create()
+        self.assertFalse(self.destination().exists())
+
+    def test_failed_file_write_does_not_double_close_descriptor(self):
+        self.write('file', b'content')
+        real_close = os.close
+        bad_closes = []
+
+        def close(fd):
+            try:
+                return real_close(fd)
+            except OSError as error:
+                if error.errno == errno.EBADF:
+                    bad_closes.append(fd)
+                raise
+
+        with mock.patch('sos.cleaner.archiver.os.close', side_effect=close):
+            with mock.patch.object(tarfile.TarFile, 'addfile',
+                                   side_effect=ValueError('injected')):
+                with self.assertRaises(SafeReportArchiverError):
+                    SafeReportArchiver(self.source,
+                                       self.destination()).create()
+        self.assertEqual(bad_closes, [])
 
     def test_unsafe_objects_and_symlinks_fail_closed(self):
         os.mkfifo(self.source / 'pipe')
