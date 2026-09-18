@@ -28,6 +28,10 @@ PATHS = {
 PATRONI_CONFIG_FILE = f"{PATHS['PATRONI_CONF']}/patroni.yaml"
 
 RUNAS = "snap_daemon"
+RUNAS_BY_MAJOR_VERSION = {
+    "14": "snap_daemon",
+    "16": "root",
+}
 PSQL = "charmed-postgresql.psql"
 PATRONICTL = "charmed-postgresql.patronictl"
 
@@ -48,6 +52,15 @@ class CharmedPostgreSQL(Plugin, UbuntuPlugin):
                 f"-h {self.postgresql_host} "
                 f"-p {self.postgresql_port} "
                 r"-d postgres -P pager=off")
+
+    @property
+    def runas_user(self) -> str:
+        pkg = self.policy.package_manager.pkg_by_name('charmed-postgresql')
+        try:
+            major_version = pkg['version'][0].split('/')[0].split('-')[0]
+        except (IndexError, KeyError, TypeError):
+            return RUNAS
+        return RUNAS_BY_MAJOR_VERSION.get(major_version, RUNAS)
 
     def setup(self):
         # --- FILE EXCLUSIONS ---
@@ -108,7 +121,7 @@ class CharmedPostgreSQL(Plugin, UbuntuPlugin):
             (f"{PATRONICTL} {self.patronictl_args} "
              f"topology {self.patroni_cluster_name}"),
             suggest_filename="patroni-topology",
-            runas=RUNAS,
+            runas=self.runas_user,
         )
 
         # --- HISTORY ---
@@ -117,7 +130,7 @@ class CharmedPostgreSQL(Plugin, UbuntuPlugin):
             (f"{PATRONICTL} {self.patronictl_args} "
              f"history {self.patroni_cluster_name}"),
             suggest_filename="patroni-history",
-            runas=RUNAS,
+            runas=self.runas_user,
         )
 
         # --- DCS CONFIGS ---
@@ -126,7 +139,7 @@ class CharmedPostgreSQL(Plugin, UbuntuPlugin):
             (f"{PATRONICTL} {self.patronictl_args} "
              f"show-config {self.patroni_cluster_name}"),
             suggest_filename="patroni-dcs-config",
-            runas=RUNAS,
+            runas=self.runas_user,
         )
 
         # ADD DB PASSWORD TO ENVIRONMENT
@@ -138,7 +151,7 @@ class CharmedPostgreSQL(Plugin, UbuntuPlugin):
             (f"{PSQL} {self.psql_args} "
              r"-c '\l+'"),
             suggest_filename="postgresql-databases",
-            runas=RUNAS,
+            runas=self.runas_user,
         )
 
         # --- USERS ---
@@ -147,7 +160,7 @@ class CharmedPostgreSQL(Plugin, UbuntuPlugin):
             (f"{PSQL} {self.psql_args} "
              r"-c '\duS+'"),
             suggest_filename="postgresql-users",
-            runas=RUNAS,
+            runas=self.runas_user,
         )
 
         # --- TABLES ---
@@ -156,7 +169,7 @@ class CharmedPostgreSQL(Plugin, UbuntuPlugin):
             (f"{PSQL} {self.psql_args} "
              r"-c '\dtS+'"),
             suggest_filename="postgresql-tables",
-            runas=RUNAS,
+            runas=self.runas_user,
         )
 
     def postproc(self):
