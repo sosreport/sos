@@ -723,3 +723,159 @@ class PackedDirTarballTests(unittest.TestCase):
         with mock.patch.object(self.archive, 'get_file_content',
                                return_value='{"components": {"report": {}}}'):
             self.assertEqual(self.archive._load_packed_dirs(), [])
+
+
+class StrictTokenisationTests(unittest.TestCase):
+    """Tests for the --strict-tokenisation feature.
+
+    Covers the split regex, word-boundary regex, hostname-map
+    compiled_search, and end-to-end parser behaviour.
+    """
+
+    def setUp(self):
+        workdir = join(sos.policies.load().get_tmp_dir(None),
+                       'sos_strict_testing')
+
+        # Keyword maps -- use_token_lookup=True, match_full_words_only=True
+        self.kw_strict = SoSKeywordMap(workdir, strict_tokenisation=True)
+        self.kw_nonstrict = SoSKeywordMap(workdir, strict_tokenisation=False)
+        for m in (self.kw_strict, self.kw_nonstrict):
+            m.add('secret')
+            m.generate_compiled_regexes()
+
+        # Hostname maps -- not use_token_lookup, match_full_words_only=True
+        self.host_strict = SoSHostnameMap(workdir, strict_tokenisation=True)
+        self.host_nonstrict = SoSHostnameMap(
+            workdir, strict_tokenisation=False)
+        for m in (self.host_strict, self.host_nonstrict):
+            m.add('secret.example.com')
+            m.generate_compiled_regexes()
+
+        # Parsers
+        self.kw_parser_strict = SoSKeywordParser(
+            config={}, workdir=workdir, strict_tokenisation=True)
+        self.kw_parser_strict.mapping.add('secret')
+        self.kw_parser_strict.generate_item_regexes()
+
+        self.kw_parser_nonstrict = SoSKeywordParser(
+            config={}, workdir=workdir, strict_tokenisation=False)
+        self.kw_parser_nonstrict.mapping.add('secret')
+        self.kw_parser_nonstrict.generate_item_regexes()
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _split_tokens(self, line):
+        """Return the non-empty tokens from _token_split_re_strict on line."""
+        return (set(self.kw_strict._token_split_re_strict.split(line.lower()))
+                - {''})
+
+    # ------------------------------------------------------------------
+    # A. _token_split_re_strict : does strict tokenisation work well?
+    # ------------------------------------------------------------------
+
+    def test_strict_split_uri_percent_encoded(self):
+        """URI percent-encoded boundary (%20) isolates the adjacent token."""
+        self.assertIn('secret', self._split_tokens('%20secret%20'))
+
+    def test_strict_split_rsyslog_decimal_009(self):
+        """rsyslog #009 (TAB) is recognised as a split boundary."""
+        self.assertIn('secret', self._split_tokens('#009secret#009'))
+
+    def test_strict_split_corrupted_ansi_prefix(self):
+        """Corrupted ANSI b;N;Nm at a word boundary isolates the token."""
+        self.assertIn('secret', self._split_tokens('b;1;32msecret b;0m'))
+
+    def test_strict_split_real_ansi_prefix(self):
+        """Real ESC-based ANSI sequence is recognised as a split boundary."""
+        self.assertIn('secret',
+                      self._split_tokens('\x1b[1;32msecret\x1b[0m'))
+
+    def test_strict_split_no_false_split_blob10m(self):
+        """'blob10m' must not be split: b+digits+m without ';' is not ANSI."""
+        toks = self._split_tokens('blob10m')
+        self.assertIn('blob10m', toks,
+                      "'blob10m' should remain a single token")
+        self.assertNotIn('10m', toks,
+                         "False split detected inside 'blob10m'")
+
+    # ------------------------------------------------------------------
+    # B. Word-boundary regex (_regex_dict per-item pattern)
+    # ------------------------------------------------------------------
+
+    def test_strict_wb_regex_matches_after_uri_encoded(self):
+        """Strict mode matches a keyword immediately after a %XX sequence."""
+        reg = self.kw_strict._regex_dict['secret']
+        self.assertRegex('%20secret%20', reg)
+
+    def test_strict_wb_regex_matches_after_rsyslog_decimal(self):
+        """Strict mode matches a keyword immediately after a #NNN sequence."""
+        reg = self.kw_strict._regex_dict['secret']
+        self.assertRegex('#009secret', reg)
+
+    def test_strict_wb_regex_matches_after_corrupted_ansi(self):
+        """Strict mode matches a keyword after a corrupted ANSI B;N;Nm."""
+        reg = self.kw_strict._regex_dict['secret']
+        self.assertRegex('B;1;32msecret B;0m', reg)
+
+    def test_strict_wb_regex_matches_after_real_ansi(self):
+        """Strict mode matches a keyword after a real ESC ANSI sequence."""
+        reg = self.kw_strict._regex_dict['secret']
+        self.assertRegex('\x1b[32msecret', reg)
+
+    def test_both_modes_match_plain_space_boundary(self):
+        """Both modes match a keyword delimited by plain spaces."""
+        reg_s = self.kw_strict._regex_dict['secret']
+        reg_n = self.kw_nonstrict._regex_dict['secret']
+        self.assertRegex(' secret ', reg_s)
+        self.assertRegex(' secret ', reg_n)
+
+    def test_both_modes_no_match_embedded_in_word(self):
+        """Neither mode matches a keyword embedded in an alphanumeric word."""
+        reg_s = self.kw_strict._regex_dict['secret']
+        reg_n = self.kw_nonstrict._regex_dict['secret']
+        self.assertNotRegex('notsecrethere', reg_s)
+        self.assertNotRegex('notsecrethere', reg_n)
+
+    # ------------------------------------------------------------------
+    # C. Hostname map compiled_search
+    # ------------------------------------------------------------------
+
+    def test_strict_hostname_compiled_search_uri_encoded(self):
+        """Strict mode finds a hostname immediately after a %XX sequence."""
+        self.assertTrue(
+            self.host_strict.compiled_search.search('%22secret.example.com'),
+            'compiled_search should match hostname '
+            'preceded by %XX in strict mode')
+
+    def test_both_modes_hostname_compiled_search_plain_boundary(self):
+        """Both modes find a hostname at a plain word boundary."""
+        self.assertTrue(
+            self.host_strict.compiled_search.search('secret.example.com '))
+        self.assertTrue(
+            self.host_nonstrict.compiled_search.search('secret.example.com '))
+
+    # ------------------------------------------------------------------
+    # D. Parser integration (end-to-end)
+    # ------------------------------------------------------------------
+
+    def test_kw_parser_strict_obfuscates_plain_keyword(self):
+        """Keyword parser (strict) obfuscates a space-delimited keyword."""
+        result, count = self.kw_parser_strict.parse_line('the secret is here')
+        self.assertGreater(count, 0)
+        self.assertNotIn('secret', result)
+
+    def test_kw_parser_strict_no_false_positive_embedded(self):
+        """Keyword parser (strict) does not obfuscate a keyword in a word."""
+        result, count = self.kw_parser_strict.parse_line('supersecretpassword')
+        self.assertEqual(count, 0)
+        self.assertEqual(result, 'supersecretpassword')
+
+    def test_kw_parser_obfuscation_consistent_across_modes(self):
+        """Plain keyword is removed in both strict and non-strict mode."""
+        line = 'the secret is here'
+        rs, _ = self.kw_parser_strict.parse_line(line)
+        rn, _ = self.kw_parser_nonstrict.parse_line(line)
+        self.assertNotIn('secret', rs)
+        self.assertNotIn('secret', rn)

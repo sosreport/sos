@@ -151,7 +151,8 @@ class SoSReport(SoSComponent):
         'upload_target': None,
         'add_preset': '',
         'del_preset': '',
-        'treat_certificates': 'obfuscate'
+        'treat_certificates': 'obfuscate',
+        'strict_tokenisation': False
     }
 
     def __init__(self, parser, args, cmdline):
@@ -413,6 +414,14 @@ class SoSReport(SoSComponent):
                                     ' after convert the file to text. '
                                     ' "Key" certificate files are always '
                                     'removed.'))
+        cleaner_grp.add_argument('--strict-tokenisation', default=False,
+                                 action='store_true',
+                                 dest='strict_tokenisation',
+                                 help=(
+                                    'Enforce more strict tokenisation that '
+                                    'also respects URI encoding, terminal '
+                                    'escape characters, and rsyslog special '
+                                    'characters.'))
 
     @classmethod
     def display_help(cls, section):
