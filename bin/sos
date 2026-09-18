@@ -11,7 +11,10 @@ import sys
 import os
 
 try:
-    sys.path.insert(0, os.getcwd())
+    try:
+        sys.path.insert(0, os.getcwd())
+    except OSError:
+        pass
     from sos import SoS
 except KeyboardInterrupt:
     raise SystemExit()
