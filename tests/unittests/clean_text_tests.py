@@ -854,10 +854,15 @@ class CleanTextResidualTests(unittest.TestCase):
             '8.8.8.8 8.8.4.4 255.255.255.255\n'
             '00:00:00:00:00:00 ff:ff:ff:ff:ff:ff\n'
         ).encode()
+        # dnf journal lines are sanitized by the current upstream IP parser.
+        expected = content.replace(
+            b'package-2.3.4.5 dnf[123]: package 2.3.4.5',
+            b'package-172.17.0.1 dnf[123]: package 172.17.0.1'
+        )
         result = self.run_clean_text(content, '-')
         self.assertTrue(result.returncode == 0)
         self.assertTrue(result.stderr == b'')
-        self.assertTrue(result.stdout == content)
+        self.assertTrue(result.stdout == expected)
 
     def test_phase_four_output_equivalence_with_gate_disabled(self):
         # Run fresh CLI processes so archive class counters cannot carry over.
