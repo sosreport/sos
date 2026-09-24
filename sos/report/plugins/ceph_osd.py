@@ -10,7 +10,7 @@
 
 import os
 
-from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin, PluginOpt
 
 
 class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
@@ -36,6 +36,13 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
     files = ('/var/lib/ceph/osd/*', '/var/lib/ceph/*/osd*',
              '/var/snap/microceph/common/data/osd/*')
 
+    option_list = [
+        PluginOpt('allocator-dump', default=False, val_type=bool,
+                  desc=('collect the full bluestore allocator free-extent '
+                        'map. This is expensive on production OSDs and may '
+                        'produce multi-GB output'))
+    ]
+
     def setup(self):
         all_logs = self.get_option("all_logs")
         directory = ''
@@ -46,7 +53,11 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
             "dump_reservations",
             # will work quincy onward
             "bluefs stats",
-            "bluestore allocator dump block",
+            # the full 'allocator dump block' is gated behind the
+            # allocator-dump option, as it is expensive to run and can
+            # generate multi-GB of output. Score is the lightweight
+            # equivalent suitable for a default collection.
+            "bluestore allocator score block",
             "bluestore bluefs device info",
             "config diff",
             "config show",
@@ -131,10 +142,21 @@ class CephOSD(Plugin, RedHatPlugin, UbuntuPlugin):
                 ])
 
         # common add_cmd_output for ceph and microceph
-        self.add_cmd_output([
-            f"ceph daemon {i} {c}" for i in
-            self.get_socks(directory) for c in cmds]
+        socks = self.get_socks(directory)
+
+        self.add_cmd_output(
+            [f"ceph daemon {i} {c}" for i in socks for c in cmds]
         )
+
+        # Collected last, and with a dedicated timeout and sizelimit, so that
+        # an OSD that is slow to walk its free-extent map cannot consume the
+        # plugin timeout before the collections above have been gathered.
+        if self.get_option('allocator-dump'):
+            self.add_cmd_output(
+                [f"ceph daemon {i} bluestore allocator dump block"
+                 for i in socks],
+                timeout=60, sizelimit=100, priority=100
+            )
 
     def get_socks(self, directory):
         """
