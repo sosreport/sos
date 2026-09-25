@@ -8,8 +8,10 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-import glob
+import fnmatch
 import os
+import re
+import yaml
 
 from sos.cleaner.preppers import SoSPrepper
 
@@ -22,6 +24,12 @@ class HostnamePrepper(SoSPrepper):
     The items from hostname sources are handled manually via the _get_items
     method, rather than passing the file directly, as the parser does not know
     what hostnames or domains to match on initially.
+
+    In addition to the system hostname, /etc/hosts, and any user-provided
+    --domains, this prepper also mines netplan configuration for DNS search
+    domains and requested hostnames. These values are not necessarily the
+    system's own hostname or present in /etc/hosts, and so would otherwise
+    not be obfuscated by ``sos clean``.
 
     This will also populate the regex_items list with local short names.
     """
@@ -51,23 +59,81 @@ class HostnamePrepper(SoSPrepper):
         'dyndns_server'
     }
 
+    netplan_dirs = [
+        'etc/netplan',
+        'lib/netplan',
+        'run/netplan',
+    ]
+
+    def _iter_archive_relpaths(self, archive):
+        """Yield archive-relative paths for every regular file in the archive,
+        working both before and after extraction.
+
+        Preppers run *before* the archive is extracted, so during prep the
+        archive is still a tarball and ``extracted_path`` does not yet exist.
+        In that case we read the member list directly from the tarball. Once
+        the archive has been extracted (or is a plain directory), we fall back
+        to walking the extracted tree.
+
+        :param archive: The archive we are currently operating on
+        :type archive:  ``SoSObfuscationArchive``
+
+        :returns: Archive-relative file paths
+        :rtype:   generator of ``str``
+        """
+        # not-yet-extracted tarball: enumerate members from the tarball object
+        if not getattr(archive, 'is_extracted', False) \
+                and getattr(archive, 'is_tarfile', False) \
+                and getattr(archive, 'tarobj', None) is not None:
+            if not archive.archive_root:
+                archive.archive_root = archive.get_archive_root()
+            root = archive.archive_root
+            for member in archive.tarobj.getmembers():
+                if not member.isfile():
+                    continue
+                rel = os.path.relpath(member.name, root) if root \
+                    else member.name
+                yield rel
+            return
+
+        # otherwise walk a directory on disk. For an already-extracted tarball
+        # this is ``extracted_path``; for a report/collect *directory* archive
+        # (e.g. ``sos report --clean`` in-line obfuscation), prep runs before
+        # extract() is called so ``extracted_path`` is not set yet - in that
+        # case the on-disk root is the archive_path itself.
+        root = getattr(archive, 'extracted_path', None) \
+            or getattr(archive, 'archive_path', None)
+        if not root:
+            return
+
+        # if the archive exposes get_files() (extracted tarball archives do),
+        # prefer it and translate the absolute paths it yields into paths that
+        # are relative to the archive root
+        if hasattr(archive, 'get_files'):
+            try:
+                for _file in archive.get_files():
+                    yield os.path.relpath(_file, root)
+                return
+            except (AttributeError, TypeError):
+                pass
+
+        # directory archive during prep: walk the tree ourselves
+        if not root or not os.path.isdir(root):
+            return
+        for dirname, _, files in os.walk(str(root)):
+            for filename in files:
+                _fname = os.path.join(dirname, filename)
+                if os.path.islink(_fname):
+                    continue
+                yield os.path.relpath(_fname, str(root))
+
     def _get_conf_files(self, archive):
         paths = set()
-        archive_root = None
-        if getattr(archive, 'is_extracted', False):
-            archive_root = archive.extracted_path
-        elif os.path.isdir(getattr(archive, 'archive_path', '')):
-            archive_root = archive.archive_path
-
-        if archive_root:
-            for pattern in self.sssd_conf_patterns:
-                full_pattern = os.path.join(archive_root, pattern.lstrip('/'))
-                for full_path in glob.glob(full_pattern):
-                    if os.path.isfile(full_path):
-                        paths.add(
-                            os.path.relpath(full_path, start=archive_root)
-                        )
-
+        for pattern in self.sssd_conf_patterns:
+            _regex = re.compile(fnmatch.translate(pattern.lstrip('/')))
+            for rel in self._iter_archive_relpaths(archive):
+                if _regex.match(rel):
+                    paths.add(rel)
         return paths
 
     def _get_items_from_sssd_conf(self, archive):
@@ -104,6 +170,49 @@ class HostnamePrepper(SoSPrepper):
                             if '.' in domain:
                                 self.regex_items['hostname'].add(domain)
         return items
+
+    def _get_netplan_items(self, archive):
+        """Extract DNS search domains and requested hostnames from any netplan
+        YAML configuration present in the archive.
+
+        :param archive: The archive we are currently operating on
+        :type archive:  ``SoSObfuscationArchive``
+
+        :returns: The distinct domains and hostnames found in netplan config
+        :rtype:   ``set``
+        """
+        items = set()
+        for rel in self._iter_archive_relpaths(archive):
+            if not (any(rel.startswith(d) for d in self.netplan_dirs)
+                    and rel.endswith(('.yaml', '.yml'))):
+                continue
+            content = archive.get_file_content(rel)
+            if not content:
+                continue
+            try:
+                for doc in yaml.safe_load_all(content):
+                    self._walk_netplan(doc, items)
+            except yaml.YAMLError as err:
+                self.log_debug(f"Could not parse netplan file {rel}: {err}")
+
+        return {item for item in items if item}
+
+    @staticmethod
+    def _walk_netplan(node, out):
+        """Recursively collect `search` domains and requested `hostname`
+        values from a parsed netplan document.
+        """
+        if isinstance(node, dict):
+            for key, val in node.items():
+                if key == 'search' and isinstance(val, list):
+                    out.update(str(v).strip() for v in val)
+                elif key == 'hostname' and isinstance(val, str):
+                    out.add(val.strip())
+                else:
+                    HostnamePrepper._walk_netplan(val, out)
+        elif isinstance(node, list):
+            for item in node:
+                HostnamePrepper._walk_netplan(item, out)
 
     def _get_items_for_hostname(self, archive):
         items = []
@@ -147,4 +256,11 @@ class HostnamePrepper(SoSPrepper):
 
         items.extend(self._get_items_from_sssd_conf(archive))
 
+        for item in self._get_netplan_items(archive):
+            if len(item.split('.')) == 1:
+                self.regex_items['hostname'].add(item)
+            items.append(item)
+
         return items
+
+# vim: set et ts=4 sw=4 :
