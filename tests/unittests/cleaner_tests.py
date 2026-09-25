@@ -304,6 +304,11 @@ class CleanerParserTests(unittest.TestCase):
         self.assertNotEqual(t4, t4_test,
                             f"Parser did not match and obfuscate '{t4}'")
 
+    def test_ipv6_parser_leading_compressed_address(self):
+        line = 'local address ::1234:abcd'
+        sanitized = self.ipv6_parser.parse_line(line)[0]
+        self.assertNotEqual(line, sanitized)
+
     def test_ipv6_parser_uppercase_hex(self):
         line = 'testing 2001:DB8::ABCD as an uppercase address'
         _test = self.ipv6_parser.parse_line(line)[0]

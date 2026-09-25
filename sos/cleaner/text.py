@@ -1,0 +1,169 @@
+# This file is part of the sos project: https://github.com/sosreport/sos
+#
+# This copyrighted material is made available to anyone wishing to use,
+# modify, copy, or redistribute it subject to the terms and conditions of
+# version 2 of the GNU General Public License.
+#
+# See the LICENSE file in the source distribution for further information.
+
+import shutil
+import sys
+import tempfile
+from contextlib import ExitStack
+
+from sos.component import SoSComponent
+from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
+from sos.cleaner.parsers.ip_parser import SoSIPParser
+from sos.cleaner.parsers.ipv6_parser import SoSIPv6Parser
+from sos.cleaner.parsers.mac_parser import SoSMacParser
+from sos.cleaner.session import SanitizationSession, SessionStageError
+from sos.cleaner.text_secrets import SecretRedactor
+from sos.cleaner.text_identity import TextEmailParser, TextUsernameParser
+from sos.cleaner.text_residual import check_staged_output
+
+
+class CleanTextError(Exception):
+    """An error with a diagnostic safe to display without input contents."""
+
+
+def sanitize_stream(source, destination, parsers=None, session=None,
+                    redactor=None):
+    """Sanitize UTF-8 binary streams using the existing cleaner parsers.
+
+    Binary I/O preserves line endings and a missing final newline. Each line
+    must pass every parser before it is written. Errors propagate to the
+    caller. The destination must be private staging storage, since earlier
+    lines may already have been written when a later line fails.
+    """
+    if session is None:
+        # Preserve the small helper's existing parser-list API for callers and
+        # tests. The session path below is the clean-text frontend's API.
+        from sos.cleaner.text_secrets import SecretRedactor
+        redactor = SecretRedactor()
+    else:
+        parsers = session.parsers
+        redactor = redactor if redactor is not None else session.redactor
+    for number, raw_line in enumerate(source, start=1):
+        if session is not None:
+            try:
+                line = session.sanitize_line_with_redactor(
+                    raw_line.decode('utf-8'), redactor)
+            except SessionStageError as err:
+                stage = 'secret redaction' if err.secret else err.name
+                raise CleanTextError(
+                    f'{stage} failed on line {number}'
+                ) from None
+        else:
+            try:
+                line = redactor.redact(raw_line.decode('utf-8'))
+            except Exception:
+                raise CleanTextError(
+                    f'secret redaction failed on line {number}'
+                ) from None
+            for parser in parsers:
+                try:
+                    line, _ = parser.parse_line(line)
+                except Exception:
+                    raise CleanTextError(
+                        f'{parser.name} failed on line {number}'
+                    ) from None
+        destination.write(line.encode('utf-8'))
+
+
+class SoSCleanText(SoSComponent):
+    """A text-only frontend to the cleaner's existing parsers and maps."""
+
+    desc = 'Obfuscate known identities and network addresses in UTF-8 text'
+
+    def __init__(self, parser, args, cmdline):
+        # pylint: disable=super-init-not-called
+        # This stream filter needs neither local-system probing nor the
+        # component's report logging/configuration (which can write stdout).
+        # Defer all I/O to execute(), where failures are reported on stderr.
+        self.opts = args
+
+    @classmethod
+    def add_parser_options(cls, parser):
+        parser.usage = 'sos clean-text [FILE|-] [options]'
+        parser.description = (
+            'Write sanitized UTF-8 text to stdout. Hostnames, domains and '
+            'usernames must be explicitly seeded; unknown names are '
+            'unchanged. '
+            'Ordinary emails are pseudonymized automatically; email case '
+            'variants share a replacement. Username seeds are case-sensitive. '
+            'Recognized credentials and private keys are irreversibly '
+            'redacted before identity and address obfuscation. '
+            'Uses a private temporary cache, without loading or updating the '
+            'system cleaner mapping. Output is released only after the '
+            'complete input has been sanitized successfully and passed an '
+            'independent residual privacy check.'
+        )
+        parser.add_argument('target', metavar='FILE', nargs='?', default='-',
+                            help='Input file, or - for stdin (default)')
+        parser.add_argument('--hostnames', action='extend', default=[],
+                            help='Comma-separated known hostnames to '
+                                 'obfuscate')
+        parser.add_argument('--domains', action='extend', default=[],
+                            help='Comma-separated known domains to obfuscate')
+        parser.add_argument('--usernames', action='extend', default=[],
+                            help='Comma-separated exact usernames to '
+                                 'obfuscate; may be repeated')
+
+    def execute(self):
+        try:
+            for domain in self.opts.domains:
+                if len(domain.split('.')) < 2:
+                    raise CleanTextError(
+                        '--domains values must contain a dot'
+                    )
+            with ExitStack() as stack:
+                workdir = stack.enter_context(tempfile.TemporaryDirectory(
+                    prefix='sos-clean-text-', dir=self.opts.tmp_dir or None
+                ))
+                session = SanitizationSession(
+                    workdir,
+                    hostnames=self.opts.hostnames,
+                    domains=self.opts.domains,
+                    usernames=getattr(self.opts, 'usernames', []),
+                    redactor=SecretRedactor())
+                parsers = session.parsers
+
+                if self.opts.target == '-':
+                    source = sys.stdin.buffer
+                else:
+                    source = stack.enter_context(open(self.opts.target, 'rb'))
+                # NamedTemporaryFile creates a mode-0600 file inside the
+                # mode-0700 workdir. Disk staging keeps total output out of
+                # memory, and ExitStack removes it on success and failure.
+                staged = stack.enter_context(tempfile.NamedTemporaryFile(
+                    mode='w+b', prefix='sanitized-', dir=workdir
+                ))
+                sanitize_stream(source, staged, session=session)
+                # Finish input and output preparation before releasing bytes.
+                if self.opts.target != '-':
+                    source.close()
+                staged.flush()
+                aliases = {}
+                for parser in parsers:
+                    if isinstance(parser, (SoSIPParser, SoSIPv6Parser)):
+                        aliases[parser.map_file_key] = [
+                            value for original, value
+                            in parser.mapping.dataset.items()
+                            if original != value
+                        ]
+                if not check_staged_output(
+                        staged, aliases['ip_map'], aliases['ipv6_map']):
+                    raise CleanTextError('residual privacy check failed')
+                staged.seek(0)
+                shutil.copyfileobj(staged, sys.stdout.buffer, length=64 * 1024)
+                # bin/sos exits with os._exit(), so flush explicitly.
+                sys.stdout.buffer.flush()
+        except Exception as err:
+            # I/O and codec exceptions can contain filenames or input bytes.
+            message = (str(err) if isinstance(err, CleanTextError)
+                       else 'unable to sanitize text')
+            print(f'sos clean-text: {message}', file=sys.stderr)
+            raise SystemExit(1) from None
+        except KeyboardInterrupt:
+            print('sos clean-text: interrupted', file=sys.stderr)
+            raise SystemExit(130) from None
