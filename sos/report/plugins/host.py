@@ -29,6 +29,12 @@ class Host(Plugin, IndependentPlugin):
     def setup(self):
 
         self.add_forbidden_path('/etc/sos/cleaner')
+        # Baseline snapshots hold raw, un-obfuscated host inventory
+        # (hostnames, IPs, usernames, paths) and are meant to stay local
+        # for incremental comparison. Never sweep them into a report via
+        # the '/etc/sos' copy spec below; they only ever enter an archive
+        # through the deliberate, --clean-aware previous_baseline.json path.
+        self.add_forbidden_path('/etc/sos/.baselines')
 
         self.add_cmd_output('hostname', root_symlink='hostname',
                             tags=['hostname_default', 'hostname_short'])
