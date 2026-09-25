@@ -65,9 +65,19 @@ class DirectoryServer(Plugin, RedHatPlugin):
                 "/etc/dirsrv/slapd*/dse.ldif.startOK",
                 "/etc/dirsrv/slapd*/secmod.db",
                 "/etc/dirsrv/slapd*/schema/*.ldif",
-                "/etc/dirsrv/admin-serv",
-                "/var/log/dirsrv/*"
+                "/etc/dirsrv/admin-serv"
             ])
+
+            if self.get_option("all_logs"):
+                self.add_copy_spec("/var/log/dirsrv/*")
+            else:
+                self.add_copy_spec([
+                    "/var/log/dirsrv/slapd-*/access*",
+                    "/var/log/dirsrv/slapd-*/errors*",
+                    "/var/log/dirsrv/slapd-*/security*",
+                    "/var/log/dirsrv/admin-serv/*"
+                ])
+
             self.add_file_tags({
                 "/var/log/dirsrv/*/access": "dirsrv_access"
             })
