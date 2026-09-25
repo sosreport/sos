@@ -40,10 +40,19 @@ def _member_path_ok(abs_dest, member):
         return False
     if member.issym() or member.islnk():
         if os.path.isabs(member.linkname):
+            # Absolute linkname is the same for both types: check it directly.
             link_target = member.linkname
-        else:
+        elif member.issym():
+            # Symlink: target is relative to the directory that will contain
+            # the symlink on disk, i.e. dirname(member_path).
             link_target = os.path.abspath(
                 os.path.join(os.path.dirname(member_path), member.linkname)
+            )
+        else:
+            # Hardlink: tarfile resolves linkname relative to abs_dest (the
+            # archive root), not relative to the member's directory.
+            link_target = os.path.abspath(
+                os.path.join(abs_dest, member.linkname)
             )
         if not _path_is_within(abs_dest, link_target):
             return False
