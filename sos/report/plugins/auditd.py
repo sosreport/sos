@@ -48,9 +48,6 @@ class Auditd(Plugin, IndependentPlugin):
             self._log_error(f'Could not open conf file {config_file}: '
                             f'{error}')
 
-        if not self.get_option("all_logs"):
-            self.add_copy_spec(log_file)
-        else:
-            self.add_copy_spec(log_file+'*')
+        self.add_copy_spec(log_file+'*')
 
 # vim: set et ts=4 sw=4 :
