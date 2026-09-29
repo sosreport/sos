@@ -68,6 +68,15 @@ class RhuiContainer(Plugin, RedHatPlugin):
         for file in ["PG_VERSION", "postmaster.opts"]:
             self.add_copy_spec(f"{pghome}/data/{file}",
                                container='rhui5-rhua', runas='rhui')
+        # collect list of podman image labels
+        self.add_cmd_output(
+            "podman images --format '{{.Labels.name}}"
+            " {{.Labels.version}} {{.Labels.release}}"
+            " {{index .Labels \"vcs-ref\"}}'",
+            runas='rhui',
+            runat="/var/lib/rhui",
+            suggest_filename='podman_images_labels'
+        )
 
     def postproc(self):
         # hide registry_password value in rhui-tools.conf
