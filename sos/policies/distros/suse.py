@@ -78,7 +78,7 @@ No changes will be made to system configuration.
 
     @classmethod
     def check(cls, remote=''):
-        return LinuxPolicy.check.__func__(cls, remote)
+        return super().check(remote)
 
 
 class SLESPolicy(SuSEPolicy):
@@ -101,6 +101,6 @@ No changes will be made to system configuration.
 
     @classmethod
     def check(cls, remote=''):
-        return LinuxPolicy.check.__func__(cls, remote)
+        return super().check(remote)
 
 # vim: set et ts=4 sw=4 :
