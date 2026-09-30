@@ -40,7 +40,6 @@ class Foreman(Plugin):
         PluginOpt('cvfilters', default=False,
                   desc='collect content view filters definition')
     ]
-    pumactl = 'pumactl %s -S /usr/share/foreman/tmp/puma.state'
 
     def setup(self):
         # foremanctl instance has everything in containers; so collect
@@ -189,10 +188,14 @@ class Foreman(Plugin):
         # and optionally also gc-stats
         # if on RHEL with Software Collections, wrap the commands accordingly
         if self.get_option('puma-gc'):
-            self.add_cmd_output(self.pumactl % 'gc-stats',
-                                suggest_filename='pumactl_gc-stats')
-        self.add_cmd_output(self.pumactl % 'stats',
-                            suggest_filename='pumactl_stats')
+            self.add_cmd_output(
+                'pumactl gc-stats -S /usr/share/foreman/tmp/puma.state',
+                suggest_filename='pumactl_gc-stats'
+            )
+        self.add_cmd_output(
+            'pumactl stats -S /usr/share/foreman/tmp/puma.state',
+            suggest_filename='pumactl_stats'
+        )
         self.add_cmd_output('/usr/sbin/foreman-puma-status')
 
         # collect tables sizes, ordered

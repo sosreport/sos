@@ -30,10 +30,9 @@ class Rpm(Plugin, RedHatPlugin):
         self.add_dir_listing('/var/lib/rpm', recursive=True)
 
         if self.get_option("rpmq"):
-            rpmq = "rpm --nodigest -qa --qf=%s"
             # basic installed-rpms
             nvra = '"%-59{NVRA} %{INSTALLTIME:date}\n"'
-            irpms = f"sh -c '{rpmq} | sort -V'" % nvra
+            irpms = f"sh -c 'rpm --nodigest -qa --qf={nvra} | sort -V'"
 
             self.add_cmd_output(irpms, root_symlink='installed-rpms',
                                 tags='installed_rpms')
@@ -46,7 +45,8 @@ class Rpm(Plugin, RedHatPlugin):
                 '%{SIGPGP}\\t%{SIGPGP:pgpsig}\\n"'
             )
 
-            self.add_cmd_output(rpmq % extpd, suggest_filename='package-data',
+            self.add_cmd_output(f"rpm --nodigest -qa --qf={extpd}",
+                                suggest_filename='package-data',
                                 tags=['installed_rpms', 'package_data'])
 
         if self.get_option("rpmva"):

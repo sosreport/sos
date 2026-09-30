@@ -37,8 +37,9 @@ class Alternatives(Plugin):
                 alt = line.split()[0]
                 if alt not in ignore:
                     alts.append(alt)
-            disp_cmd = f"{self.alternatives_cmd} --display %s"
-            self.add_cmd_output([disp_cmd % alt for alt in alts])
+            self.add_cmd_output(
+                [f"{self.alternatives_cmd} --display {alt}" for alt in alts]
+            )
 
 
 class RedHatAlternatives(Alternatives, RedHatPlugin):
