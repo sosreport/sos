@@ -57,7 +57,7 @@ class Conntrack(Plugin, IndependentPlugin):
         nsps = self.get_option('namespaces')
         for namespace in self.get_network_namespaces(ns_max=nsps):
             ns_cmd_prefix = cmd_prefix + namespace + " "
-            self.add_cmd_output(ns_cmd_prefix + "conntrack -L -o extended")
-            self.add_cmd_output(ns_cmd_prefix + "conntrack -S")
+            self.add_cmd_output(f"{ns_cmd_prefix}conntrack -L -o extended")
+            self.add_cmd_output(f"{ns_cmd_prefix}conntrack -S")
 
 # vim: set et ts=4 sw=4 :

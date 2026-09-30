@@ -47,7 +47,7 @@ class DNFPlugin(Plugin, RedHatPlugin):
             if "[i]" in line:
                 module = line.split()[0]
                 if module != "Hint:":
-                    self.add_cmd_output("dnf module info " + module,
+                    self.add_cmd_output(f"dnf module info {module}",
                                         tags='dnf_module_info')
 
     def setup(self):
