@@ -951,8 +951,10 @@ class SosNode():
         res = self.run_command(cmd, timeout=10, need_root=True)
         if res['status'] == 0:
             return True
-        msg = "Exception while making %s readable. Return code was %s"
-        self.log_error(msg % (filepath, res['status']))
+        self.log_error(
+            f"Exception while making {filepath} readable."
+            f" Return code was {res['status']}"
+        )
         raise Exception
 
 # vim: set et ts=4 sw=4 :

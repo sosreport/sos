@@ -1105,8 +1105,10 @@ class SoSCollector(SoSComponent):
                 if re.match(regex, node):
                     return True
             except re.error as err:
-                msg = 'Error comparing %s to provided node regex %s: %s'
-                self.log_debug(msg % (node, regex, err))
+                self.log_debug(
+                    f'Error comparing {node} to provided '
+                    f'node regex {regex}: {err}'
+                )
         return False
 
     def get_nodes(self):
@@ -1310,8 +1312,10 @@ this utility or remote systems that it connects to.
             files = self.cluster._run_extra_cmd()
             if files:
                 self.primary.collect_extra_cmd(files)
-        msg = '\nSuccessfully captured %s of %s sos reports'
-        self.log_info(msg % (self.retrieved, self.report_num))
+        self.log_info(
+            f'\nSuccessfully captured {self.retrieved} of '
+            f'{self.report_num} sos reports'
+        )
         self.close_all_connections()
         if self.retrieved > 0:
             self.arc_name = self.create_cluster_archive()
