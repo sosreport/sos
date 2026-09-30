@@ -1252,8 +1252,10 @@ class Plugin():
                         self.archive.add_string(result, path)
 
         except Exception as e:
-            msg = "regex substitution failed for '%s' with: '%s'"
-            self._log_error(msg % (called['exe'], e))
+            self._log_error(
+                f"regex substitution failed for '{called['exe']}'"
+                f" with: '{e}'"
+            )
             replacements = None
         return replacements
 
@@ -1313,11 +1315,13 @@ class Plugin():
             # if trying to regexp a non-existing file, dont log it as an
             # error to stdout
             if e.errno == errno.ENOENT:
-                msg = "file '%s' not collected, substitution skipped"
-                self._log_debug(msg % path)
+                self._log_debug(
+                    f"file '{path}' not collected, substitution skipped"
+                )
             else:
-                msg = "regex substitution failed for '%s' with: '%s'"
-                self._log_error(msg % (path, e))
+                self._log_error(
+                    f"regex substitution failed for '{path}' with: '{e}'"
+                )
             replacements = 0
         return replacements
 
