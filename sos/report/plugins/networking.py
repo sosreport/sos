@@ -7,7 +7,8 @@
 # See the LICENSE file in the source distribution for further information.
 
 from sos.report.plugins import (Plugin, RedHatPlugin, UbuntuPlugin,
-                                DebianPlugin, SoSPredicate, PluginOpt)
+                                DebianPlugin, ArchPlugin, SoSPredicate,
+                                PluginOpt)
 from sos.policies.distros.ubuntu import UbuntuPolicy
 from sos.policies.distros.debian import DebianPolicy
 
@@ -375,6 +376,10 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
             rf"^(\s+(?:{netplan_secret_keys})\s*:\s*).+$",
             r"\1******"
         )
+
+
+class ArchNetworking(Networking, ArchPlugin):
+    trace_host = "archlinux.org"
 
 
 # vim: set et ts=4 sw=4 :
