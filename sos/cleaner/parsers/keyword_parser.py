@@ -20,9 +20,11 @@ class SoSKeywordParser(SoSCleanerParser):
     name = 'Keyword Parser'
     map_file_key = 'keyword_map'
 
-    def __init__(self, config, workdir, skip_cleaning_files=[]):
-        self.mapping = SoSKeywordMap(workdir)
-        super().__init__(config, skip_cleaning_files)
+    def __init__(self, config, workdir, skip_cleaning_files=[],
+                 strict_tokenisation=False):
+        self.mapping = SoSKeywordMap(
+            workdir, strict_tokenisation=strict_tokenisation)
+        super().__init__(config, skip_cleaning_files, strict_tokenisation)
 
     def _parse_line(self, line):
         return line, 0
