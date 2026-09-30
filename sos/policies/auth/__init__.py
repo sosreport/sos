@@ -150,7 +150,7 @@ class DeviceAuthorizationClass:
         requesting a new device code.
 
         """
-        data = f"client_id={DEVICE_AUTH_CLIENT_ID}"
+        data = f"client_id={DEVICE_AUTH_CLIENT_ID}&scope=openid+api.graphql"
         headers = {'content-type': 'application/x-www-form-urlencoded'}
         if not REQUESTS_LOADED:
             raise Exception("python3-requests is not installed and is required"
