@@ -31,6 +31,9 @@ sos_report \- Collect and package diagnostic and support data
           [--journal-size]\fR
           [--no-env-vars]\fR
           [--all-logs]\fR
+          [--baseline]\fR
+          [--baseline-name NAME]\fR
+          [--incremental]\fR
           [--since YYYYMMDD[HHMMSS]]\fR
           [--skip-commands commands]\fR
           [--skip-files files]\fR
@@ -237,6 +240,46 @@ By default, sos report collects environment variables from the system which may 
 sensitive information. Use this option to exclude environment variable collection for
 privacy or security reasons. Note that this may limit the usefulness of the report for
 debugging environment-related issues.
+.TP
+.B \-\-baseline
+Collect enhanced file metadata for baseline comparison, including permissions,
+ownership, SELinux context, and SHA\-256 hashes for critical files. When specified,
+a dated snapshot is saved to
+\fB/etc/sos/.baselines/baseline\-HOSTNAME[\-NAME]\-YYYY\-MM\-DD_HH\-MM\-SSZ.json\fR
+for tracking system state changes over time by comparing baselines from different
+dates using \fBsos compare\fR.
+
+The snapshot records the system's hostname, kernel version, and architecture.
+When used with \fB\-\-incremental\fR, a reference to the previous snapshot
+(filename, creation time, collection type) is also stored, forming a chain
+that can be followed to reconstruct the snapshot history. Each plugin's
+profile membership is recorded in the manifest to support profile\-based
+filtering during comparison.
+
+Use \fB\-\-baseline\-name\fR to assign a name for organizing snapshots.
+.TP
+.B \-\-baseline\-name NAME
+Assign a name to the baseline snapshot. The name is embedded in the
+snapshot filename and can be used to filter snapshots with
+\fBsos compare list \-\-name\fR or to ensure that incremental runs
+only compare against snapshots with the same name.
+
+Names may contain alphanumeric characters, dots, hyphens, and underscores.
+.TP
+.B \-\-incremental
+Only collect files that are new or modified since the last baseline snapshot.
+A file is considered modified when its type, size, modification time
+(mtime), status change time (ctime), mode, ownership, symlink target, or
+(for hashed paths) SHA\-256 content hash differs from the previous snapshot.
+Because ctime is checked, metadata\-only changes such as \fBchmod\fR,
+\fBchown\fR, and renames are detected even when mtime is unchanged.
+Must be used with \fB\-\-baseline\fR. Unchanged files are recorded in the
+manifest with collection_mode "skipped_unchanged" but their contents are not
+included in the archive, resulting in a significantly smaller report. If no
+previous baseline exists, all files are collected on the first run.
+
+The resulting snapshot records itself as collection_type "incremental" and
+includes a reference to the previous snapshot it was based on.
 .TP
 .B \--since YYYYMMDD[HHMMSS]
 Limits the collection of log archives to those newer than this date. A log
@@ -562,6 +605,7 @@ Display usage message.
 .BR sos (1)
 .BR sos-clean (1)
 .BR sos-collect (1)
+.BR sos-compare (1)
 .BR sos.conf (5)
 
 .SH MAINTAINER
