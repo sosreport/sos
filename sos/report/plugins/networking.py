@@ -271,11 +271,11 @@ class Networking(Plugin):
                     f"{ns_cmd_prefix} netstat {self.ns_wide} -agn",
                     f"{ns_cmd_prefix} nstat -zas",
                 ], priority=50, subdir=_subdir)
-                self.add_cmd_output([ns_cmd_prefix + "iptables-save"],
+                self.add_cmd_output([f"{ns_cmd_prefix}iptables-save"],
                                     pred=iptables_with_nft,
                                     subdir=_subdir,
                                     priority=50)
-                self.add_cmd_output([ns_cmd_prefix + "ip6tables-save"],
+                self.add_cmd_output([f"{ns_cmd_prefix}ip6tables-save"],
                                     pred=ip6tables_with_nft,
                                     subdir=_subdir,
                                     priority=50)
