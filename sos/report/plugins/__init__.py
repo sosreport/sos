@@ -2841,7 +2841,7 @@ class Plugin():
                     _runtime.get_container_by_name(name) is not None)
         return False
 
-    def get_all_containers_by_regex(self, regex, get_all=False):
+    def get_all_containers_by_regex(self, regex, get_all=False, runtime=None):
         """Get a list of all container names and ID matching a regex
 
         :param regex:   The regular expression to match
@@ -2850,10 +2850,13 @@ class Plugin():
         :param get_all: Return all containers found, even terminated ones
         :type get_all:  ``bool``
 
+        :param runtime: The runtime to use, if not the default
+        :type runtime: ``str``
+
         :returns:   All container IDs and names matching ``regex``
         :rtype:     ``list`` of ``tuples`` as (id, name)
         """
-        _runtime = self._get_container_runtime()
+        _runtime = self._get_container_runtime(runtime)
         if _runtime is not None:
             _containers = _runtime.get_containers(get_all=get_all)
             return [c for c in _containers if re.match(regex, c[1])]
@@ -2938,7 +2941,8 @@ class Plugin():
             return _runtime.volumes
         return []
 
-    def add_container_logs(self, containers, get_all=False, **kwargs):
+    def add_container_logs(self, containers, get_all=False, runtime=None,
+                           **kwargs):
         """Helper to get the ``logs`` output for a given container or list
         of container names and/or regexes.
 
@@ -2952,15 +2956,19 @@ class Plugin():
                             Default: False
         :type get_all:      ``bool``
 
+        :param runtime:     The runtime to use, if not the default
+        :type runtime: ``str``
+
         :param kwargs:      Any kwargs supported by ``add_cmd_output()`` are
                             supported here
         """
-        _runtime = self._get_container_runtime()
+        _runtime = self._get_container_runtime(runtime)
         if _runtime is not None:
             if isinstance(containers, str):
                 containers = [containers]
             for container in containers:
-                _cons = self.get_all_containers_by_regex(container, get_all)
+                _cons = self.get_all_containers_by_regex(container, get_all,
+                                                         runtime=runtime)
                 for _con in _cons:
                     cmd = _runtime.get_logs_command(_con[1])
                     self.add_cmd_output(cmd, **kwargs)
@@ -3465,7 +3473,9 @@ class Plugin():
                 any(is_executable(cmd, self.sysroot) for cmd in commands) or
                 any(self.is_module_loaded(mod) for mod in self.kernel_mods) or
                 any(self.is_service(svc) for svc in services) or
-                any(self.container_exists(cntr) for cntr in containers)) and
+                any(self.container_exists(cntr, runtime)
+                    for cntr in containers
+                    for runtime in self.policy.runtimes)) and
                 self.check_is_architecture())
 
     def check_is_architecture(self):
