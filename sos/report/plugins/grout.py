@@ -25,6 +25,7 @@ class Grout(Plugin, IndependentPlugin):
             "grcli interface stats",
             "grcli address",
             "grcli route",
+            "grcli route config",
             "grcli nexthop",
             "grcli nexthop config",
             "grcli stats software",
@@ -38,9 +39,9 @@ class Grout(Plugin, IndependentPlugin):
             "grcli conntrack config",
             "grcli dnat44",
             "grcli snat44",
-            "grcli dhcp",
+            "grcli dhcp show",
             "grcli router-advert",
-            "grcli srv6 tunsrc",
+            "grcli tunsrc",
         ]
         ip_cmds = [
             "ip -d address",
