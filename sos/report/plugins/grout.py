@@ -50,15 +50,21 @@ class Grout(Plugin, IndependentPlugin):
             "ip -6 route",
         ]
 
-        con = self.get_container_by_name(self.containers[0])
+        containerized = False
+        for runtime in ("podman", "crio"):
+            if not self.container_exists(self.containers[0], runtime):
+                continue
+            containerized = True
+            self.add_cmd_output(
+                grcli_cmds + ip_cmds,
+                container=self.containers[0],
+                runtime=runtime,
+            )
+            self.add_container_logs(self.containers[0], runtime=runtime)
 
-        self.add_cmd_output(grcli_cmds, container=con)
-
-        if con:
-            self.add_cmd_output(ip_cmds, container=con)
-            self.add_container_logs(list(self.containers))
-        else:
+        if not containerized:
             self.add_copy_spec(["/etc/grout.init", "/etc/default/grout"])
+            self.add_cmd_output(grcli_cmds)
             self._collect_netns_ip(ip_cmds)
             self.add_journal(units="grout")
 
