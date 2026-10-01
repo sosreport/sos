@@ -13,11 +13,11 @@ from sos.report.plugins import IndependentPlugin, Plugin
 
 class Grout(Plugin, IndependentPlugin):
 
-    short_desc = "Grout graph router"
+    short_desc = "DPDK graph router"
     plugin_name = "grout"
     profiles = ("network",)
     packages = ("grout",)
-    containers = ("grout.*",)
+    containers = ("grout",)
 
     def setup(self):
         grcli_cmds = [
