@@ -17,6 +17,7 @@ class Grout(Plugin, IndependentPlugin):
     plugin_name = "grout"
     profiles = ("network",)
     packages = ("grout",)
+    services = ("grout",)
     containers = ("grout",)
 
     def setup(self):
