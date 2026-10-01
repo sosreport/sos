@@ -71,7 +71,7 @@ class Grout(Plugin, IndependentPlugin):
         res = self.collect_cmd_output("systemctl show -p MainPID grout")
         try:
             for m in re.finditer(r"MainPID=(\d+)", res["output"]):
-                pid = m[0]
+                pid = m[1]
                 if pid == "0":
                     continue
                 cmds = [f"nsenter --net -t {pid} {cmd}" for cmd in ip_cmds]
