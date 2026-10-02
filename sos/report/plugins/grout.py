@@ -13,11 +13,12 @@ from sos.report.plugins import IndependentPlugin, Plugin
 
 class Grout(Plugin, IndependentPlugin):
 
-    short_desc = "Grout graph router"
+    short_desc = "DPDK graph router"
     plugin_name = "grout"
     profiles = ("network",)
     packages = ("grout",)
-    containers = ("grout.*",)
+    services = ("grout",)
+    containers = ("grout",)
 
     def setup(self):
         grcli_cmds = [
@@ -25,6 +26,7 @@ class Grout(Plugin, IndependentPlugin):
             "grcli interface stats",
             "grcli address",
             "grcli route",
+            "grcli route config",
             "grcli nexthop",
             "grcli nexthop config",
             "grcli stats software",
@@ -38,9 +40,9 @@ class Grout(Plugin, IndependentPlugin):
             "grcli conntrack config",
             "grcli dnat44",
             "grcli snat44",
-            "grcli dhcp",
+            "grcli dhcp show",
             "grcli router-advert",
-            "grcli srv6 tunsrc",
+            "grcli tunsrc",
         ]
         ip_cmds = [
             "ip -d address",
@@ -49,15 +51,21 @@ class Grout(Plugin, IndependentPlugin):
             "ip -6 route",
         ]
 
-        con = self.get_container_by_name(self.containers[0])
+        containerized = False
+        for runtime in ("podman", "crio"):
+            if not self.container_exists(self.containers[0], runtime):
+                continue
+            containerized = True
+            self.add_cmd_output(
+                grcli_cmds + ip_cmds,
+                container=self.containers[0],
+                runtime=runtime,
+            )
+            self.add_container_logs(self.containers[0], runtime=runtime)
 
-        self.add_cmd_output(grcli_cmds, container=con)
-
-        if con:
-            self.add_cmd_output(ip_cmds, container=con)
-            self.add_container_logs(list(self.containers))
-        else:
+        if not containerized:
             self.add_copy_spec(["/etc/grout.init", "/etc/default/grout"])
+            self.add_cmd_output(grcli_cmds)
             self._collect_netns_ip(ip_cmds)
             self.add_journal(units="grout")
 
@@ -71,7 +79,7 @@ class Grout(Plugin, IndependentPlugin):
         res = self.collect_cmd_output("systemctl show -p MainPID grout")
         try:
             for m in re.finditer(r"MainPID=(\d+)", res["output"]):
-                pid = m[0]
+                pid = m[1]
                 if pid == "0":
                     continue
                 cmds = [f"nsenter --net -t {pid} {cmd}" for cmd in ip_cmds]
