@@ -114,7 +114,10 @@ class CephRGW(Plugin, RedHatPlugin, UbuntuPlugin):
     def postproc(self):
         """ Obfuscate secondary zone access keys """
 
-        rsub = r'("access_key":|"secret_key":)\s.*'
+        # Match only the quoted value. A greedy match to end-of-line also eats
+        # the trailing comma, which leaves `zone get` output that no longer
+        # parses as JSON.
+        rsub = r'("access_key":|"secret_key":)\s*"[^"]*"'
         self.do_cmd_output_sub("radosgw-admin", rsub, r'\1 "**********"')
 
 
