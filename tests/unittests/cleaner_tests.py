@@ -672,6 +672,82 @@ class PrepperTests(unittest.TestCase):
                       "Regular username 'testuser' should be collected for "
                       "obfuscation")
 
+    def test_username_prepper_sssd_conf_values_in_items(self):
+        """Login names listed in SSSD config files must be collected as
+        items so that the username mapping obfuscates them."""
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+
+            def get_file_content(self, path):
+                if path == 'etc/sssd/sssd.conf':
+                    return ('[sssd]\n'
+                            'services = nss, pam\n'
+                            '[domain/example.com]\n'
+                            'access_provider = simple\n'
+                            'users = myuser, exampleuser\n'
+                            'simple_allow_users = alloweduser\n'
+                            'simple_deny_users = denieduser\n'
+                            'pam_trusted_users = 0, secretuser0\n')
+                if path == 'etc/sssd/conf.d/extra.conf':
+                    return ('[domain/example.com]\n'
+                            '# excluded_users = hiddenuser\n')
+                return ''
+
+        username_prepper = UsernamePrepper(SoSOptions(usernames=[]))
+        username_prepper._get_conf_files = lambda archive: {
+            'etc/sssd/sssd.conf',
+            'etc/sssd/conf.d/extra.conf'
+            }
+
+        items = username_prepper.get_items_for_map('username', MockArchive())
+        expected = {
+            'myuser',
+            'exampleuser',
+            'alloweduser',
+            'denieduser',
+            'secretuser0',
+            'hiddenuser',
+        }
+        self.assertTrue(expected.issubset(set(items)),
+                        f"Expected SSSD login names missing from items: "
+                        f"{expected - set(items)}")
+        # numeric UIDs must not be treated as login names
+        self.assertNotIn('0', items,
+                         "Numeric UID must not be collected as a username")
+
+    def test_username_prepper_sssd_conf_values_are_obfuscated(self):
+        """Login names sourced from SSSD config must actually be obfuscated
+        by the username parser."""
+        workdir = join(sos.policies.load().get_tmp_dir(None),
+                       'sos_avocado_testing')
+
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+
+            def get_file_content(self, path):
+                if path == 'etc/sssd/sssd.conf':
+                    return ('[domain/example.com]\n'
+                            'access_provider = simple\n'
+                            'users = goldberl\n')
+                return ''
+
+        username_prepper = UsernamePrepper(SoSOptions(usernames=[]))
+        username_prepper._get_conf_files = lambda archive: {
+            'etc/sssd/sssd.conf'
+            }
+
+        items = username_prepper.get_items_for_map('username', MockArchive())
+        parser = SoSUsernameParser(config={}, workdir=workdir)
+        for item in items:
+            parser.mapping.add(item)
+
+        line = 'users = goldberl'
+        result = parser.parse_line(line)[0]
+        self.assertNotIn('goldberl', result,
+                         'SSSD login name was not obfuscated')
+
 
 class PackedDirTarballTests(unittest.TestCase):
     """Verify the cleaner only keeps tarballs that the manifest's
