@@ -20,6 +20,7 @@ class CephRGW(Plugin, RedHatPlugin, UbuntuPlugin):
     profiles = ('storage', 'virt', 'container', 'webserver', 'ceph')
     containers = ('ceph-(.*)?rgw.*',)
     files = ('/var/lib/ceph/radosgw/*',
+             '/var/lib/ceph/*/rgw.*',
              '/var/snap/microceph/common/data/radosgw/*')
 
     def setup(self):
@@ -60,11 +61,13 @@ class CephRGW(Plugin, RedHatPlugin, UbuntuPlugin):
                 "/var/snap/microceph/common/state/*",
             ])
         else:
+            # cephadm writes logs under /var/log/ceph/<fsid>/, packaged
+            # installs write them directly to /var/log/ceph/
             if not all_logs:
-                self.add_copy_spec('/var/log/ceph/ceph-client.rgw*.log',
+                self.add_copy_spec('/var/log/ceph/**/ceph-client.rgw*.log',
                                    tags='ceph_rgw_log')
             else:
-                self.add_copy_spec('/var/log/ceph/ceph-client.rgw*.log*',
+                self.add_copy_spec('/var/log/ceph/**/ceph-client.rgw*.log*',
                                    tags='ceph_rgw_log')
 
             self.add_forbidden_path([
