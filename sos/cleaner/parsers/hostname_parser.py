@@ -21,8 +21,10 @@ class SoSHostnameParser(SoSCleanerParser):
         r'(((\b|_)[a-zA-Z0-9-\.]{1,200}\.[a-zA-Z]{1,63}(\b|_)))'
     )
 
-    def __init__(self, config, workdir, skip_cleaning_files=[]):
-        self.mapping = SoSHostnameMap(workdir, self.regex_pattern)
+    def __init__(self, config, workdir, skip_cleaning_files=[],
+                 no_update=False):
+        self.mapping = SoSHostnameMap(workdir, self.regex_pattern,
+                                      no_update=no_update)
         super().__init__(config, skip_cleaning_files)
 
     def parse_line(self, line):

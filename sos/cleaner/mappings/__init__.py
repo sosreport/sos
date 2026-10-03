@@ -35,7 +35,8 @@ class SoSMap():
 
     _token_split_re = re.compile(r'[^a-z0-9]+')
 
-    def __init__(self, workdir, _static_regex=re.compile(r'(?!)')):
+    def __init__(self, workdir, _static_regex=re.compile(r'(?!)'),
+                 no_update=False):
         self.initializing = True
         self.dataset = {}
         self._regexes_made = set()
@@ -51,7 +52,20 @@ class SoSMap():
         self.workdir = workdir
         self.cache_dir = os.path.join(self.workdir, 'cleaner_cache',
                                       self.cname)
-        self.cache_counter = 0  # number of expected items in cache_dir
+
+        self.cache_counter = 0  # number of persistent items in cache_dir
+        # When no_update is True (i.e. cleaner called with --no-update),
+        # new items are written as PID-prefixed ephemeral cache files
+        # (e.g. "12345_1"), leaving plain-numbered persistent files untouched.
+        # This ensures the ephemeral files are never carried over into
+        # default_mapping by a subsequent non-no-update run.
+        self.no_update = no_update
+        self.pid = os.getpid() if no_update else None
+        # Tracks the highest PID-prefixed ephemeral file suffix seen so far
+        # (no_update only). Kept separate from cache_counter, which always
+        # tracks only plain-numbered (persistent) files in both modes.
+        self.pid_counter = 0
+
         self.load_entries()
         self.initializing = False
         self.generate_compiled_regexes()
@@ -70,7 +84,32 @@ class SoSMap():
         """
 
         Path(self.cache_dir).mkdir(parents=True, exist_ok=True)
+        if self.no_update:
+            # Pre-load items from plain-numbered persistent cache files so
+            # that this run benefits from prior non-no-update mappings.
+            # cache_counter is kept at 0 here: it tracks only our own
+            # PID-prefixed ephemeral files, which don't exist yet.
+            self._load_persistent_entries()
         self.load_new_entries_from_dir()
+
+    def _load_persistent_entries(self):
+        """Load all plain-numbered cache files written by previous
+        non-no-update runs into the dataset. These files are not written
+        during the current --no-update run and are left untouched.
+        """
+        with os.scandir(self.cache_dir) as it:
+            plain_files = sorted(
+                [e.name for e in it if e.name.isdigit()],
+                key=int
+            )
+        for fname in plain_files:
+            with open(os.path.join(self.cache_dir, fname),
+                      'r', encoding='utf-8') as f:
+                item = f.read()
+            if not self.dataset.get(item, False):
+                self.add_sanitised_item_to_dataset(item)
+        if plain_files:
+            self.cache_counter = int(plain_files[-1])
 
     def ignore_item(self, item):
         """Some items need to be completely ignored, for example link-local or
@@ -102,22 +141,46 @@ class SoSMap():
         # Load all new items from the cache_dir. "New" = any numbered file not
         # lower than self.cache_counter.
         # The ">=" is essential for calls from self.add(item) / FileExistsError
-        # Update self.cache_counter at the end.
+        # Update self.cache_counter at the end. Exception: in no_update mode,
+        # plain_numbers uses ">" because cache_counter is set post-read and
+        # no_update never writes plain-numbered files, so no pre-increment /
+        # FileExistsError occurs.
+        #
+        # In no_update mode, items are stored as PID-prefixed files
+        # (e.g. "12345_3") so that a subsequent non-no-update run ignores
+        # them entirely and they never reach default_mapping.
+        pid_prefix = f"{self.pid}_" if self.no_update else ""
+        pid_numbers = []
+        plain_numbers = []
         with os.scandir(self.cache_dir) as it:
-            num_files = [
-                f.name
-                for f in it
-                if f.name.isdigit() and int(f.name) >= self.cache_counter
-            ]
-        num_files.sort(key=int)
-        for file_name in num_files:
-            fname = os.path.join(self.cache_dir, file_name)
+            for f in it:
+                if pid_prefix and f.name.startswith(pid_prefix):
+                    suffix = f.name[len(pid_prefix):]
+                    if suffix.isdigit() and int(suffix) >= self.pid_counter:
+                        pid_numbers.append(suffix)
+                elif f.name.isdigit():
+                    n = int(f.name)
+                    if (n > self.cache_counter if self.no_update
+                            else n >= self.cache_counter):
+                        plain_numbers.append(f.name)
+        pid_numbers.sort(key=int)
+        for file_num in pid_numbers:
+            fname = os.path.join(self.cache_dir, f"{self.pid}_{file_num}")
             with open(fname, 'r', encoding='utf-8') as f:
                 item = f.read()
             if not self.dataset.get(item, False):
                 self.add_sanitised_item_to_dataset(item)
-        if num_files:
-            self.cache_counter = int(num_files[-1])  # last/biggest number
+        if pid_numbers:
+            self.pid_counter = int(pid_numbers[-1])
+        plain_numbers.sort(key=int)
+        for file_num in plain_numbers:
+            with open(os.path.join(self.cache_dir, file_num),
+                      'r', encoding='utf-8') as f:
+                item = f.read()
+            if not self.dataset.get(item, False):
+                self.add_sanitised_item_to_dataset(item)
+        if plain_numbers:
+            self.cache_counter = int(plain_numbers[-1])
 
     def add(self, item):
         """Add a particular item to the map, generating an obfuscated pair
@@ -138,10 +201,14 @@ class SoSMap():
                 with open(tmpfile.name, 'w', encoding='utf-8') as f:
                     f.write(item)
             try:
-                self.cache_counter += 1
+                if self.no_update:
+                    self.pid_counter += 1
+                    link_name = f"{self.pid}_{self.pid_counter}"
+                else:
+                    self.cache_counter += 1
+                    link_name = f"{self.cache_counter}"
                 os.link(tmpfile.name,
-                        os.path.join(self.cache_dir,
-                                     f"{self.cache_counter}"))
+                        os.path.join(self.cache_dir, link_name))
                 self.add_sanitised_item_to_dataset(item)
             except FileExistsError:
                 self.load_new_entries_from_dir()
@@ -292,6 +359,25 @@ class SoSMap():
         if item not in self.dataset:
             return self.add(item)
         return self.dataset[item]
+
+    def cleanup_no_update_cache(self):
+        """Remove the PID-prefixed ephemeral cache files written during a
+        --no-update run so they are never visible to a subsequent run and
+        never reach default_mapping. Must only be called when no_update=True
+        and only after all cleaning is done.
+
+        Safe to run while other sos clean --no-update processes are active:
+        each such process owns a unique PID prefix and only deletes its own
+        files, so concurrent invocations never interfere with one another.
+        """
+        pid_prefix = f"{self.pid}_"
+        try:
+            with os.scandir(self.cache_dir) as it:
+                for f in it:
+                    if f.name.startswith(pid_prefix):
+                        os.unlink(f.path)
+        except OSError:
+            pass  # best-effort; stale files are harmless to subsequent runs
 
     def conf_update(self, config):
         """Update the map using information from a previous run to ensure that
