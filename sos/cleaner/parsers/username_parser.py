@@ -25,8 +25,9 @@ class SoSUsernameParser(SoSCleanerParser):
     name = 'Username Parser'
     map_file_key = 'username_map'
 
-    def __init__(self, config, workdir, skip_cleaning_files=[]):
-        self.mapping = SoSUsernameMap(workdir)
+    def __init__(self, config, workdir, skip_cleaning_files=[],
+                 no_update=False):
+        self.mapping = SoSUsernameMap(workdir, no_update=no_update)
         super().__init__(config, skip_cleaning_files)
 
     def _parse_line(self, line):
