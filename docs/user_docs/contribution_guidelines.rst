@@ -38,7 +38,8 @@ Code Requirements and Style Guidelines
    requirement as long as the docstring content is clear and easily
    understandable.
 -  f-strings are **required** for all string interpolation instead of
-   ``format()`` or legacy string substitution approaches.
+   ``format()`` or legacy string substitution approaches (this includes
+   strings passed to logging functions: do not use "lazy interpolation").
 
 Submitting Pull requests:
 -------------------------
