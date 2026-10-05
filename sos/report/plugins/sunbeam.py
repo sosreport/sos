@@ -174,4 +174,13 @@ class Sunbeam(Plugin, UbuntuPlugin):
         self.do_cmd_private_sub('juju controllers')
         self.do_cmd_private_sub('juju controller-config')
 
+        password_regex = r"(?i)(\bpassword['\"]?\s*:\s*)(['\"]?)([^'\"\n]+)(\2)"
+        password_mask = r"\1\2******\4"
+
+        self.do_cmd_output_sub('sunbeam deployment show', password_regex, password_mask)
+        self.do_cmd_output_sub('sunbeam manifest show', password_regex, password_mask)
+        self.do_cmd_private_sub('sunbeam deployment show')
+        self.do_cmd_private_sub('sunbeam manifest show')
+
+
 # vim: et ts=4 sw=4
