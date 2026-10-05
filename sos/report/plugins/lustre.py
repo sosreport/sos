@@ -7,16 +7,17 @@
 # See the LICENSE file in the source distribution for further information.
 
 import re
-from sos.report.plugins import Plugin, RedHatPlugin
+from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
 
 
-class Lustre(Plugin, RedHatPlugin):
+class Lustre(Plugin, RedHatPlugin, UbuntuPlugin):
 
     short_desc = 'Lustre filesystem'
 
     plugin_name = 'lustre'
     profiles = ('storage', 'network', 'cluster', )
-    packages = ('lustre', 'lustre-client', )
+    packages = ('lustre', 'lustre-client', 'lustre-client-utils',
+                'lustre-server-utils', )
 
     def get_params(self, name, param_list):
         """Use lctl get_param to collect a selection of parameters into a
@@ -49,8 +50,14 @@ class Lustre(Plugin, RedHatPlugin):
             ["version", "health_check", "debug"]
         )
 
-        # copy lnet settings if present
-        self.add_copy_spec("/etc/lnet.conf")
+        # copy lnet and lustre settings if present
+        self.add_copy_spec([
+            "/etc/lnet.conf",
+            "/etc/lnet_routes.conf",
+            "/etc/lnet-sysctl.conf",
+            "/etc/ldev.conf",
+            "/etc/lustre/mount.*.params",
+        ])
 
         # Client Specific
         self.add_cmd_output([
