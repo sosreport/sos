@@ -149,7 +149,7 @@ jobs:
     with:
       distro_image: ${{ matrix.distro.image }}
       distro_name: ${{ matrix.distro.name }}
-      builds: ${{ toJson(matrix.distro.builds) }}"
+      builds: ${{ toJson(matrix.distro.builds) }}
       test_name: "unit_tests"
       stage_name: "Unit"
 
