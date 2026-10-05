@@ -173,13 +173,17 @@ class ObfuscatedIPv6Network():
         of deterministic generation in concurrent cleaner, generation starts
         from zero values and is incremented by one (for a given length).
 
+        The counter wraps at the largest value ``length`` characters can hold,
+        so that the result is always exactly ``length`` characters and stays a
+        valid hextet. Callers are responsible for rejecting a repeat.
+
         :param length:  The number of characters to generate
         :type length:   ``int``
 
         :returns:       A string of ``length`` hex characters
         :rtype:         ``str``
         """
-        val = self.ob_counters.get(length, 0) + 1
+        val = (self.ob_counters.get(length, 0) + 1) % (16 ** length)
         self.ob_counters[length] = val
         return f"{val:0{length}x}"
 
