@@ -53,11 +53,15 @@ class SoS():
         # if no aliases are desired, pass an empty list
         import sos.report
         import sos.cleaner
+        from sos.cleaner.text import SoSCleanText
+        from sos.cleaner.report_cli import SoSSanitizeReport
         import sos.help
         import sos.upload
         self._components = {
             'report': (sos.report.SoSReport, ['rep']),
             'clean': (sos.cleaner.SoSCleaner, ['cleaner', 'mask']),
+            'clean-text': (SoSCleanText, []),
+            'sanitize-report': (SoSSanitizeReport, []),
             'help': (sos.help.SoSHelper, []),
             'upload': (sos.upload.SoSUpload, [])
         }
