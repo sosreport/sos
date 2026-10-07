@@ -20,6 +20,8 @@ class LxdContainerRuntime(ContainerRuntime):
 
     name = 'lxd'
     binary = 'lxc'
+    log_line_limit = False
+    rootless = False
 
     def check_is_active(self):
         # the daemon must be running
@@ -31,7 +33,10 @@ class LxdContainerRuntime(ContainerRuntime):
             return True
         return False
 
-    def get_containers(self, get_all=False):
+    def get_containers(self, get_all=False, runas=None):
+        # LXD is daemon-based and does not support rootless mode (runas)
+        # query path, but accepts the parameter for signature parity with
+        # ContainerRuntime.
         """Get a list of containers present on the system.
 
         :param get_all: If set, include stopped containers as well
@@ -110,7 +115,9 @@ class LxdContainerRuntime(ContainerRuntime):
                     vols.append(ent['name'])
         return vols
 
-    def get_logs_command(self, container):
+    def get_logs_command(self, container, log_lines=None):
+        # LXD does not support log lines limit (log_lines), but accepts
+        # the parameter for signature parity with ContainerRuntime
         """Get the command string used to dump container logs from the
         runtime
 
