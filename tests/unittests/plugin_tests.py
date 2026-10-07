@@ -447,6 +447,33 @@ class AddCopySpecTests(unittest.TestCase):
         ], 1)
         self.assertEqual(len(self.mp.copy_paths), 2)
 
+    def _make_sibling_dirs(self, tmpdir):
+        files = set()
+        for name in ('a', 'b', 'c', 'd'):
+            os.mkdir(os.path.join(tmpdir, name))
+            fname = os.path.join(tmpdir, name, 'file')
+            with open(fname, 'w', encoding='utf-8') as f:
+                f.write(name)
+            files.add(fname)
+        return files
+
+    def test_dir_with_sibling_subdirs_expanded(self):
+        self.mp.sysroot = '/'
+        tmpdir = tempfile.mkdtemp()
+        files = self._make_sibling_dirs(tmpdir)
+        self.mp.add_copy_spec(tmpdir)
+        self.assertEqual(self.mp.copy_paths, files)
+        shutil.rmtree(tmpdir)
+
+    def test_dir_with_sibling_subdirs_skip_files(self):
+        self.mp.sysroot = '/'
+        tmpdir = tempfile.mkdtemp()
+        self._make_sibling_dirs(tmpdir)
+        self.mp.skip_files = [os.path.join(tmpdir, '*', 'file')]
+        self.mp.add_copy_spec(tmpdir)
+        self.assertEqual(self.mp.copy_paths, set())
+        shutil.rmtree(tmpdir)
+
 
 class CheckEnabledTests(unittest.TestCase):
 

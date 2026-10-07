@@ -3198,7 +3198,7 @@ class Plugin():
             copyspec = self.path_join(copyspec, '*')
         expanded = glob.glob(copyspec, recursive=True)
         recursed_files = []
-        for _path in expanded:
+        for _path in list(expanded):
             try:
                 if self.path_isdir(_path) and self.listdir(_path):
                     # remove the top level dir to avoid duplicate attempts to
