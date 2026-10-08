@@ -115,7 +115,7 @@ class LinuxPolicy(Policy):
             if cls.os_release_id:
                 _matches.append(cls.os_release_id)
             for line in content.splitlines():
-                if line.startswith(('NAME=', 'ID=')):
+                if line.startswith(('NAME=', 'ID=', 'ID_LIKE=')):
                     _distro = line.split('=')[1:][0].strip("\"'")
                     if _distro in _matches:
                         return True
