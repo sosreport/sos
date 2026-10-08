@@ -14,13 +14,28 @@ import tempfile
 import unittest
 from unittest.mock import ANY, MagicMock, patch
 
-from sos.upload.targets import (BOTO3_LOADED, REQUESTS_LOADED, UploadTarget)
+from sos.upload.targets import UploadTarget
 from sos.upload.targets.redhat import RHELUploadTarget
 from sos.utilities import TIMEOUT_DEFAULT
 
 # upload_sftp() imports pexpect lazily and raises if it is absent, so the
-# SFTP cases are skipped rather than failed on a host without it.
+# SFTP cases are skipped rather than failed on a host without it. The
+# other transports are driven entirely through mocks, so they do not
+# need their libraries present -- see force_loaded().
 PEXPECT_LOADED = importlib.util.find_spec('pexpect') is not None
+
+
+def force_loaded(case, flag):
+    """Pretend an optional upload dependency is importable.
+
+    The transfer methods bail out early unless their library loaded, so
+    tests that mock the library have to flip the corresponding module
+    flag as well. Doing so keeps the suite's coverage identical on hosts
+    that do not ship python3-requests or python3-boto3.
+    """
+    patcher = patch(flag, True)
+    patcher.start()
+    case.addCleanup(patcher.stop)
 
 
 # Mirrors SoSUpload.arg_defaults. A bare MagicMock() would make every
@@ -119,9 +134,12 @@ class TransferTestCase(unittest.TestCase):
         return os.path.basename(self.archive)
 
 
-@unittest.skipUnless(REQUESTS_LOADED, 'python3-requests is not installed')
 class S201HttpsTransferTests(TransferTestCase):
     """S2-01 - HTTPS PUT/POST upload success and error handling."""
+
+    def setUp(self):
+        super().setUp()
+        force_loaded(self, 'sos.upload.targets.REQUESTS_LOADED')
 
     def _target(self, opts=None, **attrs):
         return make_target(UploadTarget, opts=opts,
@@ -132,7 +150,8 @@ class S201HttpsTransferTests(TransferTestCase):
 
     def test_put_upload_succeeds(self):
         target = self._target(opts=make_opts(upload_method='put'))
-        with patch('sos.upload.targets.requests') as requests:
+        with patch('sos.upload.targets.requests',
+                   create=True) as requests:
             requests.put.return_value = MagicMock(status_code=200)
             self.assertTrue(target.upload_https())
         requests.put.assert_called_once_with(
@@ -142,14 +161,16 @@ class S201HttpsTransferTests(TransferTestCase):
 
     def test_post_upload_succeeds_on_201(self):
         target = self._target(opts=make_opts(upload_method='post'))
-        with patch('sos.upload.targets.requests') as requests:
+        with patch('sos.upload.targets.requests',
+                   create=True) as requests:
             requests.post.return_value = MagicMock(status_code=201)
             self.assertTrue(target.upload_https())
         self.assertFalse(requests.put.called)
 
     def test_auto_method_defaults_to_post(self):
         target = self._target(opts=make_opts(upload_method='auto'))
-        with patch('sos.upload.targets.requests') as requests:
+        with patch('sos.upload.targets.requests',
+                   create=True) as requests:
             requests.post.return_value = MagicMock(status_code=200)
             self.assertTrue(target.upload_https())
         self.assertTrue(requests.post.called)
@@ -157,7 +178,8 @@ class S201HttpsTransferTests(TransferTestCase):
 
     def test_post_sends_archive_basename(self):
         target = self._target(opts=make_opts(upload_method='post'))
-        with patch('sos.upload.targets.requests') as requests:
+        with patch('sos.upload.targets.requests',
+                   create=True) as requests:
             requests.post.return_value = MagicMock(status_code=200)
             target.upload_https()
         files = requests.post.call_args.kwargs['files']
@@ -165,7 +187,8 @@ class S201HttpsTransferTests(TransferTestCase):
 
     def test_credentials_passed_as_basic_auth(self):
         target = self._target(opts=make_opts(upload_method='put'))
-        with patch('sos.upload.targets.requests') as requests:
+        with patch('sos.upload.targets.requests',
+                   create=True) as requests:
             requests.put.return_value = MagicMock(status_code=200)
             target.upload_https()
         requests.auth.HTTPBasicAuth.assert_called_once_with(
@@ -174,14 +197,16 @@ class S201HttpsTransferTests(TransferTestCase):
     def test_ssl_verification_can_be_disabled(self):
         target = self._target(
             opts=make_opts(upload_method='put', upload_no_ssl_verify=True))
-        with patch('sos.upload.targets.requests') as requests:
+        with patch('sos.upload.targets.requests',
+                   create=True) as requests:
             requests.put.return_value = MagicMock(status_code=200)
             target.upload_https()
         self.assertFalse(requests.put.call_args.kwargs['verify'])
 
     def test_401_reports_authentication_failure(self):
         target = self._target(opts=make_opts(upload_method='put'))
-        with patch('sos.upload.targets.requests') as requests:
+        with patch('sos.upload.targets.requests',
+                   create=True) as requests:
             requests.put.return_value = MagicMock(status_code=401)
             with self.assertRaisesRegex(
                     Exception, 'Authentication failed: invalid user'):
@@ -193,7 +218,8 @@ class S201HttpsTransferTests(TransferTestCase):
         # request returned ...". Asserted as-is to match the shipped
         # behaviour rather than the intended wording.
         target = self._target(opts=make_opts(upload_method='put'))
-        with patch('sos.upload.targets.requests') as requests:
+        with patch('sos.upload.targets.requests',
+                   create=True) as requests:
             requests.put.return_value = MagicMock(
                 status_code=500, reason='Internal Server Error')
             with self.assertRaisesRegex(
@@ -395,9 +421,12 @@ class S203SftpTransferTests(TransferTestCase):
             f'put {self.archive} {self.archive_name}')
 
 
-@unittest.skipUnless(REQUESTS_LOADED, 'python3-requests is not installed')
 class S203RedHatSftpTokenTests(TransferTestCase):
     """S2-03 - Red Hat SFTP token retrieval and delegation."""
+
+    def setUp(self):
+        super().setUp()
+        force_loaded(self, 'sos.upload.targets.redhat.REQUESTS_LOADED')
 
     def _target(self, **attrs):
         defaults = {
@@ -429,7 +458,8 @@ class S203RedHatSftpTokenTests(TransferTestCase):
         target._device_token = 'devtoken'
         response = MagicMock(status_code=200, text=json.dumps(
             {'username': 'rhuser', 'token': 'rhtoken'}))
-        with patch('sos.upload.targets.redhat.requests') as requests, \
+        with patch('sos.upload.targets.redhat.requests',
+                   create=True) as requests, \
                 patch.object(UploadTarget, 'upload_sftp',
                              return_value=True) as base:
             requests.post.return_value = response
@@ -448,7 +478,8 @@ class S203RedHatSftpTokenTests(TransferTestCase):
             {'username': 'rhuser', 'token': 'rhtoken'}))
         with patch('sos.upload.targets.redhat.DeviceAuthorizationClass',
                    return_value=auth), \
-                patch('sos.upload.targets.redhat.requests') as requests, \
+                patch('sos.upload.targets.redhat.requests',
+                      create=True) as requests, \
                 patch.object(UploadTarget, 'upload_sftp',
                              return_value=True) as base:
             requests.post.return_value = response
@@ -460,7 +491,8 @@ class S203RedHatSftpTokenTests(TransferTestCase):
     def test_rejected_token_request_raises(self):
         target = self._target()
         target._device_token = 'devtoken'
-        with patch('sos.upload.targets.redhat.requests') as requests:
+        with patch('sos.upload.targets.redhat.requests',
+                   create=True) as requests:
             requests.post.return_value = MagicMock(status_code=403)
             with self.assertRaisesRegex(
                     Exception,
@@ -473,7 +505,8 @@ class S203RedHatSftpTokenTests(TransferTestCase):
             {'username': 'anon-user', 'token': 'anon-token'}))
         with patch('sos.upload.targets.redhat.DeviceAuthorizationClass',
                    side_effect=Exception('end user denied the request')), \
-                patch('sos.upload.targets.redhat.requests') as requests, \
+                patch('sos.upload.targets.redhat.requests',
+                      create=True) as requests, \
                 patch.object(UploadTarget, 'upload_sftp',
                              return_value=True) as base:
             requests.post.return_value = response
@@ -488,7 +521,8 @@ class S203RedHatSftpTokenTests(TransferTestCase):
         target = self._target()
         with patch('sos.upload.targets.redhat.DeviceAuthorizationClass',
                    side_effect=Exception('end user denied the request')), \
-                patch('sos.upload.targets.redhat.requests') as requests:
+                patch('sos.upload.targets.redhat.requests',
+                      create=True) as requests:
             requests.post.return_value = MagicMock(status_code=500)
             with self.assertRaisesRegex(
                     Exception,
@@ -496,9 +530,12 @@ class S203RedHatSftpTokenTests(TransferTestCase):
                 target.upload_sftp()
 
 
-@unittest.skipUnless(BOTO3_LOADED, 'python3-boto3 is not installed')
 class S204S3TransferTests(TransferTestCase):
     """S2-04 - S3 object upload and key composition."""
+
+    def setUp(self):
+        super().setUp()
+        force_loaded(self, 'sos.upload.targets.BOTO3_LOADED')
 
     def _target(self, **attrs):
         defaults = {
@@ -514,7 +551,8 @@ class S204S3TransferTests(TransferTestCase):
     @staticmethod
     def _upload(target):
         client = MagicMock()
-        with patch('sos.upload.targets.boto3') as boto3:
+        with patch('sos.upload.targets.boto3',
+                   create=True) as boto3:
             boto3.client.return_value = client
             result = target.upload_s3()
         return result, boto3, client
@@ -560,7 +598,8 @@ class S204S3TransferTests(TransferTestCase):
         target = self._target()
         client = MagicMock()
         client.upload_file.side_effect = Exception('access denied')
-        with patch('sos.upload.targets.boto3') as boto3:
+        with patch('sos.upload.targets.boto3',
+                   create=True) as boto3:
             boto3.client.return_value = client
             with self.assertRaisesRegex(
                     Exception, 'Failed to upload to S3: access denied'):

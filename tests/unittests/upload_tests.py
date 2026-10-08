@@ -488,8 +488,10 @@ class UT11UbuntuUploadTests(unittest.TestCase):
                              upload_url='https://example.com/upload',
                              upload_user='alice',
                              upload_password='sup3rs3cret')
-        with patch('sos.upload.targets.requests') as mock_requests, \
-                upload_env():
+        # create=True so this also runs where python3-requests is
+        # absent and the module never bound the name.
+        with patch('sos.upload.targets.requests', create=True) \
+                as mock_requests, upload_env():
             auth = target.get_upload_https_auth()
         mock_requests.auth.HTTPBasicAuth.assert_called_once_with(
             'alice', 'sup3rs3cret')
@@ -582,6 +584,15 @@ class UT14PreauthorizeTests(unittest.TestCase):
     # Stand-in for the OIDC access token. Never validated; the auth
     # client is mocked, so any opaque string will do.
     PUMP_UP_THE_JAM_TOKEN = 'pump-up-the-jam'
+
+    def setUp(self):
+        # preauthorize() refuses to run at all unless REQUESTS_LOADED,
+        # so force it on. The device auth client is mocked in every
+        # case below, meaning these assertions hold whether or not
+        # python3-requests is installed on the host running the suite.
+        patcher = patch('sos.upload.targets.redhat.REQUESTS_LOADED', True)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def test_base_target_declares_it_unsupported(self):
         target = make_target(UploadTarget)
