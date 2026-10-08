@@ -411,11 +411,9 @@ class Cluster():
             node_list = [n.split(',').strip() for n in nodes]
         else:
             raise Exception(f"Cluster returned unexpected node list: {nodes}")
-        node_list = list(set(node_list))
-        for node in node_list:
-            if node.startswith(('-', '_', '(', ')', '[', ']', '/', '\\')):
-                node_list.remove(node)
-        return node_list
+        # return list of uniq nodes that dont start on a prohibited letter
+        return [n for n in set(node_list)
+                if not n.startswith(('-', '_', '(', ')', '[', ']', '/', '\\'))]
 
     def _run_extra_cmd(self):
         """
