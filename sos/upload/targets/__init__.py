@@ -680,8 +680,8 @@ class UploadTarget():
                     raise Exception(
                         "Authentication failed: invalid user credentials"
                     )
-                raise Exception(f"POST request returned {r.status_code}: "
-                                f"{r.reason}")
+                raise Exception(f"{r.request.method} request returned "
+                                f"{r.status_code}: {r.reason}")
             return True
 
     def upload_ftp(self, url=None, directory=None, user=None, password=None):
