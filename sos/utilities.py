@@ -686,13 +686,17 @@ class ProgressBar:
         # Keeping bar width between 5 and 40 based on the size of the terminal
         # minus the size of prefix, suffix and surounding "[]" brackets
         self.bar_width = max(5, min(40, cols - len(prefix) - suffix_width - 2))
+        self._last_width = 0
 
     def update(self, done):
         filled = done * self.bar_width // self.total
-        sys.stdout.write(
-            f"\r{self.prefix}[{'=' * filled}{' ' * (self.bar_width - filled)}]"
+        content = (
+            f"{self.prefix}[{'=' * filled}{' ' * (self.bar_width - filled)}]"
             f" {self.format_fn(done)} / {self.format_fn(self.total)}"
         )
+        padding = ' ' * max(0, self._last_width - len(content))
+        sys.stdout.write(f"\r{content}{padding}")
+        self._last_width = len(content)
         sys.stdout.flush()
 
     def finish(self):
