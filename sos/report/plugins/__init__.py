@@ -1792,7 +1792,7 @@ class Plugin():
             filetime = getmtime(path)
             filedatetime = datetime.fromtimestamp(filetime)
             if ((since and filedatetime < since) or
-               (maxage and (time()-filetime < maxage*3600))):
+               (maxage and (time()-filetime > maxage*3600))):
                 return False
             return True
 
