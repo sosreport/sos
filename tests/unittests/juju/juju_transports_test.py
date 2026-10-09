@@ -12,8 +12,12 @@ import subprocess
 import unittest
 from unittest.mock import patch
 
-from sos.collector.exceptions import JujuNotInstalledException
-from sos.collector.transports.juju import JujuSSH
+try:
+    from sos.collector.exceptions import JujuNotInstalledException
+    from sos.collector.transports.juju import JujuSSH
+    PEXPECT_PRESENT = True
+except ImportError:
+    PEXPECT_PRESENT = False
 
 
 class MockCmdLineOpts:
@@ -22,6 +26,7 @@ class MockCmdLineOpts:
     root_password = "root_pw_abc"
 
 
+@unittest.skipUnless(PEXPECT_PRESENT, "python3-pexpect is not installed")
 class JujuSSHTest(unittest.TestCase):
     def setUp(self):
         self.juju_ssh = JujuSSH(
