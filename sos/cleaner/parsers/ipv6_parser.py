@@ -49,8 +49,10 @@ class SoSIPv6Parser(SoSCleanerParser):
             return line, 0
         return super()._parse_line(line)
 
-    def __init__(self, config, workdir, skip_cleaning_files=[]):
-        self.mapping = SoSIPv6Map(workdir, self.regex_pattern)
+    def __init__(self, config, workdir, skip_cleaning_files=[],
+                 no_update=False):
+        self.mapping = SoSIPv6Map(workdir, self.regex_pattern,
+                                  no_update=no_update)
         super().__init__(config, skip_cleaning_files)
 
     def get_map_contents(self):
