@@ -5,45 +5,19 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
-import os
 import unittest
-from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from sos.policies.distros.redhat import RHELPolicy
 from sos.policies.distros.ubuntu import UbuntuPolicy
-from sos.upload import SoSUpload
 from sos.upload.targets import UploadTarget
 from sos.upload.targets.redhat import RHELUploadTarget
 from sos.upload.targets.ubuntu import UbuntuUploadTarget
 
+from tests.unittests.upload_utils import (make_opts, make_target,
+                                          make_upload_component, upload_env)
 
-# Mirrors SoSUpload.arg_defaults. A bare MagicMock() would make every
-# option attribute truthy, which quietly sends the code down the wrong
-# branch in get_upload_url() and _determine_upload_type().
-UPLOAD_ARG_DEFAULTS = {
-    'batch': True,
-    'case_id': '',
-    'low_priority': False,
-    'quiet': False,
-    'upload_directory': None,
-    'upload_file': '',
-    'upload_method': 'auto',
-    'upload_no_ssl_verify': False,
-    'upload_pass': None,
-    'upload_protocol': 'auto',
-    'upload_s3_access_key': None,
-    'upload_s3_bucket': None,
-    'upload_s3_endpoint': None,
-    'upload_s3_object_prefix': None,
-    'upload_s3_region': None,
-    'upload_s3_secret_key': None,
-    'upload_target': None,
-    'upload_threads': 4,
-    'upload_url': None,
-    'upload_user': None,
-}
 
 RH_ATTACHMENTS_URL = (
     f"{RHELUploadTarget.RH_API_HOST}"
@@ -52,84 +26,6 @@ RH_ATTACHMENTS_URL = (
 CANONICAL_URL = 'https://files.support.canonical.com/uploads/'
 ARCHIVE = '/var/tmp/sosreport-testhost-2026-09-17.tar.xz'
 ARCHIVE_NAME = 'sosreport-testhost-2026-09-17.tar.xz'
-
-
-# The only environment variables the get_upload_*() helpers consult.
-# Tests scope just these so that everything else in os.environ stays
-# available to the code under test.
-SOS_UPLOAD_ENV_VARS = (
-    'SOSUPLOADUSER',
-    'SOSUPLOADPASSWORD',
-    'SOSUPLOADS3ACCESSKEY',
-    'SOSUPLOADS3SECRETKEY',
-)
-
-
-@contextmanager
-def upload_env(**overrides):
-    """Scope the upload credential variables without clearing os.environ.
-
-    Removes only the variables listed in SOS_UPLOAD_ENV_VARS so a
-    developer's shell cannot influence a result, applies any overrides,
-    and restores the previous environment on exit.
-    """
-    with patch.dict(os.environ):
-        for name in SOS_UPLOAD_ENV_VARS:
-            os.environ.pop(name, None)
-        os.environ.update(overrides)
-        yield
-
-
-def make_opts(**overrides):
-    """Build a stand-in for the parsed cmdline options."""
-    opts = MagicMock()
-    for name, value in {**UPLOAD_ARG_DEFAULTS, **overrides}.items():
-        setattr(opts, name, value)
-    return opts
-
-
-def make_target(cls, opts=None, **attrs):
-    """Build an upload target without running __init__.
-
-    Follows the RedHatCoreOSArchiveNameTests precedent: the instance is
-    created via __new__, and the attributes that pre_work() would
-    normally populate are set by hand.
-    """
-    target = cls.__new__(cls)
-    target.ui_log = MagicMock()
-    target.commons = {
-        'cmdlineopts': opts if opts is not None else make_opts(),
-        'policy': MagicMock(),
-    }
-    target.upload_url = None
-    target.upload_user = None
-    target.upload_password = None
-    target.upload_directory = None
-    target.upload_archive_name = ''
-    target.upload_s3_access_key = None
-    target.upload_s3_bucket = None
-    target.upload_s3_endpoint = None
-    target.upload_s3_object_prefix = None
-    target.upload_s3_region = None
-    target.upload_s3_secret_key = None
-    for name, value in attrs.items():
-        setattr(target, name, value)
-    return target
-
-
-def make_upload_component(**attrs):
-    """Build a SoSUpload component without running __init__."""
-    comp = SoSUpload.__new__(SoSUpload)
-    comp.args = None
-    comp.cmdline = None
-    comp.parser = None
-    comp.opts = make_opts()
-    comp.policy = MagicMock()
-    comp.ui_log = MagicMock()
-    comp.upload_target = None
-    for name, value in attrs.items():
-        setattr(comp, name, value)
-    return comp
 
 
 class UT01ObfuscatedUploadUrlTests(unittest.TestCase):
@@ -507,6 +403,13 @@ class UT12TargetDiscoveryTests(unittest.TestCase):
     """UT12 - Target discovery and selection."""
 
     def test_load_upload_targets_finds_known_targets(self):
+        # 'generic' is the base UploadTarget, which lives in
+        # sos/upload/targets/__init__.py. _find_modules_in_path()
+        # deliberately skips that file ("__" in the name), so the
+        # generic target is only registered indirectly: importing the
+        # redhat and canonical modules pulls in UploadTarget as their
+        # base class. Should either of those ever stop importing it,
+        # this assertion is what will notice.
         comp = make_upload_component()
         targets = comp.load_upload_targets()
         self.assertIn('generic', targets)

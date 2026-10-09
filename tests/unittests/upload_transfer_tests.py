@@ -18,94 +18,16 @@ from sos.upload.targets import UploadTarget
 from sos.upload.targets.redhat import RHELUploadTarget
 from sos.utilities import TIMEOUT_DEFAULT
 
+from tests.unittests.upload_utils import (force_loaded, make_opts,
+                                          make_target, scope_upload_env)
+
 # upload_sftp() imports pexpect lazily and raises if it is absent, so the
 # SFTP cases are skipped rather than failed on a host without it. The
 # other transports are driven entirely through mocks, so they do not
 # need their libraries present -- see force_loaded().
 PEXPECT_LOADED = importlib.util.find_spec('pexpect') is not None
 
-
-def force_loaded(case, flag):
-    """Pretend an optional upload dependency is importable.
-
-    The transfer methods bail out early unless their library loaded, so
-    tests that mock the library have to flip the corresponding module
-    flag as well. Doing so keeps the suite's coverage identical on hosts
-    that do not ship python3-requests or python3-boto3.
-    """
-    patcher = patch(flag, True)
-    patcher.start()
-    case.addCleanup(patcher.stop)
-
-
-# Mirrors SoSUpload.arg_defaults. A bare MagicMock() would make every
-# option attribute truthy, which quietly sends the code down the wrong
-# branch in upload_https() and _determine_upload_type().
-UPLOAD_ARG_DEFAULTS = {
-    'batch': True,
-    'case_id': '',
-    'low_priority': False,
-    'quiet': False,
-    'upload_directory': None,
-    'upload_file': '',
-    'upload_method': 'auto',
-    'upload_no_ssl_verify': False,
-    'upload_pass': None,
-    'upload_protocol': 'auto',
-    'upload_s3_access_key': None,
-    'upload_s3_bucket': None,
-    'upload_s3_endpoint': None,
-    'upload_s3_object_prefix': None,
-    'upload_s3_region': None,
-    'upload_s3_secret_key': None,
-    'upload_target': None,
-    'upload_threads': 4,
-    'upload_url': None,
-    'upload_user': None,
-}
-
-# Credentials read straight from the environment by the get_upload_*
-# helpers. Cleared per test so a developer's shell cannot change results.
-SOS_UPLOAD_ENV_VARS = (
-    'SOSUPLOADUSER',
-    'SOSUPLOADPASSWORD',
-    'SOSUPLOADS3ACCESSKEY',
-    'SOSUPLOADS3SECRETKEY',
-)
-
 RH_SFTP_TOKEN_URL = f"{RHELUploadTarget.RH_API_HOST}/support/v2/sftp/token"
-
-
-def make_opts(**overrides):
-    """Build a stand-in for the parsed cmdline options."""
-    opts = MagicMock()
-    for name, value in {**UPLOAD_ARG_DEFAULTS, **overrides}.items():
-        setattr(opts, name, value)
-    return opts
-
-
-def make_target(cls, opts=None, **attrs):
-    """Build an upload target without running __init__."""
-    target = cls.__new__(cls)
-    target.ui_log = MagicMock()
-    target.commons = {
-        'cmdlineopts': opts if opts is not None else make_opts(),
-        'policy': MagicMock(),
-    }
-    target.upload_url = None
-    target.upload_user = None
-    target.upload_password = None
-    target.upload_directory = None
-    target.upload_archive_name = ''
-    target.upload_s3_access_key = None
-    target.upload_s3_bucket = None
-    target.upload_s3_endpoint = None
-    target.upload_s3_object_prefix = None
-    target.upload_s3_region = None
-    target.upload_s3_secret_key = None
-    for name, value in attrs.items():
-        setattr(target, name, value)
-    return target
 
 
 class TransferTestCase(unittest.TestCase):
@@ -117,11 +39,7 @@ class TransferTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        env = patch.dict(os.environ)
-        env.start()
-        self.addCleanup(env.stop)
-        for var in SOS_UPLOAD_ENV_VARS:
-            os.environ.pop(var, None)
+        scope_upload_env(self)
 
         handle, self.archive = tempfile.mkstemp(
             prefix='sosreport-transfer-', suffix='.tar.xz')
@@ -213,18 +131,21 @@ class S201HttpsTransferTests(TransferTestCase):
                 target.upload_https()
 
     def test_other_status_reports_status_and_reason(self):
-        # upload_https() hardcodes "POST" in this message regardless of
-        # the method actually used, so a failed PUT still reports "POST
-        # request returned ...". Asserted as-is to match the shipped
-        # behaviour rather than the intended wording.
+        # Deliberately does not assert the leading verb. It is "POST"
+        # for every method today; #4530 changes it to r.request.method.
+        # The mock carries a request.method so it stays accurate once
+        # that lands, at which point this can tighten to
+        # 'PUT request returned 500: ...'.
         target = self._target(opts=make_opts(upload_method='put'))
         with patch('sos.upload.targets.requests',
                    create=True) as requests:
-            requests.put.return_value = MagicMock(
+            response = MagicMock(
                 status_code=500, reason='Internal Server Error')
+            response.request.method = 'PUT'
+            requests.put.return_value = response
             with self.assertRaisesRegex(
                     Exception,
-                    'POST request returned 500: Internal Server Error'):
+                    'request returned 500: Internal Server Error'):
                 target.upload_https()
 
 
