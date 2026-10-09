@@ -1089,9 +1089,10 @@ class SoSCollector(SoSComponent):
         # remove the primary node from the list, since we already have
         # an open session to it.
         if self.primary is not None and not self.cluster.strict_node_list:
-            for n in self.node_list:
-                if n in (self.primary.hostname, self.opts.primary):
-                    self.node_list.remove(n)
+            self.node_list = [
+                n for n in self.node_list
+                if n not in (self.primary.hostname, self.opts.primary)
+            ]
         self.node_list = list(set(n for n in self.node_list if n))
         self.log_debug(f'Node list reduced to {self.node_list}')
         self.collect_md.add_list('node_list', self.node_list)
@@ -1130,10 +1131,10 @@ class SoSCollector(SoSComponent):
         except Exception as e:
             self.log_debug(f"Error parsing node list: {e}")
             self.log_debug('Setting node list to --nodes option')
-            self.node_list = self.opts.nodes
-            for node in self.node_list:
-                if any(i in node for i in ('*', '\\', '?', '(', ')', '/')):
-                    self.node_list.remove(node)
+            self.node_list = [
+                n for n in self.opts.nodes
+                if not any(i in n for i in ('*', '\\', '?', '(', ')', '/'))
+            ]
 
         # force add any non-regex node strings from nodes option
         if self.opts.nodes:
@@ -1147,9 +1148,8 @@ class SoSCollector(SoSComponent):
         if not self.primary:
             host = self.hostname.split('.')[0]
             # trust the local hostname before the node report from cluster
-            for node in self.node_list:
-                if host == node.split('.')[0]:
-                    self.node_list.remove(node)
+            self.node_list = [n for n in self.node_list
+                              if host != n.split('.')[0]]
             if not self.cluster.strict_node_list:
                 self.node_list.append(self.hostname)
         self.reduce_node_list()
