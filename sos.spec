@@ -1,3 +1,6 @@
+# bash_completions_dir is not defined by redhat-rpm-config on RHEL 9
+%{!?bash_completions_dir: %global bash_completions_dir %{_datadir}/bash-completion/completions}
+
 Summary: A set of tools to gather troubleshooting information from a system
 Name: sos
 Version: 4.12.0
@@ -84,6 +87,7 @@ rm -rf %{buildroot}/usr/config/
 %{python3_sitelib}/sos-*info/
 %{_mandir}/man1/*
 %{_mandir}/man5/*
+%{bash_completions_dir}/sos
 %doc AUTHORS README.md
 %license LICENSE
 %config(noreplace) %{_sysconfdir}/sos/sos.conf
