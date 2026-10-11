@@ -594,7 +594,8 @@ class Plugin():
         # Initialise the default --dry-run predicate
         self.set_predicate(SoSPredicate(self))
 
-    def get_default_plugin_opts(self):
+    @staticmethod
+    def get_default_plugin_opts():
         return {
             'timeout': PluginOpt(
                 'timeout', default=-1, val_type=int,

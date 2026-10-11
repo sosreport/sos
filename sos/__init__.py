@@ -46,6 +46,17 @@ class SoS():
 
     def __init__(self, args):
         self.cmdline = args
+        self._load_components()
+        self._build_parser()
+        if self.cmdline and self.cmdline[0] == '_complete':
+            from sos.completion import SoSCompleter
+            self._component = SoSCompleter(self, self.cmdline[1:])
+            return
+        self.args = self.parser.parse_args(self.cmdline)
+        self._init_component()
+
+    def _load_components(self):
+        """Discover the subcommands available on the local installation"""
         # define the local subcommands that exist on the system
         # first import the necessary module, then add an entry to the dict that
         # follows the tuple format (class, [aliases]), where aliases is a list
@@ -79,7 +90,9 @@ class SoS():
             else:
                 # we failed elsewhere, re-raise the exception
                 raise
-        # build the top-level parser
+
+    def _build_parser(self):
+        """Build the top-level parser, and the parsers for each component"""
         _com_string = ''
         for com, value in self._components.items():
             aliases = value[1]
@@ -118,8 +131,6 @@ class SoS():
             self._add_common_options(_com_subparser)
             value[0].add_parser_options(parser=_com_subparser)
             _com_subparser.set_defaults(component=comp)
-        self.args = self.parser.parse_args(self.cmdline)
-        self._init_component()
 
     def _add_common_options(self, parser):
         """Adds the options shared across components to the parser
