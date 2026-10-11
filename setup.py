@@ -10,6 +10,7 @@ data_files = [
                         'man/en/sos-mask.1', 'man/en/sos-help.1',
                         'man/en/sos-upload.1']),
     ('share/man/man5', ['man/en/sos.conf.5']),
+    ('share/bash-completion/completions', ['completions/bash/sos']),
     ('config', ['sos.conf', 'tmpfiles/tmpfilesd-sos-rh.conf'])
 ]
 
