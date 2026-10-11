@@ -201,6 +201,7 @@ class RHELPolicy(RedHatPolicy):
     os_release_file = '/etc/redhat-release'
     os_release_name = RHEL_RELEASE_STR
     os_release_id = 'rhel'
+    vendor_presets = RHEL_PRESETS
     msg = _("""\
 This command will collect diagnostic and configuration \
 information from this %(os_release_name)s system and installed \
@@ -225,7 +226,7 @@ support representative.
         super().__init__(sysroot=sysroot, init=init,
                          probe_runtime=probe_runtime,
                          remote_exec=remote_exec)
-        self.register_presets(RHEL_PRESETS)
+        self.register_presets(self.vendor_presets)
 
     def dist_version(self):
         try:

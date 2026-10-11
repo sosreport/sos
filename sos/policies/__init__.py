@@ -29,12 +29,10 @@ def import_policy(name):
         return None
 
 
-def load(sysroot=None, init=None, probe_runtime=True, remote_exec=None,
-         remote_check=''):
-    # deal with Linux distros only
-    if sys.platform != 'linux':
-        raise Exception("SoS is not supported on this platform")
-
+def find_policy_class(remote_check=''):
+    """Determine which policy class applies to the system, without
+    initializing it.
+    """
     import sos.policies.distros
     helper = ImporterHelper(sos.policies.distros)
     matches = []
@@ -46,15 +44,20 @@ def load(sysroot=None, init=None, probe_runtime=True, remote_exec=None,
             key=lambda p: (p.check_primary(remote=remote_check),
                            len(p.__mro__)),
             reverse=True)
-        policy = matches[0](sysroot=sysroot, init=init,
-                            probe_runtime=probe_runtime,
-                            remote_exec=remote_exec)
-    else:
-        policy = sos.policies.distros.GenericLinuxPolicy(
-            sysroot=sysroot, init=init, probe_runtime=probe_runtime,
-            remote_exec=remote_exec)
+        return matches[0]
+    return sos.policies.distros.GenericLinuxPolicy
 
-    return policy
+
+def load(sysroot=None, init=None, probe_runtime=True, remote_exec=None,
+         remote_check=''):
+    # deal with Linux distros only
+    if sys.platform != 'linux':
+        raise Exception("SoS is not supported on this platform")
+
+    policy_class = find_policy_class(remote_check=remote_check)
+    return policy_class(sysroot=sysroot, init=init,
+                        probe_runtime=probe_runtime,
+                        remote_exec=remote_exec)
 
 
 class Policy():
@@ -133,6 +136,7 @@ any third party.
     PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     name_pattern = 'legacy'
     presets = {"": PresetDefaults()}
+    vendor_presets = {}
     presets_path = PRESETS_PATH
     _in_container = False
 
