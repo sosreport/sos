@@ -42,6 +42,10 @@ class Networking(Plugin):
     ss_kmods = ['tcp_diag', 'udp_diag', 'inet_diag', 'unix_diag',
                 'netlink_diag', 'af_packet_diag', 'xsk_diag']
 
+    # subset of ss_kmods needed to list TCP and UDP sockets, which does not
+    # require the unix/netlink/packet/xsk diag modules
+    ss_listen_kmods = ['tcp_diag', 'udp_diag', 'inet_diag']
+
     # list of ethtool short options, used in add_copy_spec and add_cmd_tags
     # do NOT add there "e" (see eepromdump plugopt)
     ethtool_shortopts = "acdgiklmPST"
@@ -179,7 +183,8 @@ class Networking(Plugin):
             "ip -s -d link": "ip_s_link",
             "netstat.*-neopa": "netstat",
             "netstat.*-agn": "netstat_agn",
-            "netstat -s": "netstat_s"
+            "netstat -s": "netstat_s",
+            "ss -tulnp": "ss_tulnp"
         })
 
     def collect_bridge_info(self):
@@ -199,6 +204,15 @@ class Networking(Plugin):
         ss_pred = SoSPredicate(self, kmods=self.ss_kmods,
                                required={'kmods': 'all'})
         self.add_cmd_output(ss_cmd, pred=ss_pred, changes=True)
+
+        # "ss -peaonmi" requires all of ss_kmods, so a single missing module
+        # drops the only listing of sockets from the report. Gate the
+        # listening sockets on the smaller set they actually need, so they
+        # are still collected when only the unix/netlink/packet/xsk diag
+        # modules are absent.
+        ss_listen_pred = SoSPredicate(self, kmods=self.ss_listen_kmods,
+                                      required={'kmods': 'all'})
+        self.add_cmd_output("ss -tulnp", pred=ss_listen_pred, changes=True)
 
         self.add_cmd_output("ss -s")
         # Get ethtool output for every device that does not exist in a
@@ -285,6 +299,8 @@ class Networking(Plugin):
                 # evaluation, so plugin code does not need to separately
                 # check for it
                 self.add_cmd_output(ss_cmd, pred=ss_pred, subdir=_subdir)
+                self.add_cmd_output(ns_cmd_prefix + "ss -tulnp",
+                                    pred=ss_listen_pred, subdir=_subdir)
 
                 # Collect ethtool commands only when ethtool_namespaces
                 # is set to true.
