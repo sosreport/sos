@@ -50,6 +50,7 @@ class UsernamePrepper(SoSPrepper):
         'stack',
         'reboot',
         'root',
+        'sshd',
         'test',
         'timeout:',
         'ubuntu',
