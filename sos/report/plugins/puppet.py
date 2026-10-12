@@ -56,11 +56,6 @@ class Puppet(Plugin, IndependentPlugin):
             "/opt/puppetlabs/puppet/cache/state/*.lock",
             "/opt/puppetlabs/puppet/cache/state/*.yaml",
             "/opt/puppetlabs/puppet/public/last_run_summary.yaml",
-            # Logs
-            "/var/log/puppet/*.log*",
-            "/var/log/puppetlabs/puppet/*.log*",
-            "/var/log/puppetlabs/puppetdb/*.log*",
-            "/var/log/puppetlabs/puppetserver/*.log*",
             # Certs/Inventory
             "/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem",
             "/etc/puppetlabs/puppet/ssl/ca/ca_crt.pem",
@@ -71,6 +66,13 @@ class Puppet(Plugin, IndependentPlugin):
             f"/etc/puppetlabs/puppet/ssl/certs/{_hostname}.pem",
             f"/var/lib/puppet/ssl/certs/{_hostname}.pem",
         ])
+        # Logs - 7 days
+        self.add_copy_spec([
+            "/var/log/puppet/*.log*",
+            "/var/log/puppetlabs/puppet/*.log*",
+            "/var/log/puppetlabs/puppetdb/*.log*",
+            "/var/log/puppetlabs/puppetserver/*.log*",
+        ], maxage=168)
         self.add_copy_spec("/etc/puppetlabs/puppet/ssl/certs/ca.pem",
                            tags="puppet_ssl_cert_ca_pem")
 
