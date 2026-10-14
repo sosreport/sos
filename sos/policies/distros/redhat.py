@@ -388,6 +388,19 @@ support representative.
             pass
         return coreos
 
+    @classmethod
+    def check_primary(cls, remote=''):
+        if remote:
+            return cls._match_release(remote)
+        if ENV_HOST_SYSROOT not in os.environ:
+            return False
+        host_release = os.environ[ENV_HOST_SYSROOT] + OS_RELEASE
+        try:
+            with open(host_release, 'r', encoding='utf-8') as hfile:
+                return cls._match_release(hfile.read())
+        except IOError:
+            return False
+
     def probe_preset(self):
         # As of the creation of this policy, RHCOS is only available for
         # RH OCP environments.

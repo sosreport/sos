@@ -111,15 +111,7 @@ class LinuxPolicy(Policy):
         is supported by this policy.
         """
         def _check_release(content):
-            _matches = [cls.os_release_name]
-            if cls.os_release_id:
-                _matches.append(cls.os_release_id)
-            for line in content.splitlines():
-                if line.startswith(('NAME=', 'ID=', 'ID_LIKE=')):
-                    _distro = line.split('=')[1:][0].strip("\"'")
-                    if _distro in _matches:
-                        return True
-            return False
+            return cls._match_release(content, id_like=True)
 
         if remote:
             return _check_release(remote)
@@ -132,6 +124,31 @@ class LinuxPolicy(Policy):
         # next check os-release for a NAME or ID value we expect
         with open(OS_RELEASE, "r", encoding='utf-8') as f:
             return _check_release(f.read())
+
+    @classmethod
+    def _match_release(cls, content, id_like=False):
+        _matches = [cls.os_release_name]
+        if cls.os_release_id:
+            _matches.append(cls.os_release_id)
+        keys = ('NAME=', 'ID=', 'ID_LIKE=') if id_like else ('NAME=', 'ID=')
+        for line in content.splitlines():
+            if line.startswith(keys):
+                if line.split('=', 1)[1].strip("\"'") in _matches:
+                    return True
+        return False
+
+    @classmethod
+    def check_primary(cls, remote=''):
+        """Like check() but only matches NAME= and ID=.
+        Used by the policy to prefer direct identity matches
+        over compatibility hints when two policies tie on MRO depth."""
+        if remote:
+            return cls._match_release(remote)
+        try:
+            with open(OS_RELEASE, "r", encoding='utf-8') as f:
+                return cls._match_release(f.read())
+        except IOError:
+            return False
 
     def kernel_version(self):
         return self.release
