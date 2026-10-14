@@ -42,7 +42,10 @@ def load(sysroot=None, init=None, probe_runtime=True, remote_exec=None,
         matches.extend([policy for policy in (import_policy(module) or [])
                         if policy.check(remote=remote_check)])
     if matches:
-        matches.sort(key=lambda p: len(p.__mro__), reverse=True)
+        matches.sort(
+            key=lambda p: (p.check_primary(remote=remote_check),
+                           len(p.__mro__)),
+            reverse=True)
         policy = matches[0](sysroot=sysroot, init=init,
                             probe_runtime=probe_runtime,
                             remote_exec=remote_exec)
@@ -166,6 +169,14 @@ any third party.
         :rtype: ``bool``
         """
         raise NotImplementedError
+
+    @classmethod
+    def check_primary(cls, remote=''):  # pylint: disable=unused-argument
+        """
+        Returns False by defautl; override in subclasses that support
+        primary identity detection separated from check().
+        """
+        return False
 
     @property
     def forbidden_paths(self):
