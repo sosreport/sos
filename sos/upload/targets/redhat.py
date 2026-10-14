@@ -8,6 +8,7 @@
 # See the LICENSE file in the source distribution for further information.
 import os
 import json
+import re
 from pathlib import Path
 import threading
 import time
@@ -164,21 +165,31 @@ class RHELUploadTarget(UploadTarget):
             f"Aborting upload: attachmentId="
             f"{abort_data.get('attachmentId')}, "
             f"uploadId={abort_data.get('uploadId')}")
-
+        portal_warning = ("The attachment may still appear in the Customer "
+                          "Portal. Please verify and remove it manually if "
+                          "needed.")
         try:
-            response_abort = requests.post(
+            self.ui_log.debug(f"Abort request: DELETE {abort_url}")
+            response_abort = requests.delete(
                 abort_url,
                 headers=self._get_upload_https_auth(),
-                json=abort_data,
+                params=abort_data,
                 timeout=TIMEOUT_DEFAULT)
+            resp_text = (response_abort.text[:200]
+                         if response_abort.text else '')
+            self.ui_log.debug(
+                f"Abort response: {response_abort.status_code} {resp_text}")
             if response_abort.status_code == 200:
                 self.ui_log.info("Upload cancelled successfully.")
-            else:
-                self.ui_log.error(
-                    "An error occurred while attempting to cancel upload: "
-                    f"{response_abort.status_code}")
+                self.ui_log.warning(portal_warning)
+                return
+            self.ui_log.error(
+                "An error occurred while attempting to cancel upload: "
+                f"{response_abort.status_code}")
+            self.ui_log.warning(portal_warning)
         except requests.exceptions.RequestException as e:
             self.ui_log.error(f"Error cancelling upload: {e}")
+            self.ui_log.warning(portal_warning)
 
     def _complete_upload(self, complete_data):
         """Complete an upload session
@@ -417,9 +428,17 @@ class RHELUploadTarget(UploadTarget):
             f"archive_size={archive_size}, "
             f"chunk_size={self._chunk_size}, "
             f"total_chunks={total_chunks}")
-        self._get_upload_session_details(archive=archive,
-                                         archive_size=archive_size,
-                                         total_chunks=total_chunks)
+        executor = None
+        try:
+            self._get_upload_session_details(archive=archive,
+                                             archive_size=archive_size,
+                                             total_chunks=total_chunks)
+        except KeyboardInterrupt:
+            self.ui_log.warning(
+                "Upload interrupted by user. Session status is unknown; "
+                "the attachment may still appear in the Customer Portal. "
+                "Please verify and remove it manually if needed.")
+            return None
 
         if not self._upload_session_details:
             self.ui_log.error("Failed to get upload session details.")
@@ -471,11 +490,16 @@ class RHELUploadTarget(UploadTarget):
         expiration_str = self._upload_session_details.get('expirationTime')
         if expiration_str:
             try:
-                # Python 3.11+ handles 'Z' natively, any distribution
-                # that uses a version before this one will not work with
-                # this, so let's amend it
-                expiration = datetime.fromisoformat(
-                    expiration_str.replace('Z', '+00:00'))
+                # strptime %f only handles up to 6 digits; truncate any
+                # sub-microsecond precision the API may return
+                expiration_clean = re.sub(
+                    r'(\.\d{1,6})\d*Z$', r'\1Z', expiration_str)
+                datetime_fmt = ("%Y-%m-%dT%H:%M:%S.%fZ"
+                                if '.' in expiration_clean
+                                else "%Y-%m-%dT%H:%M:%SZ")
+                expiration = datetime.strptime(
+                    expiration_clean,
+                    datetime_fmt).replace(tzinfo=timezone.utc)
             except (ValueError, TypeError) as e:
                 self.ui_log.warning(
                     f"Could not parse expirationTime "
@@ -503,8 +527,9 @@ class RHELUploadTarget(UploadTarget):
         )
 
         cancel_event = threading.Event()
-        executor = ThreadPoolExecutor(max_workers=self._upload_thread_count)
         try:
+            executor = ThreadPoolExecutor(
+                max_workers=self._upload_thread_count)
             future_to_chunk = {}
             for chunk_info in chunks:
                 part_num = chunk_info['part_number']
@@ -561,15 +586,22 @@ class RHELUploadTarget(UploadTarget):
         except KeyboardInterrupt:
             cancel_event.set()
             self.ui_log.warning("Upload interrupted by user.")
-            self._abort_upload()
+            try:
+                self._abort_upload()
+            except KeyboardInterrupt:
+                self.ui_log.warning(
+                    "Abort request was interrupted; the upload may "
+                    "still appear in progress in the portal."
+                )
             return None
         finally:
             cancel_event.set()
-            try:
-                executor.shutdown(wait=False)
-            except Exception as e:
-                self.ui_log.debug(
-                    f"Error during executor shutdown: {e}")
+            if executor:
+                try:
+                    executor.shutdown(wait=False)
+                except Exception as e:
+                    self.ui_log.debug(
+                        f"Error during executor shutdown: {e}")
 
         # Check upload results
         if failed_chunks:
