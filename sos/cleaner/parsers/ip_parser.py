@@ -34,7 +34,9 @@ class SoSIPParser(SoSCleanerParser):
         'sos_commands/snappy/snap_list_--all',
         'sos_commands/vulkan/vulkaninfo',
         'etc/rhsm/facts/satellite.facts',
-        'var/log/.*dnf.*',
+        # most dnf logs except for dnf.librepo.log that has no false positives
+        r'var/log/dnf\.log.*',
+        r'var/log/dnf\.rpm\.log.*',
         'var/log/.*packag.*',  # get 'packages' and 'packaging' logs
         '.*(version|release)(\\.txt)?$',  # obvious version files
     ]
