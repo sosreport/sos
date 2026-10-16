@@ -10,6 +10,7 @@
 
 import glob
 import os
+import re
 
 from sos.cleaner.preppers import SoSPrepper
 
@@ -27,7 +28,11 @@ class HostnamePrepper(SoSPrepper):
     """
 
     name = 'hostname'
-    audit_logs_re = r'\shostname=(\S+)'
+
+    hostname_re = re.compile(
+        r'(?=\S*[a-zA-Z])[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+'
+    )
+    audit_logs_re = r'\shostname=(' + hostname_re.pattern + r')'
 
     sssd_conf_patterns = [
         'etc/sssd/sssd.conf*',
