@@ -35,37 +35,24 @@ class AAPContainerized(Plugin, RedHatPlugin):
             val_type=str,
             desc="Absolute path to AAP containers volume directory. "
             "Defaults to 'aap' under provided user's home directory"
+        ),
+        PluginOpt(
+            "log_lines",
+            default=1000,
+            val_type=int,
+            desc="Number of lines to collect from each AAP "
+            "container. Ignored when '--all-logs' is used."
         )
     ]
 
     def setup(self):
-        # Check if username is passed as argument
-        username = self.get_option("username")
-        self.aap_directory_name = self.get_option("directory")
+        self.aap_directory_name = ""
+        # Determine which non-root user owns the AAP rootless containers
+        username = self._get_username()
         if not username:
-            self._log_warn("AAP username is missing, use '-k "
-                           "aap_containerized.username=<user>' to set it")
-            ps = self.exec_cmd("ps aux")
-            if ps["status"] == 0:
-                podman_users = set()
-                for line in ps["output"].splitlines():
-                    if ("/usr/bin/podman" in line) and \
-                       ("/.local/share/containers/storage/" in line):
-                        user, _ = line.split(maxsplit=1)
-                        podman_users.add(user)
-                if len(podman_users) == 1:
-                    username = podman_users.pop()
-                    self._log_warn(f"AAP username detected as '{username}'")
-                else:
-                    self._log_error("Unable to determine AAP username, "
-                                    "terminating plugin.")
-                    return
+            return
 
-        # Grab aap installation directory under user's home
-        if not self.aap_directory_name:
-            user_home_directory = os.path.expanduser(f"~{username}")
-            self.aap_directory_name = self.path_join(user_home_directory,
-                                                     "aap")
+        self.aap_directory_name = self._get_aap_directory(username)
 
         # Don't collect cert and key files from the installation directory
         if self.path_exists(self.aap_directory_name):
@@ -76,13 +63,11 @@ class AAPContainerized(Plugin, RedHatPlugin):
                     "tls",
                     "controller/etc/*.cert",
                     "controller/etc/*.key",
-                    "controller/etc/SECRET_KEY",
+                    "controller/data",
                     "eda/etc/*.cert",
                     "eda/etc/*.key",
-                    "eda/etc/SECRET_KEY",
                     "gateway/etc/*.cert",
                     "gateway/etc/*.key",
-                    "gateway/etc/SECRET_KEY",
                     "gatewayproxy/etc/*.cert",
                     "gatewayproxy/etc/*.key",
                     "hub/etc/*.cert",
@@ -91,7 +76,6 @@ class AAPContainerized(Plugin, RedHatPlugin):
                     "hub/etc/keys/*.key",
                     "lightspeed/etc/*.cert",
                     "lightspeed/etc/*.key",
-                    "lightspeed/etc/SECRET_KEY",
                     "ansiblemcp/etc/*.cert",
                     "ansiblemcp/etc/*.key",
                     "pcp/etc/*.cert",
@@ -107,47 +91,33 @@ class AAPContainerized(Plugin, RedHatPlugin):
             ]
             self.add_forbidden_path(forbidden_paths)
             self.add_copy_spec(self.aap_directory_name)
-        else:
-            self._log_error(f"Directory {self.aap_directory_name} does not "
-                            "exist or invalid absolute path provided.")
 
-        # Gather output of following podman commands as user
-        podman_commands = [
-            (f"su - {username} -c 'podman info --debug'", "podman_info"),
-            (f"su - {username} -c 'podman ps -a --format json'",
-                "podman_ps_all_json"),
-        ]
+        _runtime = self._get_container_runtime()
+        if _runtime is not None:
+            self.add_cmd_output(_runtime.info_command(run_debug=True),
+                                runas=username,
+                                subdir="podman_cmd_outputs",
+                                suggest_filename="podman_info")
+            self.add_cmd_output(_runtime.list_command(get_all=True),
+                                runas=username,
+                                subdir="podman_cmd_outputs",
+                                suggest_filename="podman_ps")
 
-        for command, filename in podman_commands:
-            self.add_cmd_output(command, suggest_filename=filename)
-
-        # Collect AAP container names
+        # Collect AAP container names from the user's rootless runtime
         aap_containers = self._get_aap_container_names(username)
 
         # Copy podman container log and inspect files
-        # into their respective sub directories
         for container in aap_containers:
-            self.add_cmd_output(
-                    f"su - {username} -c 'podman logs {container}'",
-                    suggest_filename=f"{container}.log",
-                    subdir="aap_container_logs"
-            )
-            self.add_cmd_output(
-                    f"su - {username} -c 'podman inspect {container}'",
-                    suggest_filename=container,
-                    subdir="podman_inspect_logs"
-            )
+            self.add_podman_logs(container, username)
+            self.add_podman_inspect(container, username)
 
         # command outputs from various containers
-        # the su command is needed because mimicking it via runas leads to
-        # stuck command execution
         pod_cmds = {
             "automation-controller-task": [
                 "awx-manage check_license --data",
                 "awx-manage list_instances",
             ],
             "automation-gateway": [
-                "automation-gateway-service status",
                 "aap-gateway-manage print_settings",
                 "aap-gateway-manage authenticators",
                 "aap-gateway-manage showmigrations",
@@ -185,23 +155,103 @@ class AAPContainerized(Plugin, RedHatPlugin):
         for pod, cmds in pod_cmds.items():
             if pod in aap_containers:
                 for cmd in cmds:
-                    fname = self._mangle_command(cmd)
-                    self.add_cmd_output(f"su - {username} -c 'podman exec -it"
-                                        f"  {pod} bash -c \"{cmd}\"'",
-                                        suggest_filename=fname,
-                                        subdir=pod)
+                    self.add_podman_exec(pod, cmd, username)
 
-    # Function to fetch podman container names
+    # Function to fetch podman container names from user's rootless
+    # container runtime.
     def _get_aap_container_names(self, username):
-        try:
-            cmd = f"su - {username} -c 'podman ps -a --format {{{{.Names}}}}'"
-            cmd_out = self.exec_cmd(cmd)
-            if cmd_out['status'] == 0:
-                return cmd_out['output'].strip().split("\n")
-            return []
-        except Exception:
-            self._log_error("Error retrieving Podman containers")
-            return []
+        return [
+            con[1]
+            for con in self.get_containers_by_user(username, get_all=True)
+        ]
+
+    # Collect podman logs of a single container owned by rootless user.
+    # By default, last 1000 lines of logs are collected from each container.
+    # To collect more than 1000 lines of logs, specify with
+    # -k aap_containerized.log_lines=<number> option.
+    # All logs are collected, if the user specifies the --all-logs option.
+    def add_podman_logs(self, container, username):
+        if self.get_option("all_logs"):
+            log_lines = None
+        else:
+            log_lines = self.get_option("log_lines")
+        self.add_container_logs(
+            container,
+            get_all=True,
+            runas=username,
+            log_lines=log_lines,
+            suggest_filename=f"{container}.log",
+            subdir="aap_container_logs"
+        )
+
+    # Collect podman inspect output of a single container owned
+    # by rootless user.
+    def add_podman_inspect(self, container, username):
+        _runtime = self._get_container_runtime()
+        if _runtime is None:
+            return
+        self.add_cmd_output(
+            _runtime.inspect_command(container),
+            runas=username,
+            suggest_filename=f"{container}_inspect.json",
+            subdir="podman_inspect_logs"
+        )
+
+    # Run a command inside a podman container owned by rootless user and
+    # store the output under the container's subdirectory.
+    def add_podman_exec(self, container, cmd, username):
+        _runtime = self._get_container_runtime()
+        if _runtime is None:
+            return
+        self.add_cmd_output(
+            _runtime.exec_command(container, cmd),
+            runas=username,
+            suggest_filename=self._mangle_command(cmd),
+            subdir=f"podman_cmd_outputs/{container}"
+        )
+
+    # Determine the non-root user that owns the AAP rootless containers
+    # Prefers the `username` plugin option, falling back to scanning the
+    # process list for single user running a rootless podman instance.
+    def _get_username(self):
+        username = self.get_option("username")
+        if username:
+            return username
+
+        self._log_warn("AAP username is missing, use '-k "
+                       "aap_containerized.username=<username>' to specify it.")
+        ps = self.exec_cmd("ps -eo user,args")
+        if ps['status'] == 0:
+            podman_users = set()
+            for line in ps["output"].splitlines():
+                if ("/usr/bin/podman" in line) and \
+                   ("/.local/share/containers/storage/" in line):
+                    user, _ = line.split(maxsplit=1)
+                    podman_users.add(user)
+            if len(podman_users) == 1:
+                username = podman_users.pop()
+                self._log_warn(f"Auto-detected AAP username: {username}. If "
+                               "incorrect, use "
+                               "'-k aap_containerized.username=<user>' "
+                               "to specify it.")
+                return username
+            self._log_error("Unable to determine AAP username, "
+                            "multiple users running rootless podman detected. "
+                            "Use '-k aap_containerized.username=<user>' "
+                            "to specify it.")
+        return None
+
+    # Resolve the absolute path of AAP containers volume directory.
+    def _get_aap_directory(self, username):
+        aap_directory_name = self.get_option("directory")
+        if not aap_directory_name:
+            user_home_directory = os.path.expanduser(f"~{username}")
+            aap_directory_name = os.path.join(user_home_directory, "aap")
+            self._log_warn("Auto-detected AAP directory: "
+                           f"'{aap_directory_name}'. If incorrect, "
+                           "use '-k aap_containerized.directory=<path>' to "
+                           "specify it.")
+        return aap_directory_name
 
     # Check and enable plugin on a AAP Containerized host
     def check_enabled(self):
