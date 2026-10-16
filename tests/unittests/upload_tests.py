@@ -573,8 +573,7 @@ class UT13CheckDistributionTests(unittest.TestCase):
 
 
 class UT14PreauthorizeTests(unittest.TestCase):
-    """UT14 - --preauth token pre-authorization per target
-
+    """UT14 - --preauth token pre-authorization per target"""
 
     # Stand-in for the OIDC access token. Never validated; the auth
     # client is mocked, so any opaque string will do.

@@ -112,7 +112,6 @@ class UploadInvalidTargetTest(StageOneOutputTest):
 
 class UploadMissingFileTest(StageOneOutputTest):
     """S1-05 - Missing FILE positional is reported
-    exit
 
     :avocado: tags=stageone
     """
