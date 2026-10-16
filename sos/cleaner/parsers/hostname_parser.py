@@ -22,9 +22,10 @@ class SoSHostnameParser(SoSCleanerParser):
     )
 
     def __init__(self, config, workdir, skip_cleaning_files=[],
-                 strict_tokenisation=False):
+                 strict_tokenisation=False, no_update=False):
         self.mapping = SoSHostnameMap(workdir, self.regex_pattern,
-                                      strict_tokenisation)
+                                      strict_tokenisation,
+                                      no_update=no_update)
         super().__init__(config, skip_cleaning_files, strict_tokenisation)
 
     def parse_line(self, line):
