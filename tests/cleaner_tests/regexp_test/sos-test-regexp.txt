@@ -1,0 +1,26 @@
+# Test data for regexp obfuscation tests
+#
+# These lines test the patterns defined in regexp_patterns.conf:
+# - shorthost host=([^,\s]+)(?:,|$)
+# - hostspace HOST (\S+)
+
+# Test shorthost pattern with comma delimiter
+host=SECRET,os=rhel9
+
+# Test shorthost pattern at end of line
+host=SECRETHOST
+
+# Test shorthost pattern - should NOT match (no comma or EOL after value)
+host=okhost due to the space
+
+# Test hostspace pattern with uppercase
+The HOST VALUE here
+
+# Test hostspace pattern with alphanumeric
+HOST val4ue was found
+
+# Test consistency - same value should get same obfuscation
+host=SECRET,version=9.2
+
+# Test different keywords have independent counters
+host=ANOTHER,HOST ANOTHERVALUE
