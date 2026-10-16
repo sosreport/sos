@@ -31,6 +31,7 @@ class UbuntuPolicy(DebianPolicy):
     _upload_user = "ubuntu"
     _upload_password = "ubuntu"
     _upload_method = 'put'
+    vendor_presets = UBUNTU_PRESETS
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
                  remote_exec=None):
@@ -53,7 +54,7 @@ class UbuntuPolicy(DebianPolicy):
             pass
 
         self.valid_subclasses += [UbuntuPlugin]
-        self.register_presets(UBUNTU_PRESETS)
+        self.register_presets(self.vendor_presets)
 
     def probe_preset(self):
         if self.pkg_by_name("sunbeam") is not None:
