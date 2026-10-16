@@ -19,11 +19,15 @@ class CrioContainerRuntime(ContainerRuntime):
 
     name = 'crio'
     binary = 'crictl'
+    rootless = False
 
     def check_can_copy(self):
         return False
 
-    def get_containers(self, get_all=False):
+    def get_containers(self, get_all=False, runas=None):
+        # CRI-O is daemon-based and does not support rootless
+        # mode (runas), but accepts the parameter for signature parity
+        # with ContainerRuntime.
         """Get a list of containers present on the system.
 
         :param get_all: If set, include stopped containers as well
