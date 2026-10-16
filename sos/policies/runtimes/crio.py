@@ -95,18 +95,26 @@ class CrioContainerRuntime(ContainerRuntime):
         return (f"{self.run_cmd} {env_args} {container_id} {quoted_cmd}"
                 if container_id is not None else '')
 
-    def get_logs_command(self, container):
+    def get_logs_command(self, container, log_lines=None):
         """Get the command string used to dump container logs from the
         runtime
 
         :param container: The name or ID of the container to get logs for
         :type container: ``str``
 
+        :param log_lines: Limit the log output to the last `log_lines` lines
+                          of the container's logs. If not set, all available
+                          logs are collected
+        :type log_lines: ``int`` or ``None``
+
         :returns: Formatted runtime command to get logs from `container`
         :type: ``str``
         """
         container_id = self.get_container_by_name(container)
-        return (f"{self.binary} logs -t {container_id}"
-                if container_id is not None else '')
+        if container_id is None:
+            return ''
+        if log_lines is not None and self.log_line_limit:
+            return f"{self.binary} logs -t --tail {log_lines} {container_id}"
+        return f"{self.binary} logs -t {container_id}"
 
 # vim: set et ts=4 sw=4 :
