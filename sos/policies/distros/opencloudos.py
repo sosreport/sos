@@ -13,7 +13,8 @@ from sos.policies.distros.redhat import RedHatPolicy
 class OpenCloudOSPolicy(RedHatPolicy):
     vendor = "OpenCloudOS"
     vendor_urls = [('Distribution Website', 'https://www.opencloudos.org/')]
-    os_release_name = 'OpenCloudOS Stream'
+    os_release_name = 'OpenCloudOS'
+    os_release_id = 'opencloudos'
     os_release_file = ''
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
