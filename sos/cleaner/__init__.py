@@ -175,6 +175,7 @@ class SoSCleaner(SoSComponent):
             cleaner_dir,
             self.opts.skip_cleaning_files,
             self.opts.strict_tokenisation,
+            self.opts.no_update,
         ]
 
         parser_classes = [
@@ -489,6 +490,10 @@ third party.
         map_path = self.write_map_for_archive(_map)
         self.write_map_for_config(_map)
         self.write_stats_to_manifest()
+
+        if self.opts.no_update:
+            for parser in self.parsers:
+                parser.mapping.cleanup_no_update_cache()
 
         if self.in_place:
             arc_paths = [a.final_archive_path for a in self.completed_reports]
