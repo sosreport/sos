@@ -69,7 +69,7 @@ Now we import the tarball.
 
 ::
 
-   gbp import-orig ../sos-${VERSION}.orig.tar.gz -u ${VERSION}
+   gbp import-orig ../sos_${VERSION}.orig.tar.gz -u ${VERSION}
 
 This command will do multiple things 1. Upload the contents and the
 changes to the ``upstream`` branch 2. Create a new tag for this, and
@@ -218,7 +218,7 @@ uploaded to backports.
 
 ::
 
-   git-buildpackage -S -d -v4.10.1-1~bpo13+1
+   dpkg-buildpackage -S -d -v4.10.1-1~bpo13+1
    dput ftp-master ../sos_4.10.2-1~bpo13+1_source.changes
 
 Sponsorship differences
