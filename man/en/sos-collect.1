@@ -4,7 +4,8 @@
 sos_collect \- Collect sos reports from multiple (cluster) nodes
 .SH SYNOPSIS
 .B sos collect
-    [\-a|\-\-all\-options]
+    [\-a|\-\-alloptions]
+    [\-\-allow\-system\-changes]
     [\-b|\-\-become]
     [\-\-batch]
     [\-\-clean|\-\-cleaner|\-\-mask]
@@ -21,6 +22,7 @@ sos_collect \- Collect sos reports from multiple (cluster) nodes
     [--encrypt-pass PASS]\fR
     [\-\-group GROUP]
     [\-j|\-\-jobs JOBS]
+    [\-\-journal\-size SIZE]
     [\-l|\-\-list\-options]
     [\-\-namespaces NAMESPACES]
     [\-\-save\-group GROUP]
@@ -29,6 +31,7 @@ sos_collect \- Collect sos reports from multiple (cluster) nodes
     [\-k PLUGIN_OPTION]
     [\-\-label LABEL]
     [\-\-log-size SIZE]
+    [\-\-low\-priority]
     [\-n SKIP_PLUGINS]
     [\-\-nodes NODES]
     [\-\-no\-pkg\-check]
@@ -46,6 +49,7 @@ sos_collect \- Collect sos reports from multiple (cluster) nodes
     [\-\-password]
     [\-\-password\-per\-node]
     [\-\-preset PRESET]
+    [\-\-since YYYYMMDD[HHMMSS]]
     [\-\-skip-commands COMMANDS]
     [\-\-skip-files FILES]
     [\-s|\-\-sysroot SYSROOT]
@@ -103,6 +107,10 @@ documentation of all cleaning options, see \fBsos-clean(1)\fR.
 Report option. Collects all logs regardless of size. 
 
 Default: no
+.TP
+\fB\-\-allow\-system\-changes\fR
+Report option. Run commands even if they can change the system (e.g. load
+kernel modules).
 .TP
 \fB\-c\fR CLUSTER_OPTIONS
 Specify options used by cluster profiles. The format is 'profile.option_name=value'.
@@ -246,6 +254,10 @@ through the remaining nodes as sos report collection finishes.
 
 Defaults to 4.
 .TP
+\fB\-\-journal\-size\fR SIZE
+Report option. Places a limit on the size of journals collected in MiB. If this
+is not set, the default of \fBsos report\fR on each node applies.
+.TP
 \fB\-l\fR, \fB\-\-list\-options\fR
 Display available options for cluster profiles.
 
@@ -290,6 +302,10 @@ Setting this value to 0 removes all size limitations, and any files or commands
 collected will be collected in their entirety, which may drastically increase the
 size of the final sos report tarball and the memory usage of sos during collection
 of commands, such as very large journals that may be several GiB in size.
+.TP
+\fB\-\-low\-priority\fR
+Report option. Run sos report on the nodes as a low priority process, so that
+it does not interfere with other processes running on the system.
 .TP
 \fB\-\-namespaces\fR NAMESPACES
 Report option. For plugins that iterate collections over namespaces that exist on the system,
@@ -425,6 +441,10 @@ The plugin-specific timeout option will override this option.
 .TP
 \fB\-p\fR SSH_PORT, \fB\-\-ssh\-port\fR SSH_PORT
 Specify SSH port for all nodes. Use this if SSH runs on any port other than 22.
+.TP
+\fB\-\-since\fR YYYYMMDD[HHMMSS]
+Report option. Limits the collection of log archives to those newer than this
+date. This also affects \fB\-\-all\-logs\fR.
 .TP
 \fB\-\-skip-commands\fR COMMANDS
 A comma delimited list of commands to skip execution of, but still allowing the
