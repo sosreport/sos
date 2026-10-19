@@ -240,8 +240,8 @@ class SoSReport(SoSComponent):
         report_grp.add_argument("--estimate-only", action="store_true",
                                 help="Approximate disk space requirements for "
                                      "a real sos run; disables --clean and "
-                                     "--collect, sets --threads=1 and "
-                                     "--no-postproc")
+                                     "--upload, sets --build, --threads=1 "
+                                     "and --no-postproc")
         report_grp.add_argument("--experimental", action="store_true",
                                 dest="experimental", default=False,
                                 help="enable experimental plugins")
