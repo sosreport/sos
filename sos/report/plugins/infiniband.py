@@ -33,7 +33,10 @@ class Infiniband(Plugin, IndependentPlugin):
             "ibv_devinfo -v",
             "ibstat",
             "ibstatus",
-            "ibswitches"
+            "ibswitches",
+            "ibdev2netdev -v",
+            "ofed_info -l",
+            "rdma link show",
         ])
 
         # run below commands for every IB device and its active port
