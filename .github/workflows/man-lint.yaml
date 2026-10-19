@@ -1,0 +1,25 @@
+name: Lint Man Pages
+
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install mandoc and groff
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mandoc groff
+
+      - name: Run mandoc lint on man directory
+        run: |
+          find man -type f \( -name "*.[1-9]" -o -name "*.man" \) -exec mandoc -Tlint -Werror {} +
+
+      - name: Run groff lint on man directory
+        if: always()
+        run: |
+          find man -type f \( -name "*.[1-9]" -o -name "*.man" \) -exec groff -mandoc -t -K utf8 -rHY=0 -rCHECKSTYLE=3 -ww -E -z {} +
