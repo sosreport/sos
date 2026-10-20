@@ -131,8 +131,6 @@ class Ipa(Plugin, RedHatPlugin):
             "/var/lib/ipa/certs/httpd.crt",
             "/var/lib/ipa/ra-agent.pem",
             "/var/lib/ipa/sysrestore/sysrestore.state",
-            "/var/log/dirsrv/slapd-*/logs/access",
-            "/var/log/dirsrv/slapd-*/logs/errors",
             "/var/log/ipa-migrate.log",
             "/var/log/ipa/healthcheck/healthcheck.log*",
             "/var/log/ipaclient-install.log",
