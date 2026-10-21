@@ -109,6 +109,17 @@ class Ipa(Plugin, RedHatPlugin):
             # Collect IPA services status
             self.add_cmd_output("ipactl status")
 
+            dirsrv_pred = SoSPredicate(self, cmd_outputs={
+                'cmd': "systemctl is-active dirsrv@*",
+                'output': "active"
+            })
+            self.add_cmd_output(
+                "ipa -e in_server=true config-show",
+                suggest_filename="ipa_config_show",
+                pred=dirsrv_pred,
+                timeout=10
+            )
+
         if self.ca_installed():
             self._log_debug("CA is installed: retrieving PKI logs")
             self.collect_pki_logs(ipa_version)
@@ -175,11 +186,6 @@ class Ipa(Plugin, RedHatPlugin):
             "klist -ket /etc/httpd/conf/ipa.keytab",
             "klist -ket /var/lib/ipa/gssproxy/http.keytab"
         ])
-
-        self.add_cmd_output(
-            "ipa -e in_server=true config-show",
-            suggest_filename="ipa_config_show"
-        )
 
         self.add_dir_listing("/etc/dirsrv/slapd-*/schema/")
 
