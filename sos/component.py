@@ -74,6 +74,7 @@ class SoSComponent():
     files_with_upload_passwd = [
         "sos_logs/sos.log",
         "sos_reports/manifest.json",
+        "sos_reports/previous_baseline.json",
         "sos_commands/process/ps_*",
         "sos_commands/selinux/ps_*",
         "sos_commands/systemd/systemctl_status_--all",
