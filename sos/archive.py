@@ -22,6 +22,7 @@ from datetime import datetime
 from threading import Lock
 
 from importlib.util import find_spec
+from importlib import import_module
 from sos.utilities import sos_get_command_output
 
 try:
@@ -87,7 +88,7 @@ class Archive:
     def add_string(self, content, dest, mode='w'):
         raise NotImplementedError
 
-    def add_binary(self, content, dest):
+    def add_binary(self, content, dest, force=False):
         raise NotImplementedError
 
     def add_link(self, source, link_name):
@@ -406,14 +407,17 @@ class FileCacheArchive(Archive):
                 self.log_debug(f"added string at '{src}' to FileCacheArchive "
                                f"'{self._archive_root}'")
 
-    def add_binary(self, content, dest):
+    def add_binary(self, content, dest, force=False):
         with self._path_lock:
-            dest = self.check_path(dest, P_FILE)
+            src = dest
+            dest = self.check_path(dest, P_FILE, force=force)
             if not dest:
                 return
 
             with codecs.open(dest, 'wb', encoding=None) as f:
                 f.write(content)
+            if force and os.path.exists(src):
+                self._copy_attributes(src, dest)
             self.log_debug(f"added binary content at '{dest}' to archive "
                            f"'{self._archive_root}'")
 
@@ -535,8 +539,10 @@ class FileCacheArchive(Archive):
         self.log_debug(f"created directory at '{path}' in FileCacheArchive "
                        f"'{self._archive_root}'")
 
-    def open_file(self, path):
+    def open_file(self, path, binary=False):
         path = self.dest_path(path)
+        if binary:
+            return open(path, 'rb')
         return codecs.open(path, "r", encoding='utf-8', errors='ignore')
 
     def cleanup(self):
@@ -590,15 +596,36 @@ class FileCacheArchive(Archive):
             pattern = regexp
             flags = common_flags
 
-        content = ""
-        with self.open_file(path) as readable:
+        with self.open_file(path, binary=True) as readable:
             content = readable.read()
+        compression = None
+        for magic, module_name in ((b'\x1f\x8b', 'gzip'),
+                                   (b'BZh', 'bz2'),
+                                   (b'\xfd7zXZ\x00', 'lzma')):
+            if content.startswith(magic):
+                decompression_error = OSError
+                try:
+                    compression = import_module(module_name)
+                    if module_name == 'gzip':
+                        decompression_error = compression.zlib.error
+                    elif module_name == 'lzma':
+                        decompression_error = compression.LZMAError
+                    content = compression.decompress(content)
+                except (ImportError, OSError, EOFError, ValueError,
+                        decompression_error) as err:
+                    raise OSError(
+                        f"Cannot decompress archived file '{path}'") from err
+                break
         if not isinstance(content, str):
             content = content.decode('utf8', 'ignore')
         result, replacements = re.subn(pattern, subst, content,
                                        flags=flags)
         if replacements:
-            self.add_string(result, path)
+            if compression:
+                self.add_binary(compression.compress(result.encode('utf-8')),
+                                path, force=True)
+            else:
+                self.add_string(result, path)
         else:
             replacements = 0
         return replacements
