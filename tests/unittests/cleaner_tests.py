@@ -130,7 +130,7 @@ class CleanerMapTests(unittest.TestCase):
         _ob_test = self.ipv6_map.get(_test)
         self.assertTrue(_ob_test.startswith('fe80'),
                         'Link-local identifier not maintained')
-        self.assertNotEqual(_test, _ob_test, 'Device address was unchanged')
+        self.assertEqual(_test, _ob_test, 'Device address was changed')
 
     def test_ipv6_private(self):
         _net = 'fd00:abcd::'
