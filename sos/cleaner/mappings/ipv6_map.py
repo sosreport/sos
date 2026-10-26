@@ -72,6 +72,10 @@ class SoSIPv6Map(SoSMap):
             # addresses. We use this behavior to properly obfuscate the network
             # before obfuscating a host address within that network
             _addr = ipaddress.ip_network(_ipaddr, strict=False)
+            if _addr.is_link_local:
+                # Link-local addresses are not sensitive and are important for
+                # problem analysis, so preserve the original address as is.
+                return item
             _net = self._get_network(_addr)
             if _net.network_addr not in self.dataset:
                 self.dataset[_net.original_address] = _net.obfuscated_address
