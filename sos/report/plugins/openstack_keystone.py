@@ -11,7 +11,7 @@
 
 import os
 from sos.report.plugins import (Plugin, RedHatPlugin, DebianPlugin,
-                                UbuntuPlugin, PluginOpt)
+                                UbuntuPlugin)
 
 
 class OpenStackKeystone(Plugin):
@@ -20,10 +20,6 @@ class OpenStackKeystone(Plugin):
     plugin_name = "openstack_keystone"
     profiles = ('openstack', 'openstack_controller')
 
-    option_list = [
-        PluginOpt('nopw', default=True,
-                  desc='do not collect keystone passwords')
-    ]
     var_puppet_gen = "/var/lib/config-data/puppet-generated/keystone"
     apachepkg = None
     domain_config_dir = ""
