@@ -143,12 +143,26 @@ class CleanerMapTests(unittest.TestCase):
                         'Private address not in same network')
         self.assertNotEqual(_net, _ob_net, 'Private network was unchanged')
 
-    def test_ipv6_short_network(self):
-        _net = 'ff02::'
-        _ob_net = self.ipv6_map.get(_net)
-        self.assertTrue(_ob_net.startswith(('53', '54')),
-                        f'Short network does not start with identifier: '
-                        f'{_ob_net}')
+    def test_ipv6_multicast_wellknown_not_obfuscated(self):
+        for addr in ('ff00::/8', 'ff02::1/128', 'ff02::2/128', 'ff02::fb/128'):
+            _ob = self.ipv6_map.get(addr)
+            self.assertTrue(_ob.startswith('ff'),
+                            f'Well-known multicast {addr} was obfuscated '
+                            f'(got {_ob})')
+
+    def test_ipv6_multicast_solicited_node_obfuscated(self):
+        addr = 'ff02::1:ff34:abcd/128'
+        _ob = self.ipv6_map.get(addr)
+        self.assertFalse(_ob.startswith('ff'),
+                         f'Solicited-node multicast {addr} was not obfuscated'
+                         f' (got {_ob})')
+
+    def test_ipv6_multicast_transient_obfuscated(self):
+        for addr in ('ff35::1234/128', 'ff7e::1:ff00:1/128'):
+            _ob = self.ipv6_map.get(addr)
+            self.assertFalse(_ob.startswith('ff'),
+                             f'Transient multicast {addr} was not obfuscated'
+                             f' (got {_ob})')
 
     def test_ipv6_consistent_obfuscation(self):
         _test = '2022:1104:abcd::ef09'
