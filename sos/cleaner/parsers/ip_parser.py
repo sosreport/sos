@@ -31,6 +31,7 @@ class SoSIPParser(SoSCleanerParser):
         'sos_commands/python/pip_list',
         'sos_commands/rpm',
         'sos_commands/yum/.*list.*',
+        'sos_commands/dnf/.*list.*',
         'sos_commands/snappy/snap_list_--all',
         'sos_commands/vulkan/vulkaninfo',
         'etc/rhsm/facts/satellite.facts',
