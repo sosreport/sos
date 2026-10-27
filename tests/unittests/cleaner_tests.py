@@ -89,6 +89,13 @@ class CleanerMapTests(unittest.TestCase):
         _test = self.ip_map.get('127.0.0.1')
         self.assertEqual(_test, '127.0.0.1')
 
+    def test_ip_skip_multicast(self):
+        for addr in ('224.0.0.1', '224.0.0.251', '239.255.255.250'):
+            _test = self.ip_map.get(addr)
+            self.assertEqual(_test, addr,
+                             f'Multicast address {addr} was incorrectly '
+                             f'obfuscated to {_test}')
+
     def test_hostname_obfuscate_domain_options(self):
         _test = self.host_map.get('www.redhat.com')
         self.assertNotEqual(_test, 'www.redhat.com')
