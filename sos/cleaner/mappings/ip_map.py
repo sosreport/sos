@@ -37,7 +37,8 @@ class SoSIPMap(SoSMap):
         r'8.8.8.8',
         r'8.8.4.4',
         r'169.254.*',
-        r'255.*'
+        r'2(2[4-9]|3[0-9])\.',   # 224.x.x.x – 239.x.x.x (RFC 5771 multicast)
+        r'255.*',
     ]
 
     _networks = {}
