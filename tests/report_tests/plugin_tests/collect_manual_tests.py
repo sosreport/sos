@@ -17,8 +17,8 @@ class CollectManualTest(StageOneReportTest):
     :avocado: tags=stageone
     """
 
-    sos_cmd = '-o unpackaged,python -k python.hashes'
-    # unpackaged is only a RedHatPlugin
+    sos_cmd = '-o unpackaged,python,libraries -k python.hashes'
+    # unpackaged is only a RedHatPlugin; libraries ownership uses rpm -qf
     redhat_only = True
 
     def test_unpackaged_list_collected(self):
@@ -26,6 +26,11 @@ class CollectManualTest(StageOneReportTest):
 
     def test_python_hashes_collected(self):
         self.assertFileCollected('sos_commands/python/digests.json')
+
+    def test_ldconfig_package_owners_collected(self):
+        self.assertFileCollected(
+            'sos_commands/libraries/ldconfig_package_owners'
+        )
 
     def test_no_strings_dir(self):
         self.assertFileNotCollected('sos_strings/')
@@ -38,4 +43,9 @@ class CollectManualTest(StageOneReportTest):
         pyman = self.get_plugin_manifest('python')
         self.assertTrue(
             any(c['name'] == 'digests.json' for c in pyman['collections'])
+        )
+        libman = self.get_plugin_manifest('libraries')
+        self.assertTrue(
+            any(c['name'] == 'ldconfig_package_owners'
+                for c in libman['collections'])
         )
