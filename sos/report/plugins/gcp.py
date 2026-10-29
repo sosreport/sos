@@ -6,9 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 import json
+from http.client import HTTPException
 from typing import Any
 from urllib import request
-from urllib.error import URLError
 
 from sos.report.plugins import Plugin, IndependentPlugin, PluginOpt
 
@@ -18,6 +18,19 @@ class GCP(Plugin, IndependentPlugin):
     short_desc = 'Google Cloud Platform'
     plugin_name = 'gcp'
     profiles = ('virt',)
+    services = (
+        'google-guest-agent',
+        'google-guest-agent-manager',
+        'google-guest-compat-manager',
+        'google-osconfig-agent',
+        'google-startup-scripts',
+        'google-shutdown-scripts',
+        'google-oslogin-cache',
+        'google-cloud-ops-agent',
+        'google-cloud-ops-agent-fluent-bit',
+        'google-cloud-ops-agent-opentelemetry-collector',
+        'gce-workload-cert-refresh',
+    )
 
     option_list = [
         PluginOpt('keep-pii', default=False,
@@ -28,8 +41,12 @@ class GCP(Plugin, IndependentPlugin):
 
     PRODUCT_PATH = "/sys/devices/virtual/dmi/id/product_name"
 
-    METADATA_QUERY = "http://metadata.google.internal/computeMetadata/v1/" \
-                     "?recursive=true"
+    METADATA_QUERY = (
+        "http://metadata.google.internal/computeMetadata/v1/?recursive=true"
+    )
+    METADATA_IP_QUERY = (
+        "http://169.254.169.254/computeMetadata/v1/?recursive=true"
+    )
     REDACTED = "[--REDACTED--]"
     metadata = None
 
@@ -48,27 +65,70 @@ class GCP(Plugin, IndependentPlugin):
         """
         Collect the following info:
          * `gcloud auth list` output
-         * Any google services output from journal
+         * Guest Agent, MDS mTLS, OS Login, and Snapshot directory listings
+         * Guest Agent, Ops Agent, and GPU installer configurations and logs
         """
+        # Exclude downloaded GPU installer binaries/archives when collecting
+        # /opt/google/cuda-installer/.
+        self.add_forbidden_path([
+            "/opt/google/cuda-installer/*.run",
+            "/opt/google/cuda-installer/*.deb",
+            "/opt/google/cuda-installer/*.rpm",
+            "/opt/google/cuda-installer/*.tar*",
+            "/opt/google/cuda-installer/*.pyz",
+        ])
 
-        # Capture gcloud auth list
+        self.add_copy_spec([
+            # Google Guest Agent & Plugin Manager (2025+ modular architecture)
+            "/etc/default/instance_configs.cfg",
+            "/etc/default/instance_configs.cfg.distro",
+            "/etc/default/instance_configs.cfg.template",
+            "/etc/google-guest-agent/",
+            "/var/lib/google-guest-agent/*/agent_state/plugin_info/*",
+            "/var/lib/google-guest-agent/*/agent_state/plugins/*/*.log*",
+            "/var/log/google-guest-agent*.log*",
+            # Google Cloud Ops Agent
+            "/etc/google-cloud-ops-agent/config.yaml",
+            "/var/log/google-cloud-ops-agent/*.log*",
+            "/var/log/google-cloud-ops-agent/subagents/*.log*",
+            # Google Cloud GPU / CUDA Installer & Kernel Header Postinst Hook
+            "/etc/profile.d/google_cuda_install.sh",
+            "/opt/google/cuda-installer/",
+            "/var/log/cuda-installer.log*",
+            "/var/log/google-gpu-installer.log*",
+            "/var/log/cos-gpu-installer.log*",
+            "/etc/kernel/postinst.d/zz-gcp-gpu-header-check",
+        ])
+
         self.add_cmd_output("gcloud auth list", tags=['gcp'])
 
-        # Add journal entries
-        self.add_journal(units="google*", tags=['gcp'])
+        self.add_dir_listing([
+            "/run/google-guest-agent",
+            "/var/lib/google-guest-agent",
+        ], recursive=True, tags=['gcp'])
+
+        self.add_dir_listing([
+            "/run/google-mds-mtls",
+            "/usr/lib/google/guest_agent",
+            "/usr/lib64/google/guest_agent",
+            "/var/google-sudoers.d",
+            "/etc/google/snapshots",
+            "/etc/google/auth",
+        ], tags=['gcp'])
 
     def collect(self):
-        # Collect Metadata from the server
-        with self.collection_file('metadata.json', tags=['gcp']) as mfile:
-            try:
-                self.metadata = self.get_metadata()
-                self.scrub_metadata()
+        # Collect Metadata from the server before opening the collection file
+        # so failed MDS queries do not leave an empty 0-byte metadata.json.
+        try:
+            self.metadata = self.get_metadata()
+            self.scrub_metadata()
+            with self.collection_file('metadata.json', tags=['gcp']) as mfile:
                 mfile.write(json.dumps(self.metadata, indent=4))
-            except RuntimeError as err:
-                mfile.write(str(err))
+        except (RuntimeError, ValueError, OSError) as err:
+            self._log_info(f"Could not collect GCE metadata: {err}")
 
         # Collect zone.txt file from RHUI
-        curl_command = ('curl -v --connect-timeout 10'
+        curl_command = ('curl -v --connect-timeout 10 '
                         'https://rhui.googlecloud.com/zone.txt')
 
         rhui_package = self.policy.package_manager.all_pkgs_by_name_regex(
@@ -79,26 +139,34 @@ class GCP(Plugin, IndependentPlugin):
     def get_metadata(self) -> dict:
         """
         Retrieves metadata from the Metadata Server and transforms it into a
-        dictionary object.
+        dictionary object. Falls back to the link-local IP (169.254.169.254)
+        when guest DNS resolution for metadata.google.internal fails.
         """
-        response_body = self._query_address(self.METADATA_QUERY)
-        return json.loads(response_body)
+        last_err = RuntimeError("Failed to communicate with Metadata Server")
+        for url in (self.METADATA_QUERY, self.METADATA_IP_QUERY):
+            try:
+                response_body = self._query_address(url)
+                return json.loads(response_body)
+            except (RuntimeError, ValueError, OSError) as err:
+                last_err = err
+        raise last_err
 
     def _query_address(self, url: str) -> str:
         """
         Query the given url address with headers required by Google Metadata
-        Server.
+        Server, bypassing system HTTP proxy environment variables.
         """
         try:
             req = request.Request(url, headers={'Metadata-Flavor': 'Google'})
-            with request.urlopen(req) as response:
+            opener = request.build_opener(request.ProxyHandler({}))
+            with opener.open(req, timeout=5) as response:
                 if response.code != 200:
                     raise RuntimeError(
                         f"Failed to communicate with Metadata Server "
                         f"(code: {response.code}): " +
                         response.read().decode())
                 return response.read().decode()
-        except URLError as err:
+        except (OSError, HTTPException) as err:
             raise RuntimeError(
                 "Failed to communicate with Metadata Server: " + str(err)) \
                 from err
@@ -115,9 +183,14 @@ class GCP(Plugin, IndependentPlugin):
         if self.get_option('keep-pii'):
             return
 
-        project_id = self.metadata['project']['projectId']
-        project_number_int = self.metadata['project']['numericProjectId']
-        project_number = str(project_number_int)
+        project = self.metadata.get('project', {})
+        project_id = project.get('projectId')
+        project_number_int = project.get('numericProjectId')
+        project_number = (
+            str(project_number_int)
+            if project_number_int is not None
+            else None
+        )
 
         def scrub(data: Any) -> Any:
             if isinstance(data, dict):
@@ -129,18 +202,65 @@ class GCP(Plugin, IndependentPlugin):
             if isinstance(data, list):
                 return [scrub(value) for value in data]
             if isinstance(data, str):
-                return data.replace(project_number, self.REDACTED)\
-                           .replace(project_id, self.REDACTED)
+                if project_number:
+                    data = data.replace(project_number, self.REDACTED)
+                if project_id:
+                    data = data.replace(project_id, self.REDACTED)
+                return data
             if isinstance(data, int):
-                return self.REDACTED if data == project_number_int else data
+                return (
+                    self.REDACTED
+                    if project_number_int is not None
+                    and data == project_number_int
+                    else data
+                )
             return data
 
         self.metadata = scrub(self.metadata)
 
-        self.safe_redact_key(self.metadata['project']['attributes'],
-                             'ssh-keys')
-        self.safe_redact_key(self.metadata['project']['attributes'],
-                             'sshKeys')
+        # Redact sensitive attribute values in-place after metadata collection
+        # while preserving the attribute keys in metadata.json.
+        sensitive_attr_keys = (
+            'kube-env',
+            'ssh-keys',
+            'sshKeys',
+            'windows-keys',
+            'startup-script',
+            'shutdown-script',
+            'user-data',
+        )
+        sensitive_attr_prefixes = (
+            'startup-script-',
+            'shutdown-script-',
+            'windows-startup-script-',
+            'windows-shutdown-script-',
+            'sysprep-specialize-script-',
+        )
+        for section in ('project', 'instance'):
+            attrs = self.metadata.get(section, {}).get('attributes')
+            if isinstance(attrs, dict):
+                for key in sensitive_attr_keys:
+                    self.safe_redact_key(attrs, key)
+                for key in list(attrs.keys()):
+                    if isinstance(key, str) and key.startswith(
+                        sensitive_attr_prefixes
+                    ):
+                        self.safe_redact_key(attrs, key)
+
+    def postproc(self):
+        # e.g. password: my_secret_password -> password: ******
+        #      credentials: bearer_token_xyz -> credentials: ******
+        self.do_file_sub(
+            "/etc/google-cloud-ops-agent/config.yaml",
+            r'([a-zA-Z0-9_.-]*'
+            r'(?:password|secret|token|api_key|access_key|private_key'
+            r'|credentials)'
+            r'[a-zA-Z0-9_.-]*[ \t]*:[ \t]*)[^\s#]+',
+            r'\1******',
+        )
+        self.do_paths_http_sub([
+            "/etc/google-cloud-ops-agent/config.yaml",
+        ])
 
     @classmethod
     def safe_redact_key(cls, dict_obj: dict, key: str):
