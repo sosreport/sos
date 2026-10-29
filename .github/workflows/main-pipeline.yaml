@@ -54,6 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       foreman: ${{ steps.filter_foreman.outputs.foreman }}
+      man_pages: ${{ steps.filter_man.outputs.man_pages_count }}
       docs_count: ${{ steps.filter_docs.outputs.doc_files_count }}
       all_count: ${{ steps.filter_docs.outputs.all_files_count }}
     steps:
@@ -87,6 +88,19 @@ jobs:
               - '**/*.md'
               - 'AUTHORS'
               - 'LICENSE'
+
+      - uses: dorny/paths-filter@v4
+        id: filter_man
+        with:
+          filters: |
+            man_pages:
+              - '.github/workflows/**'
+              - 'man/**'
+
+  man_lint:
+    needs: filters
+    if: needs.filters.outputs.man_pages > 0
+    uses: ./.github/workflows/man-lint.yaml
 
   py_tests:
     needs: filters
