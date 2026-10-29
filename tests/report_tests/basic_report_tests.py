@@ -34,6 +34,9 @@ class NormalSoSReport(StageOneReportTest):
     def test_free_symlink_created(self):
         self.assertFileCollected('free')
 
+    def test_free_human_output_collected(self):
+        self.assertFileCollected('sos_commands/memory/free_-h')
+
     def test_tag_summary_created(self):
         self.assertTrue(
             'tag_summary' in self.manifest['components']['report'],
