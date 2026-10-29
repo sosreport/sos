@@ -34,6 +34,7 @@ class Memory(Plugin, IndependentPlugin):
         self.add_cmd_output("free", root_symlink="free")
         self.add_cmd_output([
             "free -m",
+            "free -h",
             "swapon --bytes --show",
             "swapon --summary --verbose",
             "lsmem -a -o RANGE,SIZE,STATE,REMOVABLE,ZONES,NODE,BLOCK"
