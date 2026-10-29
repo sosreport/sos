@@ -187,11 +187,31 @@ class ObfuscatedIPv6Network():
         self.ob_counters[length] = val
         return f"{val:0{length}x}"
 
+    # Solicited-node multicast addresses (RFC 4291 §2.7.1) embed the low
+    # 24 bits of a unicast address, so they should be obfuscated to avoid
+    # leaking host-specific information. Other multicast addresses are
+    # public, so we shouldn't redact them.
+    _solicited_node = ipaddress.ip_network('ff02::1:ff00:0/104')
+
     def _obfuscate_network_address(self):
         """Generate the obfuscated pair for the network address. This is
         determined based on the netmask of the network this class was built
         on top of.
         """
+        if self.addr.is_multicast:
+            # The flags nibble is the high nibble of the second address byte.
+            # Its lowest bit is the Transient (T) flag: T=0 means permanently
+            # assigned by IANA, i.e. a fixed protocol constant with no
+            # host-specific bits, so there is nothing to hide.  The solicited-
+            # node range is the only T=0 exception: its lower 24 bits encode a
+            # unicast address.
+            _flags = (self.addr.network_address.packed[1] >> 4) & 0xf
+            _is_solicited = (
+                self.addr.prefixlen >= self._solicited_node.prefixlen
+                and self.addr.subnet_of(self._solicited_node)
+            )
+            if not (_flags & 0x1) and not _is_solicited:
+                return self.network_addr
         if self.addr.is_global:
             return self._obfuscate_global_address()
         if self.addr.is_link_local:
