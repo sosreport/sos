@@ -13,7 +13,6 @@ import os
 import tarfile
 import shutil
 import logging
-import codecs
 import errno
 import stat
 import re
@@ -397,7 +396,7 @@ class FileCacheArchive(Archive):
             # on file content.
             dest = self.check_path(dest, P_FILE, force=True)
 
-            with codecs.open(dest, mode, encoding='utf-8') as f:
+            with open(dest, mode, encoding='utf-8') as f:
                 if isinstance(content, bytes):
                     content = content.decode('utf8', 'ignore')
                 f.write(content)
@@ -412,7 +411,7 @@ class FileCacheArchive(Archive):
             if not dest:
                 return
 
-            with codecs.open(dest, 'wb', encoding=None) as f:
+            with open(dest, 'wb') as f:
                 f.write(content)
             self.log_debug(f"added binary content at '{dest}' to archive "
                            f"'{self._archive_root}'")
@@ -537,7 +536,7 @@ class FileCacheArchive(Archive):
 
     def open_file(self, path):
         path = self.dest_path(path)
-        return codecs.open(path, "r", encoding='utf-8', errors='ignore')
+        return open(path, "r", encoding='utf-8', errors='ignore')
 
     def cleanup(self):
         if os.path.isdir(self._archive_root):
