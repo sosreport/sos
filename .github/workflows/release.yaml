@@ -1,0 +1,73 @@
+name: Release Packages
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag of an existing release to build and attach packages to'
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.release.tag_name || inputs.tag }}
+
+permissions:
+  contents: read
+
+jobs:
+  distros:
+    uses: ./.github/workflows/distros.yaml
+
+  build_rpm:
+    needs: distros
+    strategy:
+      matrix:
+        distro: ${{ fromJson(needs.distros.outputs.rpm_matrix) }}
+    uses: ./.github/workflows/build-rpm.yaml
+    with:
+      distro_image: ${{ matrix.distro.image }}
+      distro_name: ${{ matrix.distro.name }}
+      ref: refs/tags/${{ github.event.release.tag_name || inputs.tag }}
+      for_release: true
+
+  build_deb:
+    needs: distros
+    strategy:
+      matrix:
+        distro: ${{ fromJson(needs.distros.outputs.deb_matrix) }}
+    uses: ./.github/workflows/build-deb.yaml
+    with:
+      distro_image: ${{ matrix.distro.image }}
+      distro_name: ${{ matrix.distro.name }}
+      ref: refs/tags/${{ github.event.release.tag_name || inputs.tag }}
+      for_release: true
+
+  build_snap:
+    uses: ./.github/workflows/build-snap.yaml
+    with:
+      ref: refs/tags/${{ github.event.release.tag_name || inputs.tag }}
+      for_release: true
+
+  attach:
+    needs: [ build_rpm, build_deb, build_snap ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: release-*
+          path: gibson
+          merge-multiple: true
+
+      - name: Upload Packages to Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          ls -l gibson/
+          gh release upload "$TAG" gibson/* --clobber --repo "$GITHUB_REPOSITORY"

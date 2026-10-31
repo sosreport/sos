@@ -2,6 +2,15 @@ name: Build Snap Package
 
 on:
   workflow_call:
+    inputs:
+      ref:
+        required: false
+        type: string
+        default: ''
+      for_release:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -10,6 +19,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Build Snap
         uses: snapcore/action-build@v1
@@ -28,12 +39,28 @@ jobs:
           sudo sos help
 
       - name: Upload snap Artifact
+        if: ${{ !inputs.for_release }}
         uses: actions/upload-artifact@v7
         with:
           name: sos-build.snap
           path: sos-build.snap
           retention-days: 1
 
+      - name: Prepare Release Artifact
+        if: ${{ inputs.for_release }}
+        run: |
+          mkdir release-assets
+          cp sos-build.snap "release-assets/$(basename "${{ steps.build-snap.outputs.snap }}")"
+
+      - name: Upload Release Artifact
+        if: ${{ inputs.for_release }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-snap
+          path: release-assets/
+          retention-days: 1
+          if-no-files-found: error
+
       - name: Post-Build Cleanup
         if: always()
-        run: rm -f ${{ steps.build-snap.outputs.snap }}
+        run: rm -rf ${{ steps.build-snap.outputs.snap }} release-assets
