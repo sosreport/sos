@@ -17,7 +17,9 @@ permissions:
   contents: read
 
 jobs:
+  # The nightly pre-release is managed by nightly.yaml
   distros:
+    if: (github.event.release.tag_name || inputs.tag) != 'nightly'
     uses: ./.github/workflows/distros.yaml
 
   build_rpm:
@@ -45,6 +47,7 @@ jobs:
       for_release: true
 
   build_snap:
+    if: (github.event.release.tag_name || inputs.tag) != 'nightly'
     uses: ./.github/workflows/build-snap.yaml
     with:
       ref: refs/tags/${{ github.event.release.tag_name || inputs.tag }}

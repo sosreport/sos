@@ -17,6 +17,10 @@ on:
         required: false
         type: boolean
         default: false
+      version_suffix:
+        required: false
+        type: string
+        default: ''
 jobs:
   build:
     runs-on: ${{ inputs.distro_image == '' && inputs.distro_name || 'ubuntu-latest' }}
@@ -50,6 +54,16 @@ jobs:
           sudo apt update
           sudo apt -y install devscripts equivs
           sudo apt -y build-dep .
+
+      - name: Set Version Suffix
+        if: ${{ inputs.version_suffix != '' }}
+        working-directory: ./sos
+        env:
+          DEBFULLNAME: No Reply
+          DEBEMAIL: noreply@canonical.com
+        run: |
+          dch -v "$(dpkg-parsechangelog -S Version).${{ inputs.version_suffix }}" \
+            -D unstable --force-distribution "Nightly build"
 
       - name: Create DEB Package
         working-directory: ./sos
