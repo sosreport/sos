@@ -16,7 +16,7 @@ from sos.cleaner.mappings.mac_map import SoSMacMap
 
 # aa:bb:cc:fe:ff:dd:ee:ff
 IPV6_REG_8HEX = (
-    r'((?<!([0-9a-fA-F\'\"]:)|::)(?:[^:|-])?(?:[0-9a-fA-F]{2}(?::|-)){7}'
+    r'((?<![0-9a-fA-F]{2}:)(?<!::)(?:[^:|-])?(?:[0-9a-fA-F]{2}(?::|-)){7}'
     r'[0-9a-fA-F]{2}(?:\'|\")?(?:\/|\,|\-|\.|\s|$))'
 )
 # aabb:ccee:ddee:ffaa
@@ -29,7 +29,7 @@ IPV6_REG_4HEX = (
 )
 # aa:bb:cc:dd:ee:ff avoiding ipv6 substring matches
 IPV4_REG = (
-    r'((?<!([0-9a-fA-F\'\"]:)|::)'
+    r'((?<![0-9a-fA-F]{2}:)(?<!::)'
     r'(?:([^:\-])?(?:([0-9a-fA-F]{2}([:\-\_])){5,6}(?:[0-9a-fA-F]{2}))))'
 )
 
