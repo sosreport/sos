@@ -21,8 +21,9 @@ import time
 from datetime import datetime
 from pwd import getpwuid
 
-# Set multiprocessing start method to 'fork' to ensure proper logging inheritance
-# This is particularly important in Python 3.14+ where the default changed to 'forkserver'
+# Set multiprocessing start method to 'fork' to ensure proper logging
+# inheritance. This is particularly important in Python 3.14+ where the
+# default changed to 'forkserver'
 try:
     multiprocessing.set_start_method('fork', force=True)
 except RuntimeError:
