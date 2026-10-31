@@ -120,8 +120,15 @@ class SoSHostnameMap(SoSMap):
         if len(host) == 1:
             # don't block on host's shortname
             return host[0] in self.hosts
-        if any(no_tld.endswith(_d) for _d in self._domains):
-            return True
+        # peel one dot-segment at a time from the right until a known domain
+        # matches or no segments remain
+        while no_tld:
+            if any(no_tld.endswith(_d) for _d in self._domains):
+                return True
+            dot = no_tld.rfind('.')
+            if dot < 0:
+                break
+            no_tld = no_tld[:dot]
 
         return False
 
