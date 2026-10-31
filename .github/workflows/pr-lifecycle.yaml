@@ -1,0 +1,55 @@
+name: PR Lifecycle
+
+# Nudges, marks abandoned and closes inactive pull requests. Scheduled runs
+# only report what they would do until the SOS_BOT_LIFECYCLE_LIVE repository
+# variable is set to 'true'.
+on:
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Only report what would be changed'
+        type: boolean
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+# Only used when the sos-bot app is not configured, e.g. on forks
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  lifecycle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate sos-bot token
+        id: sos-bot
+        if: vars.SOS_BOT_CLIENT_ID != ''
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.SOS_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.SOS_BOT_PRIVATE_KEY }}
+          permission-contents: read
+          permission-issues: write
+          permission-pull-requests: write
+
+      - name: Checkout default branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Process inactive pull requests
+        env:
+          GITHUB_TOKEN: ${{ steps.sos-bot.outputs.token || github.token }}
+          LIVE: ${{ (github.event_name == 'workflow_dispatch' && !inputs.dry_run) || (github.event_name == 'schedule' && vars.SOS_BOT_LIFECYCLE_LIVE == 'true') }}
+        run: |
+          if [ "$LIVE" = "true" ]; then
+            python3 .github/scripts/sos_bot.py lifecycle
+          else
+            python3 .github/scripts/sos_bot.py --dry-run lifecycle
+          fi
