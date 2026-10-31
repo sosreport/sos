@@ -21,6 +21,10 @@ on:
         required: false
         type: boolean
         default: false
+      version_suffix:
+        required: false
+        type: string
+        default: ''
 jobs:
   build:
     runs-on: 'ubuntu-latest'
@@ -40,6 +44,12 @@ jobs:
           dnf -y install rpm-build rpmdevtools gettext python3-devel python3-pexpect python3-pyyaml python3-setuptools
           dnf -y install python3-wheel || true
           dnf5 -y install 'dnf5-command(builddep)' || true
+
+      - name: Set Version Suffix
+        if: ${{ inputs.version_suffix != '' }}
+        run: |
+          sed -i -E 's/^(Release:\s*[0-9]+)/\1.${{ inputs.version_suffix }}/' sos.spec
+          grep -F 'Release: 1.${{ inputs.version_suffix }}%{?dist}' sos.spec
 
       - name: Create RPM
         run: |
