@@ -21,9 +21,8 @@ class Leapp(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_spec([
+            '/etc/leapp/',
             '/etc/migration-results',
-            '/etc/leapp/actor_cond.d',
-            '/etc/leapp/files/dnf.conf',
             '/var/log/leapp/answerfile',
             '/var/log/leapp/dnf-debugdata/',
             '/var/log/leapp/leapp-preupgrade.log',
@@ -38,9 +37,14 @@ class Leapp(Plugin, RedHatPlugin):
         self.add_cmd_output('leapp --version')
 
     def postproc(self):
-        # Scrub password and proxy_password likewise from dnf.conf
-        self.do_file_sub("/etc/leapp/files/dnf.conf",
-                         r"(password(\s)*=(\s)*)(\S+)\n",
-                         r"\1********\n")
+        # Scrub password and proxy_password from dnf.conf, and from custom
+        # repo files such as leapp_upgrade_repositories.repo
+        self.do_path_regex_sub(r"/etc/leapp/files/",
+                               r"(password[ \t]*=[ \t]*)[^\r\n]*",
+                               r"\1******")
+        self.do_paths_http_sub([
+            "/etc/leapp/files/",
+            "/etc/leapp/actor_conf.d/"
+        ])
 
 # vim: set et ts=4 sw=4 :
