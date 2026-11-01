@@ -26,6 +26,9 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
     sos_cmd = f'tests/test_data/{ARCHIVE}.tar.xz'
     sos_component = 'clean'
 
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
+
     def test_obfuscation_log_created(self):
         self.assertFileExists(
             os.path.join(self.tmpdir, f'{ARCHIVE}-obfuscation.log')
