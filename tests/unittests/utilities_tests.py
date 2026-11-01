@@ -6,15 +6,19 @@
 #
 # See the LICENSE file in the source distribution for further information.
 import os.path
+import shutil
+import signal
 import tempfile
 import threading
+import time
 import unittest
 
 # PYCOMPAT
 from io import StringIO
 
 from sos.utilities import (grep, is_executable, sos_get_command_output,
-                           find, tail, shell_out, tac_logs, StdinWriter)
+                           find, tail, shell_out, tac_logs, StdinWriter,
+                           SoSTimeoutError)
 
 TEST_DIR = os.path.dirname(__file__)
 
@@ -232,5 +236,164 @@ class StdinWriterTest(unittest.TestCase):
         self.assertEqual(thread_errors, [])
         self.assertIsInstance(writer.error, str)
         self.assertNotEqual(writer.error, '')
+
+
+class CommandTimeoutTest(unittest.TestCase):
+    """Ensure that command timeouts and plugin timeouts are handled
+    separately, and that a child of a timed out command which keeps stdout
+    open cannot block sos_get_command_output()
+    """
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
+        self.pidfile = os.path.join(self.tmpdir, 'pid')
+        # leaves behind a child that holds stdout open after the timeout
+        self.belford = (f"sh -c 'echo partial; sleep 10 & "
+                        f"echo $! > {self.pidfile}; exec sleep 10'")
+
+    def tearDown(self):
+        pid = self._get_pid()
+        if pid and self._is_alive(pid):
+            os.kill(pid, signal.SIGKILL)
+        shutil.rmtree(self.tmpdir)
+
+    def _get_pid(self):
+        try:
+            with open(self.pidfile, 'r', encoding='utf-8') as pfile:
+                return int(pfile.read())
+        except (OSError, ValueError):
+            return None
+
+    @staticmethod
+    def _is_alive(pid):
+        try:
+            with open(f"/proc/{pid}/stat", 'r', encoding='utf-8') as stat:
+                return stat.read().rsplit(')', 1)[1].split()[0] != 'Z'
+        except OSError:
+            return False
+
+    def _assert_exits(self, pid, wait=5):
+        for _ in range(wait * 10):
+            if not self._is_alive(pid):
+                return
+            time.sleep(0.1)
+        self.fail(f"process {pid} is still running")
+
+    def test_cmd_timeout_returns_status(self):
+        result = sos_get_command_output('sleep 10', timeout=1,
+                                        poller=lambda: False)
+        self.assertEqual(result['status'], 124)
+
+    def test_plugin_timeout_raises(self):
+        with self.assertRaises(SoSTimeoutError):
+            sos_get_command_output('sleep 10', timeout=30,
+                                   poller=lambda: True)
+
+    def test_cmd_timeout_with_lingering_child(self):
+        start = time.time()
+        result = sos_get_command_output(self.belford, timeout=1,
+                                        foreground=True,
+                                        poller=lambda: False)
+        self.assertEqual(result['status'], 124)
+        self.assertEqual(result['output'], 'partial\n')
+        self.assertLess(time.time() - start, 5)
+
+    def test_cmd_timeout_with_lingering_child_no_poller(self):
+        # exiting with 124 is what the timeout command does, and ensures it
+        # exits before sos stops waiting on it
+        cmd = (f"sh -c 'echo partial; sleep 10 & echo $! > {self.pidfile}; "
+               "exit 124'")
+        start = time.time()
+        result = sos_get_command_output(cmd, timeout=30, foreground=True)
+        self.assertEqual(result['status'], 124)
+        self.assertEqual(result['output'], 'partial\n')
+        self.assertLess(time.time() - start, 5)
+
+    def test_cmd_timeout_with_lingering_child_to_file(self):
+        outfile = os.path.join(self.tmpdir, 'output')
+        start = time.time()
+        result = sos_get_command_output(self.belford, timeout=1,
+                                        foreground=True,
+                                        poller=lambda: False,
+                                        to_file=outfile, sizelimit=25)
+        self.assertEqual(result['status'], 124)
+        self.assertLess(time.time() - start, 5)
+        with open(outfile, 'r', encoding='utf-8') as ofile:
+            self.assertEqual(ofile.read(), 'partial\n')
+
+    def test_plugin_timeout_with_lingering_child(self):
+        start = time.time()
+        with self.assertRaises(SoSTimeoutError):
+            sos_get_command_output(self.belford, timeout=30, foreground=True,
+                                   poller=lambda: time.time() - start > 1)
+        self.assertLess(time.time() - start, 5)
+
+    def test_abandoned_reader_closes_pipe(self):
+        # the lingering child only writes once the reader is abandoned, and
+        # should then be stopped by the closed pipe
+        cmd = (f"sh -c 'echo partial; (sleep 2; exec yes) & "
+               f"echo $! > {self.pidfile}; exec sleep 10'")
+        sos_get_command_output(cmd, timeout=1, foreground=True,
+                               poller=lambda: False)
+        self._assert_exits(self._get_pid())
+
+    def test_cmd_timeout_kills_cmd_ignoring_termination(self):
+        cmd = (f"sh -c 'trap \"\" TERM; echo $$ > {self.pidfile}; "
+               "exec sleep 10'")
+        for foreground in (False, True):
+            start = time.time()
+            result = sos_get_command_output(cmd, timeout=1,
+                                            foreground=foreground,
+                                            poller=lambda: False)
+            self.assertEqual(result['status'], 124)
+            self.assertLess(time.time() - start, 5)
+            self._assert_exits(self._get_pid(), wait=1)
+
+    def test_plugin_timeout_kills_cmd_ignoring_termination(self):
+        cmd = (f"sh -c 'trap \"\" TERM; echo $$ > {self.pidfile}; "
+               "exec sleep 10'")
+        start = time.time()
+        with self.assertRaises(SoSTimeoutError):
+            sos_get_command_output(cmd, timeout=30,
+                                   poller=lambda: time.time() - start > 1)
+        self._assert_exits(self._get_pid(), wait=1)
+
+    def test_plugin_timeout_after_sizelimit_reached(self):
+        # the reader stops at the sizelimit while the command keeps running
+        cmd = "sh -c 'head -c 2097152 /dev/zero; exec sleep 10'"
+        start = time.time()
+        with self.assertRaises(SoSTimeoutError):
+            sos_get_command_output(cmd, timeout=30, binary=True,
+                                   to_file=os.path.join(self.tmpdir, 'out'),
+                                   sizelimit=1,
+                                   poller=lambda: time.time() - start > 1)
+        self.assertLess(time.time() - start, 5)
+
+    def test_stdin_held_by_lingering_child(self):
+        # the child never reads stdin, so the write cannot complete
+        cmd = (f"sh -c 'sleep 10 <&0 >/dev/null 2>&1 & "
+               f"echo $! > {self.pidfile}'")
+        start = time.time()
+        result = sos_get_command_output(cmd, timeout=30,
+                                        stdin=b'x' * 1048576)
+        self.assertEqual(result['status'], 0)
+        self.assertLess(time.time() - start, 5)
+
+
+class CommandSizelimitTest(unittest.TestCase):
+
+    def test_output_tailed_to_sizelimit(self):
+        result = sos_get_command_output(
+            "sh -c 'head -c 3145728 /dev/zero; printf end'", binary=True,
+            sizelimit=1)
+        self.assertEqual(len(result['output']), 1048576)
+        self.assertTrue(result['output'].endswith(b'end'))
+        self.assertTrue(result['truncated'])
+
+    def test_output_at_sizelimit_not_truncated(self):
+        result = sos_get_command_output("head -c 1048576 /dev/zero",
+                                        binary=True, sizelimit=1)
+        self.assertEqual(len(result['output']), 1048576)
+        self.assertFalse(result['truncated'])
 
 # vim: set et ts=4 sw=4 :
