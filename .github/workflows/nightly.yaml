@@ -1,0 +1,144 @@
+name: Nightly Packages
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Build even if main has not changed since the last nightly'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.check.outputs.build }}
+      version_suffix: ${{ steps.check.outputs.version_suffix }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for Changes
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          # Snap versions are limited to 32 characters, so keep this short
+          echo "version_suffix=nightly.$(date -u +%Y%m%d).${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::notice::Nightly builds are only made from main"
+            exit 0
+          fi
+          # An untagged version bump means a release is in progress, and a
+          # nightly built now would sort above that release
+          LAST_TAG=$(git describe --tags --abbrev=0 --match '[0-9]*')
+          SPEC_VERSION=$(sed -n 's/^Version:\s*//p' sos.spec)
+          if [ "$LAST_TAG" != "$SPEC_VERSION" ]; then
+            echo "::notice::Version $SPEC_VERSION is not tagged yet, skipping"
+            exit 0
+          fi
+          NOTES=$(gh release view nightly --json body --jq .body 2>/dev/null || true)
+          if [ "$FORCE" != "true" ] && grep -qF "$GITHUB_SHA" <<< "$NOTES"; then
+            echo "::notice::Nightly for $GITHUB_SHA is already published"
+            exit 0
+          fi
+          echo "build=true" >> "$GITHUB_OUTPUT"
+
+  distros:
+    needs: check
+    if: needs.check.outputs.build == 'true'
+    uses: ./.github/workflows/distros.yaml
+
+  build_rpm:
+    needs: [ check, distros ]
+    strategy:
+      matrix:
+        distro: ${{ fromJson(needs.distros.outputs.rpm_matrix) }}
+    uses: ./.github/workflows/build-rpm.yaml
+    with:
+      distro_image: ${{ matrix.distro.image }}
+      distro_name: ${{ matrix.distro.name }}
+      for_release: true
+      version_suffix: ${{ needs.check.outputs.version_suffix }}
+
+  build_deb:
+    needs: [ check, distros ]
+    strategy:
+      matrix:
+        distro: ${{ fromJson(needs.distros.outputs.deb_matrix) }}
+    uses: ./.github/workflows/build-deb.yaml
+    with:
+      distro_image: ${{ matrix.distro.image }}
+      distro_name: ${{ matrix.distro.name }}
+      for_release: true
+      version_suffix: ${{ needs.check.outputs.version_suffix }}
+
+  build_snap:
+    needs: check
+    if: needs.check.outputs.build == 'true'
+    uses: ./.github/workflows/build-snap.yaml
+    with:
+      for_release: true
+      version_suffix: ${{ needs.check.outputs.version_suffix }}
+
+  publish:
+    needs: [ build_rpm, build_deb, build_snap ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: release-*
+          path: gibson
+          merge-multiple: true
+
+      # The tag points to a commit outside of main's history, so that git
+      # describe and packit builds never pick it up as the latest tag
+      - name: Move nightly Tag
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          SIDE=$(git commit-tree "${GITHUB_SHA}^{tree}" -p "$GITHUB_SHA" -m "Nightly build of $GITHUB_SHA")
+          git push --force origin "$SIDE:refs/tags/nightly"
+
+      - name: Publish Nightly Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if gh release view nightly > /dev/null 2>&1; then
+            gh release view nightly --json assets --jq '.assets[].name' | while read -r asset; do
+              gh release delete-asset nightly "$asset" --yes
+            done
+          else
+            gh release create nightly --verify-tag --prerelease --latest=false \
+              --title "Nightly build" --notes "Publishing..."
+          fi
+          ls -l gibson/
+          gh release upload nightly gibson/*
+          gh release edit nightly --prerelease --notes "Nightly build of main at ${GITHUB_SHA}.
+
+          These are unsigned, untested snapshot packages and are not supported releases."
