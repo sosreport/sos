@@ -6,6 +6,9 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import os
+import shutil
+import tempfile
 import unittest
 from ipaddress import ip_interface
 from os.path import join
@@ -27,6 +30,8 @@ from sos.cleaner.preppers import SoSPrepper
 from sos.cleaner.preppers.hostname import HostnamePrepper
 from sos.cleaner.preppers.ip import IPPrepper
 from sos.cleaner.preppers.usernames import UsernamePrepper
+from sos.cleaner import SoSCleaner
+from sos.cleaner.archives import NAME_MAX
 from sos.cleaner.archives.sos import SoSReportArchive
 from sos.options import SoSOptions
 
@@ -817,13 +822,193 @@ class PackedDirTarballTests(unittest.TestCase):
             self.assertEqual(self.archive._load_packed_dirs(), [])
 
 
+class NameMaxTests(unittest.TestCase):
+    """Verify that obfuscated names which would exceed NAME_MAX are
+    shortened without retaining the unshortened name."""
+
+    def setUp(self):
+        self.archive = SoSReportArchive(
+            archive_path='tests/test_data/'
+                         'sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz',
+            keep_binary_files=[],
+            tmpdir='/tmp',
+            treat_certificates='obfuscate'
+        )
+        self.long_name = '-'.join(['obfuscatedword0'] * 30) + '.txt'
+
+    def test_short_name_unchanged(self):
+        self.assertEqual(self.archive.fit_name_max('host0.conf'),
+                         'host0.conf')
+
+    def test_long_name_shortened(self):
+        short = self.archive.fit_name_max(self.long_name)
+        self.assertLessEqual(len(short.encode('utf-8')), NAME_MAX)
+        self.assertTrue(self.long_name.startswith(short.rsplit('-', 1)[0]))
+
+    def test_extension_kept(self):
+        short = self.archive.fit_name_max(self.long_name)
+        self.assertEqual(len(short.encode('utf-8')), NAME_MAX)
+        self.assertRegex(short, r'-[0-9a-f]{12}\.txt$')
+
+    def test_long_extension_not_kept(self):
+        # e.g. command output named after a path, with '/' replaced by '.'
+        name = 'ls_.etc.' + self.long_name.replace('.', '-')
+        short = self.archive.fit_name_max(name)
+        self.assertEqual(len(short.encode('utf-8')), NAME_MAX)
+        self.assertRegex(short, r'^ls_\.etc\.obfuscatedword0.*-[0-9a-f]{12}$')
+
+    def test_shortening_is_deterministic(self):
+        self.assertEqual(self.archive.fit_name_max(self.long_name),
+                         self.archive.fit_name_max(self.long_name))
+
+    def test_shared_prefix_names_stay_distinct(self):
+        self.assertNotEqual(self.archive.fit_name_max(self.long_name + '1'),
+                            self.archive.fit_name_max(self.long_name + '2'))
+
+    def test_multibyte_name_not_split(self):
+        # the odd leading byte forces the cut into a multibyte character
+        short = self.archive.fit_name_max('a' + 'æ' * 200)
+        self.assertLessEqual(len(short.encode('utf-8')), NAME_MAX)
+        self.assertNotIn('�', short)
+
+    def test_only_long_path_components_shortened(self):
+        path = f"etc/{self.long_name}/host0"
+        parts = self.archive.fit_path_name_max(path, 'etc/gibson/host0')
+        parts = parts.split('/')
+        self.assertEqual(parts[0], 'etc')
+        self.assertEqual(parts[2], 'host0')
+        self.assertLessEqual(len(parts[1].encode('utf-8')), NAME_MAX)
+
+    def test_unchanged_path_components_kept(self):
+        # e.g. a dangling link target that is already too long
+        path = f"missing/{'x' * 300}/{self.long_name}"
+        parts = self.archive.fit_path_name_max(
+            path, f"missing/{'x' * 300}/gibson").split('/')
+        self.assertEqual(parts[1], 'x' * 300)
+        self.assertLessEqual(len(parts[2].encode('utf-8')), NAME_MAX)
+
+    def test_non_utf8_name(self):
+        # as returned by os.listdir() for a name that is not valid UTF-8
+        name = os.fsdecode(b'caf\xe9-host0')
+        self.assertEqual(self.archive.fit_name_max(name), name)
+        short = self.archive.fit_name_max(name + self.long_name)
+        self.assertLessEqual(
+            len(short.encode('utf-8', 'surrogateescape')), NAME_MAX)
+        self.assertTrue(short.startswith(name))
+
+    def test_name_max_from_filesystem(self):
+        self.archive.extracted_path = '/tmp'
+        for limit, expected in ((143, 143), (1024, NAME_MAX), (-1, NAME_MAX)):
+            self.archive._name_max = None
+            with mock.patch('os.pathconf', return_value=limit):
+                short = self.archive.fit_name_max(self.long_name)
+            self.assertEqual(len(short.encode('utf-8')), expected)
+
+
+class _FakeCleaner:
+    """Just enough of SoSCleaner to run its renaming passes"""
+
+    obfuscate_string = SoSCleaner.obfuscate_string
+    obfuscate_directory_names = SoSCleaner.obfuscate_directory_names
+    obfuscate_symlinks = SoSCleaner.obfuscate_symlinks
+
+    def __init__(self, parsers):
+        self.parsers = parsers
+
+    def log_info(self, *args, **kwargs):
+        pass
+
+    log_debug = log_info
+
+
+class _LongKeywordParser:
+    """Replaces a keyword with a value long enough to exceed NAME_MAX"""
+
+    skip_patterns = []
+
+    def parse_string_for_keys(self, string_data):
+        return string_data.replace('gibson', 'obfuscatedword0' * 20)
+
+
+class LongNameRenameTests(unittest.TestCase):
+    """Run the file, directory and symlink renaming passes of the cleaner on
+    names that exceed NAME_MAX once obfuscated"""
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
+        os.makedirs(join(self.tmpdir, 'etc', 'gibson-dir'))
+        with open(join(self.tmpdir, 'etc', 'gibson-dir', 'gibson.conf'), 'w',
+                  encoding='utf-8') as cfile:
+            cfile.write('hack the planet\n')
+        # names that are not valid UTF-8 must not prevent obfuscation
+        os.makedirs(os.path.join(os.fsencode(self.tmpdir),
+                                 b'etc/caf\xe9-gibson-dir'))
+        links = {
+            'etc/gibson-link': 'gibson-dir/gibson.conf',
+            'etc/dir-link': 'gibson-dir',
+            'etc/gibson-dir/abs-link': '/etc/gibson-dir/gibson.conf',
+            'etc/dangling': f"missing/{'x' * 300}",
+        }
+        for link, target in links.items():
+            os.symlink(target, join(self.tmpdir, link))
+        parser = _LongKeywordParser()
+        self.archive = SoSReportArchive(
+            archive_path='tests/test_data/'
+                         'sosreport-cleanertest-2021-08-03-qpkxdid.tar.xz',
+            keep_binary_files=[],
+            tmpdir='/tmp',
+            treat_certificates='obfuscate'
+        )
+        self.archive.extracted_path = self.tmpdir
+        self.archive.parsers = [parser]
+        self.cleaner = _FakeCleaner([parser])
+        self._clean()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+
+    def _clean(self):
+        files = [
+            join(root, fname) for root, _, fnames in os.walk(self.tmpdir)
+            for fname in fnames if not os.path.islink(join(root, fname))
+        ]
+        for fname in files:
+            self.archive.obfuscate_filename(
+                os.path.relpath(fname, self.tmpdir), fname)
+        self.cleaner.obfuscate_directory_names(self.archive)
+        self.cleaner.obfuscate_symlinks(self.archive)
+
+    def _names(self):
+        for root, dirs, files in os.walk(self.tmpdir):
+            yield from (join(root, name) for name in dirs + files)
+
+    def test_names_obfuscated_and_shortened(self):
+        for path in self._names():
+            name = os.path.basename(path)
+            self.assertNotIn('gibson', name)
+            self.assertLessEqual(
+                len(name.encode('utf-8', 'surrogateescape')), NAME_MAX)
+
+    def test_links_resolve(self):
+        links = [path for path in self._names() if os.path.islink(path)]
+        self.assertEqual(len(links), 4)
+        for link in links:
+            target = os.readlink(link)
+            if target.startswith('missing/'):
+                # the unchanged, already too long, component is kept as-is
+                self.assertEqual(target, f"missing/{'x' * 300}")
+            elif target.startswith('/'):
+                self.assertTrue(os.path.exists(self.tmpdir + target))
+            else:
+                self.assertTrue(os.path.exists(link))
+
+
 class ExtractArchiveSafetyTests(unittest.TestCase):
     """Out-of-tree symlink members must not write outside dest."""
 
     def _write_tar(self, members):
         import io
         import tarfile
-        import tempfile
         with tempfile.NamedTemporaryFile(
                 suffix='.tar', delete=False) as handle:
             tar_path = handle.name
@@ -845,8 +1030,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
         return tar_path
 
     def test_absolute_symlink_does_not_write_outside_dest(self):
-        import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         victim_dir = tempfile.mkdtemp()
@@ -870,9 +1053,7 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
 
     def test_absolute_symlink_when_extractall_ignores_filter(self):
         """Debian 12 / Python 3.11.2 ignores TarFile.extraction_filter."""
-        import os
         import tarfile
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         orig_extractall = tarfile.TarFile.extractall
@@ -899,8 +1080,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
         os.remove(tar_path)
 
     def test_in_tree_relative_symlink_is_kept(self):
-        import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         tar_path = self._write_tar([
@@ -919,8 +1098,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
         os.remove(tar_path)
 
     def test_non_root_skips_device_and_keeps_later_files(self):
-        import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         tar_path = self._write_tar([
