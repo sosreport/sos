@@ -10,6 +10,10 @@ import os
 import tarfile
 import tempfile
 import shutil
+import bz2
+import gzip
+import lzma
+import re
 
 from sos.archive import TarFileArchive
 from sos.utilities import tail
@@ -102,6 +106,70 @@ class TarFileArchiveTest(unittest.TestCase):
 
         afp = self.tf.open_file('tests/string_test.txt')
         self.assertEqual('this is my new content', afp.read())
+
+    def test_substitute_compressed_file(self):
+        for compression in (gzip, bz2, lzma):
+            with self.subTest(compression=compression.__name__):
+                path = os.path.join(
+                    self.tmpdir, f'acidburn-{compression.__name__}.log')
+                content = b'password=SECRET\nPASSWORD=OTHER\n'
+                original = compression.compress(content)
+                with open(path, 'wb') as source:
+                    source.write(original)
+                os.chmod(path, 0o640)
+                os.utime(path, (1000000000, 1000000000))
+                self.tf.add_file(path)
+                replacements = self.tf.do_file_sub(
+                    path, re.compile(r'^(password=).*$'), r'\1********')
+                self.assertEqual(replacements, 2)
+                with open(self.tf.dest_path(path), 'rb') as output:
+                    self.assertEqual(
+                        compression.decompress(output.read()),
+                        b'password=********\nPASSWORD=********\n')
+                self.assertEqual(os.stat(self.tf.dest_path(path)).st_mtime,
+                                 os.stat(path).st_mtime)
+                self.assertEqual(os.stat(self.tf.dest_path(path)).st_mode,
+                                 os.stat(path).st_mode)
+                with open(path, 'rb') as source:
+                    self.assertEqual(source.read(), original)
+
+    def test_substitute_compressed_file_without_matches(self):
+        for compression in (gzip, bz2, lzma):
+            with self.subTest(compression=compression.__name__):
+                path = f'logs/{compression.__name__}.log'
+                content = compression.compress(b'nothing sensitive\n')
+                self.tf.add_binary(content, path)
+                self.assertEqual(self.tf.do_file_sub(
+                    path, 'SECRET', '********'), 0)
+                with open(self.tf.dest_path(path), 'rb') as output:
+                    self.assertEqual(output.read(), content)
+
+    def test_substitute_uncompressed_file_with_compressed_suffix(self):
+        self.tf.add_string('password=SECRET\n', 'plain.log.gz')
+        self.assertEqual(self.tf.do_file_sub(
+            'plain.log.gz', 'SECRET', '********'), 1)
+        with self.tf.open_file('plain.log.gz') as output:
+            self.assertEqual(output.read(), 'password=********\n')
+
+    def test_substitute_corrupt_compressed_file(self):
+        for compression in (gzip, bz2, lzma):
+            with self.subTest(compression=compression.__name__):
+                path = f'logs/{compression.__name__}.log'
+                content = compression.compress(b'password=SECRET\n')[:10]
+                self.tf.add_binary(content, path)
+                with self.assertRaises(OSError):
+                    self.tf.do_file_sub(path, 'SECRET', '********')
+                with open(self.tf.dest_path(path), 'rb') as output:
+                    self.assertEqual(output.read(), content)
+
+    def test_substitute_invalid_gzip_body(self):
+        content = bytearray(gzip.compress(b'password=SECRET\n'))
+        content[10] = 0xff
+        self.tf.add_binary(content, 'invalid.log.gz')
+        with self.assertRaises(OSError):
+            self.tf.do_file_sub('invalid.log.gz', 'SECRET', '********')
+        with open(self.tf.dest_path('invalid.log.gz'), 'rb') as output:
+            self.assertEqual(output.read(), content)
 
     def test_make_link(self):
         self.tf.add_file('tests/ziptest')
