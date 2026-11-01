@@ -43,6 +43,9 @@ class EncryptedCleanedReportTest(EncryptedReportTest):
     encrypt_pass = 'sostest'
     sos_cmd = f"-o host,networking --clean --encrypt-pass {encrypt_pass}"
 
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
+
     def test_hostname_obfuscated(self):
         self.assertFileHasContent('hostname', 'host0')
 

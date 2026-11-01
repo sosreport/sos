@@ -25,6 +25,9 @@ class rhbz1950350(StageTwoReportTest):
 
     sos_cmd = '-v -o sos_extras --clean'
 
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
+
     def test_clean_config_loaded(self):
         self.assertSosLogContains(
             "effective options now: (.*)? --clean --domains (.*)? "
