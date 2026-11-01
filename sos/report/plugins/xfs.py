@@ -10,11 +10,13 @@ from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class Xfs(Plugin, IndependentPlugin):
-    """This plugin collects information on mounted XFS filesystems on the
-    local system.
+    """This plugin collects information on XFS filesystems on the local
+    system.
 
     Users should expect `xfs_info` and `xfs_admin` collections by this plugin
-    for each XFS filesystem that is locally mounted.
+    for each XFS filesystem that is locally mounted. For XFS filesystems that
+    are present on a local device but not mounted, the same information is
+    collected read-only via `xfs_db -r -c info` and `xfs_admin`.
     """
 
     short_desc = 'XFS filesystem'
@@ -33,6 +35,11 @@ class Xfs(Plugin, IndependentPlugin):
                 self.add_cmd_output(f"xfs_info {parts[1]}",
                                     tags="xfs_info")
                 self.add_cmd_output(f"xfs_admin -l -u {parts[0]}")
+
+        # xfs_info opens unmounted devices read-write, xfs_db -r does not
+        for dev in self.get_devices_by_fstype('xfs', mounted=False):
+            self.add_cmd_output(f"xfs_db -r -c info {dev}", tags="xfs_info")
+            self.add_cmd_output(f"xfs_admin -l -u {dev}")
 
         self.add_copy_spec([
             '/proc/fs/xfs',
