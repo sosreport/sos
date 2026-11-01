@@ -537,6 +537,42 @@ class RegexSubTests(unittest.TestCase):
         self.assertEqual(1, replacements)
         self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))
 
+    def test_path_regex_sub_with_sysroot(self):
+        # path expressions match the path within the sysroot, which is the
+        # path of the file within the archive
+        sysroot = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, sysroot)
+        os.makedirs(os.path.join(sysroot, 'etc', 'test'))
+        collected = {
+            'app.conf': 'password=hackers\n',
+            'key.pem': '-----BEGIN PRIVATE KEY-----\nhackers\n'
+                       '-----END PRIVATE KEY-----\n',
+        }
+        for name, content in collected.items():
+            with open(os.path.join(sysroot, 'etc', 'test', name), 'w',
+                      encoding='utf-8') as tfile:
+                tfile.write(content)
+        # MockArchive cannot read back a file collected from a sysroot
+        archive_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, archive_dir)
+        self.mp.archive = TarFileArchive('test', archive_dir, self.mp.policy,
+                                         1, {'encrypt': False}, sysroot)
+        self.mp.sysroot = sysroot
+        self.mp.add_copy_spec('/etc/test/')
+        self.mp.collect_plugin()
+        self.mp.do_path_regex_sub(r'/etc/test/.*\.conf', r'(password=)\S+',
+                                  r'\1******')
+        self.mp.do_file_private_sub(r'/etc/test/.*\.pem')
+        scrubbed = {
+            'app.conf': 'password=******\n',
+            'key.pem': '-----SCRUBBED PRIVATE KEY-----\n',
+        }
+        for name, content in scrubbed.items():
+            path = os.path.join(self.mp.archive.get_archive_path(), 'etc',
+                                'test', name)
+            with open(path, encoding='utf-8') as afile:
+                self.assertEqual(afile.read(), content)
+
 
 if __name__ == "__main__":
     unittest.main()
