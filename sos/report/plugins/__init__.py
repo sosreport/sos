@@ -1666,6 +1666,56 @@ class Plugin():
                 tags.extend(val)
         return tags
 
+    def get_devices_by_fstype(self, fstype, mounted=None):
+        """Get the devices that hold a filesystem of the given type, as found
+        by the device discovery performed when sos report starts.
+
+        Devices that are themselves held by another device, such as the paths
+        of a multipath device or the members of an md array, are excluded.
+
+        :param fstype:  The filesystem type, e.g. 'xfs'. All ext2/3/4
+                        filesystems are discovered as 'ext4'
+        :type fstype:   ``str``
+
+        :param mounted: If ``True`` or ``False``, only return devices that are
+                        or are not mounted, respectively
+        :type mounted:  ``bool`` or ``None``
+
+        :returns:       Paths of the matching devices
+        :rtype:         ``list``
+        """
+        def _read(path):
+            try:
+                with open(path, 'r', encoding='utf-8') as rfile:
+                    return rfile.read()
+            except OSError as err:
+                self._log_debug(f"Unable to read {path}: {err}")
+                return ''
+
+        # compare device numbers, as a device may be mounted under a name
+        # other than the one discovered, such as /dev/root
+        mounts = set()
+        if mounted is not None:
+            mounts = {
+                line.split()[2] for line in
+                _read('/proc/self/mountinfo').splitlines() if line.strip()
+            }
+
+        devs = []
+        for dev in self.devices.get('fstype', {}).get(fstype, []):
+            name = os.path.basename(os.path.realpath(self.path_join(dev)))
+            sysblock = f"/sys/class/block/{name}"
+            holders = f"{sysblock}/holders"
+            if dev in devs or (self.path_isdir(holders) and
+                               self.listdir(holders)):
+                continue
+            if mounted is not None:
+                devnum = _read(self.path_join(sysblock, 'dev')).strip()
+                if not devnum or (devnum in mounts) != mounted:
+                    continue
+            devs.append(dev)
+        return devs
+
     def generate_copyspec_tags(self):
         """After file collections have completed, retroactively generate
         manifest entries to apply tags to files copied by generic copyspecs
