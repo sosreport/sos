@@ -537,6 +537,28 @@ class RegexSubTests(unittest.TestCase):
         self.assertEqual(1, replacements)
         self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))
 
+    def test_path_regex_sub_with_sysroot(self):
+        # path expressions match the path within the sysroot, which is the
+        # path of the file within the archive
+        sysroot = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, sysroot)
+        os.makedirs(os.path.join(sysroot, 'etc', 'test'))
+        for name in ('app.conf', 'key.pem'):
+            with open(os.path.join(sysroot, 'etc', 'test', name), 'w',
+                      encoding='utf-8') as tfile:
+                tfile.write('password=hackers\n')
+        self.mp.sysroot = sysroot
+        self.mp.add_copy_spec('/etc/test/')
+        self.mp.collect_plugin()
+        subbed = []
+        self.mp.do_file_sub = lambda path, regexp, subst: subbed.append(path)
+        self.mp.do_path_regex_sub(r'/etc/test/.*\.conf', r'(password=)\S+',
+                                  r'\1******')
+        self.assertEqual(subbed, [os.path.join(sysroot, 'etc/test/app.conf')])
+        subbed.clear()
+        self.mp.do_file_private_sub(r'/etc/test/.*\.pem')
+        self.assertEqual(subbed, ['/etc/test/key.pem'])
+
 
 if __name__ == "__main__":
     unittest.main()
