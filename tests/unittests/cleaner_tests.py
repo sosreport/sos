@@ -89,6 +89,13 @@ class CleanerMapTests(unittest.TestCase):
         _test = self.ip_map.get('127.0.0.1')
         self.assertEqual(_test, '127.0.0.1')
 
+    def test_ip_skip_multicast(self):
+        for addr in ('224.0.0.1', '224.0.0.251', '239.255.255.250'):
+            _test = self.ip_map.get(addr)
+            self.assertEqual(_test, addr,
+                             f'Multicast address {addr} was incorrectly '
+                             f'obfuscated to {_test}')
+
     def test_hostname_obfuscate_domain_options(self):
         _test = self.host_map.get('www.redhat.com')
         self.assertNotEqual(_test, 'www.redhat.com')
@@ -130,7 +137,7 @@ class CleanerMapTests(unittest.TestCase):
         _ob_test = self.ipv6_map.get(_test)
         self.assertTrue(_ob_test.startswith('fe80'),
                         'Link-local identifier not maintained')
-        self.assertNotEqual(_test, _ob_test, 'Device address was unchanged')
+        self.assertEqual(_test, _ob_test, 'Device address was changed')
 
     def test_ipv6_private(self):
         _net = 'fd00:abcd::'
@@ -239,6 +246,15 @@ class CleanerParserTests(unittest.TestCase):
         dline = 'foobar foo "AAFF:FFEE:DDCC:BBAA" bar barfoo'
         _dtest = self.mac_parser.parse_line(dline)[0]
         self.assertNotEqual(dline, _dtest)
+
+    def test_mac_parser_dhcp_id_prefix(self):
+        # 'id:' ends in 'd:' where 'd' is a valid hex char; the lookbehind
+        # must require two hex chars before ':' so that 'id:' is not
+        # mistaken for a mid-MAC-address context and suppresses the match
+        line = ('#dhcp-host=id:00:01:00:01:16:d2:83:fc:92:d4:19:e2:d8:b2,'
+                ' fred, [1234::5]')
+        _test = self.mac_parser.parse_line(line)[0]
+        self.assertNotEqual(line, _test)
 
     def test_hostname_load_hostname_string(self):
         fqdn = 'myhost.subnet.example.com'

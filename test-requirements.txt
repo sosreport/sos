@@ -1,2 +1,2 @@
-avocado-framework<114.0
+avocado-framework @ git+https://github.com/avocado-framework/avocado@b58696c1e
 setuptools<81
