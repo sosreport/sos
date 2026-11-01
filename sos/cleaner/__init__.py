@@ -271,6 +271,9 @@ class SoSCleaner(SoSComponent):
                 self.log_info(
                     f"Default map file {self.opts.map_file} does not exist, "
                     "will not\nload any obfuscation mapping.")
+        elif os.path.getsize(self.opts.map_file) == 0:
+            self.log_info(f"Map file {self.opts.map_file} is empty, will not "
+                          "load any obfuscation mapping.")
         else:
             with open(self.opts.map_file, 'r', encoding='utf-8') as mf:
                 try:
