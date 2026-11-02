@@ -271,6 +271,9 @@ class SoSCleaner(SoSComponent):
                 self.log_info(
                     f"Default map file {self.opts.map_file} does not exist, "
                     "will not\nload any obfuscation mapping.")
+        elif os.path.getsize(self.opts.map_file) == 0:
+            self.log_info(f"Map file {self.opts.map_file} is empty, will not "
+                          "load any obfuscation mapping.")
         else:
             with open(self.opts.map_file, 'r', encoding='utf-8') as mf:
                 try:
@@ -1028,10 +1031,15 @@ third party.
                 _target = os.readlink(symlink)
                 # get the potentially renamed symlink name, this time the full
                 # path as it exists on disk
-                _ob_sym_name = os.path.join(archive.extracted_path,
-                                            self.obfuscate_string(_sym))
+                _ob_sym_name = os.path.join(
+                    archive.extracted_path,
+                    archive.fit_path_name_max(self.obfuscate_string(_sym),
+                                              _sym)
+                )
                 # get the potentially renamed relative target filename
-                _ob_target = self.obfuscate_string(_target)
+                _ob_target = archive.fit_path_name_max(
+                    self.obfuscate_string(_target), _target
+                )
 
                 # if either the symlink name or the target name has changed,
                 # recreate the symlink
@@ -1052,7 +1060,9 @@ third party.
                 _dirname = os.path.join(dirpath, _name)
                 _arc_dir = _dirname.split(archive.extracted_path)[-1]
                 if os.path.isdir(_dirname):
-                    _ob_dirname = self.obfuscate_string(_name)
+                    _ob_dirname = archive.fit_name_max(
+                        self.obfuscate_string(_name)
+                    )
                     if _ob_dirname != _name:
                         _ob_arc_dir = _arc_dir.rstrip(_name)
                         _ob_arc_dir = os.path.join(
