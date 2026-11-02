@@ -8,7 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
-from sos.report.plugins import CosPlugin, IndependentPlugin
+from sos.report.plugins import CosPlugin
 from sos.policies.distros import LinuxPolicy
 
 
@@ -34,7 +34,6 @@ class CosPolicy(LinuxPolicy):
     ]
     os_release_name = 'Container-Optimized OS'
     os_release_id = 'cos'
-    valid_subclasses = [CosPlugin, IndependentPlugin]
     PATH = "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
 
     def __init__(self, sysroot=None, init=None, probe_runtime=True,
@@ -42,6 +41,18 @@ class CosPolicy(LinuxPolicy):
         super().__init__(sysroot=sysroot, init=init,
                          probe_runtime=probe_runtime,
                          remote_exec=remote_exec)
-        self.valid_subclasses += [CosPolicy]
+        self.valid_subclasses += [CosPlugin]
+
+    def match_plugin(self, plugin_classes):
+        """Prefer plugin classes that are tagged directly with CosPlugin.
+
+        Plugin classes for other distributions may inherit CosPlugin from a
+        shared base class, and the default matching would otherwise prefer
+        an IndependentPlugin class over a CoS specific one.
+        """
+        for plugin_class in plugin_classes:
+            if CosPlugin in plugin_class.__bases__:
+                return plugin_class
+        return super().match_plugin(plugin_classes)
 
 # vim: set et ts=4 sw=4 :

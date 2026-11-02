@@ -13,6 +13,7 @@ import random
 
 from io import StringIO
 from string import ascii_lowercase
+from unittest.mock import patch
 from sos.report.plugins import (Plugin, regex_findall,
                                 _mangle_command, PluginOpt)
 from sos.archive import TarFileArchive
@@ -504,6 +505,91 @@ class CheckEnabledTests(unittest.TestCase):
         self.assertTrue(self.mp.check_enabled())
 
 
+class DevicesByFstypeTests(unittest.TestCase):
+    """Verify filtering of the devices found by fstype discovery, using a
+    sysroot that mimics /dev and /sys/class/block
+    """
+
+    # the root filesystem is mounted as /dev/root, and vg-jam as dm-1
+    mountinfo = (
+        "22 1 8:1 / / rw,relatime shared:1 - xfs /dev/root rw\n"
+        "23 22 253:1 / /jam rw,relatime shared:2 - xfs /dev/dm-1 rw\n"
+        "24 22 0:21 / /proc rw,nosuid shared:3 - proc proc rw\n"
+    )
+
+    def setUp(self):
+        self.sysroot = tempfile.mkdtemp()
+        devnums = {'sda1': '8:1', 'sdb1': '8:17', 'sdc': '8:32',
+                   'sdd': '8:48', 'dm-1': '253:1', 'dm-2': '253:2'}
+        for name, devnum in devnums.items():
+            sysblock = os.path.join(self.sysroot, 'sys/class/block', name)
+            os.makedirs(os.path.join(sysblock, 'holders'))
+            with open(os.path.join(sysblock, 'dev'), 'w',
+                      encoding='utf-8') as dfile:
+                dfile.write(f"{devnum}\n")
+        # sdc and sdd are both paths of the multipath device dm-2
+        for path in ('sdc', 'sdd'):
+            os.mknod(os.path.join(self.sysroot, 'sys/class/block', path,
+                                  'holders', 'dm-2'))
+        os.makedirs(os.path.join(self.sysroot, 'dev/mapper'))
+        os.symlink('../dm-1',
+                   os.path.join(self.sysroot, 'dev/mapper/vg-jam'))
+        os.symlink('../dm-2', os.path.join(self.sysroot, 'dev/mapper/mpatha'))
+        self.mp = MockPlugin({
+            'sysroot': self.sysroot,
+            'policy': LinuxPolicy(init=InitSystem(), probe_runtime=False),
+            'cmdlineopts': MockOptions(),
+            'devices': {'fstype': {'xfs': [
+                '/dev/sda1', '/dev/sdb1', '/dev/sdb1',
+                '/dev/mapper/vg-jam', '/dev/sdc', '/dev/sdd',
+                '/dev/mapper/mpatha'
+            ]}}
+        })
+
+    def tearDown(self):
+        shutil.rmtree(self.sysroot)
+
+    def _get_devices(self, fstype='xfs', mounted=None):
+        real_open = open
+
+        def _open(path, *args, **kwargs):
+            if path == '/proc/self/mountinfo':
+                return StringIO(self.mountinfo)
+            return real_open(path, *args, **kwargs)
+
+        with patch('builtins.open', _open):
+            return self.mp.get_devices_by_fstype(fstype, mounted=mounted)
+
+    def test_held_devices_and_duplicates_excluded(self):
+        self.assertEqual(
+            self._get_devices(),
+            ['/dev/sda1', '/dev/sdb1', '/dev/mapper/vg-jam',
+             '/dev/mapper/mpatha']
+        )
+
+    def test_unmounted_devices(self):
+        self.assertEqual(self._get_devices(mounted=False),
+                         ['/dev/sdb1', '/dev/mapper/mpatha'])
+
+    def test_mounted_devices(self):
+        # both are mounted under other names, and must still be matched
+        self.assertEqual(self._get_devices(mounted=True),
+                         ['/dev/sda1', '/dev/mapper/vg-jam'])
+
+    def test_unreadable_device_number_excluded(self):
+        os.remove(os.path.join(self.sysroot, 'sys/class/block/sdb1/dev'))
+        self.assertEqual(self._get_devices(mounted=False),
+                         ['/dev/mapper/mpatha'])
+        self.assertIn('/dev/sdb1', self._get_devices())
+
+    def test_unknown_fstype(self):
+        self.assertEqual(self._get_devices(fstype='btrfs'), [])
+
+    def test_no_fstype_discovery(self):
+        self.mp.devices = {}
+        self.assertEqual(self._get_devices(), [])
+
+
 class RegexSubTests(unittest.TestCase):
 
     def setUp(self):
@@ -536,6 +622,28 @@ class RegexSubTests(unittest.TestCase):
             j("tail_test.txt"), r"(tail)", "foobar")
         self.assertEqual(1, replacements)
         self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))
+
+    def test_path_regex_sub_with_sysroot(self):
+        # path expressions match the path within the sysroot, which is the
+        # path of the file within the archive
+        sysroot = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, sysroot)
+        os.makedirs(os.path.join(sysroot, 'etc', 'test'))
+        for name in ('app.conf', 'key.pem'):
+            with open(os.path.join(sysroot, 'etc', 'test', name), 'w',
+                      encoding='utf-8') as tfile:
+                tfile.write('password=hackers\n')
+        self.mp.sysroot = sysroot
+        self.mp.add_copy_spec('/etc/test/')
+        self.mp.collect_plugin()
+        subbed = []
+        self.mp.do_file_sub = lambda path, regexp, subst: subbed.append(path)
+        self.mp.do_path_regex_sub(r'/etc/test/.*\.conf', r'(password=)\S+',
+                                  r'\1******')
+        self.assertEqual(subbed, [os.path.join(sysroot, 'etc/test/app.conf')])
+        subbed.clear()
+        self.mp.do_file_private_sub(r'/etc/test/.*\.pem')
+        self.assertEqual(subbed, ['/etc/test/key.pem'])
 
 
 if __name__ == "__main__":

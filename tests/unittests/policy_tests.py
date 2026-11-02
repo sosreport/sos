@@ -14,12 +14,13 @@ from avocado.utils import distro
 
 from sos.policies import Policy, import_policy
 from sos.policies.distros import LinuxPolicy
+from sos.policies.distros.cos import CosPolicy
 from sos.policies.distros.redhat import RedHatCoreOSPolicy
 from sos.policies.package_managers import PackageManager, MultiPackageManager
 from sos.policies.package_managers.rpm import RpmPackageManager
 from sos.policies.package_managers.dpkg import DpkgPackageManager
 from sos.report.plugins import (Plugin, IndependentPlugin,
-                                RedHatPlugin, DebianPlugin)
+                                RedHatPlugin, DebianPlugin, CosPlugin)
 
 
 class FauxPolicy(Policy):
@@ -52,6 +53,14 @@ class FauxRedHatPlugin(Plugin, RedHatPlugin):
 
 class FauxDebianPlugin(Plugin, DebianPlugin):
     pass
+
+
+class FauxCosPlugin(Plugin, CosPlugin):
+    pass
+
+
+class FauxCosDebianPlugin(FauxCosPlugin, DebianPlugin):
+    """Inherits the CosPlugin tag from its base class"""
 
 
 class PolicyTests(unittest.TestCase):
@@ -91,6 +100,32 @@ class PolicyTests(unittest.TestCase):
 
     def test_cant_import(self):
         self.assertTrue(import_policy('notreal') is None)
+
+
+class CosPolicyTests(unittest.TestCase):
+
+    def setUp(self):
+        self.policy = CosPolicy(probe_runtime=False)
+
+    def test_cos_plugins_validate(self):
+        self.assertTrue(self.policy.validate_plugin(FauxCosPlugin))
+        self.assertTrue(self.policy.validate_plugin(FauxPlugin))
+        self.assertFalse(self.policy.validate_plugin(FauxRedHatPlugin))
+
+    def test_cos_plugin_preferred_over_independent(self):
+        self.assertEqual(
+            self.policy.match_plugin([FauxPlugin, FauxCosPlugin]),
+            FauxCosPlugin
+        )
+
+    def test_direct_cos_tag_preferred_over_inherited(self):
+        self.assertEqual(
+            self.policy.match_plugin([FauxCosDebianPlugin, FauxCosPlugin]),
+            FauxCosPlugin
+        )
+
+    def test_independent_used_without_cos_plugin(self):
+        self.assertEqual(self.policy.match_plugin([FauxPlugin]), FauxPlugin)
 
 
 class PackageManagerTests(unittest.TestCase):

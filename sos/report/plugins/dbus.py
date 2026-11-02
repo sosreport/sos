@@ -22,6 +22,7 @@ class Dbus(Plugin, IndependentPlugin):
             "/etc/dbus-1",
             "/var/lib/dbus/machine-id"
         ])
+        self.add_copy_spec("/etc/machine-id", tags="etc_machine_id")
 
         self.add_cmd_output([
             "busctl list --no-pager",
