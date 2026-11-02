@@ -542,7 +542,11 @@ third party.
         )
 
         self.ui_log.info(f"\tSize\t{get_human_readable(arcstat.st_size)}")
-        self.ui_log.info(f"\tOwner\t{getpwuid(arcstat.st_uid).pw_name}\n")
+        try:
+            owner = getpwuid(arcstat.st_uid).pw_name
+        except KeyError:
+            owner = f"(unknown UID {arcstat.st_uid})"
+        self.ui_log.info(f"\tOwner\t{owner}\n")
         self.ui_log.info(
             "Please send the obfuscated archive to your support\n"
             "representative and keep the mapping file private."
