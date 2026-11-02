@@ -1052,7 +1052,9 @@ class StageTwoReportTest(BaseSoSReportTest):
         if not _files:
             return
         _files = json.loads(_files)
-        for mocked in _files:
+        # undo in reverse order, so that a directory created within another
+        # created directory is removed first
+        for mocked in reversed(_files):
             if os.path.isdir(mocked):
                 shutil.rmtree(mocked)
             else:
