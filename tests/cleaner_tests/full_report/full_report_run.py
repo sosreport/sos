@@ -89,7 +89,7 @@ class FullCleanTest(StageTwoReportTest):
 
     def test_ip_not_in_any_file(self):
         ip = self.sysinfo['pre']['networking']['ip_addr']
-        content = self.grep_for_content(ip)
+        content = self.grep_for_content(ip, regexp=True)
         if not content:
             assert True
         else:

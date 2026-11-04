@@ -100,7 +100,7 @@ class ExistingArchiveCleanTest(StageTwoReportTest):
                 assert val, f"{mapping} mapping for '{key}' empty"
 
     def test_ip_not_in_any_file(self):
-        content = self.grep_for_content('10.0.0.15')
+        content = self.grep_for_content('10.0.0.15', regexp=True)
         if not content:
             assert True
         else:
