@@ -37,6 +37,9 @@ parts:
       - python_magic
       - packaging==24.0
       - boto3==1.26.155
+    stage:
+      - -usr/share
+      - -lib/python3.12/site-packages/pip
 
 apps:
   sos:
