@@ -776,10 +776,10 @@ third party.
             if map_items:
                 self.log_debug(f"Prepping {pname} mapping with items from "
                                f"{archive.ui_name}")
-                for item in map_items:
+                for item in prepper.sort_items(pname, map_items):
                     _parser.mapping.add(item)
 
-            for ritem in prepper.regex_items[pname]:
+            for ritem in sorted(prepper.regex_items[pname]):
                 _parser.mapping.add_regex_item(ritem)
             _parser.mapping.initializing = False
             _parser.mapping.generate_compiled_regexes()

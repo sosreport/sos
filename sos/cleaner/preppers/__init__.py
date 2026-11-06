@@ -102,6 +102,25 @@ class SoSPrepper():
             return getattr(self, _check)(archive)
         return []
 
+    def sort_items(self, mapping, items):  # pylint: disable=unused-argument
+        """
+        Order the items a prepper produced for a map before they are seeded.
+        Seeding order decides which counter-based fake value each item gets,
+        so the default is a plain sort, which does not depend on set
+        iteration order. Preppers may override this to pin particular items
+        to the front.
+
+        :param mapping: The _name_ of the mapping the items are for
+        :type mapping:  ``str``
+
+        :param items:   The items returned by `get_items_for_map()`
+        :type items:    ``list`` or ``set``
+
+        :returns: The items in seeding order
+        :rtype:   ``list``
+        """
+        return sorted(items)
+
     def get_items_for_map(self, mapping, archive):
         """
         Similar to `get_parser_file_list()`, a helper for calling the specific
