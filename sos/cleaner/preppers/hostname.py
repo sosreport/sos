@@ -14,10 +14,6 @@ import re
 
 from sos.cleaner.preppers import SoSPrepper
 
-# RHSM subscription hostname that is a well-known public endpoint and must
-# never be treated as a customer-specific domain.
-_RHSM_PUBLIC_HOSTNAME = 'subscription.rhsm.redhat.com'
-
 
 class HostnamePrepper(SoSPrepper):
     """
@@ -35,9 +31,31 @@ class HostnamePrepper(SoSPrepper):
     /etc/krb5.conf so that internal/customer-specific FQDNs are obfuscated
     even when they appear only in configuration files and not in the system
     hostname itself.
+
+    Names under a vendor or public project domain are not seeded from those
+    configuration files. Distributions ship krb5 and sssd drop-ins for their
+    own realms, and seeding one registers every host label under it, such as
+    'download' or 'ldap', as a hostname to be replaced wherever the word
+    appears. The system's own hostname, /etc/hosts and --domains are seeded
+    regardless of domain.
     """
 
     name = 'hostname'
+
+    vendor_domains = [
+        'almalinux.org',
+        'canonical.com',
+        'centos.org',
+        'debian.org',
+        'fedoraproject.org',
+        'opensuse.org',
+        'oracle.com',
+        'redhat.com',
+        'redhat.io',
+        'rockylinux.org',
+        'suse.com',
+        'ubuntu.com',
+    ]
 
     hostname_re = re.compile(
         r'(?=\S*[a-zA-Z])[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)+'
@@ -87,6 +105,29 @@ class HostnamePrepper(SoSPrepper):
 
         return paths
 
+    def _sssd_value_to_name(self, value):
+        """Reduce one sssd configuration value to the DNS name it holds.
+
+        Values may be quoted, carry a URI scheme (``ldap://``) or a port, or
+        be sssd's own labels such as ``default`` or ``_srv_`` that are not
+        DNS names at all and must not be seeded as hostnames.
+
+        :param value:   A single comma-separated element of a config value
+        :type value:    ``str``
+
+        :returns:       The DNS name, or an empty string if there is none
+        :rtype:         ``str``
+        """
+        value = value.strip().strip('"').strip("'")
+        if '://' in value:
+            value = value.split('://', 1)[1]
+        value = value.split('/', 1)[0]
+        if value.count(':') == 1:
+            value = value.rsplit(':', 1)[0]
+        if '.' in value and self.hostname_re.fullmatch(value):
+            return value
+        return ''
+
     def _get_items_from_sssd_conf(self, archive):
         items = []
 
@@ -115,12 +156,19 @@ class HostnamePrepper(SoSPrepper):
                 key = key.lower()
                 if key in self.sssd_config_keys:
                     for domain in value.split(','):
-                        domain = domain.strip().strip('"').strip("'")
-                        if domain:
+                        domain = self._sssd_value_to_name(domain)
+                        if domain and not self.is_vendor_domain(domain):
                             items.append(domain)
-                            if '.' in domain:
-                                self.regex_items['hostname'].add(domain)
+                            self.regex_items['hostname'].add(domain)
         return items
+
+    def is_vendor_domain(self, name):
+        """Is ``name`` a vendor or public project domain, or a host or realm
+        under one? Realms are compared case-insensitively.
+        """
+        name = name.lower().rstrip('.')
+        return any(name == _dom or name.endswith(f'.{_dom}')
+                   for _dom in self.vendor_domains)
 
     def _get_items_from_resolv_conf(self, archive):
         """Extract search domains and domain directives from /etc/resolv.conf.
@@ -352,8 +400,8 @@ class HostnamePrepper(SoSPrepper):
         """Extract the RHSM server hostname from /etc/rhsm/rhsm.conf.
 
         Only the 'hostname' key under the [server] section is collected.
-        The well-known public endpoint 'subscription.rhsm.redhat.com' is
-        explicitly skipped because it is not customer-specific infrastructure.
+        Red Hat's own subscription endpoint is dropped with the other vendor
+        domains by the caller.
         """
         items = []
         try:
@@ -378,8 +426,6 @@ class HostnamePrepper(SoSPrepper):
                 # Inline comment strip
                 value = value.split('#')[0].strip()
                 if key == 'hostname' and value:
-                    if value == _RHSM_PUBLIC_HOSTNAME:
-                        continue
                     items.append(value)
         except Exception as exc:
             self.log_debug(
@@ -438,12 +484,14 @@ class HostnamePrepper(SoSPrepper):
         for domain in self.opts.domains:
             items.append(domain)
 
-        items.extend(self._get_items_from_sssd_conf(archive))
-        items.extend(self._get_items_from_resolv_conf(archive))
-        items.extend(self._get_items_from_krb5_conf(archive))
-        items.extend(self._get_items_from_ldap_conf(archive))
-        items.extend(self._get_items_from_samba_conf(archive))
-        items.extend(self._get_items_from_ipa_conf(archive))
-        items.extend(self._get_items_from_rhsm_conf(archive))
+        for _source in (self._get_items_from_sssd_conf,
+                        self._get_items_from_resolv_conf,
+                        self._get_items_from_krb5_conf,
+                        self._get_items_from_ldap_conf,
+                        self._get_items_from_samba_conf,
+                        self._get_items_from_ipa_conf,
+                        self._get_items_from_rhsm_conf):
+            items.extend(i for i in _source(archive)
+                         if not self.is_vendor_domain(i))
 
         return items

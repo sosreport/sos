@@ -784,6 +784,41 @@ class PrepperTests(unittest.TestCase):
         }
         self.assertTrue(expected.issubset(set(items)))
 
+    def test_hostname_prepper_sssd_conf_labels_not_seeded(self):
+        """sssd's own labels and non-name values are not hostnames and must
+        not be seeded; the DNS names in the same file still are"""
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+
+            def get_file_content(self, path):
+                if path == 'sos_commands/host/hostname_-f':
+                    return 'myhost.example.com'
+                if path == 'etc/hosts':
+                    return ''
+                if path == 'etc/sssd/sssd.conf':
+                    return ('[sssd]\n'
+                            'domains = default, LDAP\n'
+                            '[domain/default]\n'
+                            'ipa_domain = ipa.gibson.net\n'
+                            'ldap_uri = ldap://ldap.gibson.net:389/, _srv_\n'
+                            'krb5_server = kdc.gibson.net:88\n'
+                            'ad_server = 10.0.0.5\n')
+                return ''
+
+        self.host_prepper._get_conf_files = lambda archive: {
+            'etc/sssd/sssd.conf'
+            }
+
+        items = self.host_prepper.get_items_for_map('hostname', MockArchive())
+        for label in ('default', 'LDAP', '_srv_', '10.0.0.5'):
+            self.assertNotIn(label, items)
+        for name in ('ipa.gibson.net', 'ldap.gibson.net', 'kdc.gibson.net'):
+            self.assertIn(name, items)
+        self.assertFalse(
+            [i for i in items if '://' in i or ':' in i or '/' in i]
+        )
+
     def test_hostname_prepper_sssd_conf_values_are_obfuscated(self):
         workdir = join(sos.policies.load().get_tmp_dir(None),
                        'sos_avocado_testing')
@@ -1095,6 +1130,73 @@ class PrepperTests(unittest.TestCase):
                       'kdc hostname with port must be seeded without the port')
         self.assertNotIn('kdc.realm.example.com:88', items,
                          'kdc entry must not include the port number')
+
+    def test_hostname_prepper_vendor_domains_not_seeded(self):
+        """Realms, KDCs, search domains and sssd servers under a vendor or
+        public project domain must not be seeded; the customer's own are."""
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+
+            def get_file_content(self, path):
+                if path == 'sos_commands/host/hostname_-f':
+                    return 'zerocool.gibson.net'
+                if path == 'etc/hosts':
+                    return '10.73.1.5 mirror.centos.org cereal\n'
+                if path == 'etc/krb5.conf':
+                    return ('[libdefaults]\n'
+                            'default_realm = GIBSON.NET\n'
+                            '[realms]\n'
+                            'GIBSON.NET = {\n'
+                            '  kdc = kerberos.gibson.net\n'
+                            '  admin_server = kerberos.gibson.net\n'
+                            '}\n'
+                            'FEDORAPROJECT.ORG = {\n'
+                            '  kdc = https://id.fedoraproject.org/KdcProxy\n'
+                            '}\n'
+                            'REDHAT.COM = {\n'
+                            '  admin_server = kerberos.corp.redhat.com\n'
+                            '}\n'
+                            '[domain_realm]\n'
+                            ' .fedoraproject.org = FEDORAPROJECT.ORG\n'
+                            ' .centos.org = FEDORAPROJECT.ORG\n'
+                            ' .gibson.net = GIBSON.NET\n')
+                if path == 'etc/resolv.conf':
+                    return 'search gibson.net redhat.com\n'
+                if path == 'etc/sssd/sssd.conf':
+                    return ('[domain/gibson]\n'
+                            'ldap_uri = ldap://ldap.corp.redhat.com, '
+                            'ldaps://ldap.gibson.net:636\n')
+                if path == 'etc/rhsm/rhsm.conf':
+                    return ('[server]\n'
+                            'hostname = subscription.rhsm.redhat.com\n')
+                return ''
+
+        self.host_prepper._get_conf_files = lambda archive: {
+            'etc/sssd/sssd.conf'
+        }
+        self.host_prepper.regex_items['hostname'] = set()
+        items = self.host_prepper.get_items_for_map('hostname', MockArchive())
+        for kept in ('zerocool.gibson.net', 'GIBSON.NET', 'gibson.net',
+                     'kerberos.gibson.net', 'ldap.gibson.net',
+                     'mirror.centos.org', 'cereal'):
+            self.assertIn(kept, items, f'{kept} must be seeded')
+        for dropped in ('FEDORAPROJECT.ORG', 'fedoraproject.org',
+                        'centos.org', 'REDHAT.COM', 'redhat.com',
+                        'kerberos.corp.redhat.com', 'ldap.corp.redhat.com',
+                        'subscription.rhsm.redhat.com'):
+            self.assertNotIn(dropped, items, f'{dropped} must not be seeded')
+        self.assertNotIn('ldap.corp.redhat.com',
+                         self.host_prepper.regex_items['hostname'])
+
+    def test_hostname_prepper_is_vendor_domain(self):
+        self.assertTrue(self.host_prepper.is_vendor_domain('REDHAT.COM'))
+        self.assertTrue(self.host_prepper.is_vendor_domain('a.b.redhat.com'))
+        self.assertTrue(self.host_prepper.is_vendor_domain('redhat.com.'))
+        self.assertFalse(self.host_prepper.is_vendor_domain('notredhat.com'))
+        self.assertFalse(self.host_prepper.is_vendor_domain('gibson.net'))
+        self.assertFalse(self.host_prepper.is_vendor_domain(
+            'redhat.com.gibson.net'))
 
     def test_ipv4_prepper_parser_files(self):
         self.assertEqual(
