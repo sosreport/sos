@@ -9,6 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import ipaddress
+import re
 
 from sos.cleaner.mappings import SoSMap
 
@@ -63,6 +64,11 @@ class SoSIPMap(SoSMap):
     def insert_to_dataset(self, item, value):
         self.obfuscated_ips.add(value.split('/', maxsplit=1)[0])
         self.dataset[item] = value
+
+    def _string_key_pattern(self, key):
+        # a digit, or a dot and a digit, on either side means the string
+        # holds a longer address that merely contains this one
+        return rf'(?<!\d)(?<!\d\.){re.escape(key)}(?!\d)(?!\.\d)'
 
     def ip_in_dataset(self, ipaddr):
         """There are multiple ways in which an ip address could be handed to us

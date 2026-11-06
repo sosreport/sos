@@ -60,6 +60,7 @@ class SoSMap():
         self._simple_tokens = set()
         self._complex_items = []
         self._regex_dict = {}
+        self._string_key_regexes = {}
         self._static_regex = _static_regex
         # Select token splitter based on strict_tokenisation setting.
         # NOTE: Token lookup parsers always use basic splitting, regardless of
@@ -398,6 +399,31 @@ class SoSMap():
         """
         item = self._apply_word_boundaries(re.escape(item))
         return re.compile(item, re.I)
+
+    def _string_key_pattern(self, key):
+        """Pattern for ``key`` as a whole token inside a bare string. Maps
+        whose keys can be a prefix of a longer key of the same kind, such as
+        IPv4 addresses, override this to tighten the boundaries.
+        """
+        return rf'(?<![0-9a-zA-Z:]){re.escape(key)}(?![0-9a-zA-Z:])'
+
+    def get_string_key_regex(self, key):
+        """Regex used when substituting ``key`` inside a filename or other
+        bare string, so that a key is only replaced as a whole token and
+        never inside a longer key that happens to contain it.
+
+        :param key:     The unobfuscated item to build the regex for
+        :type key:      ``str``
+
+        :returns:       A compiled regex matching ``key`` as a whole token
+        :rtype:         ``re.Pattern``
+        """
+        try:
+            return self._string_key_regexes[key]
+        except KeyError:
+            reg = re.compile(self._string_key_pattern(key), re.I)
+            self._string_key_regexes[key] = reg
+            return reg
 
     def sanitize_item(self, item):
         """Perform the obfuscation relevant to the item being added to the map.
