@@ -22,9 +22,16 @@ IPV6_REG_8HEX = (
 # aabb:ccee:ddee:ffaa
 # - but disallow "substrings"
 #   - but allow fe80: or fe80:: prefix for link-local
+# - and never four groups out of a longer IPv6 address: not after a hex
+#   digit, after '::' or after a colon that follows a whole group of one to
+#   four hex digits, and not before a colon that more of an address follows.
+#   A colon after a label, as in 'mac:aabb:ccee:ddee:ffaa', is not part of
+#   an address, unless the label is nothing but hex digits
 IPV6_REG_4HEX = (
-    r'((?<!(?:([.|^|\b]{5}\w|[.|^|\b]fe80:|fe80::)))'
-    r'(?:([0-9a-fA-F]{4}:){3}[0-9a-fA-F]{4})(?!\w))|'
+    r'((?<![0-9a-fA-F])(?<!::)(?<!\b[0-9a-fA-F]:)(?<!\b[0-9a-fA-F]{2}:)'
+    r'(?<!\b[0-9a-fA-F]{3}:)(?<!\b[0-9a-fA-F]{4}:)'
+    r'(?<!(?:([.|^|\b]{5}\w|[.|^|\b]fe80:|fe80::)))'
+    r'(?:([0-9a-fA-F]{4}:){3}[0-9a-fA-F]{4})(?!\w)(?!:[0-9a-fA-F:]))|'
     r'(?:(?<!\w)(([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{4})(?!\w))'
 )
 # aa:bb:cc:dd:ee:ff avoiding ipv6 substring matches
