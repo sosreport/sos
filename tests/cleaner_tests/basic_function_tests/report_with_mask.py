@@ -26,11 +26,12 @@ class ReportWithMask(StageOneReportTest):
         # sanitised file has same permissions (a+r)
         try:
             with open('/etc/hosts', encoding='utf-8') as fp:
-                self.obsfuncated = fp.read().strip('#\n').split()[-1]
+                self.hosts_obfuscated = fp.read().strip('#\n').split()[-1]
         except (FileNotFoundError, IndexError) as e:
             self.warning(f"Unable to process /etc/hosts: {e}")
         if self.hosts_obfuscated:
             self.sos_cmd += f' --keywords={self.hosts_obfuscated}'
+        self.setup_isolated_cleaner_cache()
 
     def test_mask_was_run(self):
         self.assertOutputContains('Beginning obfuscation')
@@ -137,6 +138,9 @@ class DefaultRemoveBinaryFilesTest(StageTwoReportTest):
     install_plugins = ['binary_test']
     sos_cmd = '--clean -o binary_test,kernel,host'
 
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
+
     def test_binary_removed(self):
         self.assertFileNotCollected('var/log/binary_test.tar.xz')
 
@@ -153,6 +157,9 @@ class KeepBinaryFilesTest(StageTwoReportTest):
     files = [('binary_test.tar.xz', '/var/log/binary_test.tar.xz')]
     install_plugins = ['binary_test']
     sos_cmd = '--clean --keep-binary-files -o binary_test,kernel,host'
+
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
 
     def test_warning_message_shown(self):
         self.assertOutputContains(

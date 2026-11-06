@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import hashlib
 import json
 import logging
 import os
@@ -20,6 +21,11 @@ import re
 from concurrent.futures import ProcessPoolExecutor
 from sos.utilities import (file_is_binary, sos_get_command_output,
                            file_is_certificate)
+
+# maximum length, in bytes, of a single path component
+NAME_MAX = 255
+# longest file extension, in bytes, to keep when shortening a name
+NAME_EXT_MAX = 16
 
 
 def _path_is_within(directory, target):
@@ -162,6 +168,7 @@ class SoSObfuscationArchive():
         self.keep_binary_files = keep_binary_files
         self.treat_certificates = treat_certificates
         self.parsers = ()
+        self._name_max = None
         self.log_info(
             f"Loaded {self.archive_path} as type {self.description}"
         )
@@ -174,10 +181,80 @@ class SoSObfuscationArchive():
                 self.log_info(f"Error obfuscating string data: {err}")
         return string_data
 
+    @property
+    def name_max(self):
+        """The longest name, in bytes, that may be used within the extracted
+        archive. This is never more than NAME_MAX, so that the archive can
+        still be extracted elsewhere
+        """
+        if self._name_max is None:
+            try:
+                limit = os.pathconf(self.extracted_path, 'PC_NAME_MAX')
+            except (AttributeError, OSError, ValueError):
+                limit = None
+            self._name_max = min(limit, NAME_MAX) if limit and limit > 0 \
+                else NAME_MAX
+        return self._name_max
+
+    def fit_name_max(self, name):
+        """Obfuscated values may be longer than the original values they
+        replace, so a name that fits on disk may exceed the name limit once it
+        is obfuscated. When that happens, truncate the obfuscated name and
+        append a short digest of the full obfuscated name, so that distinct
+        names remain distinct without retaining any unobfuscated name. A short
+        file extension is kept at the end of the shortened name.
+
+        :param name:    A single, already obfuscated, path component
+        :type name:     ``str``
+
+        :returns:       The name, shortened if necessary to fit the limit
+        :rtype:         ``str``
+        """
+        # names that are not valid UTF-8 are surrogate escaped by os.listdir()
+        # and friends, so encode them back to their original bytes
+        _bname = name.encode('utf-8', 'surrogateescape')
+        if len(_bname) <= self.name_max:
+            return name
+        digest = hashlib.sha256(_bname).hexdigest()[:12]
+        # a longer 'extension' is more likely part of the obfuscated value
+        _bext = os.path.splitext(_bname)[1]
+        if len(_bext) > NAME_EXT_MAX:
+            _bext = b''
+        cut = self.name_max - len(digest) - len(_bext) - 1
+        # do not split a multibyte character
+        for _ in range(3):
+            if _bname[cut] & 0xc0 != 0x80:
+                break
+            cut -= 1
+        trunc = _bname[:cut].decode('utf-8', 'surrogateescape')
+        ext = _bext.decode('utf-8', 'surrogateescape')
+        short = f"{trunc}-{digest}{ext}"
+        self.log_warn(f"Obfuscated name exceeds {self.name_max} bytes, "
+                      f"shortened to '{short}'")
+        return short
+
+    def fit_path_name_max(self, path, orig_path):
+        """Apply fit_name_max() to the components of an obfuscated path that
+        were changed by obfuscation, leaving any other components as-is
+
+        :param path:        The obfuscated path
+        :type path:         ``str``
+
+        :param orig_path:   The path before obfuscation
+        :type orig_path:    ``str``
+        """
+        orig_parts = set(orig_path.split('/'))
+        return '/'.join(
+            part if part in orig_parts else self.fit_name_max(part)
+            for part in path.split('/')
+        )
+
     # TODO: merge content to obfuscate_arc_file as that is the only place we
     # call obfuscate_filename ?
     def obfuscate_filename(self, short_name, filename):
-        _ob_short_name = self.obfuscate_string(short_name.split('/')[-1])
+        _ob_short_name = self.fit_name_max(
+            self.obfuscate_string(short_name.split('/')[-1])
+        )
         _ob_filename = short_name.replace(short_name.split('/')[-1],
                                           _ob_short_name)
 
@@ -186,18 +263,7 @@ class SoSObfuscationArchive():
             _ob_path = os.path.join(arc_path, _ob_filename)
             # ensure that any plugin subdirs that contain obfuscated strings
             # get created with obfuscated counterparts
-            if not os.path.islink(filename):
-                os.rename(filename, _ob_path)
-            else:
-                # generate the obfuscated name of the link target
-                _target_ob = self.obfuscate_string(os.readlink(filename))
-                # remove the unobfuscated original symlink first, in case the
-                # symlink name hasn't changed but the target has
-                os.remove(filename)
-                # create the newly obfuscated symlink, pointing to the
-                # obfuscated target name, which may not exist just yet, but
-                # when the actual file is obfuscated, will be created
-                os.symlink(_target_ob, _ob_path)
+            os.rename(filename, _ob_path)
 
     def set_parsers(self, parsers):
         self.parsers = parsers  # TODO: include this in __init__?

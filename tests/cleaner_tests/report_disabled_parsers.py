@@ -21,6 +21,9 @@ class ReportDisabledParsersTest(StageOneReportTest):
 
     sos_cmd = '--clean -o host,kernel,networking --disable-parsers=ip'
 
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
+
     def test_local_ip_not_obfuscated(self):
         self.assertFileHasContent(
             'ip_addr',
@@ -62,6 +65,9 @@ class NativeCleanDisabledParsersTest(StageTwoReportTest):
 
     sos_cmd = f"--disable-parsers=hostname tests/test_data/{ARCHIVE}"
     sos_component = 'clean'
+
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
 
     def test_localhost_not_obfuscated(self):
         self.assertFileNotHasContent(
