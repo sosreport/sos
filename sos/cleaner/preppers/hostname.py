@@ -44,6 +44,8 @@ class HostnamePrepper(SoSPrepper):
     )
     audit_logs_re = r'\shostname=(' + hostname_re.pattern + r')'
 
+    local_hostnames = []
+
     sssd_conf_patterns = [
         'etc/sssd/sssd.conf*',
         'etc/sssd/conf.d/*'
@@ -385,8 +387,18 @@ class HostnamePrepper(SoSPrepper):
             )
         return items
 
+    def sort_items(self, mapping, items):
+        """Seed the report's own hostname, FQDN and domain before everything
+        else so the reporting host is always host0 and its domain is always
+        obfuscateddomain0, then the rest in sorted order.
+        """
+        local = [i for i in self.local_hostnames if i in items]
+        rest = sorted(set(items) - set(local))
+        return local + rest
+
     def _get_items_for_hostname(self, archive):
         items = []
+        self.local_hostnames = []
         _file = 'hostname'
         if archive.is_sos:
             _file = 'sos_commands/host/hostname_-f'
@@ -405,6 +417,7 @@ class HostnamePrepper(SoSPrepper):
                 top_domain = '.'.join(domains[-2:])
                 items.append(top_domain.strip())
             items.append(content.strip())
+            self.local_hostnames = list(items)
 
         _hosts = archive.get_file_content('etc/hosts')
         for line in _hosts.splitlines():

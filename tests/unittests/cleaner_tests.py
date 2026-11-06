@@ -13,6 +13,7 @@ from os.path import join
 from unittest import mock
 
 import sos.policies
+from sos.cleaner import SoSCleaner
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
@@ -536,6 +537,92 @@ class PrepperTests(unittest.TestCase):
                          self.host_prepper.regex_items['hostname'],
                          'Comment word "production" must not be in '
                          'regex_items')
+
+    def test_prepper_items_seeded_in_sorted_order(self):
+        """Set-typed prepper items are seeded in sorted order so the counter
+        based fake values do not depend on set iteration order"""
+        class StubArchive:
+            ui_name = 'stub'
+
+            def get_file_content(self, _path):
+                return ''
+
+            def set_parsers(self, parsers):
+                pass
+
+        class StubCleaner:
+            def __init__(self, parser):
+                self.parsers = [parser]
+
+            def log_debug(self, msg, caller=None):
+                pass
+
+        class OrderedPrepper(SoSPrepper):
+            name = 'ordered'
+
+            def __init__(self, options, items):
+                super().__init__(options)
+                self.items = items
+
+            def _get_items_for_username(self, _archive):
+                return list(self.items)
+
+        names = ['zerocool', 'acidburn', 'crashoverride']
+        results = []
+        for order in (names, list(reversed(names))):
+            with tempfile.TemporaryDirectory() as workdir:
+                parser = SoSUsernameParser(config={}, workdir=workdir)
+                SoSCleaner._prepare_archive_with_prepper(
+                    StubCleaner(parser), StubArchive(),
+                    OrderedPrepper(SoSOptions(), order)
+                )
+                results.append(dict(parser.mapping.dataset))
+        self.assertEqual(results[0], results[1])
+        self.assertEqual(results[0]['acidburn'], 'obfuscateduser0')
+        self.assertEqual(results[0]['zerocool'], 'obfuscateduser2')
+
+    def test_local_hostname_seeded_first(self):
+        """The report's own hostname is host0 and its domain is
+        obfuscateddomain0 even when /etc/hosts entries sort ahead of it"""
+        class StubArchive:
+            ui_name = 'stub'
+            is_sos = True
+            is_insights = False
+            is_extracted = False
+            archive_path = ''
+
+            def get_file_content(self, path):
+                if path == 'sos_commands/host/hostname_-f':
+                    return 'zerocool.gibson.net'
+                if path == 'etc/hosts':
+                    return ('10.73.1.5 acidburn.ellingson.net acidburn\n'
+                            '10.73.1.6 cerealkiller.gibson.net\n')
+                return ''
+
+            def set_parsers(self, parsers):
+                pass
+
+        class StubCleaner:
+            def __init__(self, parser):
+                self.parsers = [parser]
+
+            def log_debug(self, msg, caller=None):
+                pass
+
+        with tempfile.TemporaryDirectory() as workdir:
+            parser = SoSHostnameParser(config={}, workdir=workdir)
+            SoSCleaner._prepare_archive_with_prepper(
+                StubCleaner(parser), StubArchive(),
+                HostnamePrepper(SoSOptions(domains=[]))
+            )
+            ds = parser.mapping.dataset
+        self.assertEqual(ds['zerocool'], 'host0')
+        self.assertEqual(ds['zerocool.gibson.net'],
+                         'host0.obfuscateddomain0.net')
+        self.assertEqual(ds['acidburn'], 'host1')
+        self.assertEqual(ds['acidburn.ellingson.net'],
+                         'host1.obfuscateddomain1.net')
+        self.assertEqual(ds['cerealkiller'], 'host2')
 
     def test_hostname_prepper_sssd_conf_values_in_items(self):
         class MockArchive:
