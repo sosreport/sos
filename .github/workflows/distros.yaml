@@ -1,0 +1,53 @@
+name: Distro Matrix
+
+on:
+  workflow_call:
+    outputs:
+      distro_matrix:
+        value: ${{ jobs.setup.outputs.distro_matrix }}
+      rpm_matrix:
+        value: ${{ jobs.setup.outputs.rpm_matrix }}
+      deb_matrix:
+        value: ${{ jobs.setup.outputs.deb_matrix }}
+      stagetwo_matrix:
+        value: ${{ jobs.setup.outputs.stagetwo_matrix }}
+      foreman_matrix:
+        value: ${{ jobs.setup.outputs.foreman_matrix }}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      distro_matrix: ${{ steps.set-matrix.outputs.distro_matrix }}
+      rpm_matrix: ${{ steps.set-matrix.outputs.rpm_matrix }}
+      deb_matrix: ${{ steps.set-matrix.outputs.deb_matrix }}
+      stagetwo_matrix: ${{ steps.set-matrix.outputs.stagetwo_matrix }}
+      foreman_matrix: ${{ steps.set-matrix.outputs.foreman_matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          DISTRO_JSON='[
+            {"name": "ubuntu-22.04",  "image": "",              "builds": ["deb", "snap"], "stages": "foreman"},
+            {"name": "ubuntu-24.04",  "image": "",              "builds": ["deb", "snap"], "stages": ""},
+            {"name": "ubuntu-26.04",  "image": "",              "builds": ["deb", "snap"], "stages": "two"},
+            {"name": "ubuntu-latest", "image": "ubuntu:latest", "builds": ["deb"],         "stages": ""},
+            {"name": "debian-12",     "image": "debian:12",     "builds": ["deb"],         "stages": ""},
+            {"name": "debian-13",     "image": "debian:13",     "builds": ["deb"],         "stages": "two"},
+            {"name": "fedora-43",     "image": "fedora:43",     "builds": ["rpm"],         "stages": ""},
+            {"name": "fedora-44",     "image": "fedora:44",     "builds": ["rpm"],         "stages": "two"},
+            {"name": "centos-9",      "image": "quay.io/centos/centos:stream9",  "builds": ["rpm"], "stages": ""},
+            {"name": "centos-10",     "image": "quay.io/centos/centos:stream10", "builds": ["rpm"], "stages": "two"}
+          ]'
+          echo "distro_matrix=$(echo $DISTRO_JSON | jq -c .)" >> $GITHUB_OUTPUT
+
+          RPM_JSON=$(echo "$DISTRO_JSON" | jq -c '[.[] | select(.name | contains("centos") or contains("fedora"))]')
+          echo "rpm_matrix=$RPM_JSON" >> $GITHUB_OUTPUT
+
+          DEB_JSON=$(echo "$DISTRO_JSON" | jq -c '[.[] | select(.name | contains("ubuntu") or contains("debian"))]')
+          echo "deb_matrix=$DEB_JSON" >> $GITHUB_OUTPUT
+
+          STAGETWO_JSON=$(echo "$DISTRO_JSON" | jq -c '[.[] | select(.stages | contains("two"))]')
+          echo "stagetwo_matrix=$STAGETWO_JSON" >> $GITHUB_OUTPUT
+
+          FOREMAN_JSON=$(echo "$DISTRO_JSON" | jq -c '[.[] | select(.stages | contains("foreman"))]')
+          echo "foreman_matrix=$FOREMAN_JSON" >> $GITHUB_OUTPUT
