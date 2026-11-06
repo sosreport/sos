@@ -351,6 +351,30 @@ class CleanerParserTests(unittest.TestCase):
         _test = self.mac_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
 
+    def test_mac_parser_ignores_ipv6_fragments(self):
+        for line in ('addr fd53:16e:16f::260a:260b:260c:260d scope global',
+                     'addr 2001:0db8:0000:0000:0000:0000:0000:0001 scope',
+                     'addr 2001:db8:260a:260b:260c:260d:1:2 scope',
+                     'addr 260a:260b:260c:260d:1234:5678:9abc:def0 scope',
+                     'net 260a:260b:260c:260d::/64 dev',
+                     'addr ::260a:260b:260c:260d scope'):
+            _test = self.mac_parser.parse_line(line)[0]
+            self.assertEqual(line, _test)
+        for key in ('260a:260b:260c:260d', '2001:0db8:0000:0000',
+                    '0000:0000:0000:0001'):
+            self.assertNotIn(key, self.mac_parser.mapping.dataset)
+
+    def test_mac_parser_matches_standalone_guid(self):
+        for line in ('0011:2233:4455:6677', 'guid 0011:2233:4455:6677 end',
+                     'guid 0011-2233-4455-6677 end',
+                     # after a label and its colon, and before one
+                     'mac:0011:2233:4455:6677', 'uuid:0011-2233-4455-6677',
+                     'port:0011-2233-4455-6677,up',
+                     'GUID 0011:2233:4455:6677: registered'):
+            _test = self.mac_parser.parse_line(line)[0]
+            self.assertNotIn('0011:2233:4455:6677', _test)
+            self.assertNotIn('0011-2233-4455-6677', _test)
+
     def test_mac_parser_with_quotes(self):
         line = "foobar foo '12:34:56:78:90:AA' bar barfoo"
         _test = self.mac_parser.parse_line(line)[0]
