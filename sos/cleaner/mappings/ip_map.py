@@ -89,7 +89,7 @@ class SoSIPMap(SoSMap):
         # that notation
         if '/' not in item:
             for key, value in self.dataset.items():
-                if key.startswith(item):
+                if key.split('/', 1)[0] == item:
                     return value.split('/')[0]
 
         # fallback to the default map behavior of adding it fresh

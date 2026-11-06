@@ -126,6 +126,15 @@ class CleanerMapTests(unittest.TestCase):
         _hostnosub = self.ip_map.get('192.168.4.1')
         self.assertEqual(_hostwsub.split('/')[0], _hostnosub)
 
+    def test_ip_map_bare_lookup_exact_key(self):
+        host10 = self.ip_map.add('10.73.4.10/24').split('/')[0]
+        # same host without its netmask resolves to the same fake address
+        self.assertEqual(self.ip_map.get('10.73.4.10'), host10)
+        # a different host that is a string prefix of it must not
+        _test = self.ip_map.get('10.73.4.1')
+        self.assertNotEqual(_test.split('/')[0], host10)
+        self.assertNotEqual(ip_interface(_test).ip, ip_interface(host10).ip)
+
     def test_ip_skip_ignores(self):
         _test = self.ip_map.get('127.0.0.1')
         self.assertEqual(_test, '127.0.0.1')
