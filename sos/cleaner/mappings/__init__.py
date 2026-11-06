@@ -54,6 +54,8 @@ class SoSMap():
         self.strict_tokenisation = strict_tokenisation
         self.initializing = True
         self.dataset = {}
+        # normalised obfuscated values, see value_key()
+        self.values = set()
         self._regexes_made = set()
         self.compiled_regexes = []
         self.compiled_search = re.compile('(?!)')  # no match
@@ -148,7 +150,7 @@ class SoSMap():
         """Some items need to be completely ignored, for example link-local or
         loopback addresses should not be obfuscated
         """
-        if not item or item in self.skip_keys or item in self.dataset.values()\
+        if not item or item in self.skip_keys or self.value_known(item) \
                 or (self.ignore_short_items and len(item) <= 3):
             return True
         for skip in self.ignore_matches:
@@ -158,6 +160,31 @@ class SoSMap():
 
     def insert_to_dataset(self, item, value):
         self.dataset[item] = value
+        self.values.add(self.value_key(value))
+
+    def value_key(self, value):
+        """Normalised form of an obfuscated value for membership checks. Maps
+        whose values appear in files in more than one spelling override this.
+
+        :param value:   An obfuscated value, or a string to test as one
+        :type value:    ``str``
+
+        :returns:       The form stored in the value set
+        :rtype:         ``str``
+        """
+        return value
+
+    def value_known(self, item):
+        """Whether ``item`` is an obfuscated value this map has produced or
+        loaded, so that it must not be obfuscated again.
+
+        :param item:    The string to test
+        :type item:     ``str``
+
+        :returns:       True if ``item`` is a known obfuscated value
+        :rtype:         ``bool``
+        """
+        return self.value_key(item) in self.values
 
     def add_sanitised_item_to_dataset(self, item):
         try:
@@ -474,4 +501,5 @@ class SoSMap():
             :param config:    A dict of mappings with the form of
                               {clean_entry: 'obfuscated_entry'}
         """
-        self.dataset.update(config)
+        for item, value in config.items():
+            self.insert_to_dataset(item, value)

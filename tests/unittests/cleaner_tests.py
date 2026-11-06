@@ -69,6 +69,45 @@ class CleanerMapTests(unittest.TestCase):
         _dup = self.mac_map.get(_test)
         self.assertEqual(_test, _dup)
 
+    def test_map_value_set_tracks_inserts(self):
+        # private workdir: the items added here must not reach the cache the
+        # other tests in this class share
+        with tempfile.TemporaryDirectory() as workdir:
+            mac_map = SoSMacMap(workdir)
+            ip_map = SoSIPMap(workdir)
+            host_map = SoSHostnameMap(workdir)
+            kw_map = SoSKeywordMap(workdir)
+            ipv6_map = SoSIPv6Map(workdir)
+            for _map in (mac_map, ip_map, host_map, kw_map, ipv6_map):
+                _map.insert_to_dataset('plague', 'razor')
+                self.assertTrue(_map.value_known('razor'))
+            for _map in (mac_map, ip_map, host_map, kw_map):
+                _map.conf_update({'blade': 'phreak'})
+                self.assertTrue(_map.value_known('phreak'))
+            ipv6_map.conf_update({'networks': {'fd73:2::/64': {
+                'obfuscated': '534f:7302::/64',
+                'hosts': {'fd73:2::5': '534f:7302::5'}
+            }}})
+            self.assertTrue(ipv6_map.value_known('534f:7302::/64'))
+            self.assertTrue(ipv6_map.value_known('534f:7302::5'))
+            for _map, item in ((mac_map, 'de:ad:be:ef:ca:fe'),
+                               (ip_map, '10.73.1.1'),
+                               (host_map, 'acidburn.gibson.example.com'),
+                               (kw_map, 'cerealkiller'),
+                               (ipv6_map, 'fd73::1')):
+                _ob = _map.add(item)
+                self.assertNotEqual(_ob, item)
+                self.assertTrue(_map.value_known(_ob))
+                self.assertTrue(_map.ignore_item(_ob))
+
+    def test_ip_value_known_with_or_without_prefix(self):
+        self.ip_map.insert_to_dataset('10.73.2.0/24', '100.73.2.0/24')
+        self.assertTrue(self.ip_map.value_known('100.73.2.0'))
+        self.assertTrue(self.ip_map.value_known('100.73.2.0/24'))
+        self.assertTrue(self.ip_map.ip_in_dataset(
+            ip_interface('100.73.2.0/24')))
+        self.assertFalse(self.ip_map.value_known('100.73.2.1'))
+
     def test_ip_map_obfuscate_v4_with_cidr(self):
         _test = self.ip_map.get('192.168.1.0/24')
         self.assertNotEqual(_test, '192.168.1.0/24')
@@ -260,6 +299,13 @@ class CleanerParserTests(unittest.TestCase):
         line = 'mycoolpackage-1.2.3.4.5'
         _test = self.ip_parser.parse_line(line)[0]
         self.assertEqual(line, _test)
+
+    def test_parser_skips_known_values(self):
+        fake = self.ip_parser.mapping.add('10.73.3.1')
+        line = f'addr {fake} up'
+        _test, _count = self.ip_parser.parse_line(line)
+        self.assertEqual(line, _test)
+        self.assertNotIn(fake.split('/')[0], self.ip_parser.mapping.dataset)
 
     def test_ip_parser_filename_boundary(self):
         self.ip_parser.mapping.add('10.73.0.1')
