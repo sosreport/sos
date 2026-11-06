@@ -89,25 +89,25 @@ class SoSHostnameMap(SoSMap):
             item = re.escape(item)
         return item
 
+    _host_re = re.compile(r'^host(\d+)$')
+    _domain_re = re.compile(r'^obfuscateddomain(\d+)')
+
     def set_initial_counts(self):
         """Set the initial counter for host and domain obfuscation numbers
         based on what is already present in the mapping.
         """
-        # hostnames/short names
-        try:
-            h = sorted(self.hosts.values(), reverse=True)[0].split('host')[1]
-            self.host_count = int(h) + 1
-        except IndexError:
-            # no hosts loaded yet
-            pass
+        host_max = max((int(m.group(1)) for m in
+                        (self._host_re.match(v) for v in self.hosts.values())
+                        if m), default=None)
+        if host_max is not None:
+            self.host_count = host_max + 1
 
-        # domain names
-        try:
-            d = sorted(self._domains.values(), reverse=True)[0].split('domain')
-            self.domain_count = int(d[1].split('.')[0]) + 1
-        except IndexError:
-            # no domains loaded yet
-            pass
+        dom_max = max((int(m.group(1)) for m in
+                       (self._domain_re.match(v)
+                        for v in self._domains.values())
+                       if m), default=None)
+        if dom_max is not None:
+            self.domain_count = dom_max + 1
 
     def domain_name_in_loaded_domains(self, domain):
         """Check if a potential domain is in one of the domains we've loaded
