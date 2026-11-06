@@ -19,6 +19,9 @@ class Filesys(Plugin, IndependentPlugin):
     This plugin will collect /etc/fstab as well as mount information within
     /proc/, and is responsible for the 'mount' and 'df' symlinks that appear
     in an sos archive's root.
+
+    EXT filesystem information is collected for mounted filesystems, as well
+    as for EXT filesystems present on local devices that are not mounted.
     """
 
     short_desc = 'Local file systems'
@@ -85,7 +88,9 @@ class Filesys(Plugin, IndependentPlugin):
             dumpe2fs_opts = ''
         mounts = '/proc/mounts'
         ext_fs_regex = r"^(/dev/\S+).+ext[234]\s+"
-        for dev in self.do_regex_find_all(ext_fs_regex, mounts):
+        ext_devs = self.do_regex_find_all(ext_fs_regex, mounts)
+        ext_devs += self.get_devices_by_fstype('ext4', mounted=False)
+        for dev in ext_devs:
             self.add_cmd_output(f"dumpe2fs {dumpe2fs_opts} {dev}",
                                 tags="dumpe2fs_h")
 
