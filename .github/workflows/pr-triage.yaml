@@ -1,0 +1,39 @@
+name: PR Triage
+
+# pull_request_target is needed so that PRs from forks can be labeled. It
+# runs the workflow and checkout from the default branch with a write token,
+# so code from the pull request must never be checked out or run here.
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review]
+
+# Only used when the sos-bot app is not configured, e.g. on forks
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate sos-bot token
+        id: sos-bot
+        if: vars.SOS_BOT_CLIENT_ID != ''
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.SOS_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.SOS_BOT_PRIVATE_KEY }}
+          permission-contents: read
+          permission-issues: write
+          permission-pull-requests: write
+
+      - name: Checkout default branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Apply labels
+        env:
+          GITHUB_TOKEN: ${{ steps.sos-bot.outputs.token || github.token }}
+        run: python3 .github/scripts/sos_bot.py triage
