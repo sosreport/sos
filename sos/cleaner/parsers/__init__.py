@@ -152,7 +152,9 @@ class SoSCleanerParser():
         obfuscate filenames that have, for example, hostnames in them.
 
         Rather than try to regex match the string_data, just use the builtin
-        checks for substrings matching known obfuscated keys
+        checks for substrings matching known obfuscated keys, and then
+        substitute each present key as a whole token so that a key is never
+        replaced inside a longer key that contains it
 
         :param string_data: The line to be parsed
         :type string_data: ``str``
@@ -161,16 +163,20 @@ class SoSCleanerParser():
         :rtype: ``str``
         """
         if self.compile_regexes:
+            # items the static pattern matches in content, such as FQDNs,
+            # never get a compiled regex, so give the static pattern its
+            # chance first exactly as _parse_line() does for file content
+            string_data = self._parse_line(string_data)[0]
             for item, reg in self.mapping.get_matched_items(string_data):
                 if self.mapping.use_token_lookup or reg.search(string_data):
                     string_data = reg.sub(self.mapping.get(item), string_data)
         else:
             for k, ob in sorted(self.mapping.dataset.items(), reverse=True,
                                 key=lambda x: len(x[0])):
-                if k in self.mapping.skip_keys:
+                if k in self.mapping.skip_keys or k not in string_data:
                     continue
-                if k in string_data:
-                    string_data = string_data.replace(k, ob)
+                string_data = self.mapping.get_string_key_regex(k).sub(
+                    ob, string_data)
         return string_data
 
     def get_map_contents(self):

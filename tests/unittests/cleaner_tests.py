@@ -141,6 +141,12 @@ class CleanerMapTests(unittest.TestCase):
             self.assertFalse(
                 second.domain_name_in_loaded_domains('razor.ellingson.net'))
 
+    def test_hostname_dotted_regex_item_escaping(self):
+        reg = self.host_map.get_regex_result('192.168.7.100')
+        self.assertTrue(reg.search('ping 192.168.7.100 ok'))
+        self.assertTrue(reg.search('ping 192_168_7_100 ok'))
+        self.assertFalse(reg.search('ping 192x168x7x100 ok'))
+
     def test_hostname_counter_numeric_sort(self):
         # host9 sorts above host11 as a string; the counter must not
         # restart at 10 and hand out duplicates
@@ -255,6 +261,31 @@ class CleanerParserTests(unittest.TestCase):
         _test = self.ip_parser.parse_line(line)[0]
         self.assertEqual(line, _test)
 
+    def test_ip_parser_filename_boundary(self):
+        self.ip_parser.mapping.add('10.73.0.1')
+        for name in ('ip_neigh_10.73.0.100', 'ip_neigh_110.73.0.1',
+                     'ip_neigh_1.10.73.0.1'):
+            self.assertEqual(self.ip_parser.parse_string_for_keys(name),
+                             name)
+        for prefix, suffix in (('ip_', '-eth0'), ('ping_', '.txt')):
+            _test = self.ip_parser.parse_string_for_keys(
+                f'{prefix}10.73.0.1{suffix}'
+            )
+            self.assertNotIn('10.73.0.1', _test)
+            self.assertTrue(_test.startswith(prefix))
+            self.assertTrue(_test.endswith(suffix))
+
+    def test_mac_parser_filename_boundary(self):
+        self.mac_parser.mapping.add('aa:bb:cc:dd:ee:ff')
+        name = 'gibson_aa:bb:cc:dd:ee:ff0'
+        self.assertEqual(self.mac_parser.parse_string_for_keys(name), name)
+        _test = self.mac_parser.parse_string_for_keys(
+            'gibson_aa:bb:cc:dd:ee:ff.txt'
+        )
+        self.assertNotIn('aa:bb:cc:dd:ee:ff', _test)
+        self.assertTrue(_test.startswith('gibson_53:4f:53:'))
+        self.assertTrue(_test.endswith('.txt'))
+
     def test_mac_parser_valid_ipv4_line(self):
         line = 'foobar foo 13:24:35:46:57:68 bar barfoo'
         _test = self.mac_parser.parse_line(line)[0]
@@ -320,6 +351,16 @@ class CleanerParserTests(unittest.TestCase):
         _test = self.host_parser.parse_line(line)[0]
         self.assertFalse('soshost' in _test)
         self.assertFalse('sostestdomain' in _test)
+
+    def test_hostname_filename_fqdn_substituted(self):
+        fqdn = 'crashoverride.gibson.net'
+        ob_fqdn = self.host_parser.mapping.add(fqdn)
+        self.host_parser.generate_item_regexes()
+        self.assertNotIn('gibson', ob_fqdn)
+        _test = self.host_parser.parse_string_for_keys(f'messages-{fqdn}')
+        self.assertEqual(_test, f'messages-{ob_fqdn}')
+        _test = self.host_parser.parse_string_for_keys('crashoverride.log')
+        self.assertEqual(_test, ob_fqdn.split('.')[0] + '.log')
 
     def test_hostname_no_obfuscate_underscore(self):
         line = 'pam_env.so _why.not_'

@@ -60,9 +60,8 @@ class SoSHostnameMap(SoSMap):
         this is an FQDN or a straight domain, will include an underscore
         formatted regex as well.
         """
-        if '.' in item:
-            item = item.replace('.', '(\\.|_)')
-        return super().get_regex_result(item)
+        item = self._apply_word_boundaries(self.get_regex_escape(item))
+        return re.compile(item, re.I)
 
     def get_regex_fullword(self, item):
         """Override to use negative lookahead instead of positive lookahead,
