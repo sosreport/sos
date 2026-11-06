@@ -222,7 +222,7 @@ class SoSHostnameMap(SoSMap):
                 # unrelated bits and paths
                 ob_hostname = 'unknown'
             ob_domain = self.sanitize_domain(domain)
-            self.dataset[item] = ob_domain
+            self.insert_to_dataset(item, ob_domain)
             _fqdn = '.'.join([ob_hostname, ob_domain])
             if all(h.isupper() for h in host):
                 _fqdn = _fqdn.upper()
@@ -239,7 +239,7 @@ class SoSHostnameMap(SoSMap):
             ob_host = f"host{self.host_count}"
             self.hosts[hostname] = ob_host
             self.host_count += 1
-            self.dataset[hostname] = ob_host
+            self.insert_to_dataset(hostname, ob_host)
             self.add_regex_item(hostname)
         return self.dataset[hostname]
 
@@ -255,7 +255,7 @@ class SoSHostnameMap(SoSMap):
         dname = '.'.join(domain[0:-1]).lower()
         ob_domain = self._new_obfuscated_domain(dname)
         ob_domain = '.'.join([ob_domain, top_domain])
-        self.dataset['.'.join(domain)] = ob_domain
+        self.insert_to_dataset('.'.join(domain), ob_domain)
         return ob_domain
 
     def _new_obfuscated_domain(self, dname):

@@ -139,7 +139,7 @@ class SoSCleanerParser():
             count += len(matches)
             for match in matches:
                 match = match.strip()
-                if match in self.mapping.dataset.values():
+                if self.mapping.value_known(match):
                     continue
                 new_match = self.mapping.get(match)
                 if new_match != match:
