@@ -117,6 +117,24 @@ class CleanerMapTests(unittest.TestCase):
         _test = self.host_map.get('example.foobar.com')
         self.assertNotEqual(_test, 'example.foobar.com')
 
+    def test_hostname_counter_numeric_sort(self):
+        # host9 sorts above host11 as a string; the counter must not
+        # restart at 10 and hand out duplicates
+        self.host_map.hosts = {f'h{i}': f'host{i}' for i in range(12)}
+        self.host_map.set_initial_counts()
+        self.assertEqual(self.host_map.host_count, 12)
+        self.assertEqual(self.host_map.sanitize_short_name('zerocool'),
+                         'host12')
+
+    def test_hostname_domain_counter_numeric_sort(self):
+        self.host_map._domains = {
+            f'd{i}': f'obfuscateddomain{i}' for i in range(13)
+        }
+        self.host_map.set_initial_counts()
+        self.assertEqual(self.host_map.domain_count, 13)
+        self.assertEqual(self.host_map._new_obfuscated_domain('gibson'),
+                         'obfuscateddomain13')
+
     def test_keyword_single(self):
         _test = self.kw_map.get('foobar')
         self.assertEqual(_test, 'obfuscatedword0')
