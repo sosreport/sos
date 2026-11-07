@@ -189,6 +189,43 @@ class CleanerMapTests(unittest.TestCase):
             self.assertFalse(
                 second.domain_name_in_loaded_domains('razor.ellingson.net'))
 
+    def test_hostname_domain_match_on_label_boundary(self):
+        self.host_map.sanitize_item('gibson.net')
+        for name in ('us-agibson.map.gz', 'thegibson.ko.xz',
+                     'graphical-session.target.wants'):
+            self.assertEqual(self.host_map.get(name), name)
+        self.assertNotIn('map', self.host_map._domains)
+        self.assertNotEqual(self.host_map.get('plague.gibson.net'),
+                            'plague.gibson.net')
+        self.assertNotEqual(self.host_map.get('razor.sub.gibson.net'),
+                            'razor.sub.gibson.net')
+
+    def test_hostname_domain_match_requires_known_tld(self):
+        # with centos.org loaded, names that end on a 'centos' label but
+        # carry a different tail are file names or D-Bus names, not hosts
+        self.host_map.sanitize_item('centos.org')
+        self.host_map.sanitize_item('fedoraproject.org')
+        for name in ('chrony.conf.centos.tmpl', 'hosts.centos.tmpl',
+                     'org.fedoraproject.Anaconda.Boss',
+                     'dbus-org.fedoraproject.FirewallD1.service',
+                     'build.centos.txt'):
+            self.assertEqual(self.host_map.get(name), name)
+        self.assertNotIn('conf.centos', self.host_map._domains)
+        self.assertNotIn('org.fedoraproject', self.host_map._domains)
+        self.assertNotIn('org', self.host_map.hosts)
+        # the same labels with the loaded top-level domain are still hosts
+        self.assertNotEqual(self.host_map.get('mirrors.centos.org'),
+                            'mirrors.centos.org')
+        self.assertNotEqual(self.host_map.get('koji.stg.fedoraproject.org'),
+                            'koji.stg.fedoraproject.org')
+        # a domain seen with two top-level domains accepts both
+        self.host_map.sanitize_item('gibson.net')
+        self.host_map.sanitize_item('gibson.org')
+        self.assertNotEqual(self.host_map.get('plague.gibson.org'),
+                            'plague.gibson.org')
+        self.assertEqual(self.host_map.get('plague.gibson.io'),
+                         'plague.gibson.io')
+
     def test_hostname_dotted_regex_item_escaping(self):
         reg = self.host_map.get_regex_result('192.168.7.100')
         self.assertTrue(reg.search('ping 192.168.7.100 ok'))
