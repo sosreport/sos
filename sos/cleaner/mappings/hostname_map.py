@@ -52,6 +52,8 @@ class SoSHostnameMap(SoSMap):
         # per-instance state; as class attributes these dicts were shared by
         # every map in the process and leaked domains between instances
         self._domains = {}
+        # top-level domains each loaded domain has been seen with
+        self._domain_tlds = {}
         self.hosts = {}
         super().__init__(*args, **kwargs)
 
@@ -120,14 +122,22 @@ class SoSHostnameMap(SoSMap):
         if domain in self._domains:
             return True
         host = domain.split('.')
-        no_tld = '.'.join(domain.split('.')[0:-1])
+        no_tld = '.'.join(host[0:-1])
+        tld = host[-1]
         if len(host) == 1:
             # don't block on host's shortname
             return host[0] in self.hosts
         # peel one dot-segment at a time from the right until a known domain
-        # matches or no segments remain
+        # matches on a label boundary or no segments remain, so that a name
+        # such as 'us-acentos.map.gz' does not match a loaded 'centos.org'.
+        # The candidate must also carry a top-level domain the loaded domain
+        # was seen with: 'chrony.conf.centos.tmpl' is a file name, not a host
+        # in 'centos.org', and 'org.fedoraproject.Anaconda.Boss' is a D-Bus
+        # name, not a host in 'fedoraproject.org'
         while no_tld:
-            if any(no_tld.endswith(_d) for _d in self._domains):
+            if any((no_tld == _d or no_tld.endswith(f'.{_d}'))
+                   and tld in self._domain_tlds.get(_d, ())
+                   for _d in self._domains):
                 return True
             dot = no_tld.rfind('.')
             if dot < 0:
@@ -254,6 +264,7 @@ class SoSHostnameMap(SoSMap):
         top_domain = domain[-1].lower()
         dname = '.'.join(domain[0:-1]).lower()
         ob_domain = self._new_obfuscated_domain(dname)
+        self._domain_tlds.setdefault(dname, set()).add(top_domain)
         ob_domain = '.'.join([ob_domain, top_domain])
         self.insert_to_dataset('.'.join(domain), ob_domain)
         return ob_domain
