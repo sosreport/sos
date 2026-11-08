@@ -1577,7 +1577,8 @@ class StrictTokenisationTests(unittest.TestCase):
             m.add('secret')
             m.generate_compiled_regexes()
 
-        # Hostname maps -- not use_token_lookup, match_full_words_only=True
+        # Hostname maps -- use_token_lookup with strict_token_lookup,
+        # match_full_words_only=True
         self.host_strict = SoSHostnameMap(workdir, strict_tokenisation=True)
         self.host_nonstrict = SoSHostnameMap(
             workdir, strict_tokenisation=False)
@@ -1673,22 +1674,28 @@ class StrictTokenisationTests(unittest.TestCase):
         self.assertNotRegex('notsecrethere', reg_n)
 
     # ------------------------------------------------------------------
-    # C. Hostname map compiled_search
+    # C. Hostname map token lookup
     # ------------------------------------------------------------------
 
-    def test_strict_hostname_compiled_search_uri_encoded(self):
-        """Strict mode finds a hostname immediately after a %XX sequence."""
-        self.assertTrue(
-            self.host_strict.compiled_search.search('%22secret.example.com'),
-            'compiled_search should match hostname '
-            'preceded by %XX in strict mode')
+    def test_strict_hostname_token_lookup_uri_encoded(self):
+        """Strict mode finds a short hostname immediately after a %XX
+        sequence, and its regex matches there; non-strict mode does not,
+        matching the plain word-boundary regex it substitutes with."""
+        line = '%22secret%20'
+        strict = dict(self.host_strict.get_matched_items(line))
+        self.assertIn('secret', strict,
+                      'token lookup should find a hostname preceded by %XX '
+                      'in strict mode')
+        self.assertTrue(strict['secret'].search(line))
+        nonstrict = dict(self.host_nonstrict.get_matched_items(line))
+        self.assertNotIn('secret', nonstrict)
 
-    def test_both_modes_hostname_compiled_search_plain_boundary(self):
+    def test_both_modes_hostname_token_lookup_plain_boundary(self):
         """Both modes find a hostname at a plain word boundary."""
-        self.assertTrue(
-            self.host_strict.compiled_search.search('secret.example.com '))
-        self.assertTrue(
-            self.host_nonstrict.compiled_search.search('secret.example.com '))
+        for _map in (self.host_strict, self.host_nonstrict):
+            found = dict(_map.get_matched_items('secret.example.com '))
+            self.assertIn('secret', found)
+            self.assertTrue(found['secret'].search('secret.example.com '))
 
     # ------------------------------------------------------------------
     # D. Parser integration (end-to-end)
