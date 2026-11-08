@@ -35,6 +35,11 @@ class SoSMap():
     # for the pre-filter in _parse_line_with_compiled_regexes.
     # Suitable for parsers with simple word items (username, keyword).
     use_token_lookup = False
+    # When True together with use_token_lookup, honour strict_tokenisation
+    # in the token splitter as well, so the pre-filter finds the same items
+    # the strict word-boundary regexes would match, e.g. a hostname that
+    # directly follows a %XX escape sequence.
+    strict_token_lookup = False
 
     _token_split_re = re.compile(r'[^a-z0-9]+')
     # Strict version treats complete escape sequences as delimiters
@@ -71,7 +76,7 @@ class SoSMap():
         # could be "administrator" corrupted, not "admin" as a separate word).
         # Strict word boundaries are still enforced via regex matching for
         # correctly delimited words like "%1Badmin%20" or "#033admin".
-        if self.use_token_lookup:
+        if self.use_token_lookup and not self.strict_token_lookup:
             # Token lookup: always use basic splitting (conservative)
             self._token_splitter = self._token_split_re
         else:

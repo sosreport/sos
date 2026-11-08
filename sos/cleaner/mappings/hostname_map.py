@@ -45,6 +45,12 @@ class SoSHostnameMap(SoSMap):
 
     ignore_short_items = True
     match_full_words_only = True
+    # short names are found by token lookup rather than by running one
+    # compiled regex per known host over every line; the per-item loop
+    # made the parser linear in the number of hosts and dominated the
+    # wall-clock on archives with thousands of them
+    use_token_lookup = True
+    strict_token_lookup = True
     host_count = 0
     domain_count = 0
 
