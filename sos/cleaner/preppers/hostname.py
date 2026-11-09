@@ -408,7 +408,7 @@ class HostnamePrepper(SoSPrepper):
 
         _hosts = archive.get_file_content('etc/hosts')
         for line in _hosts.splitlines():
-            if line.startswith('#') or 'localhost' in line:
+            if line.startswith('#'):
                 continue
             # strip inline comments before processing
             line = line.split('#')[0].strip()
@@ -416,6 +416,9 @@ class HostnamePrepper(SoSPrepper):
                 continue
             hostln = line.split()[1:]
             for host in hostln:
+                if host.split('.')[0] in ('localhost', 'localhost4',
+                                          'localhost6'):
+                    continue
                 if len(host.split('.')) == 1:
                     self.regex_items['hostname'].add(host)
                 # unconditionally append host to items to avoid
