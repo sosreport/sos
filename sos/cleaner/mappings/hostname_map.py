@@ -47,8 +47,13 @@ class SoSHostnameMap(SoSMap):
     match_full_words_only = True
     host_count = 0
     domain_count = 0
-    _domains = {}
-    hosts = {}
+
+    def __init__(self, *args, **kwargs):
+        # per-instance state; as class attributes these dicts were shared by
+        # every map in the process and leaked domains between instances
+        self._domains = {}
+        self.hosts = {}
+        super().__init__(*args, **kwargs)
 
     def get_regex_result(self, item):
         """Override the base get_regex_result() to provide a regex that, if
