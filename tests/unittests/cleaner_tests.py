@@ -6,6 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import tempfile
 import unittest
 from ipaddress import ip_interface
 from os.path import join
@@ -110,12 +111,34 @@ class CleanerMapTests(unittest.TestCase):
         self.assertNotEqual(_test, 'redhat.com')
 
     def test_hostname_concurrently_obfuscate_non_loaded_domain(self):
+        # the domain was added through another map instance in setUp;
+        # a map learns of it the way a concurrent worker does, by
+        # reloading the shared cache directory
+        self.host_map.load_entries()
         _test = self.host_map.get('foobar.com')
         self.assertNotEqual(_test, 'foobar.com')
 
     def test_hostname_concurrently_obfuscate_non_loaded_fqdn(self):
+        # the domain was added through another map instance in setUp;
+        # a map learns of it the way a concurrent worker does, by
+        # reloading the shared cache directory
+        self.host_map.load_entries()
         _test = self.host_map.get('example.foobar.com')
         self.assertNotEqual(_test, 'example.foobar.com')
+
+    def test_hostname_map_state_is_per_instance(self):
+        # domains and hosts learned by one map must not leak into another
+        # map in the same process through shared class attributes
+        with tempfile.TemporaryDirectory() as first_dir, \
+                tempfile.TemporaryDirectory() as second_dir:
+            first = SoSHostnameMap(first_dir)
+            first.sanitize_item('plague.ellingson.net')
+            second = SoSHostnameMap(second_dir)
+            self.assertIn('ellingson', first._domains)
+            self.assertNotIn('ellingson', second._domains)
+            self.assertNotIn('plague', second.hosts)
+            self.assertFalse(
+                second.domain_name_in_loaded_domains('razor.ellingson.net'))
 
     def test_hostname_counter_numeric_sort(self):
         # host9 sorts above host11 as a string; the counter must not
@@ -1071,7 +1094,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
     def _write_tar(self, members):
         import io
         import tarfile
-        import tempfile
         with tempfile.NamedTemporaryFile(
                 suffix='.tar', delete=False) as handle:
             tar_path = handle.name
@@ -1094,7 +1116,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
 
     def test_absolute_symlink_does_not_write_outside_dest(self):
         import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         victim_dir = tempfile.mkdtemp()
@@ -1120,7 +1141,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
         """Debian 12 / Python 3.11.2 ignores TarFile.extraction_filter."""
         import os
         import tarfile
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         orig_extractall = tarfile.TarFile.extractall
@@ -1148,7 +1168,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
 
     def test_in_tree_relative_symlink_is_kept(self):
         import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         tar_path = self._write_tar([
@@ -1168,7 +1187,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
 
     def test_non_root_skips_device_and_keeps_later_files(self):
         import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         tar_path = self._write_tar([
