@@ -32,7 +32,7 @@ class SoSHostnameMap(SoSMap):
     ignore_matches = [
         'localhost',
         '.*localdomain.*',
-        '^com..*'
+        r'^com\..*'
     ]
 
     skip_keys = [
