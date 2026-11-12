@@ -6,12 +6,11 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import tempfile
 import unittest
 from ipaddress import ip_interface
-from os.path import join
 from unittest import mock
 
-import sos.policies
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
@@ -34,8 +33,10 @@ from sos.options import SoSOptions
 class CleanerMapTests(unittest.TestCase):
 
     def setUp(self):
-        workdir = join(sos.policies.load().get_tmp_dir(None),
-                       'sos_avocado_testing')
+        # pylint: disable-next=consider-using-with
+        workdir_obj = tempfile.TemporaryDirectory()
+        self.addCleanup(workdir_obj.cleanup)
+        workdir = workdir_obj.name
         self.mac_map = SoSMacMap(workdir)
         self.ip_map = SoSIPMap(workdir)
         self.host_map = SoSHostnameMap(workdir)
@@ -182,8 +183,10 @@ class CleanerMapTests(unittest.TestCase):
 class CleanerParserTests(unittest.TestCase):
 
     def setUp(self):
-        workdir = join(sos.policies.load().get_tmp_dir(None),
-                       'sos_avocado_testing')
+        # pylint: disable-next=consider-using-with
+        workdir_obj = tempfile.TemporaryDirectory()
+        self.addCleanup(workdir_obj.cleanup)
+        workdir = workdir_obj.name
         self.ip_parser = SoSIPParser(config={}, workdir=workdir)
         self.ipv6_parser = SoSIPv6Parser(config={}, workdir=workdir)
         self.mac_parser = SoSMacParser(config={}, workdir=workdir)
@@ -439,8 +442,10 @@ class PrepperTests(unittest.TestCase):
     def test_hostname_prepper_etc_hosts_short_name_obfuscated(self):
         """Verify that short hostnames added from /etc/hosts are actually
         obfuscated during file parsing."""
-        workdir = join(sos.policies.load().get_tmp_dir(None),
-                       'sos_avocado_testing')
+        # pylint: disable-next=consider-using-with
+        workdir_obj = tempfile.TemporaryDirectory()
+        self.addCleanup(workdir_obj.cleanup)
+        workdir = workdir_obj.name
 
         class MockArchive:
             is_sos = True
@@ -537,8 +542,10 @@ class PrepperTests(unittest.TestCase):
         self.assertTrue(expected.issubset(set(items)))
 
     def test_hostname_prepper_sssd_conf_values_are_obfuscated(self):
-        workdir = join(sos.policies.load().get_tmp_dir(None),
-                       'sos_avocado_testing')
+        # pylint: disable-next=consider-using-with
+        workdir_obj = tempfile.TemporaryDirectory()
+        self.addCleanup(workdir_obj.cleanup)
+        workdir = workdir_obj.name
 
         class MockArchive:
             is_sos = True
@@ -578,8 +585,10 @@ class PrepperTests(unittest.TestCase):
     def test_hostname_prepper_sssd_fqdn_fully_obfuscated(self):
         """Verify that an FQDN from sssd.conf domains= is fully obfuscated,
         not just its hostname part."""
-        workdir = join(sos.policies.load().get_tmp_dir(None),
-                       'sos_avocado_testing')
+        # pylint: disable-next=consider-using-with
+        workdir_obj = tempfile.TemporaryDirectory()
+        self.addCleanup(workdir_obj.cleanup)
+        workdir = workdir_obj.name
 
         class MockArchive:
             is_sos = True
@@ -965,8 +974,10 @@ class PrepperTests(unittest.TestCase):
     def test_username_prepper_sssd_conf_values_are_obfuscated(self):
         """Login names sourced from SSSD config must actually be obfuscated
         by the username parser."""
-        workdir = join(sos.policies.load().get_tmp_dir(None),
-                       'sos_avocado_testing')
+        # pylint: disable-next=consider-using-with
+        workdir_obj = tempfile.TemporaryDirectory()
+        self.addCleanup(workdir_obj.cleanup)
+        workdir = workdir_obj.name
 
         class MockArchive:
             is_sos = True
@@ -1053,7 +1064,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
     def _write_tar(self, members):
         import io
         import tarfile
-        import tempfile
         with tempfile.NamedTemporaryFile(
                 suffix='.tar', delete=False) as handle:
             tar_path = handle.name
@@ -1076,7 +1086,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
 
     def test_absolute_symlink_does_not_write_outside_dest(self):
         import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         victim_dir = tempfile.mkdtemp()
@@ -1102,7 +1111,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
         """Debian 12 / Python 3.11.2 ignores TarFile.extraction_filter."""
         import os
         import tarfile
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         orig_extractall = tarfile.TarFile.extractall
@@ -1130,7 +1138,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
 
     def test_in_tree_relative_symlink_is_kept(self):
         import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         tar_path = self._write_tar([
@@ -1150,7 +1157,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
 
     def test_non_root_skips_device_and_keeps_later_files(self):
         import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         tar_path = self._write_tar([
@@ -1185,8 +1191,10 @@ class StrictTokenisationTests(unittest.TestCase):
     """
 
     def setUp(self):
-        workdir = join(sos.policies.load().get_tmp_dir(None),
-                       'sos_strict_testing')
+        # pylint: disable-next=consider-using-with
+        workdir_obj = tempfile.TemporaryDirectory()
+        self.addCleanup(workdir_obj.cleanup)
+        workdir = workdir_obj.name
 
         # Keyword maps -- use_token_lookup=True, match_full_words_only=True
         self.kw_strict = SoSKeywordMap(workdir, strict_tokenisation=True)
