@@ -29,7 +29,7 @@ class SoSIPv6Parser(SoSCleanerParser):
         # for validating an IPv6 string. However, this is modified to begin and
         # end with a negative lookbehind to ensure that a substring of 'ed::'
         # is not extracted from a log message such as 'SomeFuncUsed::ADiffFunc'
-        # that come components may log with. Further, we optionally try to grab
+        # that some components may log with. Further, we optionally try to grab
         # a trailing prefix for the network bits.
         r"(?<![:.\-\w])"
         r"((([0-9a-fA-F]{1,4})(:[0-9a-fA-F]{1,4}){7})|"

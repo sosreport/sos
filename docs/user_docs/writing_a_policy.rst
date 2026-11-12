@@ -117,7 +117,7 @@ class. Many of these methods have usable defaults in the Superclass.
 
 This method is responsible for determining if the process owner is a
 superuser. The default checks the user’s uid (on unix). This method must
-be overriden for systems where testing os.getuid for zero is not
+be overridden for systems where testing os.getuid for zero is not
 sufficient.
 
 .. code:: python

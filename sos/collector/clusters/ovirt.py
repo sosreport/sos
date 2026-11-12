@@ -19,7 +19,7 @@ ENGINE_KEY = '/etc/pki/ovirt-engine/keys/engine_id_rsa'
 class ovirt(Cluster):
     """
     This cluster profile is for the oVirt/RHV project which provides for a
-    virtualization cluster built ontop of KVM.
+    virtualization cluster built on top of KVM.
 
     Nodes enumerated will be hypervisors within the environment, not virtual
     machines running on those hypervisors. By default, ALL hypervisors within

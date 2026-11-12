@@ -43,7 +43,7 @@ class RedHatPolicy(LinuxPolicy):
     sos_pkg_name = 'sos'
     sos_bin_path = '/usr/sbin'
     # These endpoints are specific to RHEL and should not
-    # be inherted by the non-RHEL distributions that subclass
+    # be inherited by the non-RHEL distributions that subclass
     # RedHatPolicy.
     client_identifier_url = None
     token_endpoint = None

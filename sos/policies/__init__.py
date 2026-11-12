@@ -177,7 +177,7 @@ any third party.
     @classmethod
     def check_primary(cls, remote=''):  # pylint: disable=unused-argument
         """
-        Returns False by defautl; override in subclasses that support
+        Returns False by default; override in subclasses that support
         primary identity detection separated from check().
         """
         return False
