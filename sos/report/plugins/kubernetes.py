@@ -338,7 +338,7 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
         if self.is_installed('microk8s'):
             self.kube_cmd = 'microk8s kubectl'
         elif self.is_installed('k8s'):
-            self.kube_cmd = 'k8s kubectl'
+            self.kube_cmd = '/snap/k8s/current/bin/kubectl'
             self._canonical_kubernetes()
 
         self.config_files.extend([
