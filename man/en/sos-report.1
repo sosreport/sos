@@ -272,7 +272,7 @@ Directories not collected as a directory are skipped. May be repeated.
 Run commands even if they can change the system (e.g. load kernel modules).
 .TP
 .B \--low-priority
-Set sos to execute as a low priority process so that is does not interfere with
+Set sos to execute as a low priority process so that it does not interfere with
 other processes running on the system. Specific distributions may set their own
 constraints, but by default this involves setting process niceness to 19 and, if
 available, setting an idle IO class via ionice.
@@ -483,7 +483,7 @@ variable. If this variable is set, then no username prompt will occur and --batc
 may be used provided all other required values (case number, upload password)
 are provided.
 
-This option is ignored when uploading to the Red Customer Portal or Red Hat Secure FTP server in favour of web token authentication.
+This option is ignored when uploading to the Red Hat Customer Portal or Red Hat Secure FTP server in favour of web token authentication.
 .TP
 .B \-\-upload-pass PASS
 Specify the password to use for authentication with the destination server.
@@ -502,7 +502,7 @@ You also have the option of providing this value via the SOSUPLOADPASSWORD envir
 variable. If this variable is set, then no password prompt will occur and --batch may
 be used provided all other required values (case number, upload user) are provided.
 
-This option is ignored when uploading to the Red Customer Portal or Red Hat Secure FTP server in favour of web token authentication.
+This option is ignored when uploading to the Red Hat Customer Portal or Red Hat Secure FTP server in favour of web token authentication.
 .TP
 .B \--upload-directory DIR
 Specify a directory to upload to, if one is not specified by a vendor default location

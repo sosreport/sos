@@ -69,7 +69,8 @@ class ExpectedDefaultPluginsTest(StageOneReportTest):
     sos_cmd = ' '
 
     def test_default_plugins_enabled(self):
-        """These plugins should run on all supported hosts by default everytime
+        """These plugins should run on all supported hosts by default
+        every time
         """
         self.assertPluginIncluded([
             'date',

@@ -16,8 +16,8 @@ class kubernetes(Cluster):
     """
     The kubernetes cluster profile is intended to be used on kubernetes
     clusters built from the upstream/source kubernetes (k8s) project. It is
-    not intended for use with other projects or platforms that are built ontop
-    of kubernetes.
+    not intended for use with other projects or platforms that are built on
+    top of kubernetes.
     """
     cluster_name = 'Community Kubernetes'
     packages = ('kubernetes-master',)

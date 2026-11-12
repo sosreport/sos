@@ -684,7 +684,7 @@ class ProgressBar:
         )
         cols = shutil.get_terminal_size(fallback=(80, 24)).columns
         # Keeping bar width between 5 and 40 based on the size of the terminal
-        # minus the size of prefix, suffix and surounding "[]" brackets
+        # minus the size of prefix, suffix and surrounding "[]" brackets
         self.bar_width = max(5, min(40, cols - len(prefix) - suffix_width - 2))
         self._last_width = 0
 

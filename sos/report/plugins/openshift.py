@@ -14,7 +14,7 @@ from sos.report.plugins import Plugin, RedHatPlugin, PluginOpt
 
 class Openshift(Plugin, RedHatPlugin):
     """This is the plugin for OCP 4.x collections. While this product is still
-    built ontop of kubernetes, there is enough difference in the collection
+    built on top of kubernetes, there is enough difference in the collection
     requirements and approach to warrant a separate plugin as opposed to
     further extending the kubernetes plugin (or the OCP 3.x extensions included
     in the Red Hat version of the kube plugin).

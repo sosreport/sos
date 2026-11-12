@@ -204,7 +204,7 @@ this down:
    you can include that plugin here. These plugins should be written to
    the same directory as the test file - ideally, in a dedicated subdir
    within the ``tests/`` tree, and the name(s) in this list should be
-   the filename without the ``.py`` extention.
+   the filename without the ``.py`` extension.
 
 My test only applies to a specific distribution, how do I prevent it from failing on other distributions?
 ---------------------------------------------------------------------------------------------------------
