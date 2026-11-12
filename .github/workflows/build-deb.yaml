@@ -9,6 +9,18 @@ on:
       distro_name:
         required: true
         type: string
+      ref:
+        required: false
+        type: string
+        default: ''
+      for_release:
+        required: false
+        type: boolean
+        default: false
+      version_suffix:
+        required: false
+        type: string
+        default: ''
 jobs:
   build:
     runs-on: ${{ inputs.distro_image == '' && inputs.distro_name || 'ubuntu-latest' }}
@@ -34,6 +46,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           path: sos
+          ref: ${{ inputs.ref }}
 
       - name: Install dependencies
         working-directory: ./sos
@@ -41,6 +54,16 @@ jobs:
           sudo apt update
           sudo apt -y install devscripts equivs
           sudo apt -y build-dep .
+
+      - name: Set Version Suffix
+        if: ${{ inputs.version_suffix != '' }}
+        working-directory: ./sos
+        env:
+          DEBFULLNAME: No Reply
+          DEBEMAIL: noreply@canonical.com
+        run: |
+          dch -v "$(dpkg-parsechangelog -S Version).${{ inputs.version_suffix }}" \
+            -D unstable --force-distribution "Nightly build"
 
       - name: Create DEB Package
         working-directory: ./sos
@@ -50,12 +73,34 @@ jobs:
           mv ../*.deb ../sos-${{ inputs.distro_name }}.deb
 
       - name: Upload Distro Artifact
+        if: ${{ !inputs.for_release }}
         uses: actions/upload-artifact@v7
         with:
           name: sos-${{ inputs.distro_name }}.deb
           path: sos-${{ inputs.distro_name }}.deb
           retention-days: 1
 
+      # Debs are named identically across distros, so the distro is added.
+      # Use os-release rather than distro_name, which may be an alias such
+      # as ubuntu-latest
+      - name: Prepare Release Artifact
+        if: ${{ inputs.for_release }}
+        run: |
+          DEB=sos-${{ inputs.distro_name }}.deb
+          DEB_VERSION=$(dpkg-deb -f "$DEB" Version)
+          DISTRO=$(. /etc/os-release && echo "${ID}-${VERSION_ID}")
+          mkdir release-assets
+          cp "$DEB" "release-assets/$(dpkg-deb -f "$DEB" Package)_${DEB_VERSION#*:}_${DISTRO}_$(dpkg-deb -f "$DEB" Architecture).deb"
+
+      - name: Upload Release Artifact
+        if: ${{ inputs.for_release }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ inputs.distro_name }}-deb
+          path: release-assets/
+          retention-days: 1
+          if-no-files-found: error
+
       - name: Post-Build Cleanup
         if: always()
-        run: rm -f *.deb
+        run: rm -rf *.deb release-assets

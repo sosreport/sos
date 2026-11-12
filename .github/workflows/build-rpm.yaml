@@ -13,6 +13,18 @@ on:
       distro_name:
         required: true
         type: string
+      ref:
+        required: false
+        type: string
+        default: ''
+      for_release:
+        required: false
+        type: boolean
+        default: false
+      version_suffix:
+        required: false
+        type: string
+        default: ''
 jobs:
   build:
     runs-on: 'ubuntu-latest'
@@ -23,6 +35,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Install dependencies
         run: |
@@ -30,6 +44,12 @@ jobs:
           dnf -y install rpm-build rpmdevtools gettext python3-devel python3-pexpect python3-pyyaml python3-setuptools
           dnf -y install python3-wheel || true
           dnf5 -y install 'dnf5-command(builddep)' || true
+
+      - name: Set Version Suffix
+        if: ${{ inputs.version_suffix != '' }}
+        run: |
+          sed -i -E 's/^(Release:\s*[0-9]+)/\1.${{ inputs.version_suffix }}/' sos.spec
+          grep -F 'Release: 1.${{ inputs.version_suffix }}%{?dist}' sos.spec
 
       - name: Create RPM
         run: |
@@ -42,12 +62,29 @@ jobs:
           mv /github/home/rpmbuild/RPMS/noarch/sos-*.rpm sos-${{ inputs.distro_name }}.rpm
 
       - name: Upload Distro Artifact
+        if: ${{ !inputs.for_release }}
         uses: actions/upload-artifact@v7
         with:
           name: sos-${{ inputs.distro_name }}.rpm
           path: sos-${{ inputs.distro_name }}.rpm
           retention-days: 1
 
+      - name: Prepare Release Artifact
+        if: ${{ inputs.for_release }}
+        run: |
+          RPM=sos-${{ inputs.distro_name }}.rpm
+          mkdir release-assets
+          cp "$RPM" "release-assets/$(rpm -qp --qf '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}.rpm' "$RPM")"
+
+      - name: Upload Release Artifact
+        if: ${{ inputs.for_release }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ inputs.distro_name }}-rpm
+          path: release-assets/
+          retention-days: 1
+          if-no-files-found: error
+
       - name: Post-Build Cleanup
         if: always()
-        run: rm -f *.rpm
+        run: rm -rf *.rpm release-assets
