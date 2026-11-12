@@ -276,13 +276,19 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         write this value (``str`` is encoded as UTF-8, ``bytes`` is sent
         as-is). If ``None``, the child inherits the parent's stdin.
     """
+
+    # Track whether we're using runuser/su (which handles user switching)
+    # or preexec_fn (for backward compatibility when runuser/su not available)
+    use_preexec_for_runas = False
+    pwd_user = None
+
     # Change root or cwd for child only. Exceptions in the prexec_fn
     # closure are caught in the parent (chroot and chdir are bound from
     # the enclosing scope).
     def _child_prep_fn():
         if chroot and chroot != '/':
             os.chroot(chroot)
-        if runas:
+        if use_preexec_for_runas:
             # re-use pwd_user from the outer scope to avoid redundant lookups
             os.initgroups(runas, pwd_user.pw_gid)
             os.setgid(pwd_user.pw_gid)
@@ -292,7 +298,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         # no explicit chdir was provided.
         if chdir:
             os.chdir(chdir)
-        elif runas:
+        elif use_preexec_for_runas:
             os.chdir(pwd_user.pw_dir)
 
     def _check_poller(proc):
@@ -307,24 +313,50 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         except KeyError:  # no such user
             return {'status': 127, 'output': "", 'truncated': ''}
 
-        # handle env=None case to prevent AttributeError on None.update()
-        if env is None:
-            env = {}
+        # Use 'runuser' or 'su' with -l flag to run command as user with login
+        # environment This properly loads the user's profile (.bashrc,
+        # .bash_profile, etc.) which sets PATH, PYTHONPATH, and other
+        # environment variables
 
-        env.update({
-            'HOME': pwd_user.pw_dir,
-            'LOGNAME': runas,
-            'PWD': pwd_user.pw_dir,
-            'USER': runas,
-            # XDG_RUNTIME_DIR is required for rootless podman to access
-            # user-specific runtime files and sockets
-            'XDG_RUNTIME_DIR': f"/run/user/{pwd_user.pw_uid}",
-            # DBUS_SESSION_BUS_ADDRESS is required for rootless podman
-            'DBUS_SESSION_BUS_ADDRESS':
-                f"unix:path=/run/user/{pwd_user.pw_uid}/bus"
-        })
+        # Prefer 'runuser' if available (doesn't require password, designed
+        # for root use) Fall back to 'su' if runuser is not available
+        if is_executable("runuser"):
+            # runuser -l <user> -c '<command>'
+            # -l makes it a login shell (loads profile)
+            # -c executes the command
+            command = (f"runuser -l {shlex.quote(runas)} "
+                       f"-c {shlex.quote(command)}")
+            # runuser handles user switching, so don't use preexec_fn for that
+            use_preexec_for_runas = False
+        elif is_executable("su"):
+            # su -l <user> -c '<command>'
+            command = f"su -l {shlex.quote(runas)} -c {shlex.quote(command)}"
+            # su handles user switching, so don't use preexec_fn for that
+            use_preexec_for_runas = False
+        else:
+            # If neither runuser nor su is available, fall back to the old
+            # behavior but this is unlikely on any Unix system
+            use_preexec_for_runas = True
+
+            # handle env=None case to prevent AttributeError on None.update()
+            if env is None:
+                env = {}
+
+            env.update({
+                'HOME': pwd_user.pw_dir,
+                'LOGNAME': runas,
+                'PWD': pwd_user.pw_dir,
+                'USER': runas,
+                # XDG_RUNTIME_DIR is required for rootless podman to access
+                # user-specific runtime files and sockets
+                'XDG_RUNTIME_DIR': f"/run/user/{pwd_user.pw_uid}",
+                # DBUS_SESSION_BUS_ADDRESS is required for rootless podman
+                'DBUS_SESSION_BUS_ADDRESS':
+                    f"unix:path=/run/user/{pwd_user.pw_uid}/bus"
+            })
 
     cmd_env = os.environ.copy()
+
     # ensure consistent locale for collected command output
     cmd_env['LC_ALL'] = 'C.UTF-8'
     # optionally add an environment change for the command
