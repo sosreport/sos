@@ -356,7 +356,10 @@ class UbuntuKubernetes(Kubernetes, UbuntuPlugin, DebianPlugin):
                      'snap.k8s.kube-proxy.service',
                      'snap.k8s.kube-scheduler.service',
                      'snap.k8s.kubelet.service']
-        self.add_journal(units=k8s_units)
+        # Save one file per unit and set a reasonable timeout so that if any
+        # take too long it does not cause the rest to fail.
+        for unit in k8s_units:
+            self.add_journal(units=unit, timeout=600)
 
         k8s_cmd = "k8s"
         k8s_common = "/var/snap/k8s/common"
