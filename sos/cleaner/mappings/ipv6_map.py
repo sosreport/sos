@@ -48,11 +48,12 @@ class SoSIPv6Map(SoSMap):
             _orig = ipaddress.ip_network(network)
             _obfuscated = config['networks'][network]['obfuscated']
             _net = self._get_network(_orig, _obfuscated)
-            self.dataset[_net.original_address] = _net.obfuscated_address
+            self.insert_to_dataset(_net.original_address,
+                                   _net.obfuscated_address)
             for host in config['networks'][network]['hosts']:
                 _ob_host = config['networks'][network]['hosts'][host]
                 _net.add_obfuscated_host_address(host, _ob_host)
-                self.dataset[host] = _ob_host
+                self.insert_to_dataset(host, _ob_host)
 
     def sanitize_item(self, item):
         _prefix = item.split('/')[-1] if '/' in item else ''
@@ -78,7 +79,8 @@ class SoSIPv6Map(SoSMap):
                 return item
             _net = self._get_network(_addr)
             if _net.network_addr not in self.dataset:
-                self.dataset[_net.original_address] = _net.obfuscated_address
+                self.insert_to_dataset(_net.original_address,
+                                       _net.obfuscated_address)
             # then, get the address within the network
             _hostaddr = ipaddress.ip_address(_ipaddr.split('/')[0])
             _ipaddr = _net.obfuscate_host_address(_hostaddr)

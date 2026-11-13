@@ -45,19 +45,31 @@ class SoSHostnameMap(SoSMap):
 
     ignore_short_items = True
     match_full_words_only = True
+    # short names are found by token lookup rather than by running one
+    # compiled regex per known host over every line; the per-item loop
+    # made the parser linear in the number of hosts and dominated the
+    # wall-clock on archives with thousands of them
+    use_token_lookup = True
+    strict_token_lookup = True
     host_count = 0
     domain_count = 0
-    _domains = {}
-    hosts = {}
+
+    def __init__(self, *args, **kwargs):
+        # per-instance state; as class attributes these dicts were shared by
+        # every map in the process and leaked domains between instances
+        self._domains = {}
+        # top-level domains each loaded domain has been seen with
+        self._domain_tlds = {}
+        self.hosts = {}
+        super().__init__(*args, **kwargs)
 
     def get_regex_result(self, item):
         """Override the base get_regex_result() to provide a regex that, if
         this is an FQDN or a straight domain, will include an underscore
         formatted regex as well.
         """
-        if '.' in item:
-            item = item.replace('.', '(\\.|_)')
-        return super().get_regex_result(item)
+        item = self._apply_word_boundaries(self.get_regex_escape(item))
+        return re.compile(item, re.I)
 
     def get_regex_fullword(self, item):
         """Override to use negative lookahead instead of positive lookahead,
@@ -89,25 +101,25 @@ class SoSHostnameMap(SoSMap):
             item = re.escape(item)
         return item
 
+    _host_re = re.compile(r'^host(\d+)$')
+    _domain_re = re.compile(r'^obfuscateddomain(\d+)')
+
     def set_initial_counts(self):
         """Set the initial counter for host and domain obfuscation numbers
         based on what is already present in the mapping.
         """
-        # hostnames/short names
-        try:
-            h = sorted(self.hosts.values(), reverse=True)[0].split('host')[1]
-            self.host_count = int(h) + 1
-        except IndexError:
-            # no hosts loaded yet
-            pass
+        host_max = max((int(m.group(1)) for m in
+                        (self._host_re.match(v) for v in self.hosts.values())
+                        if m), default=None)
+        if host_max is not None:
+            self.host_count = host_max + 1
 
-        # domain names
-        try:
-            d = sorted(self._domains.values(), reverse=True)[0].split('domain')
-            self.domain_count = int(d[1].split('.')[0]) + 1
-        except IndexError:
-            # no domains loaded yet
-            pass
+        dom_max = max((int(m.group(1)) for m in
+                       (self._domain_re.match(v)
+                        for v in self._domains.values())
+                       if m), default=None)
+        if dom_max is not None:
+            self.domain_count = dom_max + 1
 
     def domain_name_in_loaded_domains(self, domain):
         """Check if a potential domain is in one of the domains we've loaded
@@ -116,14 +128,22 @@ class SoSHostnameMap(SoSMap):
         if domain in self._domains:
             return True
         host = domain.split('.')
-        no_tld = '.'.join(domain.split('.')[0:-1])
+        no_tld = '.'.join(host[0:-1])
+        tld = host[-1]
         if len(host) == 1:
             # don't block on host's shortname
             return host[0] in self.hosts
         # peel one dot-segment at a time from the right until a known domain
-        # matches or no segments remain
+        # matches on a label boundary or no segments remain, so that a name
+        # such as 'us-acentos.map.gz' does not match a loaded 'centos.org'.
+        # The candidate must also carry a top-level domain the loaded domain
+        # was seen with: 'chrony.conf.centos.tmpl' is a file name, not a host
+        # in 'centos.org', and 'org.fedoraproject.Anaconda.Boss' is a D-Bus
+        # name, not a host in 'fedoraproject.org'
         while no_tld:
-            if any(no_tld.endswith(_d) for _d in self._domains):
+            if any((no_tld == _d or no_tld.endswith(f'.{_d}'))
+                   and tld in self._domain_tlds.get(_d, ())
+                   for _d in self._domains):
                 return True
             dot = no_tld.rfind('.')
             if dot < 0:
@@ -218,7 +238,7 @@ class SoSHostnameMap(SoSMap):
                 # unrelated bits and paths
                 ob_hostname = 'unknown'
             ob_domain = self.sanitize_domain(domain)
-            self.dataset[item] = ob_domain
+            self.insert_to_dataset(item, ob_domain)
             _fqdn = '.'.join([ob_hostname, ob_domain])
             if all(h.isupper() for h in host):
                 _fqdn = _fqdn.upper()
@@ -235,7 +255,7 @@ class SoSHostnameMap(SoSMap):
             ob_host = f"host{self.host_count}"
             self.hosts[hostname] = ob_host
             self.host_count += 1
-            self.dataset[hostname] = ob_host
+            self.insert_to_dataset(hostname, ob_host)
             self.add_regex_item(hostname)
         return self.dataset[hostname]
 
@@ -250,8 +270,9 @@ class SoSHostnameMap(SoSMap):
         top_domain = domain[-1].lower()
         dname = '.'.join(domain[0:-1]).lower()
         ob_domain = self._new_obfuscated_domain(dname)
+        self._domain_tlds.setdefault(dname, set()).add(top_domain)
         ob_domain = '.'.join([ob_domain, top_domain])
-        self.dataset['.'.join(domain)] = ob_domain
+        self.insert_to_dataset('.'.join(domain), ob_domain)
         return ob_domain
 
     def _new_obfuscated_domain(self, dname):

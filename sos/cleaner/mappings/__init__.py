@@ -35,6 +35,11 @@ class SoSMap():
     # for the pre-filter in _parse_line_with_compiled_regexes.
     # Suitable for parsers with simple word items (username, keyword).
     use_token_lookup = False
+    # When True together with use_token_lookup, honour strict_tokenisation
+    # in the token splitter as well, so the pre-filter finds the same items
+    # the strict word-boundary regexes would match, e.g. a hostname that
+    # directly follows a %XX escape sequence.
+    strict_token_lookup = False
 
     _token_split_re = re.compile(r'[^a-z0-9]+')
     # Strict version treats complete escape sequences as delimiters
@@ -54,12 +59,15 @@ class SoSMap():
         self.strict_tokenisation = strict_tokenisation
         self.initializing = True
         self.dataset = {}
+        # normalised obfuscated values, see value_key()
+        self.values = set()
         self._regexes_made = set()
         self.compiled_regexes = []
         self.compiled_search = re.compile('(?!)')  # no match
         self._simple_tokens = set()
         self._complex_items = []
         self._regex_dict = {}
+        self._string_key_regexes = {}
         self._static_regex = _static_regex
         # Select token splitter based on strict_tokenisation setting.
         # NOTE: Token lookup parsers always use basic splitting, regardless of
@@ -68,7 +76,7 @@ class SoSMap():
         # could be "administrator" corrupted, not "admin" as a separate word).
         # Strict word boundaries are still enforced via regex matching for
         # correctly delimited words like "%1Badmin%20" or "#033admin".
-        if self.use_token_lookup:
+        if self.use_token_lookup and not self.strict_token_lookup:
             # Token lookup: always use basic splitting (conservative)
             self._token_splitter = self._token_split_re
         else:
@@ -147,7 +155,7 @@ class SoSMap():
         """Some items need to be completely ignored, for example link-local or
         loopback addresses should not be obfuscated
         """
-        if not item or item in self.skip_keys or item in self.dataset.values()\
+        if not item or item in self.skip_keys or self.value_known(item) \
                 or (self.ignore_short_items and len(item) <= 3):
             return True
         for skip in self.ignore_matches:
@@ -157,6 +165,31 @@ class SoSMap():
 
     def insert_to_dataset(self, item, value):
         self.dataset[item] = value
+        self.values.add(self.value_key(value))
+
+    def value_key(self, value):
+        """Normalised form of an obfuscated value for membership checks. Maps
+        whose values appear in files in more than one spelling override this.
+
+        :param value:   An obfuscated value, or a string to test as one
+        :type value:    ``str``
+
+        :returns:       The form stored in the value set
+        :rtype:         ``str``
+        """
+        return value
+
+    def value_known(self, item):
+        """Whether ``item`` is an obfuscated value this map has produced or
+        loaded, so that it must not be obfuscated again.
+
+        :param item:    The string to test
+        :type item:     ``str``
+
+        :returns:       True if ``item`` is a known obfuscated value
+        :rtype:         ``bool``
+        """
+        return self.value_key(item) in self.values
 
     def add_sanitised_item_to_dataset(self, item):
         try:
@@ -399,6 +432,31 @@ class SoSMap():
         item = self._apply_word_boundaries(re.escape(item))
         return re.compile(item, re.I)
 
+    def _string_key_pattern(self, key):
+        """Pattern for ``key`` as a whole token inside a bare string. Maps
+        whose keys can be a prefix of a longer key of the same kind, such as
+        IPv4 addresses, override this to tighten the boundaries.
+        """
+        return rf'(?<![0-9a-zA-Z:]){re.escape(key)}(?![0-9a-zA-Z:])'
+
+    def get_string_key_regex(self, key):
+        """Regex used when substituting ``key`` inside a filename or other
+        bare string, so that a key is only replaced as a whole token and
+        never inside a longer key that happens to contain it.
+
+        :param key:     The unobfuscated item to build the regex for
+        :type key:      ``str``
+
+        :returns:       A compiled regex matching ``key`` as a whole token
+        :rtype:         ``re.Pattern``
+        """
+        try:
+            return self._string_key_regexes[key]
+        except KeyError:
+            reg = re.compile(self._string_key_pattern(key), re.I)
+            self._string_key_regexes[key] = reg
+            return reg
+
     def sanitize_item(self, item):
         """Perform the obfuscation relevant to the item being added to the map.
 
@@ -448,4 +506,5 @@ class SoSMap():
             :param config:    A dict of mappings with the form of
                               {clean_entry: 'obfuscated_entry'}
         """
-        self.dataset.update(config)
+        for item, value in config.items():
+            self.insert_to_dataset(item, value)

@@ -6,12 +6,14 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import tempfile
 import unittest
 from ipaddress import ip_interface
 from os.path import join
 from unittest import mock
 
 import sos.policies
+from sos.cleaner import SoSCleaner
 from sos.cleaner.parsers.ip_parser import SoSIPParser
 from sos.cleaner.parsers.mac_parser import SoSMacParser
 from sos.cleaner.parsers.hostname_parser import SoSHostnameParser
@@ -67,6 +69,45 @@ class CleanerMapTests(unittest.TestCase):
         _dup = self.mac_map.get(_test)
         self.assertEqual(_test, _dup)
 
+    def test_map_value_set_tracks_inserts(self):
+        # private workdir: the items added here must not reach the cache the
+        # other tests in this class share
+        with tempfile.TemporaryDirectory() as workdir:
+            mac_map = SoSMacMap(workdir)
+            ip_map = SoSIPMap(workdir)
+            host_map = SoSHostnameMap(workdir)
+            kw_map = SoSKeywordMap(workdir)
+            ipv6_map = SoSIPv6Map(workdir)
+            for _map in (mac_map, ip_map, host_map, kw_map, ipv6_map):
+                _map.insert_to_dataset('plague', 'razor')
+                self.assertTrue(_map.value_known('razor'))
+            for _map in (mac_map, ip_map, host_map, kw_map):
+                _map.conf_update({'blade': 'phreak'})
+                self.assertTrue(_map.value_known('phreak'))
+            ipv6_map.conf_update({'networks': {'fd73:2::/64': {
+                'obfuscated': '534f:7302::/64',
+                'hosts': {'fd73:2::5': '534f:7302::5'}
+            }}})
+            self.assertTrue(ipv6_map.value_known('534f:7302::/64'))
+            self.assertTrue(ipv6_map.value_known('534f:7302::5'))
+            for _map, item in ((mac_map, 'de:ad:be:ef:ca:fe'),
+                               (ip_map, '10.73.1.1'),
+                               (host_map, 'acidburn.gibson.example.com'),
+                               (kw_map, 'cerealkiller'),
+                               (ipv6_map, 'fd73::1')):
+                _ob = _map.add(item)
+                self.assertNotEqual(_ob, item)
+                self.assertTrue(_map.value_known(_ob))
+                self.assertTrue(_map.ignore_item(_ob))
+
+    def test_ip_value_known_with_or_without_prefix(self):
+        self.ip_map.insert_to_dataset('10.73.2.0/24', '100.73.2.0/24')
+        self.assertTrue(self.ip_map.value_known('100.73.2.0'))
+        self.assertTrue(self.ip_map.value_known('100.73.2.0/24'))
+        self.assertTrue(self.ip_map.ip_in_dataset(
+            ip_interface('100.73.2.0/24')))
+        self.assertFalse(self.ip_map.value_known('100.73.2.1'))
+
     def test_ip_map_obfuscate_v4_with_cidr(self):
         _test = self.ip_map.get('192.168.1.0/24')
         self.assertNotEqual(_test, '192.168.1.0/24')
@@ -84,6 +125,15 @@ class CleanerMapTests(unittest.TestCase):
         _hostwsub = self.ip_map.get('192.168.4.1/24')
         _hostnosub = self.ip_map.get('192.168.4.1')
         self.assertEqual(_hostwsub.split('/')[0], _hostnosub)
+
+    def test_ip_map_bare_lookup_exact_key(self):
+        host10 = self.ip_map.add('10.73.4.10/24').split('/')[0]
+        # same host without its netmask resolves to the same fake address
+        self.assertEqual(self.ip_map.get('10.73.4.10'), host10)
+        # a different host that is a string prefix of it must not
+        _test = self.ip_map.get('10.73.4.1')
+        self.assertNotEqual(_test.split('/')[0], host10)
+        self.assertNotEqual(ip_interface(_test).ip, ip_interface(host10).ip)
 
     def test_ip_skip_ignores(self):
         _test = self.ip_map.get('127.0.0.1')
@@ -110,12 +160,95 @@ class CleanerMapTests(unittest.TestCase):
         self.assertNotEqual(_test, 'redhat.com')
 
     def test_hostname_concurrently_obfuscate_non_loaded_domain(self):
+        # the domain was added through another map instance in setUp;
+        # a map learns of it the way a concurrent worker does, by
+        # reloading the shared cache directory
+        self.host_map.load_entries()
         _test = self.host_map.get('foobar.com')
         self.assertNotEqual(_test, 'foobar.com')
 
     def test_hostname_concurrently_obfuscate_non_loaded_fqdn(self):
+        # the domain was added through another map instance in setUp;
+        # a map learns of it the way a concurrent worker does, by
+        # reloading the shared cache directory
+        self.host_map.load_entries()
         _test = self.host_map.get('example.foobar.com')
         self.assertNotEqual(_test, 'example.foobar.com')
+
+    def test_hostname_map_state_is_per_instance(self):
+        # domains and hosts learned by one map must not leak into another
+        # map in the same process through shared class attributes
+        with tempfile.TemporaryDirectory() as first_dir, \
+                tempfile.TemporaryDirectory() as second_dir:
+            first = SoSHostnameMap(first_dir)
+            first.sanitize_item('plague.ellingson.net')
+            second = SoSHostnameMap(second_dir)
+            self.assertIn('ellingson', first._domains)
+            self.assertNotIn('ellingson', second._domains)
+            self.assertNotIn('plague', second.hosts)
+            self.assertFalse(
+                second.domain_name_in_loaded_domains('razor.ellingson.net'))
+
+    def test_hostname_domain_match_on_label_boundary(self):
+        self.host_map.sanitize_item('gibson.net')
+        for name in ('us-agibson.map.gz', 'thegibson.ko.xz',
+                     'graphical-session.target.wants'):
+            self.assertEqual(self.host_map.get(name), name)
+        self.assertNotIn('map', self.host_map._domains)
+        self.assertNotEqual(self.host_map.get('plague.gibson.net'),
+                            'plague.gibson.net')
+        self.assertNotEqual(self.host_map.get('razor.sub.gibson.net'),
+                            'razor.sub.gibson.net')
+
+    def test_hostname_domain_match_requires_known_tld(self):
+        # with centos.org loaded, names that end on a 'centos' label but
+        # carry a different tail are file names or D-Bus names, not hosts
+        self.host_map.sanitize_item('centos.org')
+        self.host_map.sanitize_item('fedoraproject.org')
+        for name in ('chrony.conf.centos.tmpl', 'hosts.centos.tmpl',
+                     'org.fedoraproject.Anaconda.Boss',
+                     'dbus-org.fedoraproject.FirewallD1.service',
+                     'build.centos.txt'):
+            self.assertEqual(self.host_map.get(name), name)
+        self.assertNotIn('conf.centos', self.host_map._domains)
+        self.assertNotIn('org.fedoraproject', self.host_map._domains)
+        self.assertNotIn('org', self.host_map.hosts)
+        # the same labels with the loaded top-level domain are still hosts
+        self.assertNotEqual(self.host_map.get('mirrors.centos.org'),
+                            'mirrors.centos.org')
+        self.assertNotEqual(self.host_map.get('koji.stg.fedoraproject.org'),
+                            'koji.stg.fedoraproject.org')
+        # a domain seen with two top-level domains accepts both
+        self.host_map.sanitize_item('gibson.net')
+        self.host_map.sanitize_item('gibson.org')
+        self.assertNotEqual(self.host_map.get('plague.gibson.org'),
+                            'plague.gibson.org')
+        self.assertEqual(self.host_map.get('plague.gibson.io'),
+                         'plague.gibson.io')
+
+    def test_hostname_dotted_regex_item_escaping(self):
+        reg = self.host_map.get_regex_result('192.168.7.100')
+        self.assertTrue(reg.search('ping 192.168.7.100 ok'))
+        self.assertTrue(reg.search('ping 192_168_7_100 ok'))
+        self.assertFalse(reg.search('ping 192x168x7x100 ok'))
+
+    def test_hostname_counter_numeric_sort(self):
+        # host9 sorts above host11 as a string; the counter must not
+        # restart at 10 and hand out duplicates
+        self.host_map.hosts = {f'h{i}': f'host{i}' for i in range(12)}
+        self.host_map.set_initial_counts()
+        self.assertEqual(self.host_map.host_count, 12)
+        self.assertEqual(self.host_map.sanitize_short_name('zerocool'),
+                         'host12')
+
+    def test_hostname_domain_counter_numeric_sort(self):
+        self.host_map._domains = {
+            f'd{i}': f'obfuscateddomain{i}' for i in range(13)
+        }
+        self.host_map.set_initial_counts()
+        self.assertEqual(self.host_map.domain_count, 13)
+        self.assertEqual(self.host_map._new_obfuscated_domain('gibson'),
+                         'obfuscateddomain13')
 
     def test_keyword_single(self):
         _test = self.kw_map.get('foobar')
@@ -213,6 +346,38 @@ class CleanerParserTests(unittest.TestCase):
         _test = self.ip_parser.parse_line(line)[0]
         self.assertEqual(line, _test)
 
+    def test_parser_skips_known_values(self):
+        fake = self.ip_parser.mapping.add('10.73.3.1')
+        line = f'addr {fake} up'
+        _test, _count = self.ip_parser.parse_line(line)
+        self.assertEqual(line, _test)
+        self.assertNotIn(fake.split('/')[0], self.ip_parser.mapping.dataset)
+
+    def test_ip_parser_filename_boundary(self):
+        self.ip_parser.mapping.add('10.73.0.1')
+        for name in ('ip_neigh_10.73.0.100', 'ip_neigh_110.73.0.1',
+                     'ip_neigh_1.10.73.0.1'):
+            self.assertEqual(self.ip_parser.parse_string_for_keys(name),
+                             name)
+        for prefix, suffix in (('ip_', '-eth0'), ('ping_', '.txt')):
+            _test = self.ip_parser.parse_string_for_keys(
+                f'{prefix}10.73.0.1{suffix}'
+            )
+            self.assertNotIn('10.73.0.1', _test)
+            self.assertTrue(_test.startswith(prefix))
+            self.assertTrue(_test.endswith(suffix))
+
+    def test_mac_parser_filename_boundary(self):
+        self.mac_parser.mapping.add('aa:bb:cc:dd:ee:ff')
+        name = 'gibson_aa:bb:cc:dd:ee:ff0'
+        self.assertEqual(self.mac_parser.parse_string_for_keys(name), name)
+        _test = self.mac_parser.parse_string_for_keys(
+            'gibson_aa:bb:cc:dd:ee:ff.txt'
+        )
+        self.assertNotIn('aa:bb:cc:dd:ee:ff', _test)
+        self.assertTrue(_test.startswith('gibson_53:4f:53:'))
+        self.assertTrue(_test.endswith('.txt'))
+
     def test_mac_parser_valid_ipv4_line(self):
         line = 'foobar foo 13:24:35:46:57:68 bar barfoo'
         _test = self.mac_parser.parse_line(line)[0]
@@ -222,6 +387,30 @@ class CleanerParserTests(unittest.TestCase):
         line = 'foobar foo AA:BB:CC:FF:FE:DD:EE:FF bar barfoo'
         _test = self.mac_parser.parse_line(line)[0]
         self.assertNotEqual(line, _test)
+
+    def test_mac_parser_ignores_ipv6_fragments(self):
+        for line in ('addr fd53:16e:16f::260a:260b:260c:260d scope global',
+                     'addr 2001:0db8:0000:0000:0000:0000:0000:0001 scope',
+                     'addr 2001:db8:260a:260b:260c:260d:1:2 scope',
+                     'addr 260a:260b:260c:260d:1234:5678:9abc:def0 scope',
+                     'net 260a:260b:260c:260d::/64 dev',
+                     'addr ::260a:260b:260c:260d scope'):
+            _test = self.mac_parser.parse_line(line)[0]
+            self.assertEqual(line, _test)
+        for key in ('260a:260b:260c:260d', '2001:0db8:0000:0000',
+                    '0000:0000:0000:0001'):
+            self.assertNotIn(key, self.mac_parser.mapping.dataset)
+
+    def test_mac_parser_matches_standalone_guid(self):
+        for line in ('0011:2233:4455:6677', 'guid 0011:2233:4455:6677 end',
+                     'guid 0011-2233-4455-6677 end',
+                     # after a label and its colon, and before one
+                     'mac:0011:2233:4455:6677', 'uuid:0011-2233-4455-6677',
+                     'port:0011-2233-4455-6677,up',
+                     'GUID 0011:2233:4455:6677: registered'):
+            _test = self.mac_parser.parse_line(line)[0]
+            self.assertNotIn('0011:2233:4455:6677', _test)
+            self.assertNotIn('0011-2233-4455-6677', _test)
 
     def test_mac_parser_with_quotes(self):
         line = "foobar foo '12:34:56:78:90:AA' bar barfoo"
@@ -278,6 +467,16 @@ class CleanerParserTests(unittest.TestCase):
         _test = self.host_parser.parse_line(line)[0]
         self.assertFalse('soshost' in _test)
         self.assertFalse('sostestdomain' in _test)
+
+    def test_hostname_filename_fqdn_substituted(self):
+        fqdn = 'crashoverride.gibson.net'
+        ob_fqdn = self.host_parser.mapping.add(fqdn)
+        self.host_parser.generate_item_regexes()
+        self.assertNotIn('gibson', ob_fqdn)
+        _test = self.host_parser.parse_string_for_keys(f'messages-{fqdn}')
+        self.assertEqual(_test, f'messages-{ob_fqdn}')
+        _test = self.host_parser.parse_string_for_keys('crashoverride.log')
+        self.assertEqual(_test, ob_fqdn.split('.')[0] + '.log')
 
     def test_hostname_no_obfuscate_underscore(self):
         line = 'pam_env.so _why.not_'
@@ -496,6 +695,92 @@ class PrepperTests(unittest.TestCase):
                          'Comment word "production" must not be in '
                          'regex_items')
 
+    def test_prepper_items_seeded_in_sorted_order(self):
+        """Set-typed prepper items are seeded in sorted order so the counter
+        based fake values do not depend on set iteration order"""
+        class StubArchive:
+            ui_name = 'stub'
+
+            def get_file_content(self, _path):
+                return ''
+
+            def set_parsers(self, parsers):
+                pass
+
+        class StubCleaner:
+            def __init__(self, parser):
+                self.parsers = [parser]
+
+            def log_debug(self, msg, caller=None):
+                pass
+
+        class OrderedPrepper(SoSPrepper):
+            name = 'ordered'
+
+            def __init__(self, options, items):
+                super().__init__(options)
+                self.items = items
+
+            def _get_items_for_username(self, _archive):
+                return list(self.items)
+
+        names = ['zerocool', 'acidburn', 'crashoverride']
+        results = []
+        for order in (names, list(reversed(names))):
+            with tempfile.TemporaryDirectory() as workdir:
+                parser = SoSUsernameParser(config={}, workdir=workdir)
+                SoSCleaner._prepare_archive_with_prepper(
+                    StubCleaner(parser), StubArchive(),
+                    OrderedPrepper(SoSOptions(), order)
+                )
+                results.append(dict(parser.mapping.dataset))
+        self.assertEqual(results[0], results[1])
+        self.assertEqual(results[0]['acidburn'], 'obfuscateduser0')
+        self.assertEqual(results[0]['zerocool'], 'obfuscateduser2')
+
+    def test_local_hostname_seeded_first(self):
+        """The report's own hostname is host0 and its domain is
+        obfuscateddomain0 even when /etc/hosts entries sort ahead of it"""
+        class StubArchive:
+            ui_name = 'stub'
+            is_sos = True
+            is_insights = False
+            is_extracted = False
+            archive_path = ''
+
+            def get_file_content(self, path):
+                if path == 'sos_commands/host/hostname_-f':
+                    return 'zerocool.gibson.net'
+                if path == 'etc/hosts':
+                    return ('10.73.1.5 acidburn.ellingson.net acidburn\n'
+                            '10.73.1.6 cerealkiller.gibson.net\n')
+                return ''
+
+            def set_parsers(self, parsers):
+                pass
+
+        class StubCleaner:
+            def __init__(self, parser):
+                self.parsers = [parser]
+
+            def log_debug(self, msg, caller=None):
+                pass
+
+        with tempfile.TemporaryDirectory() as workdir:
+            parser = SoSHostnameParser(config={}, workdir=workdir)
+            SoSCleaner._prepare_archive_with_prepper(
+                StubCleaner(parser), StubArchive(),
+                HostnamePrepper(SoSOptions(domains=[]))
+            )
+            ds = parser.mapping.dataset
+        self.assertEqual(ds['zerocool'], 'host0')
+        self.assertEqual(ds['zerocool.gibson.net'],
+                         'host0.obfuscateddomain0.net')
+        self.assertEqual(ds['acidburn'], 'host1')
+        self.assertEqual(ds['acidburn.ellingson.net'],
+                         'host1.obfuscateddomain1.net')
+        self.assertEqual(ds['cerealkiller'], 'host2')
+
     def test_hostname_prepper_sssd_conf_values_in_items(self):
         class MockArchive:
             is_sos = True
@@ -535,6 +820,41 @@ class PrepperTests(unittest.TestCase):
             'secret.com',
         }
         self.assertTrue(expected.issubset(set(items)))
+
+    def test_hostname_prepper_sssd_conf_labels_not_seeded(self):
+        """sssd's own labels and non-name values are not hostnames and must
+        not be seeded; the DNS names in the same file still are"""
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+
+            def get_file_content(self, path):
+                if path == 'sos_commands/host/hostname_-f':
+                    return 'myhost.example.com'
+                if path == 'etc/hosts':
+                    return ''
+                if path == 'etc/sssd/sssd.conf':
+                    return ('[sssd]\n'
+                            'domains = default, LDAP\n'
+                            '[domain/default]\n'
+                            'ipa_domain = ipa.gibson.net\n'
+                            'ldap_uri = ldap://ldap.gibson.net:389/, _srv_\n'
+                            'krb5_server = kdc.gibson.net:88\n'
+                            'ad_server = 10.0.0.5\n')
+                return ''
+
+        self.host_prepper._get_conf_files = lambda archive: {
+            'etc/sssd/sssd.conf'
+            }
+
+        items = self.host_prepper.get_items_for_map('hostname', MockArchive())
+        for label in ('default', 'LDAP', '_srv_', '10.0.0.5'):
+            self.assertNotIn(label, items)
+        for name in ('ipa.gibson.net', 'ldap.gibson.net', 'kdc.gibson.net'):
+            self.assertIn(name, items)
+        self.assertFalse(
+            [i for i in items if '://' in i or ':' in i or '/' in i]
+        )
 
     def test_hostname_prepper_sssd_conf_values_are_obfuscated(self):
         workdir = join(sos.policies.load().get_tmp_dir(None),
@@ -848,6 +1168,73 @@ class PrepperTests(unittest.TestCase):
         self.assertNotIn('kdc.realm.example.com:88', items,
                          'kdc entry must not include the port number')
 
+    def test_hostname_prepper_vendor_domains_not_seeded(self):
+        """Realms, KDCs, search domains and sssd servers under a vendor or
+        public project domain must not be seeded; the customer's own are."""
+        class MockArchive:
+            is_sos = True
+            is_insights = False
+
+            def get_file_content(self, path):
+                if path == 'sos_commands/host/hostname_-f':
+                    return 'zerocool.gibson.net'
+                if path == 'etc/hosts':
+                    return '10.73.1.5 mirror.centos.org cereal\n'
+                if path == 'etc/krb5.conf':
+                    return ('[libdefaults]\n'
+                            'default_realm = GIBSON.NET\n'
+                            '[realms]\n'
+                            'GIBSON.NET = {\n'
+                            '  kdc = kerberos.gibson.net\n'
+                            '  admin_server = kerberos.gibson.net\n'
+                            '}\n'
+                            'FEDORAPROJECT.ORG = {\n'
+                            '  kdc = https://id.fedoraproject.org/KdcProxy\n'
+                            '}\n'
+                            'REDHAT.COM = {\n'
+                            '  admin_server = kerberos.corp.redhat.com\n'
+                            '}\n'
+                            '[domain_realm]\n'
+                            ' .fedoraproject.org = FEDORAPROJECT.ORG\n'
+                            ' .centos.org = FEDORAPROJECT.ORG\n'
+                            ' .gibson.net = GIBSON.NET\n')
+                if path == 'etc/resolv.conf':
+                    return 'search gibson.net redhat.com\n'
+                if path == 'etc/sssd/sssd.conf':
+                    return ('[domain/gibson]\n'
+                            'ldap_uri = ldap://ldap.corp.redhat.com, '
+                            'ldaps://ldap.gibson.net:636\n')
+                if path == 'etc/rhsm/rhsm.conf':
+                    return ('[server]\n'
+                            'hostname = subscription.rhsm.redhat.com\n')
+                return ''
+
+        self.host_prepper._get_conf_files = lambda archive: {
+            'etc/sssd/sssd.conf'
+        }
+        self.host_prepper.regex_items['hostname'] = set()
+        items = self.host_prepper.get_items_for_map('hostname', MockArchive())
+        for kept in ('zerocool.gibson.net', 'GIBSON.NET', 'gibson.net',
+                     'kerberos.gibson.net', 'ldap.gibson.net',
+                     'mirror.centos.org', 'cereal'):
+            self.assertIn(kept, items, f'{kept} must be seeded')
+        for dropped in ('FEDORAPROJECT.ORG', 'fedoraproject.org',
+                        'centos.org', 'REDHAT.COM', 'redhat.com',
+                        'kerberos.corp.redhat.com', 'ldap.corp.redhat.com',
+                        'subscription.rhsm.redhat.com'):
+            self.assertNotIn(dropped, items, f'{dropped} must not be seeded')
+        self.assertNotIn('ldap.corp.redhat.com',
+                         self.host_prepper.regex_items['hostname'])
+
+    def test_hostname_prepper_is_vendor_domain(self):
+        self.assertTrue(self.host_prepper.is_vendor_domain('REDHAT.COM'))
+        self.assertTrue(self.host_prepper.is_vendor_domain('a.b.redhat.com'))
+        self.assertTrue(self.host_prepper.is_vendor_domain('redhat.com.'))
+        self.assertFalse(self.host_prepper.is_vendor_domain('notredhat.com'))
+        self.assertFalse(self.host_prepper.is_vendor_domain('gibson.net'))
+        self.assertFalse(self.host_prepper.is_vendor_domain(
+            'redhat.com.gibson.net'))
+
     def test_ipv4_prepper_parser_files(self):
         self.assertEqual(
             ['sos_commands/networking/ip_-o_addr'],
@@ -1053,7 +1440,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
     def _write_tar(self, members):
         import io
         import tarfile
-        import tempfile
         with tempfile.NamedTemporaryFile(
                 suffix='.tar', delete=False) as handle:
             tar_path = handle.name
@@ -1076,7 +1462,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
 
     def test_absolute_symlink_does_not_write_outside_dest(self):
         import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         victim_dir = tempfile.mkdtemp()
@@ -1102,7 +1487,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
         """Debian 12 / Python 3.11.2 ignores TarFile.extraction_filter."""
         import os
         import tarfile
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         orig_extractall = tarfile.TarFile.extractall
@@ -1130,7 +1514,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
 
     def test_in_tree_relative_symlink_is_kept(self):
         import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         tar_path = self._write_tar([
@@ -1150,7 +1533,6 @@ class ExtractArchiveSafetyTests(unittest.TestCase):
 
     def test_non_root_skips_device_and_keeps_later_files(self):
         import os
-        import tempfile
         from sos.cleaner.archives import extract_archive
 
         tar_path = self._write_tar([
@@ -1195,7 +1577,8 @@ class StrictTokenisationTests(unittest.TestCase):
             m.add('secret')
             m.generate_compiled_regexes()
 
-        # Hostname maps -- not use_token_lookup, match_full_words_only=True
+        # Hostname maps -- use_token_lookup with strict_token_lookup,
+        # match_full_words_only=True
         self.host_strict = SoSHostnameMap(workdir, strict_tokenisation=True)
         self.host_nonstrict = SoSHostnameMap(
             workdir, strict_tokenisation=False)
@@ -1291,22 +1674,28 @@ class StrictTokenisationTests(unittest.TestCase):
         self.assertNotRegex('notsecrethere', reg_n)
 
     # ------------------------------------------------------------------
-    # C. Hostname map compiled_search
+    # C. Hostname map token lookup
     # ------------------------------------------------------------------
 
-    def test_strict_hostname_compiled_search_uri_encoded(self):
-        """Strict mode finds a hostname immediately after a %XX sequence."""
-        self.assertTrue(
-            self.host_strict.compiled_search.search('%22secret.example.com'),
-            'compiled_search should match hostname '
-            'preceded by %XX in strict mode')
+    def test_strict_hostname_token_lookup_uri_encoded(self):
+        """Strict mode finds a short hostname immediately after a %XX
+        sequence, and its regex matches there; non-strict mode does not,
+        matching the plain word-boundary regex it substitutes with."""
+        line = '%22secret%20'
+        strict = dict(self.host_strict.get_matched_items(line))
+        self.assertIn('secret', strict,
+                      'token lookup should find a hostname preceded by %XX '
+                      'in strict mode')
+        self.assertTrue(strict['secret'].search(line))
+        nonstrict = dict(self.host_nonstrict.get_matched_items(line))
+        self.assertNotIn('secret', nonstrict)
 
-    def test_both_modes_hostname_compiled_search_plain_boundary(self):
+    def test_both_modes_hostname_token_lookup_plain_boundary(self):
         """Both modes find a hostname at a plain word boundary."""
-        self.assertTrue(
-            self.host_strict.compiled_search.search('secret.example.com '))
-        self.assertTrue(
-            self.host_nonstrict.compiled_search.search('secret.example.com '))
+        for _map in (self.host_strict, self.host_nonstrict):
+            found = dict(_map.get_matched_items('secret.example.com '))
+            self.assertIn('secret', found)
+            self.assertTrue(found['secret'].search('secret.example.com '))
 
     # ------------------------------------------------------------------
     # D. Parser integration (end-to-end)

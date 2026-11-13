@@ -9,6 +9,7 @@
 # See the LICENSE file in the source distribution for further information.
 
 import ipaddress
+import re
 
 from sos.cleaner.mappings import SoSMap
 
@@ -42,7 +43,6 @@ class SoSIPMap(SoSMap):
     ]
 
     _networks = {}
-    obfuscated_ips = set()
     network_first_octet = 100
     skip_network_octets = [127, 169, 172, 192]
     compile_regexes = False
@@ -52,17 +52,14 @@ class SoSIPMap(SoSMap):
     # (an attempt to prevent confusion)
     _saddr_cnt = 2886795264
 
-    def conf_update(self, config):
-        """Override the base conf_update() so that we can add items into
-        obfuscated_ips.
-        """
-        for value in config.values():
-            self.obfuscated_ips.add(value.split('/', maxsplit=1)[0])
-        super().conf_update(config)
+    def value_key(self, value):
+        # a fake address is the same address with or without its netmask
+        return value.split('/', maxsplit=1)[0]
 
-    def insert_to_dataset(self, item, value):
-        self.obfuscated_ips.add(value.split('/', maxsplit=1)[0])
-        self.dataset[item] = value
+    def _string_key_pattern(self, key):
+        # a digit, or a dot and a digit, on either side means the string
+        # holds a longer address that merely contains this one
+        return rf'(?<!\d)(?<!\d\.){re.escape(key)}(?!\d)(?!\.\d)'
 
     def ip_in_dataset(self, ipaddr):
         """There are multiple ways in which an ip address could be handed to us
@@ -71,8 +68,7 @@ class SoSIPMap(SoSMap):
         Here, match the ip address to any of the obfuscated addresses we've
         already created
         """
-        addr_str = str(ipaddr).split('/', maxsplit=1)[0]
-        return addr_str in self.obfuscated_ips
+        return self.value_known(str(ipaddr))
 
     def get(self, item):
         """Ensure that when requesting an obfuscated address, we return a str
@@ -93,7 +89,7 @@ class SoSIPMap(SoSMap):
         # that notation
         if '/' not in item:
             for key, value in self.dataset.items():
-                if key.startswith(item):
+                if key.split('/', 1)[0] == item:
                     return value.split('/')[0]
 
         # fallback to the default map behavior of adding it fresh
@@ -186,7 +182,7 @@ class SoSIPMap(SoSMap):
         # obfuscated IP address
         _addr = f"{self._saddr_cnt >> 24}.{(self._saddr_cnt >> 16) % 256}." \
             f"{(self._saddr_cnt >> 8) % 256}.{self._saddr_cnt % 256}"
-        if _addr in self.dataset.values():
+        if self.value_known(_addr):
             return self._new_obfuscated_single_address()
         return _addr
 
@@ -216,5 +212,4 @@ class SoSIPMap(SoSMap):
         if _obf_network:
             _obf_network_s = str(_obf_network)
             self._networks[network] = _obf_network
-            self.dataset[str(network)] = _obf_network_s
-            self.obfuscated_ips.add(_obf_network_s.split('/', maxsplit=1)[0])
+            self.insert_to_dataset(str(network), _obf_network_s)

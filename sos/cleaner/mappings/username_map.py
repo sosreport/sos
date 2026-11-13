@@ -30,6 +30,6 @@ class SoSUsernameMap(SoSMap):
         """
         ob_name = f"obfuscateduser{self.name_count}"
         self.name_count += 1
-        if ob_name in self.dataset.values():
+        if self.value_known(ob_name):
             return self.sanitize_item(item.lower())
         return ob_name
