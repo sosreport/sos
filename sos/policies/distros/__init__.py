@@ -305,6 +305,17 @@ class LinuxPolicy(Policy):
             if value in kconfigs:
                 self.kernel_mods.append(builtin)
 
+    def get_podman_overlay_warning(self):
+        """Return a message noting that podman commands run during this sos
+        run may load the 'overlay' kernel module when it is not currently
+        loaded, else None
+        """
+        if 'podman' in self.runtimes and 'overlay' not in self.kernel_mods:
+            return ("Running podman commands may load the 'overlay' kernel "
+                    "module as a side effect of podman's storage feature "
+                    "detection")
+        return None
+
     def join_sysroot(self, path):
         if self.sysroot and self.sysroot != '/':
             path = os.path.join(self.sysroot, path.lstrip('/'))

@@ -512,6 +512,10 @@ class SoSReport(SoSComponent):
         not have a clearly defined 'default' (or one that is determined based
         entirely on configuration).
         """
+        warning = self.policy.get_podman_overlay_warning()
+        if warning:
+            self.soslog.warning(warning)
+
         if self.opts.container_runtime != 'auto':
             crun = self.opts.container_runtime.lower()
             if crun in ['none', 'off', 'disabled']:
