@@ -28,7 +28,17 @@ class MicroOVN(Plugin, UbuntuPlugin):
     commands = ('microovn', )
 
     def setup(self):
-        self.add_journal(units="snap.microovn.*")
+        microovn_units = [
+            'snap.microovn.chassis.service',
+            'snap.microovn.daemon.service',
+            'snap.microovn.ovn-northd.service',
+            'snap.microovn.ovn-ovsdb-server-nb.service',
+            'snap.microovn.ovn-ovsdb-server-sb.service',
+            'snap.microovn.refresh-expiring-certs.service',
+            'snap.microovn.switch.service',
+        ]
+        for unit in microovn_units:
+            self.add_journal(units=unit)
 
         microovn_subcmds = [
             'cluster list',
