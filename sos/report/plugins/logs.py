@@ -9,7 +9,7 @@
 import glob
 import os
 import re
-from sos.report.plugins import Plugin, PluginOpt, IndependentPlugin, CosPlugin
+from sos.report.plugins import Plugin, IndependentPlugin
 
 
 class LogsBase(Plugin):
@@ -121,20 +121,5 @@ class IndependentLogs(LogsBase, IndependentPlugin):
 
     plugin_name = "logs"
     profiles = ('system', 'hardware', 'storage')
-
-
-class CosLogs(LogsBase, CosPlugin):
-    option_list = [
-        PluginOpt(name="log-days", default=3,
-                  desc="the number of days logs to collect")
-    ]
-
-    def setup(self):
-        super().setup()
-        if self.get_option("all_logs"):
-            self.add_cmd_output("journalctl -o export")
-        else:
-            days = self.get_option("log-days", 3)
-            self.add_journal(since=f"-{days}days")
 
 # vim: set et ts=4 sw=4 :
