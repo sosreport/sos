@@ -131,7 +131,7 @@ class CompletionTest(unittest.TestCase):
     def test_cleaner_parsers(self):
         self.assertEqual(self.candidates('sos clean --disable-parsers '),
                          ['hostname', 'ip', 'ipv6', 'keyword', 'mac',
-                          'username'])
+                          'regexp', 'username'])
 
     def test_container_runtimes(self):
         cands = self.candidates('sos report --container-runtime ')
