@@ -10,13 +10,14 @@ import os
 import pwd
 import re
 import inspect
-from subprocess import Popen, PIPE, STDOUT, SubprocessError
+from subprocess import Popen, PIPE, STDOUT, SubprocessError, TimeoutExpired
 import logging
 import fnmatch
 import errno
 import shlex
 import glob
 import shutil
+import signal
 import sys
 import tempfile
 import threading
@@ -296,10 +297,39 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
             os.chdir(pwd_user.pw_dir)
 
     def _check_poller(proc):
-        if poller() or proc.poll() == 124:
+        if poller():
             proc.terminate()
             raise SoSTimeoutError
         time.sleep(0.01)
+
+    def _timed_out(proc):
+        # timeout exits with 124, or if it had to kill the command after it
+        # ignored termination, with the status of SIGKILL. Outside of
+        # foreground mode, that kill includes timeout itself
+        if proc.returncode == 124:
+            return True
+        return (proc.returncode in (128 + signal.SIGKILL, -signal.SIGKILL)
+                and wrapped and time.monotonic() - start >= timeout)
+
+    def _release_reader(proc, reader):
+        # After a timeout, give the command a moment to exit and the reader a
+        # moment to consume any remaining output. A child of the command may
+        # still hold stdout open, so the reader is not allowed to block us
+        # indefinitely.
+        try:
+            # timeout kills the command 1 second after terminating it
+            proc.wait(timeout=2)
+        except TimeoutExpired:
+            proc.kill()
+            proc.wait()
+        for _ in range(100):
+            if not reader.running:
+                return
+            time.sleep(0.01)
+        # leave the pipe for the reader to close once it drains, as closing
+        # it here would block until the reader's pending read() returns
+        proc.stdout = None
+        reader.abandon()
 
     if runas:
         try:
@@ -334,10 +364,12 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                 cmd_env[key] = value
             else:
                 cmd_env.pop(key, None)
-    # use /usr/bin/timeout to implement a timeout
-    if timeout and is_executable("timeout"):
-        command = (f"timeout {'--foreground' if foreground else ''} {timeout}s"
-                   f" {command}")
+    # use /usr/bin/timeout to implement a timeout, killing the command if it
+    # ignores termination
+    wrapped = bool(timeout and is_executable("timeout"))
+    if wrapped:
+        command = (f"timeout {'--foreground' if foreground else ''} -k 1s "
+                   f"{timeout}s {command}")
 
     args = shlex.split(command)
     # Expand arguments that are wildcard root paths.
@@ -364,6 +396,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
     else:
         _output = PIPE
     _stdin = PIPE if stdin is not None else None
+    start = time.monotonic()
     try:
         with Popen(expanded_args, shell=False, stdin=_stdin, stdout=_output,
                    stderr=STDOUT if stderr else PIPE,
@@ -391,29 +424,37 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                     stdin_writer = StdinWriter(p.stdin, stdin)
 
                 if poller:
-                    while reader.running:
-                        _check_poller(p)
+                    try:
+                        # the reader may finish before the command exits,
+                        # e.g. once a sizelimit is reached
+                        while p.poll() is None or reader.running:
+                            _check_poller(p)
+                            if p.returncode is not None and _timed_out(p):
+                                # the command itself timed out
+                                _release_reader(p, reader)
+                                break
+                    except SoSTimeoutError:
+                        _release_reader(p, reader)
+                        raise
                 else:
                     try:
                         # override timeout=0 to timeout=None, as Popen will
                         # treat the former as a literal 0-second timeout
                         p.wait(timeout if timeout else None)
+                        if _timed_out(p):
+                            _release_reader(p, reader)
                     except Exception:
                         p.terminate()
+                        _release_reader(p, reader)
                         if to_file:
                             if tac:
                                 with open(to_file, 'wb') as f_dst:
                                     tac_logs(_output, f_dst, True)
                         # until we separate timeouts from the `timeout` command
                         # handle per-cmd timeouts via Plugin status checks
-                        reader.running = False
                         return {'status': 124,
                                 'output': reader.get_contents(),
                                 'truncated': reader.is_full}
-
-                # wait for Popen to set the returncode
-                while p.poll() is None:
-                    pass
 
                 if to_file and tac:
                     with open(to_file, 'wb') as f_dst:
@@ -426,14 +467,21 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
                     stdout = reader.get_contents()
 
                 return {
-                    'status': p.returncode,
+                    'status': 124 if _timed_out(p) else p.returncode,
                     'output': stdout,
                     'truncated': reader.is_full
                 }
             finally:
                 if stdin_writer is not None:
-                    stdin_writer.join()
-                    if stdin_writer.error:
+                    # the command has exited, but a child of it may still
+                    # hold stdin open without reading from it
+                    stdin_writer.join(timeout=1)
+                    if stdin_writer.is_alive():
+                        # closing stdin would block on the pending write
+                        p.stdin = None
+                        log.warning(f"Passing stdin to command {command} "
+                                    "did not complete")
+                    elif stdin_writer.error:
                         log.warning(f"Passing stdin to command {command} "
                                     f"raised an error: {stdin_writer.error}")
     except OSError as e:
@@ -639,7 +687,8 @@ class StdinWriter(threading.Thread):
     CHUNK = 64 * 1024
 
     def __init__(self, stdin_pipe, data):
-        super().__init__(daemon=False)
+        # daemonize so an abandoned writer cannot block sos from exiting
+        super().__init__(daemon=True)
         if isinstance(data, str):
             data = data.encode('utf-8')
         self._stdin = stdin_pipe
@@ -726,6 +775,9 @@ class FakeReader():
     def running(self):
         return self.process.poll() is None
 
+    def abandon(self):
+        """Output is written directly to disk, there is no pipe to release"""
+
 
 class HeadReader(threading.Thread):
     """Used to 'head' the command output (f_src) to a given size
@@ -735,11 +787,13 @@ class HeadReader(threading.Thread):
     COPY_BUFSIZE = 1024*1024
 
     def __init__(self, f_src, f_dst, sizelimit, binary):
-        super().__init__()
+        # daemonize so an abandoned reader cannot block sos from exiting
+        super().__init__(daemon=True)
         self.f_src = f_src
         self.f_dst = f_dst
         self.remaining = sizelimit * 1048576  # convert to bytes
         self.binary = binary
+        self.abandoned = False
         self.running = True
         self.start()
 
@@ -750,12 +804,15 @@ class HeadReader(threading.Thread):
         try:
             while self.remaining > 0:
                 try:
-                    buf = self.f_src.read(
+                    # read1() returns whatever is available instead of
+                    # blocking until a full buffer, so partial output is
+                    # still written if the command times out
+                    buf = self.f_src.read1(
                         min(self.remaining, self.COPY_BUFSIZE))
                 except (ValueError, IOError):
                     # a pipe error, terminate
                     break
-                if not buf:
+                if not buf or self.abandoned:
                     break
                 self.f_dst.write(buf)
                 self.remaining -= len(buf)
@@ -771,6 +828,13 @@ class HeadReader(threading.Thread):
                 pass
             # always clear the flag, sos_get_command_output() polls it
             self.running = False
+
+    def abandon(self):
+        """Stop waiting on this reader. Any further output is discarded, and
+        the reader closes the pipe once its pending read returns
+        """
+        self.abandoned = True
+        self.running = False
 
     def get_contents(self):
         return '' if not self.binary else b''
@@ -788,38 +852,64 @@ class TailReader(threading.Thread):
     string that is limited to the given sizelimit.
     """
 
+    CHUNKSIZE = 64 * 1024
+
     def __init__(self, channel, sizelimit, binary):
-        super().__init__()
+        # daemonize so an abandoned reader cannot block sos from exiting
+        super().__init__(daemon=True)
         self.chan = channel
         self.binary = binary
-        self.chunksize = 2048
-        self.slots = None
-        if sizelimit:
-            sizelimit = sizelimit * 1048576  # convert to bytes
-            self.slots = int(sizelimit / self.chunksize)
-        self.deque = deque(maxlen=self.slots)
+        self.limit = int(sizelimit * 1048576) if sizelimit else None
+        self.size = 0
+        self.truncated = False
+        self.deque = deque()
+        self.abandoned = False
         self.running = True
         self.start()
 
     def run(self):
         """Reads from the channel (pipe) that is the output pipe for a
         called Popen. As we are reading from the pipe, the output is added
-        to a deque. After the size of the deque exceeds the sizelimit
-        earlier (older) entries are removed.
-
-        This means the returned output is chunksize-sensitive, but is not
-        really byte-sensitive.
+        to a deque. Once the output exceeds the sizelimit, the earliest
+        output is removed.
         """
         try:
             while True:
-                line = self.chan.read(self.chunksize)
-                if not line:
-                    # Pipe can remain open after output has completed
+                # read1() returns whatever is available instead of blocking
+                # until a full chunk, so partial output is still kept if the
+                # command times out
+                chunk = self.chan.read1(self.CHUNKSIZE)
+                if not chunk or self.abandoned:
                     break
-                self.deque.append(line)
+                self._append(chunk)
         except (ValueError, IOError):
             # pipe has closed, meaning command output is done
             pass
+        finally:
+            try:
+                self.chan.close()
+            except (ValueError, IOError):
+                # the pipe is already broken or closed, nothing to release
+                pass
+            self.running = False
+
+    def _append(self, chunk):
+        self.deque.append(chunk)
+        self.size += len(chunk)
+        while self.limit and self.size > self.limit:
+            excess = self.size - self.limit
+            if len(self.deque[0]) <= excess:
+                self.size -= len(self.deque.popleft())
+            else:
+                self.deque[0] = self.deque[0][excess:]
+                self.size -= excess
+            self.truncated = True
+
+    def abandon(self):
+        """Stop waiting on this reader. Any further output is discarded, and
+        the reader closes the pipe once its pending read returns
+        """
+        self.abandoned = True
         self.running = False
 
     def get_contents(self):
@@ -828,16 +918,16 @@ class TailReader(threading.Thread):
         # hitting a timeout)
         while self.running:
             time.sleep(0.01)
+        # an abandoned reader may still be finishing its last append
+        contents = b''.join(self.deque.copy())
         if not self.binary:
-            return ''.join(ln.decode('utf-8', 'ignore') for ln in self.deque)
-        return b''.join(ln for ln in self.deque)
+            return contents.decode('utf-8', 'ignore')
+        return contents
 
     @property
     def is_full(self):
-        """Checks if the deque is full, implying that output was truncated"""
-        if not self.slots:
-            return False
-        return len(self.deque) == self.slots
+        """Checks if the output was truncated to the sizelimit"""
+        return self.truncated
 
 
 class ImporterHelper:
