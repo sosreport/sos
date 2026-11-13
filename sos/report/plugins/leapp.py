@@ -21,9 +21,8 @@ class Leapp(Plugin, RedHatPlugin):
 
     def setup(self):
         self.add_copy_spec([
+            '/etc/leapp/',
             '/etc/migration-results',
-            '/etc/leapp/actor_cond.d',
-            '/etc/leapp/files/dnf.conf',
             '/var/log/leapp/answerfile',
             '/var/log/leapp/dnf-debugdata/',
             '/var/log/leapp/leapp-preupgrade.log',
