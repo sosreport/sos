@@ -54,6 +54,34 @@ def _mangle_command(command, name_max):
     return mangledname
 
 
+def _validate_series(series):
+    """Validate a series specification handed to add_cmd_output().
+
+    :param series: the series parameter as passed by a plugin
+    :returns: tuple of (normalized series dict or None, error message or None)
+    """
+    if not isinstance(series, dict):
+        return (None, 'series is not a dict')
+
+    for key in series:
+        if key not in ('count', 'interval'):
+            return (None, f"unknown key '{key}'")
+
+    count = series.get('count', 1)
+    interval = series.get('interval', 0)
+
+    if isinstance(count, bool) or not isinstance(count, int):
+        return (None, "'count' must be an integer")
+    if count < 1:
+        return (None, "'count' must be at least 1")
+    if isinstance(interval, bool) or not isinstance(interval, int):
+        return (None, "'interval' must be an integer")
+    if interval < 0:
+        return (None, "'interval' must be at least 0")
+
+    return ({'count': count, 'interval': interval}, None)
+
+
 def _node_type(st):
     """ return a string indicating the type of special node represented by
     the stat buffer st (block, character, fifo, socket).
@@ -2056,6 +2084,8 @@ class Plugin():
             kwargs['to_file'] = True
         if "snap_cmd" in kwargs:
             kwargs.pop("snap_cmd")
+        if not kwargs.get('series'):
+            kwargs.pop('series', None)
         soscmd = SoSCommand(**kwargs)
         self._log_debug(f"packed command: {str(soscmd)}")
         for _skip_cmd in self.skip_commands:
@@ -2127,7 +2157,7 @@ class Plugin():
                        changes=False, foreground=False, tags=[],
                        priority=10, cmd_as_tag=False, container=None,
                        to_file=False, runas=None, snap_cmd=False,
-                       runtime=None):
+                       runtime=None, series=None):
         """Run a program or a list of programs and collect the output
 
         Output will be limited to `sizelimit`, collecting the last X amount
@@ -2213,6 +2243,11 @@ class Plugin():
 
         :param runtime: Specific runtime to use to run container cmd
         :type runtime: ``str``
+
+        :param series: Collect the command(s) several times, waiting
+                        `interval` seconds between runs. Takes a dict
+                        of {'count': <int>, 'interval': <int>}.
+        :type series: ``dict``
         """
         if isinstance(cmds, str):
             cmds = [cmds]
@@ -2222,6 +2257,16 @@ class Plugin():
             sizelimit = self.get_option("log_size")
         if pred is None:
             pred = self.get_predicate(cmd=True)
+        if series is not None:
+            series, err = _validate_series(series)
+            if err:
+                self._log_warn(
+                    f"Ignoring invalid series specification ({err})")
+                series = None
+            elif series['count'] < 2:
+                # A single run is not a series, so lets treat is a
+                # a plain command
+                series = None
         for cmd in cmds:
             container_cmd = None
             if container:
@@ -2243,7 +2288,7 @@ class Plugin():
                                  foreground=foreground, priority=priority,
                                  cmd_as_tag=cmd_as_tag, to_file=to_file,
                                  container_cmd=container_cmd, runas=runas,
-                                 snap_cmd=snap_cmd)
+                                 snap_cmd=snap_cmd, series=series)
 
     def add_cmd_tags(self, tagdict):
         """Retroactively add tags to any commands that have been run by this
@@ -3396,6 +3441,37 @@ class Plugin():
                 self._log_info(f"error copying '{path}' from container "
                                f"'{con}': {cpret['output']}")
 
+    def _sleep_series_interval(self, cmd, interval):
+        """Wait `interval` seconds before the next run of `cmd`.
+
+        Sleeps in sub-second steps so a plugin timeout interrupts the
+        wait instead of holding the reportt hostage.
+        """
+        self._log_debug(f"Waiting {interval}s before next run of '{cmd}'")
+        subsecond_step = 0.25
+        waited = 0
+        while waited < interval and not self.check_timeout():
+            step = min(subsecond_step, interval - waited)
+            sleep(step)
+            waited += step
+
+    def _collect_cmd_series(self, soscmd):
+        """Collect a single queued command as a series."""
+        params = dict(soscmd.__dict__)
+        series = params.pop('series')
+        count = series['count']
+        interval = series['interval']
+        for run in range(1, count + 1):
+            if self.check_timeout():
+                self._log_info("Interrupting series of "
+                               f"'{soscmd.cmd}' - plugin timeout hit.")
+                break
+            self._log_info(f"Collecting output of '{soscmd.cmd}' "
+                           f"(run {run} of {count})")
+            self._collect_cmd_output(**params)
+            if run < count and interval > 0:
+                self._sleep_series_interval(soscmd.cmd, interval)
+
     def _collect_cmds(self):
         self.collect_cmds.sort(key=lambda x: x.priority)
         for soscmd in self.collect_cmds:
@@ -3403,8 +3479,12 @@ class Plugin():
             user = ""
             if getattr(soscmd, "runas", None) is not None:
                 user = f", as the {soscmd.runas} user"
-            self._log_info(f"collecting output of '{soscmd.cmd}'{user}")
-            self._collect_cmd_output(**soscmd.__dict__)
+            series = getattr(soscmd, 'series', None)
+            if series:
+                self._collect_cmd_series(soscmd)
+            else:
+                self._log_info(f"collecting output of '{soscmd.cmd}'{user}")
+                self._collect_cmd_output(**soscmd.__dict__)
 
     def _collect_tailed_files(self):
         for _file, _size in self._tail_files_list:
