@@ -21,7 +21,7 @@ from datetime import datetime
 from threading import Lock
 
 from importlib.util import find_spec
-from importlib import import_module
+from sos.archive_redaction import substitute_file
 from sos.utilities import sos_get_command_output
 
 try:
@@ -136,6 +136,9 @@ class FileCacheArchive(Archive):
     """ Abstract superclass for archive types that use a temporary cache
     directory in the file system. """
 
+    _substitution_limit = 64 * 1024 * 1024
+    _lzma_memory_limit = 128 * 1024 * 1024
+
     _tmp_dir = ""
     _archive_root = ""
     _archive_name = ""
@@ -143,6 +146,7 @@ class FileCacheArchive(Archive):
     def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot,
                  manifest=None):
         self._name = name
+        self._failed_substitution = False
         # truncate the name just relative to the tmpdir in case of full path
         if os.path.commonprefix([self._name, tmpdir]) == tmpdir:
             self._name = os.path.relpath(name, tmpdir)
@@ -408,15 +412,16 @@ class FileCacheArchive(Archive):
 
     def add_binary(self, content, dest, force=False):
         with self._path_lock:
-            src = dest
             dest = self.check_path(dest, P_FILE, force=force)
             if not dest:
                 return
-
+            previous = (os.stat(dest) if force and os.path.exists(dest)
+                        else None)
             with open(dest, 'wb') as f:
                 f.write(content)
-            if force and os.path.exists(src):
-                self._copy_attributes(src, dest)
+            if previous is not None:
+                os.chmod(dest, stat.S_IMODE(previous.st_mode))
+                os.utime(dest, ns=(previous.st_atime_ns, previous.st_mtime_ns))
             self.log_debug(f"added binary content at '{dest}' to archive "
                            f"'{self._archive_root}'")
 
@@ -587,47 +592,7 @@ class FileCacheArchive(Archive):
         :returns: Number of replacements made
         :rtype: ``int``
         """
-        common_flags = re.IGNORECASE | re.MULTILINE
-        if hasattr(regexp, "pattern"):
-            pattern = regexp.pattern
-            flags = regexp.flags | common_flags
-        else:
-            pattern = regexp
-            flags = common_flags
-
-        with self.open_file(path, binary=True) as readable:
-            content = readable.read()
-        compression = None
-        for magic, module_name in ((b'\x1f\x8b', 'gzip'),
-                                   (b'BZh', 'bz2'),
-                                   (b'\xfd7zXZ\x00', 'lzma')):
-            if content.startswith(magic):
-                decompression_error = OSError
-                try:
-                    compression = import_module(module_name)
-                    if module_name == 'gzip':
-                        decompression_error = compression.zlib.error
-                    elif module_name == 'lzma':
-                        decompression_error = compression.LZMAError
-                    content = compression.decompress(content)
-                except (ImportError, OSError, EOFError, ValueError,
-                        decompression_error) as err:
-                    raise OSError(
-                        f"Cannot decompress archived file '{path}'") from err
-                break
-        if not isinstance(content, str):
-            content = content.decode('utf8', 'ignore')
-        result, replacements = re.subn(pattern, subst, content,
-                                       flags=flags)
-        if replacements:
-            if compression:
-                self.add_binary(compression.compress(result.encode('utf-8')),
-                                path, force=True)
-            else:
-                self.add_string(result, path)
-        else:
-            replacements = 0
-        return replacements
+        return substitute_file(self, path, regexp, subst)
 
     def tar_subdirs(self, paths):
         """Replace one or more collected directories with a single tarball.
@@ -671,7 +636,12 @@ class FileCacheArchive(Archive):
                     os.unlink(tarpath)
         return packed
 
+    def check_substitutions(self):
+        if self._failed_substitution:
+            raise OSError("Archive contains a file that could not be redacted")
+
     def finalize(self, method):
+        self.check_substitutions()
         self.log_info(f"finalizing archive '{self._archive_root}' using method"
                       f" '{method}'")
         try:
