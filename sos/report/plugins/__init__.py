@@ -1675,7 +1675,8 @@ class Plugin():
             }
             matched_files = []
             for cfile in self.copied_files:
-                if re.match(file_regex, cfile['srcpath']):
+                if re.match(file_regex,
+                            self.strip_sysroot(cfile['srcpath'])):
                     matched_files.append(cfile['dstpath'].lstrip('/'))
             if matched_files:
                 manifest_data['files_copied'] = matched_files
