@@ -165,7 +165,8 @@ Only log fatal errors to stderr.
 .TP
 .B \-z, \-\-compression-type {auto|xz|gzip|none}
 Compression type to use when compressing the final archive output. If the value \fBnone\fP is given
-the tar archive will be written directly with no compression.
+the tar archive will be written directly with no compression. An xz archive is compressed in blocks
+of 16 MiB on as many threads as \fB\-\-threads\fR gives, each thread using about 60 MiB of memory.
 .TP
 .B \--help
 Display usage message.

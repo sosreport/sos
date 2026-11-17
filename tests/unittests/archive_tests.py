@@ -5,14 +5,16 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
+import lzma
 import unittest
 import os
 import tarfile
 import tempfile
 import shutil
+from unittest import mock
 
 from sos.archive import TarFileArchive
-from sos.utilities import tail
+from sos.utilities import tail, BlockXZFile
 from sos.policies import Policy
 
 
@@ -112,6 +114,69 @@ class TarFileArchiveTest(unittest.TestCase):
 
     def test_compress(self):
         self.tf.finalize("auto")
+
+    def _xz_blocks(self, path):
+        """How many blocks the one xz stream at ``path`` has"""
+        with open(path, 'rb') as packed:
+            data = packed.read()
+        stream = lzma.LZMADecompressor()
+        stream.decompress(data)
+        self.assertTrue(stream.eof)
+        self.assertEqual(stream.unused_data, b'')
+        size = (int.from_bytes(data[-8:-4], 'little') + 1) * 4
+        return BlockXZFile._read_number(data[-12 - size:-12], 1)[0]
+
+    def test_xz_is_one_block_below_the_block_size(self):
+        self.tf.add_file('tests/unittests/ziptest')
+        self.tf.finalize('auto')
+        self.check_for_file('test/tests/unittests/ziptest')
+        self.assertEqual(
+            self._xz_blocks(os.path.join(self.tmpdir, 'test.tar.xz')), 1)
+
+    def test_xz_in_blocks_is_read_as_any_archive(self):
+        self.tf.add_file('tests/unittests/ziptest')
+        with mock.patch('sos.archive.BlockXZFile.BLOCK', 1024):
+            self.tf.finalize('auto')
+        self.check_for_file('test/tests/unittests/ziptest')
+        self.assertGreater(
+            self._xz_blocks(os.path.join(self.tmpdir, 'test.tar.xz')), 1)
+        with tarfile.open(os.path.join(self.tmpdir, 'test.tar.xz'),
+                          mode='r|xz') as rtf:
+            self.assertIn('test/tests/unittests/ziptest', rtf.getnames())
+
+    def test_xz_is_compressed_on_the_threads_of_the_archive(self):
+        enc = {'encrypt': False}
+        for threads, used in ((4, 4), (1, 1), (None, 1)):
+            workdir = tempfile.mkdtemp(dir=self.tmpdir)
+            archive = TarFileArchive('gibson', workdir, Policy(), threads,
+                                     enc, '/')
+            self.assertEqual(archive.xz_threads, used)
+            archive.add_string('hack the planet', 'motd')
+            with mock.patch('sos.archive.BlockXZFile',
+                            wraps=BlockXZFile) as packed:
+                archive.finalize('xz')
+            packed.assert_called_once_with(
+                os.path.join(workdir, 'gibson.tar.xz'), used, preset=3)
+        # and on as many as whoever finalizes it says
+        self.tf.xz_threads = 7
+        with mock.patch('sos.archive.BlockXZFile',
+                        wraps=BlockXZFile) as packed:
+            self.tf.finalize('auto')
+        self.assertEqual(packed.call_args[0][1], 7)
+
+    def test_gzip_and_plain_archives_are_written_by_tarfile(self):
+        enc = {'encrypt': False}
+        for method, suffix in (('gzip', '.tar.gz'), ('none', '.tar')):
+            workdir = tempfile.mkdtemp(dir=self.tmpdir)
+            archive = TarFileArchive('gibson', workdir, Policy(), 4, enc,
+                                     '/')
+            archive.add_file('tests/unittests/ziptest')
+            with mock.patch('sos.archive.BlockXZFile') as packed:
+                archive.finalize(method)
+            packed.assert_not_called()
+            with tarfile.open(os.path.join(workdir,
+                                           f"gibson{suffix}")) as rtf:
+                rtf.getmember('gibson/tests/unittests/ziptest')
 
 
 if __name__ == "__main__":

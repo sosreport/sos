@@ -21,7 +21,7 @@ from datetime import datetime
 from threading import Lock
 
 from importlib.util import find_spec
-from sos.utilities import sos_get_command_output
+from sos.utilities import sos_get_command_output, BlockXZFile
 
 try:
     import selinux
@@ -724,6 +724,10 @@ class TarFileArchive(FileCacheArchive):
                  manifest=None):
         super().__init__(name, tmpdir, policy, threads,
                          enc_opts, sysroot, manifest)
+        # How many threads compress an xz archive, see BlockXZFile: as
+        # many as collected what is in it, unless whoever finalizes the
+        # archive sets another number
+        self.xz_threads = threads or 1
         self._suffix = "tar"
         self._archive_name = os.path.join(
             tmpdir, self.name()  # lgtm [py/init-calls-subclass]
@@ -788,23 +792,33 @@ class TarFileArchive(FileCacheArchive):
             'gzip': {'compresslevel': 6},
             'xz':   {'preset': 3}
         }
-        with tarfile.open(self._archive_name,
-                          mode=_mode,
-                          **kwargs[method]) as tar:
-            # Add commonly reviewed files first, so that they can be more
-            # easily read from memory without needing to extract
-            # the whole archive
-            for _content in ['version.txt', 'sos_reports', 'sos_logs']:
-                if os.path.exists(os.path.join(self._archive_root, _content)):
-                    tar.add(
-                        os.path.join(self._archive_root, _content),
-                        arcname=f"{self._name}/{_content}"
-                    )
-            # we need to pass the absolute path to the archive root but we
-            # want the names used in the archive to be relative.
-            tar.add(self._archive_root, arcname=self._name,
-                    filter=self.copy_permissions_filter)
+        if method == 'xz':
+            with BlockXZFile(self._archive_name, self.xz_threads,
+                             **kwargs[method]) as packed, \
+                    tarfile.open(self._archive_name, mode='w',
+                                 fileobj=packed) as tar:
+                self._add_root(tar)
+        else:
+            with tarfile.open(self._archive_name,
+                              mode=_mode,
+                              **kwargs[method]) as tar:
+                self._add_root(tar)
         return self.name()
+
+    def _add_root(self, tar):
+        # Add commonly reviewed files first, so that they can be more
+        # easily read from memory without needing to extract
+        # the whole archive
+        for _content in ['version.txt', 'sos_reports', 'sos_logs']:
+            if os.path.exists(os.path.join(self._archive_root, _content)):
+                tar.add(
+                    os.path.join(self._archive_root, _content),
+                    arcname=f"{self._name}/{_content}"
+                )
+        # we need to pass the absolute path to the archive root but we
+        # want the names used in the archive to be relative.
+        tar.add(self._archive_root, arcname=self._name,
+                filter=self.copy_permissions_filter)
 
 
 # vim: set et ts=4 sw=4 :

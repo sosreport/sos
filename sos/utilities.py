@@ -24,8 +24,18 @@ import threading
 import time
 import io
 import mmap
+import zlib
+
+# pylint: disable-next=no-name-in-module
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
 from collections import deque
+
+try:
+    import lzma
+except ImportError:
+    # a Python built without it: no xz archives, see BlockXZFile
+    lzma = None
 
 try:
     from packaging.version import parse as parse_version
@@ -1001,6 +1011,212 @@ class TempFileUtil():
                 # if the above failed, this is also likely to fail, ignore
                 pass
         self.files = []
+
+
+class BlockXZFile():
+    """A file for ``tarfile`` to write an xz archive to, compressed on
+    several threads. The lzma module compresses on one, which for a large
+    archive takes longer than everything before it.
+
+    What is written is cut into blocks of ``BLOCK`` bytes, each of which
+    is compressed on its own. The file is one xz stream with a block for
+    each, in the order written, as ``xz --threads`` writes: every reader
+    of xz reads it, and it is a little larger than a stream of one block.
+    It holds the same bytes whatever the number of threads.
+
+    The lzma module only writes whole streams, of one block each. Each
+    block is compressed as such a stream; what goes to the file is the
+    first one's header, the block of each, then an index of all the
+    blocks and the footer, written here as the xz file format has them.
+
+    :param path:        The file to write
+    :type path:         ``str``
+
+    :param threads:     How many blocks to compress at one time; each one
+                        in progress is held in memory, in chunks of
+                        ``CHUNK`` bytes, never as one piece
+    :type threads:      ``int``
+
+    :param preset:      The xz preset
+    :type preset:       ``int``
+    """
+
+    BLOCK = 16 * 1024 * 1024
+    CHUNK = 1024 * 1024
+    HEADER_MAGIC = b'\xfd7zXZ\x00'
+    FOOTER_MAGIC = b'YZ'
+    # a stream's header and its footer are this long
+    FRAME = 12
+
+    def __init__(self, path, threads=1, preset=3):
+        if lzma is None:
+            raise ImportError('the lzma module is not available')
+        # pylint: disable=consider-using-with
+        self._file = open(path, 'wb')
+        self._preset = preset
+        self._threads = max(threads, 1)
+        self._pool = ThreadPoolExecutor(max_workers=self._threads)
+        # the blocks being compressed, in the order written
+        self._pending = deque()
+        # what tarfile's small writes leave until there is a chunk of it,
+        # and the chunks of the block being filled, and their size
+        self._buffer = bytearray()
+        self._chunks = []
+        self._held = 0
+        self._position = 0
+        self._taken = 0
+        # the header of the stream, once written, and what the index
+        # says of each block written: its size in the file without its
+        # padding, and the size of what it holds
+        self._header = None
+        self._records = []
+        self.closed = False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, *args):
+        if exc_type is None:
+            self.close()
+        else:
+            # what failed is not to be hidden by an error from here, and
+            # what is left is not worth compressing or waiting for
+            self._release(wait=False)
+
+    def tell(self):
+        """How many bytes have been written, before compression"""
+        return self._position
+
+    def write(self, data):
+        self._buffer += data
+        self._position += len(data)
+        while len(self._buffer) >= self._room():
+            self._take(self._room())
+        return len(data)
+
+    def _room(self):
+        """How much the next chunk takes: a chunk, or what the block being
+        filled has room for"""
+        return min(self.CHUNK, self.BLOCK - self._held)
+
+    def _take(self, size):
+        """Move the first ``size`` bytes written to the block being
+        filled, and hand the block to a thread once it is full"""
+        self._chunks.append(bytes(self._buffer[:size]))
+        del self._buffer[:size]
+        self._held += size
+        if self._held == self.BLOCK:
+            self._compress(self._chunks)
+            self._chunks, self._held = [], 0
+
+    @staticmethod
+    def _pack(chunks, preset):
+        """The xz stream of one block, compressed from its ``chunks`` one
+        after another, each let go once it is compressed"""
+        packer = lzma.LZMACompressor(preset=preset)
+        parts = []
+        for at, chunk in enumerate(chunks):
+            parts.append(packer.compress(chunk))
+            chunks[at] = None
+        parts.append(packer.flush())
+        return b''.join(parts)
+
+    @staticmethod
+    def _number(value):
+        """``value`` as the file format writes a number of any size:
+        seven bits a byte, the lowest first, the top bit set on every
+        byte but the last
+        """
+        out = bytearray()
+        while value >= 0x80:
+            # the low seven bits with the top bit set, as more bytes
+            # follow, then shift the next seven bits down
+            out.append(value & 0x7f | 0x80)
+            value >>= 7
+        out.append(value)
+        return bytes(out)
+
+    @staticmethod
+    def _read_number(data, at):
+        """The number at ``data[at]`` and where the next thing starts"""
+        value = shift = 0
+        while True:
+            byte = data[at]
+            at += 1
+            # the byte's low seven bits go above those read so far; a byte
+            # without the top bit set is the last
+            value |= (byte & 0x7f) << shift
+            if not byte & 0x80:
+                return value, at
+            shift += 7
+
+    def _pump(self):
+        """Write the block that has waited longest, once it is compressed:
+        what its stream holds between its header and its index, which
+        the footer gives the size of. The index says what to put in the
+        index of this file.
+        """
+        packed = self._pending.popleft().result()
+        frame = self.FRAME
+        if packed[:6] != self.HEADER_MAGIC or packed[-2:] != self.FOOTER_MAGIC:
+            raise lzma.LZMAError('compressed block is not an xz stream')
+        index_size = (int.from_bytes(packed[-8:-4], 'little') + 1) * 4
+        index = packed[-frame - index_size:-frame]
+        count, at = self._read_number(index, 1)
+        for _ in range(count):
+            unpadded, at = self._read_number(index, at)
+            held, at = self._read_number(index, at)
+            self._records.append((unpadded, held))
+        if self._header is None:
+            self._header = packed[:frame]
+            self._file.write(self._header)
+        self._file.write(packed[frame:-frame - index_size])
+
+    def _compress(self, block):
+        # no more blocks are held than there are threads to take them
+        while len(self._pending) >= self._threads:
+            self._pump()
+        self._pending.append(
+            self._pool.submit(self._pack, block, self._preset))
+        self._taken += 1
+
+    def _end_stream(self):
+        """Write the index of the blocks and the stream's footer"""
+        index = bytearray(b'\x00' + self._number(len(self._records)))
+        for unpadded, held in self._records:
+            index += self._number(unpadded) + self._number(held)
+        index += bytes(-len(index) % 4)
+        index += zlib.crc32(index).to_bytes(4, 'little')
+        # the size of the index and the flags the header has
+        ends = (len(index) // 4 - 1).to_bytes(4, 'little') + \
+            self._header[6:8]
+        self._file.write(index + zlib.crc32(ends).to_bytes(4, 'little') +
+                         ends + self.FOOTER_MAGIC)
+
+    def close(self):
+        """Compress what is left, write every block still pending, then
+        the end of the stream, and close the file. An error from a thread
+        is raised here or by the ``write()`` that waited for it.
+        """
+        if self.closed:
+            return
+        try:
+            while self._buffer:
+                self._take(min(len(self._buffer), self._room()))
+            if self._chunks or not self._taken:
+                # an archive with nothing in it is still a stream
+                self._compress(self._chunks)
+            while self._pending:
+                self._pump()
+            self._end_stream()
+        finally:
+            self._release(wait=True)
+
+    def _release(self, wait):
+        """Close the file as it is and take no more blocks"""
+        self.closed = True
+        self._pool.shutdown(wait=wait, cancel_futures=True)
+        self._file.close()
 
 
 class SoSTimeoutError(OSError):

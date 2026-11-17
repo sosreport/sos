@@ -5,20 +5,23 @@
 # version 2 of the GNU General Public License.
 #
 # See the LICENSE file in the source distribution for further information.
+import lzma
 import os.path
 import shutil
 import signal
+import tarfile
 import tempfile
 import threading
 import time
 import unittest
+from unittest import mock
 
 # PYCOMPAT
 from io import StringIO
 
 from sos.utilities import (grep, is_executable, sos_get_command_output,
                            find, tail, shell_out, tac_logs, StdinWriter,
-                           SoSTimeoutError)
+                           SoSTimeoutError, BlockXZFile)
 
 TEST_DIR = os.path.dirname(__file__)
 
@@ -214,6 +217,197 @@ class TacTest(unittest.TestCase):
 
         self.assertEqual(self.tac_logs_str(tac, True), cat)
         self.assertEqual(self.tac_logs_str(tac, False), cat)
+
+
+class BlockXZFileTest(unittest.TestCase):
+    """An xz file written in blocks, each compressed on a thread of its
+    own, is one stream that any reader of xz reads"""
+
+    BLOCK = 64 * 1024
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tmpdir)
+        self.path = os.path.join(self.tmpdir, 'jam.xz')
+        # text that compresses, and no block of it like another
+        self.data = b''.join(b'%d pump up the jam %d\n' % (num, num * num)
+                             for num in range(40000))
+
+    def _write(self, data, threads, chunk=3001):
+        with BlockXZFile(self.path, threads) as out:
+            out.BLOCK = self.BLOCK
+            for at in range(0, len(data), chunk):
+                piece = data[at:at + chunk]
+                self.assertEqual(out.write(piece), len(piece))
+                # no more blocks held than threads to take them
+                self.assertLessEqual(len(out._pending), max(threads, 1))
+            self.assertEqual(out.tell(), len(data))
+        self.assertTrue(out.closed)
+        with open(self.path, 'rb') as packed:
+            return packed.read()
+
+    def _blocks(self, packed):
+        """How much each block of ``packed`` holds, by its index, having
+        checked that it is one xz stream and nothing more"""
+        stream = lzma.LZMADecompressor()
+        stream.decompress(packed)
+        self.assertTrue(stream.eof)
+        self.assertEqual(stream.unused_data, b'')
+        size = (int.from_bytes(packed[-8:-4], 'little') + 1) * 4
+        index = packed[-12 - size:-12]
+        count, at = BlockXZFile._read_number(index, 1)
+        held = []
+        for _ in range(count):
+            _, at = BlockXZFile._read_number(index, at)
+            block, at = BlockXZFile._read_number(index, at)
+            held.append(block)
+        return held
+
+    def test_blocks_are_one_stream_in_the_order_written(self):
+        packed = self._write(self.data, 4)
+        held = self._blocks(packed)
+        self.assertGreater(len(held), 8)
+        self.assertEqual(set(held[:-1]), {self.BLOCK})
+        self.assertEqual(sum(held), len(self.data))
+        self.assertEqual(lzma.decompress(packed), self.data)
+        with lzma.open(self.path) as src:
+            self.assertEqual(src.read(), self.data)
+
+    def test_one_block_is_what_the_lzma_module_writes(self):
+        for data in (b'', b'gibson', self.data[:self.BLOCK - 1]):
+            self.assertEqual(self._write(data, 3),
+                             lzma.compress(data, preset=3))
+
+    def test_numbers_are_written_as_the_format_has_them(self):
+        for value, written in ((0, b'\x00'), (127, b'\x7f'),
+                               (128, b'\x80\x01'), (300, b'\xac\x02'),
+                               (16 * 1024 * 1024, b'\x80\x80\x80\x08')):
+            self.assertEqual(BlockXZFile._number(value), written)
+            self.assertEqual(
+                BlockXZFile._read_number(b'x' + written + b'y', 1),
+                (value, 1 + len(written)))
+
+    @unittest.skipUnless(shutil.which('xz'), 'no xz command')
+    def test_xz_command_reads_it_as_one_stream(self):
+        self._write(self.data, 3)
+        tested = sos_get_command_output(f"xz --test {self.path}")
+        self.assertEqual(tested['status'], 0, tested['output'])
+        listed = sos_get_command_output(f"xz --robot --list {self.path}")
+        totals = [line.split() for line in listed['output'].splitlines()
+                  if line.startswith('totals')][0]
+        # the number of streams, then of blocks
+        self.assertEqual(totals[1], '1')
+        self.assertGreater(int(totals[2]), 8)
+        self.assertEqual(int(totals[4]), len(self.data))
+
+    def test_a_block_is_held_in_chunks_never_as_one_piece(self):
+        held = []
+        pack = BlockXZFile._pack
+
+        def sizes(chunks, preset):
+            held.append([len(chunk) for chunk in chunks])
+            return pack(chunks, preset)
+
+        with mock.patch.object(BlockXZFile, '_pack', side_effect=sizes), \
+                mock.patch.object(BlockXZFile, 'CHUNK', 4096):
+            packed = self._write(self.data, 2, chunk=1500)
+        self.assertEqual(lzma.decompress(packed), self.data)
+        # in the order the threads took them
+        whole, part = divmod(len(self.data), self.BLOCK)
+        self.assertEqual(sorted(sum(block) for block in held),
+                         sorted([self.BLOCK] * whole + [part]))
+        self.assertTrue(all(size <= 4096 for block in held
+                            for size in block))
+        # and the same file as one piece a block would make
+        self.assertEqual(packed, self._write(self.data, 1))
+
+    def test_file_is_the_same_with_any_number_of_threads(self):
+        one = self._write(self.data, 1)
+        self.assertEqual(self._write(self.data, 4), one)
+        self.assertEqual(self._write(self.data, 0), one)
+        self.assertEqual(self._write(self.data, 4, chunk=200000), one)
+
+    def test_whole_blocks_end_without_an_empty_block(self):
+        packed = self._write(self.data[:self.BLOCK * 3], 2)
+        self.assertEqual(self._blocks(packed), [self.BLOCK] * 3)
+
+    def test_nothing_written_is_an_empty_archive(self):
+        packed = self._write(b'', 2)
+        self.assertEqual(self._blocks(packed), [])
+        self.assertEqual(lzma.decompress(packed), b'')
+
+    def test_close_again_does_nothing(self):
+        out = BlockXZFile(self.path, 2)
+        out.write(b'gibson')
+        out.close()
+        out.close()
+        with lzma.open(self.path) as src:
+            self.assertEqual(src.read(), b'gibson')
+
+    def test_error_from_a_thread_is_raised_and_the_file_closed(self):
+        with mock.patch.object(BlockXZFile, '_pack',
+                               side_effect=lzma.LZMAError('no memory')):
+            out = BlockXZFile(self.path, 2)
+            out.BLOCK = 1024
+            # by whichever call waits for the block
+            with self.assertRaises(lzma.LZMAError):
+                out.write(b'x' * 10000)
+            with self.assertRaises(lzma.LZMAError):
+                out.close()
+            out.close()
+        self.assertTrue(out.closed)
+        self.assertTrue(out._file.closed)
+
+    def test_failure_while_writing_is_not_hidden_by_closing(self):
+        pack = BlockXZFile._pack
+        # the size of each block compressed, as it is handed over
+        packed = []
+
+        def counting(chunks, preset):
+            packed.append(sum(len(chunk) for chunk in chunks))
+            return pack(chunks, preset)
+
+        with mock.patch.object(BlockXZFile, '_pack', side_effect=counting):
+            with self.assertRaises(OSError) as failed:
+                with BlockXZFile(self.path, 2) as out:
+                    out.BLOCK = self.BLOCK
+                    out.write(self.data[:self.BLOCK * 3 + 100])
+                    raise OSError(28, 'No space left on device')
+            self.assertEqual(failed.exception.errno, 28)
+            # what was left was not compressed; a block still queued may
+            # have been canceled
+            self.assertLessEqual(len(packed), 3)
+            self.assertEqual(set(packed), {self.BLOCK})
+        self.assertTrue(out.closed)
+        self.assertTrue(out._file.closed)
+        out.close()
+
+    def test_python_without_lzma_is_said_before_a_file_is_made(self):
+        with mock.patch('sos.utilities.lzma', None):
+            with self.assertRaises(ImportError):
+                BlockXZFile(self.path, 2)
+        self.assertFalse(os.path.exists(self.path))
+
+    def test_tarfile_writes_an_archive_to_it(self):
+        source = os.path.join(self.tmpdir, 'ellingson')
+        os.mkdir(source)
+        for num in range(6):
+            with open(os.path.join(source, f"file{num}"), 'wb') as dst:
+                dst.write(self.data[:self.BLOCK * num // 2])
+        with BlockXZFile(self.path, 3) as out:
+            out.BLOCK = self.BLOCK
+            with tarfile.open(self.path, mode='w', fileobj=out) as tar:
+                tar.add(source, arcname='ellingson')
+        with tarfile.open(self.path) as tar:
+            self.assertEqual(
+                sorted(tar.getnames()),
+                ['ellingson'] + [f"ellingson/file{num}" for num in range(6)])
+            self.assertEqual(tar.extractfile('ellingson/file5').read(),
+                             self.data[:self.BLOCK * 5 // 2])
+        # as a stream too, which reads with one decompressor: an xz file
+        # of several streams is not read this way
+        with tarfile.open(self.path, mode='r|xz') as tar:
+            self.assertEqual(len(tar.getnames()), 7)
 
 
 class StdinWriterTest(unittest.TestCase):
