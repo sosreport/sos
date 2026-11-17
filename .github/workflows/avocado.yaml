@@ -93,7 +93,7 @@ jobs:
             [ $( echo "${{ inputs.distro_name }}" | grep centos) ] && dnf -y install epel-release
             dnf -y install tox
             # Install packages required for testing
-            dnf -y install kmod ethtool gnupg2 iproute hostname procps-ng file systemd git
+            dnf -y install kmod ethtool gnupg2 iproute hostname procps-ng file systemd git python3-pyyaml
           fi
         continue-on-error: true
 
