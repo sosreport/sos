@@ -61,6 +61,7 @@ __all__ = [
     'fileobj',
     'find',
     'get_human_readable',
+    'get_nonconflicting_path',
     'grep',
     'import_module',
     'is_executable',
@@ -542,6 +543,44 @@ def path_exists(path, sysroot):
     if '*' in path:
         return _os_wrapper(path, sysroot, 'glob', module=glob)
     return _os_wrapper(path, sysroot, 'exists')
+
+
+def get_nonconflicting_path(path, name_max=255, link_ok=False):
+    """Return `path`, or a `.N`-suffixed variant of it, if the path is
+    already taken.
+
+    This mirrors the collision handling `sos report` applies when naming
+    command output files: append an incrementing `.N` suffix, truncating
+    the basename as needed to respect the filesystem's name length limit.
+
+    :param path:        The desired path
+    :type path:         ``str``
+
+    :param name_max:    The maximum supported length of a filename
+    :type name_max:     ``int``
+
+    :param link_ok:     Should dangling symlinks be treated as occupying
+                        a path?
+    :type link_ok:      ``bool``
+
+    :returns:           A path that is not currently in use
+    :rtype:             ``str``
+    """
+    path_taken = os.path.lexists if link_ok else os.path.exists
+
+    if not path_taken(path):
+        return path
+
+    inc = 1
+    while True:
+        suffix = f".{inc}"
+        newname = os.path.basename(path)
+        if len(newname) + len(suffix) > name_max:
+            newname = newname[:name_max - len(suffix)]
+        newpath = os.path.join(os.path.dirname(path), newname + suffix)
+        if not path_taken(newpath):
+            return newpath
+        inc += 1
 
 
 def path_isdir(path, sysroot):

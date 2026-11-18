@@ -6,6 +6,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 import os.path
+import shutil
 import tempfile
 import threading
 import unittest
@@ -14,7 +15,8 @@ import unittest
 from io import StringIO
 
 from sos.utilities import (grep, is_executable, sos_get_command_output,
-                           find, tail, shell_out, tac_logs, StdinWriter)
+                           find, tail, shell_out, tac_logs, StdinWriter,
+                           get_nonconflicting_path)
 
 TEST_DIR = os.path.dirname(__file__)
 
@@ -232,5 +234,42 @@ class StdinWriterTest(unittest.TestCase):
         self.assertEqual(thread_errors, [])
         self.assertIsInstance(writer.error, str)
         self.assertNotEqual(writer.error, '')
+
+
+class GetNonconflictingPathTest(unittest.TestCase):
+
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tmpdir)
+
+    def test_free_path_returned_unchanged(self):
+        path = os.path.join(self.tmpdir, 'some_name')
+        self.assertEqual(get_nonconflicting_path(path), path)
+
+    def test_taken_path_gets_incrementing_suffix(self):
+        base = os.path.join(self.tmpdir, 'some_name')
+        with open(base, 'w', encoding='utf-8'):
+            pass
+        with open(f"{base}.1", 'w', encoding='utf-8'):
+            pass
+        self.assertEqual(get_nonconflicting_path(base), f"{base}.2")
+
+    def test_name_truncated_to_name_max(self):
+        longname = 'a' * 20
+        path = os.path.join(self.tmpdir, longname)
+        with open(path, 'w', encoding='utf-8'):
+            pass
+        result = get_nonconflicting_path(path, name_max=10)
+        self.assertEqual(os.path.basename(result), 'a' * 8 + '.1')
+
+    def test_dangling_symlink_occupies_path_only_with_link_ok(self):
+        base = os.path.join(self.tmpdir, 'some_name')
+        missing_target = os.path.join(self.tmpdir, 'does_not_exist')
+        os.symlink(missing_target, base)
+        # a dangling symlink is invisible to os.path.exists()
+        self.assertEqual(get_nonconflicting_path(base), base)
+        # ...but counts as taken when dangling links are honored
+        self.assertEqual(get_nonconflicting_path(base, link_ok=True),
+                         f"{base}.1")
 
 # vim: set et ts=4 sw=4 :

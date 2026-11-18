@@ -32,6 +32,7 @@ from sos.utilities import (sos_get_command_output, import_module, grep,
                            fileobj, tail, is_executable, TIMEOUT_DEFAULT,
                            path_exists, path_isdir, path_isfile, path_islink,
                            listdir, path_join, bold, file_is_binary,
+                           get_nonconflicting_path,
                            recursive_dict_values_by_key)
 
 from sos.archive import P_FILE, P_LINK, P_CONTFILE
@@ -2325,22 +2326,14 @@ class Plugin():
         outdir = os.path.join(self.commons['cmddir'], plugin_dir)
         outfn = self._mangle_command(exe)
 
-        # check for collisions
-        if os.path.exists(os.path.join(self.archive.get_tmp_dir(),
-                                       outdir, outfn)):
-            inc = 1
-            name_max = self.archive.name_max()
-            while True:
-                suffix = f".{inc}"
-                newfn = outfn
-                if name_max < len(newfn)+len(suffix):
-                    newfn = newfn[:(name_max-len(newfn)-len(suffix))]
-                newfn = newfn + suffix
-                if not os.path.exists(os.path.join(self.archive.get_tmp_dir(),
-                                                   outdir, newfn)):
-                    outfn = newfn
-                    break
-                inc += 1
+        # check for collisions, appending an incrementing suffix and/or
+        # truncating the name if needed
+        outfn = os.path.basename(
+            get_nonconflicting_path(
+                os.path.join(self.archive.get_tmp_dir(), outdir, outfn),
+                name_max=self.archive.name_max()
+            )
+        )
 
         return os.path.join(outdir, outfn)
 
