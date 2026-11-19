@@ -26,6 +26,9 @@ class SkipVersionIPParser(StageTwoReportTest):
     install_plugins = ['skip_versions']
     sos_cmd = '--clean -o skip_versions'
 
+    def pre_sos_setup(self):
+        self.setup_isolated_cleaner_cache()
+
     def test_version_file_skipped(self):
         self.assertFileCollected(DO_SKIP)
         self.assertFileHasContent(DO_SKIP, '10.11.12.13')
