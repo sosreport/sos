@@ -359,7 +359,7 @@ class UbuntuNetworking(Networking, UbuntuPlugin, DebianPlugin):
             self.ss_kmods = common_ss_kmods + ['xsk_diag']
         elif (isinstance(self.policy, DebianPolicy) and
                 self.policy.dist_version() >= 13):
-            self.ss_kmods = common_ss_kmods + ['vsock_diag']
+            self.ss_kmods = common_ss_kmods + ['vsock_diag', 'sctp_diag']
 
         super().setup()
 
