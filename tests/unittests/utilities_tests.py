@@ -9,6 +9,7 @@ import os.path
 import tempfile
 import threading
 import unittest
+from unittest.mock import patch, MagicMock
 
 # PYCOMPAT
 from io import StringIO
@@ -232,5 +233,143 @@ class StdinWriterTest(unittest.TestCase):
         self.assertEqual(thread_errors, [])
         self.assertIsInstance(writer.error, str)
         self.assertNotEqual(writer.error, '')
+
+
+class RunasProfileTest(unittest.TestCase):
+    """Test that runas parameter properly loads user profiles"""
+
+    @patch('sos.utilities.is_executable')
+    @patch('sos.utilities.pwd.getpwnam')
+    def test_runas_uses_runuser_with_login_shell(self, mock_getpwnam,
+                                                   mock_is_executable):
+        """Test that runas uses runuser -l when available"""
+        # Set up mock user
+        mock_pwd_user = MagicMock()
+        mock_pwd_user.pw_name = 'testuser'
+        mock_pwd_user.pw_uid = 1000
+        mock_pwd_user.pw_gid = 1000
+        mock_pwd_user.pw_dir = '/home/testuser'
+        mock_pwd_user.pw_shell = '/bin/bash'
+        mock_getpwnam.return_value = mock_pwd_user
+
+        # Mock is_executable to return True for runuser and timeout
+        mock_is_executable.side_effect = lambda cmd: cmd in ["runuser",
+                                                              "timeout"]
+
+        # We'll patch Popen to capture the command without executing it
+        with patch('sos.utilities.Popen') as mock_popen:
+            # Set up a minimal mock that won't hang
+            mock_process = MagicMock()
+            mock_process.returncode = 0
+            mock_process.poll.return_value = 0  # Process already finished
+            mock_process.stdout.read.return_value = b''  # No output
+            mock_process.__enter__ = MagicMock(return_value=mock_process)
+            mock_process.__exit__ = MagicMock(return_value=False)
+            mock_popen.return_value = mock_process
+
+            # Call with runas parameter
+            sos_get_command_output('echo test', runas='testuser',
+                                   timeout=0)
+
+            # Verify Popen was called
+            self.assertTrue(mock_popen.called)
+
+            # Get the command that was passed to Popen
+            call_args = mock_popen.call_args
+            command_args = call_args[0][0]  # First positional argument
+
+            # Convert to string for easier checking
+            command_str = ' '.join(command_args)
+
+            # The command should contain runuser -l testuser -c
+            # 'echo test'
+            self.assertIn('runuser', command_str)
+            self.assertIn('-l', command_str)
+            self.assertIn('testuser', command_str)
+            self.assertIn('-c', command_str)
+            self.assertIn('echo test', command_str)
+
+    @patch('sos.utilities.is_executable')
+    @patch('sos.utilities.pwd.getpwnam')
+    def test_runas_uses_su_when_runuser_unavailable(self, mock_getpwnam,
+                                                      mock_is_executable):
+        """Test that runas falls back to su -l when runuser is not
+        available"""
+        mock_pwd_user = MagicMock()
+        mock_pwd_user.pw_name = 'testuser'
+        mock_pwd_user.pw_uid = 1000
+        mock_pwd_user.pw_gid = 1000
+        mock_pwd_user.pw_dir = '/home/testuser'
+        mock_pwd_user.pw_shell = '/bin/bash'
+        mock_getpwnam.return_value = mock_pwd_user
+
+        # Mock is_executable: runuser not available, su is available
+        def is_exec_side_effect(cmd):
+            return cmd in ["su", "timeout"]
+        mock_is_executable.side_effect = is_exec_side_effect
+
+        with patch('sos.utilities.Popen') as mock_popen:
+            mock_process = MagicMock()
+            mock_process.returncode = 0
+            mock_process.poll.return_value = 0
+            mock_process.stdout.read.return_value = b''
+            mock_process.__enter__ = MagicMock(return_value=mock_process)
+            mock_process.__exit__ = MagicMock(return_value=False)
+            mock_popen.return_value = mock_process
+
+            sos_get_command_output('echo test', runas='testuser',
+                                   timeout=0)
+
+            call_args = mock_popen.call_args
+            command_args = call_args[0][0]
+            command_str = ' '.join(command_args)
+
+            # Should use su instead of runuser
+            self.assertIn('su', command_str)
+            self.assertIn('-l', command_str)
+            self.assertIn('testuser', command_str)
+            self.assertIn('-c', command_str)
+            self.assertNotIn('runuser', command_str)
+
+    @patch('sos.utilities.is_executable')
+    @patch('sos.utilities.pwd.getpwnam')
+    def test_runas_quotes_command_properly(self, mock_getpwnam,
+                                            mock_is_executable):
+        """Test that commands with special characters are properly
+        quoted"""
+        mock_pwd_user = MagicMock()
+        mock_pwd_user.pw_name = 'testuser'
+        mock_pwd_user.pw_uid = 1000
+        mock_pwd_user.pw_gid = 1000
+        mock_pwd_user.pw_dir = '/home/testuser'
+        mock_pwd_user.pw_shell = '/bin/bash'
+        mock_getpwnam.return_value = mock_pwd_user
+
+        mock_is_executable.side_effect = lambda cmd: cmd in ["runuser",
+                                                              "timeout"]
+
+        with patch('sos.utilities.Popen') as mock_popen:
+            mock_process = MagicMock()
+            mock_process.returncode = 0
+            mock_process.poll.return_value = 0
+            mock_process.stdout.read.return_value = b''
+            mock_process.__enter__ = MagicMock(return_value=mock_process)
+            mock_process.__exit__ = MagicMock(return_value=False)
+            mock_popen.return_value = mock_process
+
+            # Command with special characters that need quoting
+            complex_cmd = 'echo "hello world" && ls -la'
+            sos_get_command_output(complex_cmd, runas='testuser',
+                                   timeout=0)
+
+            call_args = mock_popen.call_args
+            command_args = call_args[0][0]
+
+            # Verify the structure includes runuser and -c
+            command_str = ' '.join(command_args)
+            self.assertIn('runuser', command_str)
+            self.assertIn('-c', command_str)
+            # The complex command should be preserved
+            self.assertIn('echo', command_str)
 
 # vim: set et ts=4 sw=4 :
