@@ -10,6 +10,7 @@ import os
 import tempfile
 import shutil
 import random
+import gzip
 
 from io import StringIO
 from string import ascii_lowercase
@@ -57,8 +58,9 @@ class MockArchive(TarFileArchive):
     def add_link(self, source, link_name):
         pass
 
-    def open_file(self, path):
-        return open(self.m.get(path), 'r', encoding='utf-8')
+    def open_file(self, path, binary=False):
+        return open(self.m.get(path), 'rb' if binary else 'r',
+                    encoding=None if binary else 'utf-8')
 
     def close(self):
         pass
@@ -536,6 +538,39 @@ class RegexSubTests(unittest.TestCase):
             j("tail_test.txt"), r"(tail)", "foobar")
         self.assertEqual(1, replacements)
         self.assertTrue("foobar" in self.mp.archive.m.get(j('tail_test.txt')))
+
+    def test_compressed_path_replacements(self):
+        self.mp.sysroot = '/'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            src = os.path.join(tmpdir, 'rotated.log.gz')
+            with gzip.open(src, 'wt') as source:
+                source.write('password=SECRET\n')
+            self.mp.archive = TarFileArchive(
+                'report', tmpdir, self.mp.policy, 1, {'encrypt': False}, '/')
+            self.mp.add_copy_spec(src)
+            self.mp.collect_plugin()
+            self.mp.do_path_regex_sub(src, r'(password=).*', r'\1********')
+            with gzip.open(self.mp.archive.dest_path(src), 'rt') as output:
+                self.assertEqual(output.read(), 'password=********\n')
+
+    def test_compressed_limit_blocks_final_archive(self):
+        self.mp.sysroot = '/'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            src = os.path.join(tmpdir, 'rotated.log.gz')
+            with gzip.open(src, 'wt') as source:
+                source.write('password=SECRET\n')
+            self.mp.archive = TarFileArchive(
+                'report', tmpdir, self.mp.policy, 1, {'encrypt': False}, '/')
+            self.mp.archive._substitution_limit = 8
+            self.mp.add_copy_spec(src)
+            self.mp.collect_plugin()
+            self.mp.do_path_regex_sub(src, r'(password=).*', r'\1********')
+            with self.assertRaises(OSError):
+                self.mp.archive.finalize('gzip')
+            self.assertFalse(os.path.exists(
+                self.mp.archive.get_archive_path() + '.tar.gz'))
+            with gzip.open(src, 'rt') as source:
+                self.assertEqual(source.read(), 'password=SECRET\n')
 
 
 if __name__ == "__main__":
