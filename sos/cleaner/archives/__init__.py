@@ -19,7 +19,7 @@ import re
 
 from concurrent.futures import ProcessPoolExecutor
 from sos.utilities import (file_is_binary, sos_get_command_output,
-                           file_is_certificate)
+                           file_is_certificate, get_nonconflicting_path)
 
 
 def _path_is_within(directory, target):
@@ -182,22 +182,72 @@ class SoSObfuscationArchive():
                                           _ob_short_name)
 
         if _ob_filename != short_name:
+            # obfuscate_filename is only called, via obfuscate_arc_file, for
+            # non-symlink files; symlinks are obfuscated separately by
+            # SoSCleaner.obfuscate_symlinks()
             arc_path = filename.split(short_name)[0]
             _ob_path = os.path.join(arc_path, _ob_filename)
             # ensure that any plugin subdirs that contain obfuscated strings
             # get created with obfuscated counterparts
-            if not os.path.islink(filename):
-                os.rename(filename, _ob_path)
-            else:
-                # generate the obfuscated name of the link target
-                _target_ob = self.obfuscate_string(os.readlink(filename))
-                # remove the unobfuscated original symlink first, in case the
-                # symlink name hasn't changed but the target has
-                os.remove(filename)
-                # create the newly obfuscated symlink, pointing to the
-                # obfuscated target name, which may not exist just yet, but
-                # when the actual file is obfuscated, will be created
-                os.symlink(_target_ob, _ob_path)
+            _ob_path = self.get_available_path(_ob_path)
+            os.rename(filename, _ob_path)
+
+    def name_max(self):
+        """Return the maximum file name length supported by the filesystem
+        the archive is extracted to
+        """
+        if 'PC_NAME_MAX' in os.pathconf_names:
+            pc_name_max = os.pathconf_names['PC_NAME_MAX']
+            return os.pathconf(self.extracted_path, pc_name_max)
+        return 255
+
+    def get_available_path(self, path):
+        """Return `path`, or a `.N`-suffixed variant of it, if the path is
+        already taken, so that two entries obfuscating to the same name do
+        not silently clobber each other.
+
+        :param path:    The desired (obfuscated) full path of an entry
+        :type path:     ``str``
+
+        :returns:       A path that is not yet used within the archive
+        :rtype:         ``str``
+        """
+        _path = get_nonconflicting_path(path, name_max=self.name_max(),
+                                        link_ok=True)
+        if _path != path:
+            self.log_warn(f"Obfuscation name conflict: '{path}' already "
+                          f"exists, using '{_path}' instead")
+        return _path
+
+    def replace_symlink(self, old_path, new_path, new_target):
+        """Recreate a symlink pointing to `new_target` without a window in
+        which the original link does not exist.
+
+        :param old_path:    The current full path of the symlink
+        :type old_path:     ``str``
+
+        :param new_path:    The desired (obfuscated) full path of the symlink
+        :type new_path:     ``str``
+
+        :param new_target:  The (obfuscated) target of the symlink
+        :type new_target:   ``str``
+        """
+        if new_path == old_path:
+            # only the target changes; swap the link in place via a
+            # temporary link so the symlink exists at all times. The name is
+            # randomized, rather than a fixed suffix, so that a pre-existing
+            # file of a guessable name can't block the obfuscation of this
+            # symlink.
+            _tmp_path = tempfile.mktemp(
+                prefix=f"{os.path.basename(old_path)}.",
+                dir=os.path.dirname(old_path)
+            )
+            os.symlink(new_target, _tmp_path)
+            os.replace(_tmp_path, old_path)
+            return
+        new_path = self.get_available_path(new_path)
+        os.symlink(new_target, new_path)
+        os.remove(old_path)
 
     def set_parsers(self, parsers):
         self.parsers = parsers  # TODO: include this in __init__?
@@ -504,7 +554,10 @@ class SoSObfuscationArchive():
         which would be named after the unobfuscated sos report
         """
         _path = self.extracted_path.replace(self.archive_name, new_name)
-        self.archive_name = new_name
+        if _path == self.extracted_path:
+            return
+        _path = self.get_available_path(_path)
+        self.archive_name = _path.split('/')[-1]
         os.rename(self.extracted_path, _path)
         self.extracted_path = _path
 

@@ -1040,8 +1040,7 @@ third party.
                 # if either the symlink name or the target name has changed,
                 # recreate the symlink
                 if (_ob_sym_name != symlink) or (_ob_target != _target):
-                    os.remove(symlink)
-                    os.symlink(_ob_target, _ob_sym_name)
+                    archive.replace_symlink(symlink, _ob_sym_name, _ob_target)
             except Exception as err:
                 self.log_info(f"Error obfuscating symlink '{symlink}': {err}")
 
@@ -1064,6 +1063,11 @@ third party.
                             _ob_arc_dir.lstrip('/'),
                             _ob_dirname
                         )
+                        # if the obfuscated name is already taken, e.g. by
+                        # another directory obfuscating to the same name,
+                        # use a nearby name instead of failing the whole
+                        # rename pass for this archive
+                        _ob_arc_dir = archive.get_available_path(_ob_arc_dir)
                         os.rename(_dirname, _ob_arc_dir)
 
     # TODO: this is a duplicate method from SoSObfuscationArchive but we can't
