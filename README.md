@@ -120,8 +120,16 @@ To install locally (as root):
 # python3 setup.py install
 ```
 
+### Nightly Builds and Release Packaging
 
-### Pre-built Packaging
+Find the nightly and release packaging assets [on the releases page](https://github.com/sosreport/sos/releases).
+
+There is a nightly CI job that will provide packaged builds of the latest `main` commit. This build occurs nightly when `main` has changed since the last nightly build. If there have been no changes since the last nightly build, no new build happens.
+
+Every GitHub release (after the 4.12.1 release) will have packages attached to the release in the form of RPMs, DEBs, and snaps.
+
+### Distribution-Official Packaging
+sos has packaging in the official repos for Debian, Fedora, RHEL, and Ubuntu distributions.
 
 Fedora/RHEL users install via dnf:
 
