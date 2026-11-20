@@ -9,6 +9,7 @@ pristine-tar, and upstream changes.
 1. `Debian: Packaging a new release <#packaging-a-new-release>`__
 2. `Debian: Backport process <#debian-backport-process>`__
 3. `Debian: Sponsorship Differences <#sponsorship-differences>`__
+4. `Ubuntu: Stable Release Updates (SRUs) <#ubuntu-sru-process>`__
 
 Packaging a new release
 -----------------------
@@ -246,3 +247,115 @@ the sponsorship can go through.
 Over time you may have built some relationship with a sponsor, and you
 may be able to contact this person without submitting an RFS, and point
 this person to your package that has been uploaded to mentors.
+
+.. _ubuntu-sru-process:
+
+Ubuntu Stable Release Updates (SRUs)
+------------------------------------
+
+Ubuntu has an SRU exception policy for ``sos`` / ``sosreport`` that
+allows new upstream versions to be released to stable Ubuntu series. The
+policy defines the eligibility criteria and requirements for
+consideration; it does not guarantee that an update will be accepted.
+Review the `SRU exception policy for sosreport
+<https://ubuntu.com/project/docs/SRU/reference/exception-Sosreport-Updates/>`__
+before preparing an update.
+
+If the proposed microrelease SRU is justified under the policy, prepare
+the Ubuntu package as follows. Repeat the branching and packaging steps
+for each target Ubuntu series.
+
+Clone the Ubuntu packaging repository and add remotes for upstream and
+Debian. The upstream remote provides the release source, while the
+Debian remote provides Debian packaging changes and patches to review.
+
+::
+
+   git ubuntu clone sos
+   cd sos
+   git remote add upstream git@github.com:sosreport/sos.git
+   git remote add debian git@salsa.debian.org:python-team/packages/sosreport.git
+   git fetch --all
+
+Create a local branch from the Ubuntu development branch for the target
+series. For example, to prepare sos 4.12.1 for Resolute:
+
+::
+
+   git checkout -b resolute-4.12.1 pkg/ubuntu/resolute-devel
+
+Import the upstream release changes without replacing Ubuntu's
+``debian`` directory. Upstream, Debian, and Ubuntu maintain that
+directory independently. Substitute the release tag you are packaging:
+
+::
+
+   git diff @..4.12.1 -- ':(exclude)debian' | git apply
+   git add -A
+   git commit -m "Import 4.12.1 from upstream"
+
+Review the Ubuntu patch series and remove patches that have already
+been applied upstream or are otherwise no longer needed. Check each
+patch before removing it.
+
+::
+
+   git rm debian/patches/<patch-file>
+   vim debian/patches/series  # Remove references to now deleted patches
+   git commit -m "Remove patches no longer needed"
+
+Compare the state of the local tree to the tagged debian release and
+review any differences. Typically there should only be differences in
+the debian directory such as the changelog, copyright, new patches from
+Debian, the watch and control files, and tests.
+
+Typically the copyright file can be copied directly from Debian as it
+will have the most up-to-date information. Review any new patches from
+Debian for suitability in Ubuntu, and selectively apply changes as
+needed. Contrastingly, the watch file and changelog should not be
+copied.
+
+::
+
+   git diff HEAD..debian/<debian-tagged-release>
+   git checkout debian/<debian-tagged-release> -- debian/<file>
+   git add debian/<file>
+   git commit -m "d/<file>: <summary>"
+
+Regarding the relevant changes in ``debian/control``: add new build
+dependencies when the required packages and versions are available in
+Ubuntu, and update ``Breaks`` and ``Replaces`` as needed for the upgrade
+path. If this is the first SRU for the target series, ie.  the first
+release in the series to use an ``-XubuntuY`` version suffix, it is
+necessary to update the maintainer field with ``update-maintainer`` and
+commit the resulting change:
+
+::
+
+   update-maintainer
+   git add debian/control
+   git commit -m "d/control: Update maintainer to Ubuntu Developers"
+
+Before proposing the SRU, create a Launchpad bug following the SRU
+template. Include the justification, changes since the last Ubuntu
+upload, a test plan, and the potential regressions and how they could
+appear. Target both ``sos`` and ``sosreport`` packages, and mark the
+relevant Ubuntu series as affected.
+
+Update ``debian/changelog`` for the SRU. Set the package version and
+Ubuntu series, link the Launchpad bug and upstream release notes, and
+summarize packaging changes since the last Ubuntu upload.
+
+::
+
+   dch -i
+   git add debian/changelog
+   git commit -m "d/changelog: Update changelog for 4.12.1"
+
+Push the branch to your personal Launchpad remote and open a merge
+proposal against the target series' ``-devel`` branch. Once the PR
+is open, subscribe the `~ubuntu-sponsors` team to the bug.
+
+::
+
+   git push <personal-remote> resolute-4.12.1
