@@ -82,6 +82,7 @@ class Networking(Plugin):
 
         self.add_forbidden_path([
             "/proc/net/rpc/use-gss-proxy",
+            "/proc/net/rpc/gss_krb5_enctypes",
             "/proc/net/rpc/*/channel",
             "/proc/net/rpc/*/flush",
             # Cisco CDP
