@@ -7,14 +7,17 @@
 # See the LICENSE file in the source distribution for further information.
 import json
 import logging
+import os
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 
 from avocado.utils import distro
 
-from sos.policies import Policy, import_policy
-from sos.policies.distros import LinuxPolicy
-from sos.policies.distros.redhat import RedHatCoreOSPolicy
+from sos.policies import Policy, import_policy, load
+from sos.policies.distros import (LinuxPolicy, ENV_HOST_SYSROOT,
+                                  OS_RELEASE)
+from sos.policies.distros.redhat import (FedoraPolicy, RedHatCoreOSPolicy,
+                                         RHELPolicy)
 from sos.policies.package_managers import PackageManager, MultiPackageManager
 from sos.policies.package_managers.rpm import RpmPackageManager
 from sos.policies.package_managers.dpkg import DpkgPackageManager
@@ -91,6 +94,99 @@ class PolicyTests(unittest.TestCase):
 
     def test_cant_import(self):
         self.assertTrue(import_policy('notreal') is None)
+
+
+class CheckPrimaryTests(unittest.TestCase):
+
+    RHEL_RELEASE = 'NAME="Red Hat Enterprise Linux"\nID="rhel"\n'
+    COREOS_RELEASE = 'NAME="Red Hat Enterprise Linux CoreOS"\nID="rhcos"\n'
+    ALMA_RELEASE = 'NAME="AlmaLinux"\nID="almalinux"\nID_LIKE="rhel"\n'
+    # Cover the RHEL 8/9 case where FedoraPolicy tied with RHELPolicy on
+    # MRO depth, letting the wrong policy win the tie
+    RHEL_FEDORA_LIKE_RELEASE = ('NAME="Red Hat Enterprise Linux"\n'
+                                'ID="rhel"\nID_LIKE="fedora"\n')
+
+    def test_check_primary_matches_name(self):
+        self.assertTrue(RHELPolicy.check_primary(remote=self.RHEL_RELEASE))
+
+    def test_check_primary_rejects_id_like(self):
+        self.assertFalse(RHELPolicy.check_primary(remote=self.ALMA_RELEASE))
+
+    def test_check_primary_rejects_fedora_id_like(self):
+        self.assertFalse(
+            FedoraPolicy.check_primary(remote=self.RHEL_FEDORA_LIKE_RELEASE)
+        )
+
+    def test_check_primary_base_policy_returns_false(self):
+        self.assertFalse(FauxPolicy.check_primary())
+
+    def test_check_still_matches_id_like(self):
+        self.assertTrue(RHELPolicy.check(remote=self.ALMA_RELEASE))
+
+    def test_sort_prefers_check_primary_match_any_order(self):
+        for matches in ([FedoraPolicy, RHELPolicy],
+                        [RHELPolicy, FedoraPolicy]):
+            matches.sort(
+                key=lambda p: (
+                    p.check_primary(remote=self.RHEL_FEDORA_LIKE_RELEASE),
+                    len(p.__mro__)),
+                reverse=True
+            )
+            self.assertIs(matches[0], RHELPolicy)
+
+    def test_load_prefers_check_primary_match_any_order(self):
+        """load() must resolve a check_primary()/MRO tie in favor of the
+        direct identity match, regardless of discovery order."""
+        for order in ([FedoraPolicy, RHELPolicy],
+                      [RHELPolicy, FedoraPolicy]):
+            with patch.object(RHELPolicy, '__init__',
+                              return_value=None), \
+                    patch.object(FedoraPolicy, '__init__',
+                                 return_value=None), \
+                    patch('sos.policies.import_policy',
+                          side_effect=lambda _, order=order: order), \
+                    patch('sos.policies.ImporterHelper') as helper:
+                helper.return_value.get_modules.return_value = ['redhat']
+                policy = load(remote_check=self.RHEL_FEDORA_LIKE_RELEASE)
+            self.assertIsInstance(policy, RHELPolicy)
+
+    def test_check_primary_local_file(self):
+        with patch('builtins.open',
+                   mock_open(read_data=self.RHEL_RELEASE)) as m:
+            self.assertTrue(RHELPolicy.check_primary())
+        m.assert_called_once_with(OS_RELEASE, 'r', encoding='utf-8')
+
+    def test_check_primary_local_file_missing(self):
+        with patch('builtins.open', side_effect=IOError):
+            self.assertFalse(RHELPolicy.check_primary())
+
+    def test_coreos_check_primary_local_file(self):
+        with patch.dict('os.environ', {ENV_HOST_SYSROOT: '/host'}):
+            with patch('builtins.open',
+                       mock_open(read_data=self.COREOS_RELEASE)) as m:
+                self.assertTrue(RedHatCoreOSPolicy.check_primary())
+        m.assert_called_once_with('/host' + OS_RELEASE, 'r',
+                                  encoding='utf-8')
+
+    def test_coreos_check_primary_local_file_missing(self):
+        with patch.dict('os.environ', {ENV_HOST_SYSROOT: '/host'}):
+            with patch('builtins.open', side_effect=IOError):
+                self.assertFalse(RedHatCoreOSPolicy.check_primary())
+
+    def test_coreos_check_primary_without_sysroot_env(self):
+        # self-proving: matching host os-release content is available,
+        # so only the missing sysroot env var can gate the read
+        with patch.dict('os.environ'):
+            os.environ.pop(ENV_HOST_SYSROOT, None)
+            with patch('builtins.open',
+                       mock_open(read_data=self.COREOS_RELEASE)) as m:
+                self.assertFalse(RedHatCoreOSPolicy.check_primary())
+        m.assert_not_called()
+
+    def test_coreos_check_primary_with_remote(self):
+        self.assertTrue(
+            RedHatCoreOSPolicy.check_primary(remote=self.COREOS_RELEASE)
+        )
 
 
 class PackageManagerTests(unittest.TestCase):
