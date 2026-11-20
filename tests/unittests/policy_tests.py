@@ -20,6 +20,7 @@ from sos.policies.package_managers.rpm import RpmPackageManager
 from sos.policies.package_managers.dpkg import DpkgPackageManager
 from sos.report.plugins import (Plugin, IndependentPlugin,
                                 RedHatPlugin, DebianPlugin)
+from sos.report import SoSReport
 
 
 class FauxPolicy(Policy):
@@ -331,6 +332,60 @@ class RedHatCoreOSArchiveNameTests(unittest.TestCase):
                           return_value='mycluster'):
             policy.get_archive_name()
         self.assertEqual(policy.commons['cmdlineopts'].label, 'original')
+
+
+class KmodLoadWarningTests(unittest.TestCase):
+
+    def setUp(self):
+        self.policy = FauxLinuxPolicy(probe_runtime=False)
+
+    def test_warns_when_overlay_not_loaded(self):
+        self.policy.runtimes = {'podman': MagicMock()}
+        self.policy.kernel_mods = []
+        warning = self.policy.get_podman_overlay_warning()
+        self.assertIsNotNone(warning)
+        self.assertIn('overlay', warning)
+        self.assertIn('kernel module', warning)
+
+    def test_no_warning_when_overlay_loaded(self):
+        self.policy.runtimes = {'podman': MagicMock()}
+        self.policy.kernel_mods = ['overlay']
+        self.assertIsNone(self.policy.get_podman_overlay_warning())
+
+    def test_no_warning_without_podman(self):
+        self.policy.runtimes = {}
+        self.policy.kernel_mods = []
+        self.assertIsNone(self.policy.get_podman_overlay_warning())
+
+
+class KmodWarningCallSiteTests(unittest.TestCase):
+
+    def _make_report(self, container_runtime='auto'):
+        report = object.__new__(SoSReport)
+        report.opts = MagicMock()
+        report.opts.container_runtime = container_runtime
+        report.policy = MagicMock()
+        report.soslog = MagicMock()
+        return report
+
+    def test_logs_warning_from_policy(self):
+        report = self._make_report()
+        report.policy.get_podman_overlay_warning.return_value = 'msg'
+        report._check_container_runtime()
+        report.soslog.warning.assert_called_once_with('msg')
+
+    def test_no_warning_when_policy_is_quiet(self):
+        report = self._make_report()
+        report.policy.get_podman_overlay_warning.return_value = None
+        report._check_container_runtime()
+        report.soslog.warning.assert_not_called()
+
+    def test_logs_warning_with_container_runtime_none(self):
+        # the warning must precede the runtimes being cleared
+        report = self._make_report(container_runtime='none')
+        report.policy.get_podman_overlay_warning.return_value = 'msg'
+        report._check_container_runtime()
+        report.soslog.warning.assert_called_once_with('msg')
 
 
 if __name__ == "__main__":
