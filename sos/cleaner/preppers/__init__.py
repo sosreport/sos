@@ -56,6 +56,7 @@ class SoSPrepper():
             'ipv6': set(),
             'keyword': set(),
             'mac': set(),
+            'regexp': set(),
             'username': set()
         }
         self.opts = options
@@ -73,6 +74,18 @@ class SoSPrepper():
 
     def log_error(self, msg):
         self.soslog.error(self._fmt_log_msg(msg))
+
+    def set_parser(self, parser):
+        """Hook for preppers to configure their parser after initialization.
+
+        Called after the parser's mapping is fully initialized and compiled
+        regexes are generated. Usually, this method is not needed. Override
+        it in subclasses that need to transfer state or configuration to
+        their corresponding parser.
+
+        :param parser: The parser instance to configure
+        :type parser:  ``SoSCleanerParser``
+        """
 
     def get_parser_file_list(self, parser, archive):
         """

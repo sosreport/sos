@@ -1,0 +1,12 @@
+# Custom regexp patterns for obfuscation testing
+#
+# Format: <keyword> <pattern>
+# - keyword: lowercase alphanumeric, ending with letter
+# - pattern: Python regex with EXACTLY ONE capturing group ()
+
+# Pattern to match host=VALUE, or host=VALUE at end of line
+# Captures the value but not the comma
+shorthost host=([^,\s]+)(?:,|$)
+
+# Pattern to match HOST VALUE (uppercase HOST followed by space and value)
+hostspace HOST (\S+)
