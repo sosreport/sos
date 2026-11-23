@@ -10,6 +10,10 @@ import os
 import tarfile
 import tempfile
 import shutil
+import bz2
+import gzip
+import lzma
+import re
 
 from sos.archive import TarFileArchive
 from sos.utilities import tail
@@ -102,6 +106,141 @@ class TarFileArchiveTest(unittest.TestCase):
 
         afp = self.tf.open_file('tests/string_test.txt')
         self.assertEqual('this is my new content', afp.read())
+
+    def test_substitute_compressed_file(self):
+        for compression in (gzip, bz2, lzma):
+            with self.subTest(compression=compression.__name__):
+                path = os.path.join(
+                    self.tmpdir, f'acidburn-{compression.__name__}.log')
+                content = b'password=SECRET\nPASSWORD=OTHER\n'
+                original = compression.compress(content)
+                with open(path, 'wb') as source:
+                    source.write(original)
+                os.chmod(path, 0o640)
+                os.utime(path, (1000000000, 1000000000))
+                self.tf.add_file(path)
+                replacements = self.tf.do_file_sub(
+                    path, re.compile(r'^(password=).*$'), r'\1********')
+                self.assertEqual(replacements, 2)
+                with open(self.tf.dest_path(path), 'rb') as output:
+                    self.assertEqual(
+                        compression.decompress(output.read()),
+                        b'password=********\nPASSWORD=********\n')
+                self.assertEqual(os.stat(self.tf.dest_path(path)).st_mtime,
+                                 os.stat(path).st_mtime)
+                self.assertEqual(os.stat(self.tf.dest_path(path)).st_mode,
+                                 os.stat(path).st_mode)
+                with open(path, 'rb') as source:
+                    self.assertEqual(source.read(), original)
+
+    def test_substitute_compressed_file_without_matches(self):
+        for compression in (gzip, bz2, lzma):
+            with self.subTest(compression=compression.__name__):
+                path = f'logs/{compression.__name__}.log'
+                content = compression.compress(b'nothing sensitive\n')
+                self.tf.add_binary(content, path)
+                self.assertEqual(self.tf.do_file_sub(
+                    path, 'SECRET', '********'), 0)
+                with open(self.tf.dest_path(path), 'rb') as output:
+                    self.assertEqual(output.read(), content)
+
+    def test_substitute_uncompressed_file_with_compressed_suffix(self):
+        self.tf.add_string('password=SECRET\n', 'plain.log.gz')
+        self.assertEqual(self.tf.do_file_sub(
+            'plain.log.gz', 'SECRET', '********'), 1)
+        with self.tf.open_file('plain.log.gz') as output:
+            self.assertEqual(output.read(), 'password=********\n')
+
+    def test_substitute_corrupt_compressed_file(self):
+        for compression in (gzip, bz2, lzma):
+            with self.subTest(compression=compression.__name__):
+                path = f'logs/{compression.__name__}.log'
+                content = compression.compress(b'password=SECRET\n')[:10]
+                self.tf.add_binary(content, path)
+                with self.assertRaises(OSError):
+                    self.tf.do_file_sub(path, 'SECRET', '********')
+                with open(self.tf.dest_path(path), 'rb') as output:
+                    self.assertEqual(output.read(), content)
+
+    def test_substitute_invalid_gzip_body(self):
+        content = bytearray(gzip.compress(b'password=SECRET\n'))
+        content[10] = 0xff
+        self.tf.add_binary(content, 'invalid.log.gz')
+        with self.assertRaises(OSError):
+            self.tf.do_file_sub('invalid.log.gz', 'SECRET', '********')
+        with open(self.tf.dest_path('invalid.log.gz'), 'rb') as output:
+            self.assertEqual(output.read(), content)
+
+    def test_relative_compressed_attributes_ignore_cwd(self):
+        path = 'acidburn.log'
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(self.tmpdir)
+            with open(path, 'wb') as decoy:
+                decoy.write(b'decoy')
+            os.chmod(path, 0o777)
+            self.tf.add_binary(gzip.compress(b'SECRET'), path)
+            archived = self.tf.dest_path(path)
+            os.chmod(archived, 0o640)
+            os.utime(archived, (1000000000, 1000000000))
+            self.assertEqual(self.tf.do_file_sub(path, 'SECRET', 'MASK'), 1)
+            self.assertEqual(os.stat(archived).st_mode & 0o777, 0o640)
+            self.assertEqual(os.stat(archived).st_mtime, 1000000000)
+            with open(path, 'rb') as decoy:
+                self.assertEqual(decoy.read(), b'decoy')
+        finally:
+            os.chdir(original_cwd)
+
+    def test_plain_bzip_prefix(self):
+        for prefix in ('BZh', 'BZh9', 'BZh9plaintext'):
+            self.tf.add_string(prefix + ' password=SECRET', 'plain.log')
+            self.assertEqual(self.tf.do_file_sub(
+                'plain.log', 'SECRET', 'MASK'), 1)
+            with self.tf.open_file('plain.log') as output:
+                self.assertEqual(output.read(), prefix + ' password=MASK')
+
+    def test_substitution_decompression_limit(self):
+        self.tf._substitution_limit = 64
+        for compression in (gzip, bz2, lzma):
+            for content in (b'SECRET' * 20,
+                            b'SECRET' * 6):
+                path = compression.__name__
+                encoded = compression.compress(content)
+                if len(content) < 64:
+                    encoded += compression.compress(content)
+                self.tf.add_binary(encoded, path, force=True)
+                with self.assertRaises(OSError):
+                    self.tf.do_file_sub(path, 'SECRET', 'MASK')
+                with open(self.tf.dest_path(path), 'rb') as output:
+                    self.assertEqual(output.read(), encoded)
+
+    def test_substitution_at_limit_and_concatenated(self):
+        self.tf._substitution_limit = 12
+        for compression in (gzip, bz2, lzma):
+            path = compression.__name__
+            encoded = compression.compress(b'SECRET') * 2
+            self.tf.add_binary(encoded, path)
+            self.assertEqual(self.tf.do_file_sub(path, 'SECRET', 'MASK'), 2)
+            with open(self.tf.dest_path(path), 'rb') as output:
+                self.assertEqual(compression.decompress(output.read()),
+                                 b'MASKMASK')
+
+    def test_xz_decoder_memory_limit(self):
+        self.tf._lzma_memory_limit = 1024 * 1024
+        content = lzma.compress(b'SECRET')
+        self.tf.add_binary(content, 'memory.xz')
+        with self.assertRaises(OSError):
+            self.tf.do_file_sub('memory.xz', 'SECRET', 'MASK')
+        with open(self.tf.dest_path('memory.xz'), 'rb') as output:
+            self.assertEqual(output.read(), content)
+
+    def test_xz_stream_padding(self):
+        encoded = lzma.compress(b'SECRET')
+        self.tf.add_binary(encoded + b'\0' * 4 + encoded, 'padded.xz')
+        self.assertEqual(self.tf.do_file_sub(
+            'padded.xz', 'SECRET', 'MASK'), 2)
+        with open(self.tf.dest_path('padded.xz'), 'rb') as output:
+            self.assertEqual(lzma.decompress(output.read()), b'MASKMASK')
 
     def test_make_link(self):
         self.tf.add_file('tests/ziptest')
