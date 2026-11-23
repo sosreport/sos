@@ -48,6 +48,8 @@ class CephRGW(Plugin, RedHatPlugin, UbuntuPlugin):
                 'bucket stats',
                 'datalog list',
                 'datalog status',
+                'dedup stats',
+                'dedup throttle --stat',
                 'gc list',
                 'lc list',
                 'log list',

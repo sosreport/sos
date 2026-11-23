@@ -76,6 +76,9 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
                 "/var/lib/ceph/**/kv_backend",
             ])
 
+            # Umbrella (v21) mon store backups; list only, as they hold keys
+            self.add_dir_listing("/var/backups/ceph/mon", recursive=True)
+
         else:
             self.add_forbidden_path([
                 "/var/snap/microceph/common/**/*keyring*",
@@ -129,7 +132,9 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "ceph osd crush tree --show-shadow",
             "ceph osd erasure-code-profile ls",
             "ceph osd metadata",
+            "ceph osd pool get threshold",
             "ceph osd utilization",
+            "ceph fs snapshot mirror daemon status",
             "ceph telemetry channel ls",
             "ceph telemetry collection ls",
             "ceph telemetry ls",
@@ -157,6 +162,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             "mds stat",
             "mon dump",
             "nfs cluster ls",
+            "nvme-gw show-all",
             "osd blocked-by",
             "osd blocklist ls",
             "osd crush tree --show-shadow",
@@ -187,6 +193,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             self.add_cmd_output([
                 f"ceph tell mon.{mid} mon_status",
                 f"ceph tell mon.{mid} sessions",
+                f"ceph tell mon.{mid} perf dump",
             ], subdir="json_output")
 
         self.add_cmd_output([f"ceph {cmd}" for cmd in ceph_cmds])
@@ -198,14 +205,27 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
             stderr=False
         )
 
+        nvme_gws = self.exec_cmd('ceph nvme-gw show-all --format json')
+        if nvme_gws['status'] == 0:
+            try:
+                for grp in json.loads(nvme_gws['output']):
+                    self.add_cmd_output(
+                        f"ceph nvme-gw listeners '{grp['pool']}' "
+                        f"'{grp['group']}'",
+                        subdir="json_output")
+            except (ValueError, KeyError, TypeError) as err:
+                self._log_debug(f"Could not parse nvme-gw show-all: {err}")
+
         # Collect NFS exports for each NFS cluster
         nfs_clusters = self.collect_cmd_output('ceph nfs cluster ls')
         if nfs_clusters['status'] == 0:
             for line in nfs_clusters['output'].splitlines():
                 cluster_id = line.strip()
                 if cluster_id:
-                    self.add_cmd_output(
-                        f"ceph nfs export ls {cluster_id}")
+                    self.add_cmd_output([
+                        f"ceph nfs export ls {cluster_id}",
+                        f"ceph nfs cluster qos get {cluster_id}",
+                    ])
 
         # Collect subvolume info for each CephFS volume
         fs_volumes = self.collect_cmd_output('ceph fs volume ls'
@@ -219,6 +239,7 @@ class CephMON(Plugin, RedHatPlugin, UbuntuPlugin):
                         self.add_cmd_output([
                             f"ceph fs subvolumegroup ls {vol_name}",
                             f"ceph fs subvolume ls {vol_name}",
+                            f"ceph fs snapshot mirror status {vol_name}",
                         ])
             except (ValueError, KeyError) as err:
                 self._log_debug(f"Could not parse fs volume list: {err}")
