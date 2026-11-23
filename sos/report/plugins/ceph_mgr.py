@@ -8,6 +8,7 @@
 #
 # See the LICENSE file in the source distribution for further information.
 
+import json
 import os
 
 from sos.report.plugins import Plugin, RedHatPlugin, UbuntuPlugin
@@ -169,6 +170,58 @@ class CephMGR(Plugin, RedHatPlugin, UbuntuPlugin):
             f"ceph daemon {m} {cmd}" for m in self.get_socks(directory)
             for cmd in cmds]
         )
+
+        nvmeof_cmds = self.get_nvmeof_cmds()
+        self.add_cmd_output([f"ceph {cmd}" for cmd in nvmeof_cmds])
+        # the nvmeof CLI only accepts plain, json and yaml formats
+        self.add_cmd_output(
+            [f"ceph {cmd} --format json" for cmd in nvmeof_cmds],
+            subdir="json_output",
+        )
+
+    def get_nvmeof_cmds(self):
+        """
+        Build 'ceph nvmeof' queries from the dashboard gateway registry.
+        """
+        res = self.collect_cmd_output('ceph dashboard nvmeof-gateway-list')
+        if res['status'] != 0:
+            return []
+        try:
+            gateways = json.loads(res['output']).get('gateways', {})
+        except (ValueError, AttributeError) as err:
+            self._log_debug(f"Could not parse nvmeof gateway list: {err}")
+            return []
+
+        group_cmds = [
+            "nvmeof subsystem list",
+            "nvmeof namespace list",
+            "nvmeof namespace list_locations",
+        ]
+        gw_cmds = [
+            "nvmeof gateway info",
+            "nvmeof gateway version",
+            "nvmeof gateway get_log_level",
+            "nvmeof gateway get_stats",
+            "nvmeof spdk_log_level get",
+            "nvmeof connection list",
+        ]
+
+        groups = set()
+        cmds = []
+        for daemons in gateways.values():
+            if not isinstance(daemons, list):
+                continue
+            for daemon in daemons:
+                group = daemon.get('group', '')
+                grp_opt = f" --gw-group {group}" if group else ""
+                groups.add(grp_opt)
+                url = daemon.get('service_url')
+                if url:
+                    cmds.extend(f"{cmd}{grp_opt} --server-address {url}"
+                                for cmd in gw_cmds)
+        for grp_opt in sorted(groups):
+            cmds.extend(f"{cmd}{grp_opt}" for cmd in group_cmds)
+        return cmds
 
     def get_socks(self, directory):
         """
