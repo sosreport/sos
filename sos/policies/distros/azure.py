@@ -29,8 +29,4 @@ class AzurePolicy(RedHatPolicy):
                          remote_exec=remote_exec)
         self.valid_subclasses += [AzurePlugin]
 
-
-class CBLMarinerPolicy(AzurePolicy):
-    os_release_name = 'Common Base Linux Mariner'
-
 # vim: set et ts=4 sw=4 :
