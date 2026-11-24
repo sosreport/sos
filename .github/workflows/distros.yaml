@@ -36,11 +36,12 @@ jobs:
             {"name": "fedora-43",     "image": "fedora:43",     "builds": ["rpm"],         "stages": ""},
             {"name": "fedora-44",     "image": "fedora:44",     "builds": ["rpm"],         "stages": "two"},
             {"name": "centos-9",      "image": "quay.io/centos/centos:stream9",  "builds": ["rpm"], "stages": ""},
-            {"name": "centos-10",     "image": "quay.io/centos/centos:stream10", "builds": ["rpm"], "stages": "two"}
+            {"name": "centos-10",     "image": "quay.io/centos/centos:stream10", "builds": ["rpm"], "stages": "two"},
+            {"name": "azurelinux-4",  "image": "mcr.microsoft.com/azurelinux/core:4", "builds": ["rpm"], "stages": ""}
           ]'
           echo "distro_matrix=$(echo $DISTRO_JSON | jq -c .)" >> $GITHUB_OUTPUT
 
-          RPM_JSON=$(echo "$DISTRO_JSON" | jq -c '[.[] | select(.name | contains("centos") or contains("fedora"))]')
+          RPM_JSON=$(echo "$DISTRO_JSON" | jq -c '[.[] | select(.builds | index("rpm"))]')
           echo "rpm_matrix=$RPM_JSON" >> $GITHUB_OUTPUT
 
           DEB_JSON=$(echo "$DISTRO_JSON" | jq -c '[.[] | select(.name | contains("ubuntu") or contains("debian"))]')

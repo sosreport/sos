@@ -61,7 +61,7 @@ jobs:
       - name: Bootstrap RPM based OS
         if: ${{ matrix.build == 'rpm' }}
         run: |
-          dnf -y install sudo
+          dnf -y install sudo tar
           sed -i 's/^account.*pam_unix.so/account sufficient pam_permit.so/' /etc/pam.d/sudo
           sed -i 's/^account.*required.*pam_unix.so/account sufficient pam_permit.so/' /etc/pam.d/system-auth
 
@@ -93,7 +93,7 @@ jobs:
             [ $( echo "${{ inputs.distro_name }}" | grep centos) ] && dnf -y install epel-release
             dnf -y install tox
             # Install packages required for testing
-            dnf -y install kmod ethtool gnupg2 iproute hostname procps-ng file systemd git
+            dnf -y install kmod ethtool gnupg2 iproute hostname procps-ng file systemd git tar
           fi
         continue-on-error: true
 
