@@ -93,7 +93,7 @@ class ReportWithUserCustomisations(StageOneReportTest):
     """
 
     sos_cmd = ('--clean -o filesys,kernel --keywords=fstab,Linux,tmp,'
-               'BOOT_IMAGE,fs.dentry-state --skip-cleaning-files '
+               'BOOT_IMAGE,root,fs.dentry-state --skip-cleaning-files '
                'proc/cmdline,sos_commands/*/sysctl* --no-update')
 
     def pre_sos_setup(self):
@@ -119,7 +119,7 @@ class ReportWithUserCustomisations(StageOneReportTest):
         self.assertFileNotHasContent('sos_commands/kernel/uname_-a', 'Linux')
 
     def test_skip_cleaning_single_file(self):
-        self.assertFileHasContent('proc/cmdline', 'BOOT_IMAGE')
+        self.assertFileHasContent('proc/cmdline', r'(BOOT_IMAGE|root)')
 
     def test_skip_cleaning_glob_file(self):
         self.assertFileHasContent(
