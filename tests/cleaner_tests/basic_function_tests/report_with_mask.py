@@ -92,7 +92,7 @@ class ReportWithUserCustomisations(StageOneReportTest):
     """
 
     sos_cmd = ('--clean -o filesys,kernel --keywords=fstab,Linux,tmp,'
-               'BOOT_IMAGE,fs.dentry-state --skip-cleaning-files '
+               'BOOT_IMAGE,root,fs.dentry-state --skip-cleaning-files '
                'proc/cmdline,sos_commands/*/sysctl* --no-update')
 
     # Will the 'tmp' be properly treated in path to working dir without
@@ -116,9 +116,7 @@ class ReportWithUserCustomisations(StageOneReportTest):
 
     def test_skip_cleaning_single_file(self):
         try:
-            self.assertFileHasContent('proc/cmdline', 'BOOT_IMAGE')
-        except AssertionError:
-            self.assertFileHasContent('proc/cmdline', 'root')
+            self.assertFileHasContent('proc/cmdline', r'(BOOT_IMAGE|root)')
 
     def test_skip_cleaning_glob_file(self):
         self.assertFileHasContent(
