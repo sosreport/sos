@@ -9,7 +9,6 @@
 # See the LICENSE file in the source distribution for further information.
 
 import os
-import time
 from sos.report.plugins import Plugin, IndependentPlugin
 
 
@@ -119,8 +118,7 @@ class MellanoxFirmware(Plugin, IndependentPlugin):
             # Dump the output of the mstdump command three times
             # waiting for one second. This output is useful to check
             # if certain registers changed
-            for _ in range(3):
-                self.add_cmd_output(f"mstdump {device}")
-                time.sleep(1)
+            self.add_cmd_output(f"mstdump {device}",
+                                series={'count': 3, 'interval': 1})
 
 # vim: set et ts=4 sw=4 :

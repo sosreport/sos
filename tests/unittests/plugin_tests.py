@@ -15,7 +15,8 @@ from io import StringIO
 from string import ascii_lowercase
 from unittest.mock import patch
 from sos.report.plugins import (Plugin, regex_findall,
-                                _mangle_command, PluginOpt)
+                                _mangle_command, PluginOpt,
+                                _validate_series)
 from sos.archive import TarFileArchive
 from sos.policies.distros import LinuxPolicy
 from sos.policies.init_systems import InitSystem
@@ -658,6 +659,43 @@ class RegexSubTests(unittest.TestCase):
                                 'test', name)
             with open(path, encoding='utf-8') as afile:
                 self.assertEqual(afile.read(), content)
+
+
+class ValidateSeriesTests(unittest.TestCase):
+    """Unit tests for the series specification validator."""
+
+    def test_valid_full_spec(self):
+        self.assertEqual(_validate_series({'count': 3, 'interval': 1}),
+                         ({'count': 3, 'interval': 1}, None))
+
+    def test_valid_empty_spec_gets_defaults(self):
+        self.assertEqual(_validate_series({}),
+                         ({'count': 1, 'interval': 0}, None))
+
+    def test_valid_missing_interval(self):
+        self.assertEqual(_validate_series({'count': 5}),
+                         ({'count': 5, 'interval': 0}, None))
+
+    def test_valid_missing_count(self):
+        self.assertEqual(_validate_series({'interval': 2}),
+                         ({'count': 1, 'interval': 2}, None))
+
+    def test_invalid_specs_are_rejected(self):
+        invalid = [
+            'count: 3',             # not a dict
+            {'counts': 3},          # unknown key
+            {'count': 0},           # below the minimum of 1
+            {'count': -1},          # negative
+            {'interval': -1},       # negative
+            {'count': '3'},         # string, not an int
+            {'count': 2.5},         # float, not an int
+            {'count': True},        # bool
+        ]
+        for spec in invalid:
+            with self.subTest(spec=spec):
+                series, err = _validate_series(spec)
+                self.assertIsNone(series)
+                self.assertIsNotNone(err)
 
 
 if __name__ == "__main__":
