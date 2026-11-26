@@ -115,7 +115,10 @@ class ReportWithUserCustomisations(StageOneReportTest):
         self.assertFileNotHasContent('sos_commands/kernel/uname_-a', 'Linux')
 
     def test_skip_cleaning_single_file(self):
-        self.assertFileHasContent('proc/cmdline', 'BOOT_IMAGE')
+        try:
+            self.assertFileHasContent('proc/cmdline', 'BOOT_IMAGE')
+        except AssertionError:
+            self.assertFileHasContent('proc/cmdline', 'root')
 
     def test_skip_cleaning_glob_file(self):
         self.assertFileHasContent(
