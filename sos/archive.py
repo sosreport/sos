@@ -21,6 +21,7 @@ from datetime import datetime
 from threading import Lock
 
 from importlib.util import find_spec
+from sos.archive_redaction import substitute_file
 from sos.utilities import sos_get_command_output
 
 try:
@@ -86,7 +87,7 @@ class Archive:
     def add_string(self, content, dest, mode='w'):
         raise NotImplementedError
 
-    def add_binary(self, content, dest):
+    def add_binary(self, content, dest, force=False):
         raise NotImplementedError
 
     def add_link(self, source, link_name):
@@ -135,6 +136,9 @@ class FileCacheArchive(Archive):
     """ Abstract superclass for archive types that use a temporary cache
     directory in the file system. """
 
+    _substitution_limit = 64 * 1024 * 1024
+    _lzma_memory_limit = 128 * 1024 * 1024
+
     _tmp_dir = ""
     _archive_root = ""
     _archive_name = ""
@@ -142,6 +146,7 @@ class FileCacheArchive(Archive):
     def __init__(self, name, tmpdir, policy, threads, enc_opts, sysroot,
                  manifest=None):
         self._name = name
+        self._failed_substitution = False
         # truncate the name just relative to the tmpdir in case of full path
         if os.path.commonprefix([self._name, tmpdir]) == tmpdir:
             self._name = os.path.relpath(name, tmpdir)
@@ -405,14 +410,18 @@ class FileCacheArchive(Archive):
                 self.log_debug(f"added string at '{src}' to FileCacheArchive "
                                f"'{self._archive_root}'")
 
-    def add_binary(self, content, dest):
+    def add_binary(self, content, dest, force=False):
         with self._path_lock:
-            dest = self.check_path(dest, P_FILE)
+            dest = self.check_path(dest, P_FILE, force=force)
             if not dest:
                 return
-
+            previous = (os.stat(dest) if force and os.path.exists(dest)
+                        else None)
             with open(dest, 'wb') as f:
                 f.write(content)
+            if previous is not None:
+                os.chmod(dest, stat.S_IMODE(previous.st_mode))
+                os.utime(dest, ns=(previous.st_atime_ns, previous.st_mtime_ns))
             self.log_debug(f"added binary content at '{dest}' to archive "
                            f"'{self._archive_root}'")
 
@@ -534,8 +543,10 @@ class FileCacheArchive(Archive):
         self.log_debug(f"created directory at '{path}' in FileCacheArchive "
                        f"'{self._archive_root}'")
 
-    def open_file(self, path):
+    def open_file(self, path, binary=False):
         path = self.dest_path(path)
+        if binary:
+            return open(path, 'rb')
         return open(path, "r", encoding='utf-8', errors='ignore')
 
     def cleanup(self):
@@ -566,41 +577,8 @@ class FileCacheArchive(Archive):
         self._archive_name = os.path.join(self._tmp_dir, self.name())
 
     def do_file_sub(self, path, regexp, subst):
-        """Apply a regexp substitution to a file in the archive.
-
-        :param path: Path in the archive where the file can be found
-        :type path: ``str``
-
-        :param regexp:  A regex to match the contents of the file
-        :type regexp: ``str`` or compiled ``re`` object
-
-        :param subst: The substitution string to be used to replace matches
-                      within the file
-        :type subst: ``str``
-
-        :returns: Number of replacements made
-        :rtype: ``int``
-        """
-        common_flags = re.IGNORECASE | re.MULTILINE
-        if hasattr(regexp, "pattern"):
-            pattern = regexp.pattern
-            flags = regexp.flags | common_flags
-        else:
-            pattern = regexp
-            flags = common_flags
-
-        content = ""
-        with self.open_file(path) as readable:
-            content = readable.read()
-        if not isinstance(content, str):
-            content = content.decode('utf8', 'ignore')
-        result, replacements = re.subn(pattern, subst, content,
-                                       flags=flags)
-        if replacements:
-            self.add_string(result, path)
-        else:
-            replacements = 0
-        return replacements
+        """Apply a pattern to archived content and return its match count."""
+        return substitute_file(self, path, regexp, subst)
 
     def tar_subdirs(self, paths):
         """Replace one or more collected directories with a single tarball.
@@ -644,7 +622,12 @@ class FileCacheArchive(Archive):
                     os.unlink(tarpath)
         return packed
 
+    def check_substitutions(self):
+        if self._failed_substitution:
+            raise OSError("Archive contains a file that could not be redacted")
+
     def finalize(self, method):
+        self.check_substitutions()
         self.log_info(f"finalizing archive '{self._archive_root}' using method"
                       f" '{method}'")
         try:
