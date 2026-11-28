@@ -277,13 +277,19 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         write this value (``str`` is encoded as UTF-8, ``bytes`` is sent
         as-is). If ``None``, the child inherits the parent's stdin.
     """
+
+    # Track whether we're using runuser/su (which handles user switching)
+    # or preexec_fn (for backward compatibility when runuser/su not available)
+    use_preexec_for_runas = False
+    pwd_user = None
+
     # Change root or cwd for child only. Exceptions in the prexec_fn
     # closure are caught in the parent (chroot and chdir are bound from
     # the enclosing scope).
     def _child_prep_fn():
         if chroot and chroot != '/':
             os.chroot(chroot)
-        if runas:
+        if use_preexec_for_runas:
             # re-use pwd_user from the outer scope to avoid redundant lookups
             os.initgroups(runas, pwd_user.pw_gid)
             os.setgid(pwd_user.pw_gid)
@@ -293,7 +299,7 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         # no explicit chdir was provided.
         if chdir:
             os.chdir(chdir)
-        elif runas:
+        elif use_preexec_for_runas:
             os.chdir(pwd_user.pw_dir)
 
     def _check_poller(proc):
@@ -337,22 +343,91 @@ def sos_get_command_output(command, timeout=TIMEOUT_DEFAULT, stderr=False,
         except KeyError:  # no such user
             return {'status': 127, 'output': "", 'truncated': ''}
 
-        # handle env=None case to prevent AttributeError on None.update()
-        if env is None:
-            env = {}
+        # Check if the user has a nologin shell
+        user_shell = pwd_user.pw_shell
+        has_nologin_shell = (not user_shell or
+                             user_shell.endswith('/nologin') or
+                             user_shell.endswith('/false'))
 
-        env.update({
-            'HOME': pwd_user.pw_dir,
-            'LOGNAME': runas,
-            'PWD': pwd_user.pw_dir,
-            'USER': runas,
-            # XDG_RUNTIME_DIR is required for rootless podman to access
-            # user-specific runtime files and sockets
-            'XDG_RUNTIME_DIR': f"/run/user/{pwd_user.pw_uid}",
-            # DBUS_SESSION_BUS_ADDRESS is required for rootless podman
-            'DBUS_SESSION_BUS_ADDRESS':
-                f"unix:path=/run/user/{pwd_user.pw_uid}/bus"
-        })
+        # Use 'runuser' or 'su' to run command as user with login environment
+        # This properly loads the user's profile (.bashrc, .bash_profile, etc.)
+        # which sets PATH, PYTHONPATH, and other environment variables
+        #
+        # For users with nologin shells, we skip the login shell (-l flag)
+        # and use preexec_fn instead to switch user context
+
+        if not has_nologin_shell and (is_executable("runuser") or
+                                      is_executable("su")):
+            # Prefer 'runuser' if available (doesn't require password, designed
+            # for root use). Fall back to 'su' if runuser is not available
+            use_tool = "runuser" if is_executable("runuser") else "su"
+
+            # Build the command to execute
+            # Use 'exec' to replace the shell process with the actual command,
+            # preventing shell expansion of arguments (command injection)
+            # The original command is already a string, we need to pass it
+            # to exec properly
+
+            # First, we need to build the actual command array that will be
+            # executed. We'll use the shell to set up environment and then exec
+            # Format: tool -l user -c 'exec "$@"' -- shell-name arg1 arg2 ...
+
+            # Split the original command to get individual arguments
+            cmd_args = shlex.split(command)
+
+            # Build environment variable assignments for the shell command
+            env_prefix = ""
+            if env:
+                # Add environment variables as VAR=value prefixes
+                env_assignments = []
+                for key, value in env.items():
+                    if value:
+                        # Properly quote the value to prevent injection
+                        env_assignments.append(
+                            f"{key}={shlex.quote(str(value))}"
+                        )
+                if env_assignments:
+                    env_prefix = " ".join(env_assignments) + " "
+
+            # Use exec to replace the shell with the actual command
+            # This prevents shell expansion of the command arguments
+            # Format: env VAR=val exec cmd arg1 arg2 ...
+            exec_command = f"{env_prefix}exec \"$@\""
+
+            # Build the full command with proper quoting
+            # The -- separates su/runuser options from the shell arguments
+            # After --, we pass: shell-name (dummy, unused) followed by actual
+            #           args
+            quoted_args = " ".join(shlex.quote(arg) for arg in cmd_args)
+            command = (f"{use_tool} -l {shlex.quote(runas)} "
+                       f"-c {shlex.quote(exec_command)} -- sh {quoted_args}")
+
+            # runuser/su handles user switching, so don't use preexec_fn for
+            # that
+            use_preexec_for_runas = False
+            # Clear env since we've incorporated it into the command
+            env = None
+        else:
+            # User has nologin shell or runuser/su not available
+            # Fall back to preexec_fn behavior (no profile loading)
+            use_preexec_for_runas = True
+
+            # handle env=None case to prevent AttributeError on None.update()
+            if env is None:
+                env = {}
+
+            env.update({
+                'HOME': pwd_user.pw_dir,
+                'LOGNAME': runas,
+                'PWD': pwd_user.pw_dir,
+                'USER': runas,
+                # XDG_RUNTIME_DIR is required for rootless podman to access
+                # user-specific runtime files and sockets
+                'XDG_RUNTIME_DIR': f"/run/user/{pwd_user.pw_uid}",
+                # DBUS_SESSION_BUS_ADDRESS is required for rootless podman
+                'DBUS_SESSION_BUS_ADDRESS':
+                    f"unix:path=/run/user/{pwd_user.pw_uid}/bus"
+            })
 
     cmd_env = os.environ.copy()
     # ensure consistent locale for collected command output
