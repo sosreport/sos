@@ -33,17 +33,17 @@ jobs:
       image: ${{ inputs.distro_image }}
 
     steps:
+      - name: Install dependencies
+        run: |
+          dnf clean all
+          dnf -y install rpm-build rpmdevtools gettext python3-devel python3-pexpect python3-pyyaml python3-setuptools tar
+          dnf -y install python3-wheel || true
+          dnf5 -y install 'dnf5-command(builddep)' || true
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref }}
-
-      - name: Install dependencies
-        run: |
-          dnf clean all
-          dnf -y install rpm-build rpmdevtools gettext python3-devel python3-pexpect python3-pyyaml python3-setuptools
-          dnf -y install python3-wheel || true
-          dnf5 -y install 'dnf5-command(builddep)' || true
 
       - name: Set Version Suffix
         if: ${{ inputs.version_suffix != '' }}
